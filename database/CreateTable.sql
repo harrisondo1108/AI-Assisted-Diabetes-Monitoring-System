@@ -1,10 +1,9 @@
-﻿-- DROP trước
-IF DB_ID('Diabetes') IS NOT NULL
-    DROP DATABASE Diabetes;
-GO
-
-CREATE DATABASE Diabetes;
-GO
+﻿--DROP trước
+--IF DB_ID('Diabetes') IS NOT NULL
+--   DROP DATABASE Diabetes;
+--GO
+--CREATE DATABASE Diabetes;
+--GO
 
 USE Diabetes;
 GO
@@ -21,11 +20,11 @@ CREATE TABLE [Role] (
 );
 
 -- 2. User
-CREATE TABLE [User] (
+CREATE TABLE [Account] (
     UserID VARCHAR(50) PRIMARY KEY,
     PhoneNumber NVARCHAR(50) NOT NULL UNIQUE, -- accountName
     PasswordHash VARCHAR(255) NOT NULL, -- password
-    RoleID VARCHAR(50) NOT NULL,
+    RoleID VARCHAR(50),
     FOREIGN KEY (RoleID) REFERENCES Role(RoleID) ON DELETE SET NULL ON UPDATE CASCADE
 	-- "ON DELETE SET NULL": nếu ta xóa 1 dòng A bên bảng Role thì thuộc tính FK RoleID của các dòng ở bảng User
 	--                       tham chiếu đến dòng A sẽ được sửa thành null
@@ -42,7 +41,8 @@ CREATE TABLE [Profile] (
     Dob DATE,
     Gender BIT, -- 0 -> male; 1 -> female
 	[RoomID] INT NULL,
-    FOREIGN KEY (UserID) REFERENCES [User](UserID) ON DELETE CASCADE  ON UPDATE CASCADE,
+	Specialty NVARCHAR(60),
+    FOREIGN KEY (UserID) REFERENCES [Account](UserID) ON DELETE CASCADE  ON UPDATE CASCADE,
 	FOREIGN KEY ([RoomID]) REFERENCES [Room]([RoomID]) ON DELETE SET NULL ON UPDATE CASCADE
 );
 
@@ -61,7 +61,7 @@ CREATE TABLE [Patient] (
     AllergyNotes NVARCHAR(MAX),
     SupervisorName NVARCHAR(90),
     SupervisorPhone VARCHAR(15),
-    FOREIGN KEY (UserID) REFERENCES [User](UserID) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (UserID) REFERENCES [Account](UserID) ON DELETE CASCADE ON UPDATE CASCADE,
     CHECK (Bloodgroup IN ('A+','A-','B+','B-','AB+','AB-','O+','O-'))
 );
 
@@ -77,7 +77,7 @@ CREATE TABLE [ClinicalExamination] (
     PatientID VARCHAR(50) NOT NULL,
     DoctorID VARCHAR(50) NOT NULL,
     FOREIGN KEY (PatientID) REFERENCES Patient(UserID) ON UPDATE CASCADE,
-    FOREIGN KEY (DoctorID) REFERENCES [User](UserID)
+    FOREIGN KEY (DoctorID) REFERENCES [Account](UserID)
 );
 
 -- 6. Symptoms Catalog
@@ -172,7 +172,7 @@ CREATE TABLE [AI_Conversation] (
     AIConversationID VARCHAR(50) PRIMARY KEY,
     CreatedAt DATETIME DEFAULT GETDATE(),
     PatientID VARCHAR(50),
-    AIAssistantID VARCHAR(50),
+    AIAssistantID INT,
     Topic NVARCHAR(150),
     FOREIGN KEY (PatientID) REFERENCES Patient(UserID) ON DELETE CASCADE,
     FOREIGN KEY (AIAssistantID) REFERENCES AI_Assistant(AIAssistantID) ON DELETE CASCADE
@@ -195,7 +195,7 @@ CREATE TABLE [AI_Reminder] (
     Message NVARCHAR(MAX),
     ScheduledTime DATETIME,
     IsRead BIT DEFAULT 0,
-	AIAssistantID VARCHAR(50),
+	AIAssistantID INT,
     PatientID VARCHAR(50),
     FOREIGN KEY (PatientID) REFERENCES Patient(UserID) ON DELETE CASCADE,
 	FOREIGN KEY (AIAssistantID) REFERENCES AI_Assistant(AIAssistantID) ON DELETE CASCADE

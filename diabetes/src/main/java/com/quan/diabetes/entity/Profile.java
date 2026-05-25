@@ -42,6 +42,9 @@ public class Profile {
     @JoinColumn(name = "RoomID")
     private Room room;
 
+    @Column(name = "Specialty", length = 50, columnDefinition = "NVARCHAR(50)")
+    private String specialty;
+
     public Profile() {
     }
 
@@ -107,6 +110,14 @@ public class Profile {
 
     public void setRoom(Room room) {
         this.room = room;
+    }
+
+    public String getSpecialty() {
+        return specialty;
+    }
+
+    public void setSpecialty(String specialty) {
+        this.specialty = specialty;
     }
 }
 

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng nhập - Diabetes Care System</title>
-    <link rel="stylesheet" href="/static/css/pages/auth.css">
+    <link rel="stylesheet" th:href="@{/css/pages/auth.css}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -37,15 +37,15 @@
             <div class="login-form">
                 <h2>Đăng nhập</h2>
                 <div id="errorMsg" class="error-message" style="display: none;"></div>
-                <form id="loginForm">
+                <form id="loginForm" th:action="@{/login}" th:method="post">
                     <div class="input-group">
                         <label for="phoneNumber">Số điện thoại</label>
-                        <input type="tel" id="phoneNumber" placeholder="0912 345 678" required>
+                        <input type="tel" id="phoneNumber" name="username" placeholder="0912 345 678" required>
                         <i class="fas fa-phone input-icon"></i>
                     </div>
                     <div class="input-group">
                         <label for="password">Mật khẩu</label>
-                        <input type="password" id="password" placeholder="••••••••" required>
+                        <input type="password" id="password" name="password" placeholder="••••••••" required>
                         <i class="fas fa-lock input-icon"></i>
                     </div>
                     <button type="submit" class="btn-primary">
