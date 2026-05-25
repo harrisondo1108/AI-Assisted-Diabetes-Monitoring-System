@@ -43,6 +43,7 @@ public class UserServiceImpl implements UserService {
         if (!userRepository.existsById(id)) {
             throw new EntityNotFoundException("User not found with id: " + id);
         }
+
         return userRepository.save(entity);
     }
 
@@ -51,11 +52,17 @@ public class UserServiceImpl implements UserService {
         if (!userRepository.existsById(id)) {
             throw new EntityNotFoundException("User not found with id: " + id);
         }
+
         userRepository.deleteById(id);
     }
 
     @Override
     public boolean existsById(String id) {
         return userRepository.existsById(id);
+    }
+
+    @Override
+    public Optional<User> findByPhoneNumber(String phoneNumber) {
+        return userRepository.findByPhoneNumber(phoneNumber);
     }
 }
