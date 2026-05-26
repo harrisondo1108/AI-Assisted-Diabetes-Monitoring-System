@@ -40,7 +40,7 @@ public class MedicationServiceImpl implements MedicationService {
                         maxNumber = number;
                     }
                 } catch (NumberFormatException e) {
-                    // Bỏ qua nếu không phải số
+
                 }
             }
         }
