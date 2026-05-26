@@ -1,9 +1,9 @@
-﻿--DROP trước
---IF DB_ID('Diabetes') IS NOT NULL
---   DROP DATABASE Diabetes;
---GO
---CREATE DATABASE Diabetes;
---GO
+
+IF DB_ID('Diabetes') IS NOT NULL
+   DROP DATABASE Diabetes;
+GO
+CREATE DATABASE Diabetes;
+GO
 
 USE Diabetes;
 GO
@@ -24,6 +24,7 @@ CREATE TABLE [Account] (
     UserID VARCHAR(50) PRIMARY KEY,
     PhoneNumber NVARCHAR(50) NOT NULL UNIQUE, -- accountName
     PasswordHash VARCHAR(255) NOT NULL, -- password
+	Status NVARCHAR(50) NOT NULL CHECK (Status IN ('Active', 'Locked')),
     RoleID VARCHAR(50),
     FOREIGN KEY (RoleID) REFERENCES Role(RoleID) ON DELETE SET NULL ON UPDATE CASCADE
 	-- "ON DELETE SET NULL": nếu ta xóa 1 dòng A bên bảng Role thì thuộc tính FK RoleID của các dòng ở bảng User
@@ -42,6 +43,7 @@ CREATE TABLE [Profile] (
     Gender BIT, -- 0 -> male; 1 -> female
 	[RoomID] INT NULL,
 	Specialty NVARCHAR(60),
+    Status NVARCHAR(60),
     FOREIGN KEY (UserID) REFERENCES [Account](UserID) ON DELETE CASCADE  ON UPDATE CASCADE,
 	FOREIGN KEY ([RoomID]) REFERENCES [Room]([RoomID]) ON DELETE SET NULL ON UPDATE CASCADE
 );

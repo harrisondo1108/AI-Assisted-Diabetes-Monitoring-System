@@ -1,15 +1,13 @@
 package com.quan.diabetes.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "Account")
 public class User {
+
+    public static final String STATUS_ACTIVE = "Active";
+    public static final String STATUS_LOCKED = "Locked";
 
     @Id
     @Column(name = "UserID", length = 50)
@@ -21,6 +19,9 @@ public class User {
     @Column(name = "PasswordHash", nullable = false, length = 255)
     private String passwordHash;
 
+    @Column(name = "Status", nullable = false, length = 50, columnDefinition = "NVARCHAR(50) CHECK (Status IN ('Active', 'Locked'))")
+    private String status;
+
     @ManyToOne
     @JoinColumn(name = "RoleID")
     private Role role;
@@ -28,10 +29,11 @@ public class User {
     public User() {
     }
 
-    public User(String userId, String phoneNumber, String passwordHash, Role role) {
+    public User(String userId, String phoneNumber, String passwordHash, String status, Role role) {
         this.userId = userId;
         this.phoneNumber = phoneNumber;
         this.passwordHash = passwordHash;
+        this.status = status;
         this.role = role;
     }
 
@@ -59,6 +61,14 @@ public class User {
         this.passwordHash = passwordHash;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public Role getRole() {
         return role;
     }
@@ -72,9 +82,8 @@ public class User {
         return "User{" +
                 "userId='" + userId + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
+                ", status='" + status + '\'' +
                 ", role=" + (role != null ? role.getRoleId() : null) +
                 '}';
     }
 }
-
-

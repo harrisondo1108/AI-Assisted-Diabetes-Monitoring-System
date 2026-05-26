@@ -1,0 +1,198 @@
+package com.quan.diabetes.service.impl;
+
+import com.quan.diabetes.dto.UserManagementDTO;
+import com.quan.diabetes.entity.Patient;
+import com.quan.diabetes.entity.Profile;
+import com.quan.diabetes.entity.Role;
+import com.quan.diabetes.entity.User;
+import com.quan.diabetes.repository.PatientRepository;
+import com.quan.diabetes.repository.ProfileRepository;
+import com.quan.diabetes.repository.RoleRepository;
+import com.quan.diabetes.repository.UserRepository;
+import com.quan.diabetes.service.AdminUserService;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * Service implementation for admin‑level user management.
+ * It aggregates data from multiple domain entities (User, Patient, Profile, Role)
+ * and exposes simple DTOs for the front‑end.
+ */
+@Service
+public class AdminUserServiceImpl implements AdminUserService {
+
+    private final UserRepository userRepository;
+    private final PatientRepository patientRepository;
+    private final ProfileRepository profileRepository;
+    private final RoleRepository roleRepository;
+
+    public AdminUserServiceImpl(UserRepository userRepository,
+                               PatientRepository patientRepository,
+                               ProfileRepository profileRepository,
+                               RoleRepository roleRepository) {
+        this.userRepository = userRepository;
+        this.patientRepository = patientRepository;
+        this.profileRepository = profileRepository;
+        this.roleRepository = roleRepository;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UserManagementDTO> getAllUserManagementDTOs() {
+        List<User> users = userRepository.findAll();
+        List<UserManagementDTO> dtos = new ArrayList<>();
+        for (User u : users) {
+            UserManagementDTO dto = new UserManagementDTO();
+            dto.setUserId(u.getUserId());
+            dto.setAccountPhone(u.getPhoneNumber());
+            dto.setStatus(u.getStatus());
+            if (u.getRole() != null) {
+                dto.setRole(u.getRole().getRoleName().toLowerCase());
+            }
+            // Populate patient‑specific fields
+            if (dto.getRole() != null && dto.getRole().contains("patient")) {
+                patientRepository.findById(u.getUserId()).ifPresent(p -> {
+                    dto.setFullName(p.getFullName());
+                    dto.setPhoneNumber(p.getPhoneNumber());
+                    dto.setAddress(p.getAddress());
+                    dto.setDob(p.getDob());
+                    dto.setGender(p.getGender());
+                    dto.setHeight(p.getHeight());
+                    dto.setWeight(p.getWeight());
+                    dto.setBloodgroup(p.getBloodgroup());
+                    dto.setPermanentMedicalHistory(p.getPermanentMedicalHistory());
+                    dto.setAllergyNotes(p.getAllergyNotes());
+                    dto.setSupervisorName(p.getSupervisorName());
+                    dto.setSupervisorPhone(p.getSupervisorPhone());
+                });
+            } else { // profile (doctor) fields
+                profileRepository.findById(u.getUserId()).ifPresent(p -> {
+                    dto.setFullName(p.getFullName());
+                    dto.setPhoneNumber(p.getPhoneNumber());
+                    dto.setAddress(p.getAddress());
+                    dto.setDob(p.getDob());
+                    dto.setGender(p.getGender());
+                    if (p.getRoom() != null) {
+                        dto.setRoomName(p.getRoom().getRoomName());
+                    }
+                    dto.setSpecialty(p.getSpecialty());
+                });
+            }
+            dtos.add(dto);
+        }
+        return dtos;
+    }
+
+    @Override
+    @Transactional
+    public UserManagementDTO createUserManagementDTO(UserManagementDTO dto) {
+        // 1. Create User entity
+        User user = new User();
+        user.setUserId(dto.getUserId() != null && !dto.getUserId().isEmpty() ? dto.getUserId() : "USR-" + System.currentTimeMillis());
+        user.setPhoneNumber(dto.getAccountPhone());
+        user.setPasswordHash(dto.getPassword());
+        user.setStatus(User.STATUS_ACTIVE);
+
+        // 2. Resolve (or create) Role entity
+        Role role = null;
+        if (dto.getRole() != null) {
+            String roleKey = dto.getRole().toLowerCase().contains("doctor") ? "doctor" : "patient";
+            role = roleRepository.findById(roleKey).orElseGet(() -> {
+                Role newRole = new Role(roleKey, dto.getRole());
+                return roleRepository.save(newRole);
+            });
+        }
+        user.setRole(role);
+        user = userRepository.save(user);
+
+        // 3. Persist Patient or Profile depending on role
+        if (dto.getRole() != null && dto.getRole().toLowerCase().contains("patient")) {
+            Patient p = new Patient();
+            p.setUserId(user.getUserId());
+            p.setUser(user);
+            p.setFullName(dto.getFullName() != null ? dto.getFullName() : "Unknown");
+            p.setPhoneNumber(dto.getPhoneNumber());
+            p.setAddress(dto.getAddress());
+            p.setDob(dto.getDob());
+            p.setGender(dto.getGender());
+            p.setWeight(dto.getWeight());
+            p.setBloodgroup(dto.getBloodgroup());
+            p.setPermanentMedicalHistory(dto.getPermanentMedicalHistory());
+            p.setAllergyNotes(dto.getAllergyNotes());
+            p.setSupervisorName(dto.getSupervisorName());
+            p.setSupervisorPhone(dto.getSupervisorPhone());
+            patientRepository.save(p);
+        } else {
+            Profile p = new Profile();
+            p.setUserId(user.getUserId());
+            p.setUser(user);
+            p.setFullName(dto.getFullName() != null ? dto.getFullName() : "Unknown");
+            p.setPhoneNumber(dto.getPhoneNumber());
+            p.setAddress(dto.getAddress());
+            p.setDob(dto.getDob());
+            p.setGender(dto.getGender());
+            p.setSpecialty(dto.getSpecialty());
+            profileRepository.save(p);
+        }
+        dto.setUserId(user.getUserId());
+        return dto;
+    }
+
+    @Override
+    @Transactional
+    public UserManagementDTO updateUserManagementDTO(String userId, UserManagementDTO dto) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
+        user.setPhoneNumber(dto.getAccountPhone());
+        if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
+            user.setPasswordHash(dto.getPassword());
+        }
+        userRepository.save(user);
+
+        if (dto.getRole() != null && dto.getRole().toLowerCase().contains("patient")) {
+            Patient p = patientRepository.findById(userId).orElse(new Patient());
+            p.setUserId(userId);
+            p.setUser(user);
+            p.setFullName(dto.getFullName() != null ? dto.getFullName() : p.getFullName());
+            p.setPhoneNumber(dto.getPhoneNumber());
+            p.setAddress(dto.getAddress());
+            p.setDob(dto.getDob());
+            p.setGender(dto.getGender());
+            p.setWeight(dto.getWeight());
+            p.setBloodgroup(dto.getBloodgroup());
+            p.setPermanentMedicalHistory(dto.getPermanentMedicalHistory());
+            p.setAllergyNotes(dto.getAllergyNotes());
+            p.setSupervisorName(dto.getSupervisorName());
+            p.setSupervisorPhone(dto.getSupervisorPhone());
+            patientRepository.save(p);
+        } else {
+            Profile p = profileRepository.findById(userId).orElse(new Profile());
+            p.setUserId(userId);
+            p.setUser(user);
+            p.setFullName(dto.getFullName() != null ? dto.getFullName() : p.getFullName());
+            p.setPhoneNumber(dto.getPhoneNumber());
+            p.setAddress(dto.getAddress());
+            p.setDob(dto.getDob());
+            p.setGender(dto.getGender());
+            p.setSpecialty(dto.getSpecialty());
+            profileRepository.save(p);
+        }
+        return dto;
+    }
+
+    @Override
+    @Transactional
+    public void toggleLock(String userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
+        if (User.STATUS_LOCKED.equals(user.getStatus())) {
+            user.setStatus(User.STATUS_ACTIVE);
+        } else {
+            user.setStatus(User.STATUS_LOCKED);
+        }
+        userRepository.save(user);
+    }
+}

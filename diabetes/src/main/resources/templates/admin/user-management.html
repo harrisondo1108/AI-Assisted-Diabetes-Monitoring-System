@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Admin | Diabetes Care System</title>
+    <link rel="stylesheet" th:href="@{/css.admin/admin-user-management.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<div class="admin-layout">
+    <!-- Sidebar -->
+    <div th:replace="~{layout/sidebar :: sidebar('users')}"></div>
+
+    <div class="admin-main">
+        <!-- Header -->
+        <div th:replace="~{layout/header :: header('User Management')}"></div>
+
+        <main class="admin-content">
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-users"></i></div>
+                    <div class="stat-label">Total Users</div>
+                    <div class="stat-value" id="statTotal">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-user-injured"></i></div>
+                    <div class="stat-label">Total Patients</div>
+                    <div class="stat-value" id="statPatients">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-user-md"></i></div>
+                    <div class="stat-label">Total Doctors</div>
+                    <div class="stat-value" id="statDoctors">0</div>
+                </div>
+            </div>
+
+            <div class="page-header">
+                <div class="header-buttons">
+                    <button type="button" class="btn btn-primary" id="btnAddUser"><i class="fas fa-plus"></i> Add New User</button>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-card">
+                <div class="table-toolbar">
+                    <div class="filter-tabs">
+                        <button type="button" class="filter-tab active" data-tab="all">All Users</button>
+                        <button type="button" class="filter-tab" data-tab="patient">Patients</button>
+                        <button type="button" class="filter-tab" data-tab="doctor">Doctor</button>
+                    </div>
+                    <div class="toolbar-search">
+                        <i class="fas fa-search"></i>
+                        <input type="search" id="globalSearch" placeholder="Search by name, phone or role..." aria-label="Search users">
+                    </div>
+                </div>
+
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th>User Info</th>
+                            <th>Role</th>
+                            <th>Gender</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="userTableBody">
+                        <!-- Rendered by JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-footer">
+                    <div class="pagination" id="pagination"></div>
+                </div>
+            </div>
+
+            <div th:replace="~{layout/footer :: footer}"></div>
+        </main>
+    </div>
+</div>
+
+<!-- Detail drawer -->
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<aside class="detail-drawer" id="detailDrawer" aria-label="User Details">
+    <div class="drawer-header">
+        <h2>User Profile Overview</h2>
+        <button type="button" class="drawer-close" id="btnCloseDrawer" aria-label="Close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="drawer-body">
+        <div class="drawer-profile">
+            <h3 id="drawerName">—</h3>
+            <p class="meta" id="drawerMeta">—</p>
+        </div>
+        
+        <div class="info-section">
+            <h4>Account Information</h4>
+            <div class="info-box">
+                <div class="info-row"><span class="label">User ID</span><span class="value" id="drawerUserId">—</span></div>
+                <div class="info-row"><span class="label">Login Phone</span><span class="value" id="drawerAccountPhone">—</span></div>
+                <div class="info-row"><span class="label">Status</span><span class="value" id="drawerStatus">—</span></div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h4>Personal Information</h4>
+            <div class="info-box">
+                <div class="info-row"><span class="label">Full Name</span><span class="value" id="drawerFullName">—</span></div>
+                <div class="info-row"><span class="label">Gender</span><span class="value" id="drawerGender">—</span></div>
+                <div class="info-row"><span class="label">Date of Birth</span><span class="value" id="drawerDob">—</span></div>
+                <div class="info-row"><span class="label">Contact Phone</span><span class="value" id="drawerContactPhone">—</span></div>
+                <div class="info-row"><span class="label">Address</span><span class="value" id="drawerAddress">—</span></div>
+            </div>
+        </div>
+
+        <div class="info-section doctor-only-section">
+            <h4>Clinical Placement</h4>
+            <div class="info-cards">
+                <div class="info-mini-card">
+                    <div class="label">Current Role</div>
+                    <div class="value" id="drawerRole">Doctor</div>
+                </div>
+                <div class="info-mini-card">
+                    <div class="label">Assigned Room</div>
+                    <div class="value" id="drawerRoom">—</div>
+                </div>
+            </div>
+            <div class="info-box" style="margin-top:10px">
+                <div class="info-row"><span class="label">Specialty</span><span class="value" id="drawerSpecialty">—</span></div>
+            </div>
+        </div>
+
+        <div class="info-section patient-only-section">
+            <h4>Patient Profile</h4>
+            <div class="info-cards">
+                <div class="info-mini-card">
+                    <div class="label">Height</div>
+                    <div class="value" id="drawerHeight">—</div>
+                </div>
+                <div class="info-mini-card">
+                    <div class="label">Weight</div>
+                    <div class="value" id="drawerWeight">—</div>
+                </div>
+            </div>
+            <div class="info-box" style="margin-top:10px">
+                <div class="info-row"><span class="label">Blood Group</span><span class="value" id="drawerBloodgroup">—</span></div>
+                <div class="info-row"><span class="label">Medical History</span><span class="value" id="drawerHistory">—</span></div>
+                <div class="info-row"><span class="label">Allergy Notes</span><span class="value" id="drawerAllergy">—</span></div>
+                <div class="info-row"><span class="label">Supervisor</span><span class="value" id="drawerSupervisor">—</span></div>
+                <div class="info-row"><span class="label">Supervisor Phone</span><span class="value" id="drawerSupervisorPhone">—</span></div>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<!-- Add / Edit modal -->
+<div class="modal-overlay" id="userModalOverlay">
+    <div class="modal" role="dialog" aria-labelledby="modalTitle">
+        <div class="modal-header">
+            <h2 id="modalTitle">Add New User</h2>
+            <button type="button" class="drawer-close" id="btnCloseModal" aria-label="Close"><i class="fas fa-times"></i></button>
+        </div>
+        <form id="userForm">
+            <div class="modal-body">
+
+                <div class="role-type-selector">
+                    <div class="role-type-option">
+                        <input type="radio" name="userRoleType" id="roleDoctor" value="doctor" checked>
+                        <label for="roleDoctor">
+                            <i class="fas fa-user-md"></i>
+                            <span>Doctor</span>
+                        </label>
+                    </div>
+                    <div class="role-type-option">
+                        <input type="radio" name="userRoleType" id="rolePatient" value="patient">
+                        <label for="rolePatient">
+                            <i class="fas fa-user-injured"></i>
+                            <span>Patient</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-section-title">Account Information</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>User ID</label>
+                        <input type="text" id="formUserId" name="userId" placeholder="Please enter User ID (Auto if empty)" maxlength="50">
+                    </div>
+                    <div class="form-group">
+                        <label>Login Phone <span class="required">*</span></label>
+                        <input type="tel" id="formAccountPhone" name="accountPhone" required maxlength="50" placeholder="Please enter login phone">
+                    </div>
+                    <div class="form-group" id="passwordGroup">
+                        <label>Password <span class="required">*</span></label>
+                        <input type="password" id="formPassword" name="password" placeholder="Please enter password">
+                    </div>
+                </div>
+
+                <!-- Doctor Profile -->
+                <div id="doctorFields" class="role-fields visible">
+                    <div class="form-section-title">Doctor Profile</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Full Name <span class="required">*</span></label>
+                            <input type="text" id="formFullName" name="fullName" maxlength="60" placeholder="Please enter full name">
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Phone</label>
+                            <input type="tel" id="formContactPhone" name="contactPhone" maxlength="15" placeholder="Please enter contact phone">
+                        </div>
+                        <div class="form-group">
+                            <label>Date of Birth</label>
+                            <input type="date" id="formDob" name="dob" placeholder="Please enter date of birth">
+                        </div>
+                        <div class="form-group">
+                            <label>Gender</label>
+                            <select id="formGender" name="gender">
+                                <option value="0">Male</option>
+                                <option value="1">Female</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Address</label>
+                            <input type="text" id="formAddress" name="address" maxlength="200" placeholder="Please enter address">
+                        </div>
+                        <div class="form-group">
+                            <label>Specialty</label>
+                            <input type="text" id="formSpecialty" name="specialty" maxlength="60" placeholder="Please enter specialty">
+                        </div>
+                        <div class="form-group">
+                            <label>Room</label>
+                            <select id="formRoom" name="roomId">
+                                <option value="">— Please select room —</option>
+                                <option value="Room A">Room A</option>
+                                <option value="Room B">Room B</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Patient Profile -->
+                <div id="patientFields" class="role-fields">
+                    <div class="form-section-title">Patient Profile</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Full Name <span class="required">*</span></label>
+                            <input type="text" id="formPatFullName" name="patFullName" maxlength="60" placeholder="Please enter full name">
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Phone</label>
+                            <input type="tel" id="formPatPhone" name="patPhone" maxlength="15" placeholder="Please enter contact phone">
+                        </div>
+                        <div class="form-group">
+                            <label>Date of Birth</label>
+                            <input type="date" id="formPatDob" name="patDob" placeholder="Please enter date of birth">
+                        </div>
+                        <div class="form-group">
+                            <label>Gender</label>
+                            <select id="formPatGender" name="patGender">
+                                <option value="0">Male</option>
+                                <option value="1">Female</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Address</label>
+                            <input type="text" id="formPatAddress" name="patAddress" maxlength="200" placeholder="Please enter address">
+                        </div>
+                        <div class="form-group">
+                            <label>Height (cm)</label>
+                            <input type="number" id="formHeight" name="height" min="0" max="300" placeholder="Please enter height">
+                        </div>
+                        <div class="form-group">
+                            <label>Weight (kg)</label>
+                            <input type="number" id="formWeight" name="weight" min="0" step="0.1" placeholder="Please enter weight">
+                        </div>
+                        <div class="form-group">
+                            <label>Blood Group</label>
+                            <select id="formBloodgroup" name="bloodgroup">
+                                <option value="">— Please select —</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Supervisor Name</label>
+                            <input type="text" id="formSupervisorName" name="supervisorName" maxlength="90" placeholder="Please enter supervisor name">
+                        </div>
+                        <div class="form-group">
+                            <label>Supervisor Phone</label>
+                            <input type="tel" id="formSupervisorPhone" name="supervisorPhone" maxlength="15" placeholder="Please enter supervisor phone">
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Medical History</label>
+                            <textarea id="formHistory" name="permanentMedicalHistory" rows="3" placeholder="Please enter medical history"></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Allergy Notes</label>
+                            <textarea id="formAllergy" name="allergyNotes" rows="3" placeholder="Please enter allergy notes"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" id="btnCancelModal">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save User</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script th:src="@{/js.admin/admin-user-management.js}"></script>
+</body>
+</html>

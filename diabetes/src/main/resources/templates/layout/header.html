@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<header class="admin-header" th:fragment="header(pageTitle)">
+    <h1 class="header-page-title" th:text="${pageTitle}">Admin Page</h1>
+    <div class="header-actions">
+        <button type="button" class="icon-btn" title="Thông báo"><i class="fas fa-bell"></i></button>
+        <button type="button" class="icon-btn" title="Trợ giúp"><i class="fas fa-circle-question"></i></button>
+        <div class="admin-profile">
+            <div class="admin-avatar-icon" aria-hidden="true"><i class="fas fa-user-shield"></i></div>
+            <span class="admin-profile-label">Administrator</span>
+        </div>
+    </div>
+</header>
+</body>
+</html>
