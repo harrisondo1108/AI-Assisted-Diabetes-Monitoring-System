@@ -8,6 +8,6 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     if (!phoneNumber || !password) {
         e.preventDefault();
         errorDiv.style.display = 'block';
-        errorDiv.textContent = 'Vui lòng nhập số điện thoại và mật khẩu!';
+        errorDiv.textContent = 'Please enter your phone number and password!';
     }
 });

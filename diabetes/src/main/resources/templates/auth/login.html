@@ -36,10 +36,13 @@
             <div class="login-form">
                 <h2>Login</h2>
                 <div id="errorMsg" class="error-message"
-                     th:classappend="${errorMsg != null} ? '' : ' hidden'"
-                     th:text="${errorMsg}" style="display: none;"></div>
+                     th:classappend="${errorMsg != null} ? '' : ''"
+                     th:text="${errorMsg}" >
+                </div>
                 <div id="successMsg" class="success-message"
-                     th:if="${successMsg}" th:text="${successMsg}"></div>
+                     th:if="${successMsg}" th:text="${successMsg}">
+
+                </div>
 
                 <form id="loginForm" th:action="@{/login}" method="post">
                     <div class="input-group">

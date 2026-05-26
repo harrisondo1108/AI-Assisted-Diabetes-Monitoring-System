@@ -8,6 +8,7 @@ import com.quan.diabetes.service.PatientService;
 import com.quan.diabetes.service.ProfileService;
 import com.quan.diabetes.service.RoleService;
 import com.quan.diabetes.service.UserService;
+import com.quan.diabetes.util.ParseUtil;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -42,13 +43,14 @@ public class AuthenticationController {
     // ==================== GET ====================
 
     @GetMapping("/login")
+    // required = false; có nghĩa là không bắt buộc . Nếu trên URL
     public String loginPage(@RequestParam(required = false) String resetSuccess,
                             @RequestParam(required = false) String registerSuccess,
                             Model model) {
         if ("true".equals(resetSuccess)) {
-            model.addAttribute("successMsg", "Đặt lại mật khẩu thành công! Vui lòng đăng nhập.");
+            model.addAttribute("successMsg", "Password reset successful! Please log in.");
         } else if ("true".equals(registerSuccess)) {
-            model.addAttribute("successMsg", "Đăng ký thành công! Vui lòng đăng nhập.");
+            model.addAttribute("successMsg", "Registration successful! Please log in.");
         }
         return "auth/login";
     }
@@ -68,7 +70,7 @@ public class AuthenticationController {
         Optional<User> userOptional = userService.findByUsernameAndPassword(phoneNumber, password);
 
         if (userOptional.isEmpty()) {
-            model.addAttribute("errorMsg", "Tài khoản hoặc mật khẩu không chính xác");
+            model.addAttribute("errorMsg", "Incorrect account or password");
             return "auth/login";
         }
 
@@ -93,22 +95,22 @@ public class AuthenticationController {
                            @RequestParam(required = false) String licenseNumber,
                            Model model) {
 
-        if (isBlank(roleId) || isBlank(fullName) || isBlank(phoneNumber) || isBlank(password)) {
-            model.addAttribute("errorMsg", "Vui lòng nhập đầy đủ thông tin bắt buộc");
+        if (ParseUtil.isBlank(roleId) || ParseUtil.isBlank(fullName) || ParseUtil.isBlank(phoneNumber) || ParseUtil.isBlank(password)) {
+            model.addAttribute("errorMsg", "Please enter all required information.");
             return "auth/register";
         }
 
         if (userService.findByPhoneNumber(phoneNumber).isPresent()) {
-            model.addAttribute("errorMsg", "Số điện thoại đã tồn tại trong hệ thống");
+            model.addAttribute("errorMsg", "The phone number already exists in the system.");
             return "auth/register";
         }
 
         Role role = roleService.findById(roleId).orElse(null);
         if (role == null) {
-            model.addAttribute("errorMsg", "Vai trò không tồn tại");
+            model.addAttribute("errorMsg", "The role does not exist.");
             return "auth/register";
         }
-        String userId = getNewID(roleId);
+        String userId = userService.getNewID(roleId);
 
         User user = new User();
         user.setUserId(userId);
@@ -122,14 +124,14 @@ public class AuthenticationController {
             patient.setUser(user);
             patient.setFullName(fullName);
             patient.setPhoneNumber(phoneNumber);
-            patient.setDob(parseDate(dob));
-            patient.setGender(parseGender(gender));
-            patient.setBloodgroup(parseString(bloodGroup));
-            patient.setHeight(parseInteger(height));
-            patient.setWeight(parseBigDecimal(weight));
-            patient.setAddress(parseString(address));
-            patient.setPermanentMedicalHistory(parseString(medicalHistory));
-            patient.setAllergyNotes(parseString(allergyNotes));
+            patient.setDob(ParseUtil.parseDate(dob));
+            patient.setGender(ParseUtil.parseGender(gender));
+            patient.setBloodgroup(ParseUtil.parseString(bloodGroup));
+            patient.setHeight(ParseUtil.parseInteger(height));
+            patient.setWeight(ParseUtil.parseBigDecimal(weight));
+            patient.setAddress(ParseUtil.parseString(address));
+            patient.setPermanentMedicalHistory(ParseUtil.parseString(medicalHistory));
+            patient.setAllergyNotes(ParseUtil.parseString(allergyNotes));
             patientService.create(patient);
         } else {
             Profile profile = new Profile();
@@ -143,42 +145,5 @@ public class AuthenticationController {
         return "redirect:/login?registerSuccess=true";
     }
 
-    // ==================== Helpers ====================
 
-    private String getNewID(String roleId) {
-        String userId = null;
-        switch (roleId){
-            case "PAT":{
-                    do{
-                        String number = "00000" + new Random().nextInt(1000000);
-                        userId = "P" + number.substring(number.length() - 6);
-                    }while(userService.existsById(userId));
-            }
-        }
-        return userId;
-    }
-
-    private boolean isBlank(String value) {
-        return value == null || value.trim().isEmpty();
-    }
-
-    private LocalDate parseDate(String value) {
-        return isBlank(value) ? null : LocalDate.parse(value);
-    }
-
-    private Boolean parseGender(String value) {
-        return isBlank(value) ? null : "1".equals(value);
-    }
-
-    private String parseString(String value){
-        return isBlank(value) ? null : value.trim();
-    }
-
-    private Integer parseInteger(String value) {
-        return isBlank(value) ? null : Integer.parseInt(value);
-    }
-
-    private BigDecimal parseBigDecimal(String value) {
-        return isBlank(value) ? null : new BigDecimal(value);
-    }
 }

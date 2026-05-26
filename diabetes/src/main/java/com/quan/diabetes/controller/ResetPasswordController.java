@@ -54,7 +54,7 @@ public class ResetPasswordController {
         User user = userService.findByPhoneNumber(phoneNumber).orElse(null);
 
         if (user == null) {
-            model.addAttribute("errorMsg", "Số điện thoại không tồn tại trong hệ thống");
+            model.addAttribute("errorMsg", "The phone number does not exist in the system.");
             return "auth/forgot-phone";
         }
 
@@ -82,12 +82,12 @@ public class ResetPasswordController {
         }
 
         if (LocalDateTime.now().isAfter(expiredAt)) {
-            model.addAttribute("errorMsg", "Mã OTP đã hết hạn");
+            model.addAttribute("errorMsg", "The OTP code has expired.");
             return "auth/forgot-otp";
         }
 
         if (!sessionOtp.equals(otp)) {
-            model.addAttribute("errorMsg", "Mã OTP không chính xác");
+            model.addAttribute("errorMsg", "Incorrect OTP code");
             return "auth/forgot-otp";
         }
 
@@ -106,14 +106,14 @@ public class ResetPasswordController {
         }
 
         if (!newPassword.equals(confirmPassword)) {
-            model.addAttribute("errorMsg", "Mật khẩu xác nhận không khớp");
+            model.addAttribute("errorMsg", "The verification password does not match.");
             return "auth/reset_pass";
         }
 
         String phoneNumber = (String) session.getAttribute("resetPhoneNumber");
         User user = userService.findByPhoneNumber(phoneNumber).orElse(null);
         if (user == null) {
-            model.addAttribute("errorMsg", "Không tìm thấy tài khoản");
+            model.addAttribute("errorMsg", "Account not found");
             return "auth/reset_pass";
         }
 
