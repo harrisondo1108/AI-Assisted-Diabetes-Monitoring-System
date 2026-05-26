@@ -44,7 +44,7 @@ public class MedicationController {
         }
     }
 
-    // Lấy chi tiết 1 thuốc (CHO VIEW DETAIL)
+    // Lấy chi tiết 1 thuốc 
     @GetMapping("/api/{id}")
     @ResponseBody
     public ResponseEntity<?> getMedicationById(@PathVariable String id) {
