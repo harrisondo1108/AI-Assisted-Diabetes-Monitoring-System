@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 
 @Controller
@@ -107,9 +108,10 @@ public class AuthenticationController {
             model.addAttribute("errorMsg", "Vai trò không tồn tại");
             return "auth/register";
         }
+        String userId = getNewID(roleId);
 
         User user = new User();
-        user.setUserId(UUID.randomUUID().toString());
+        user.setUserId(userId);
         user.setPhoneNumber(phoneNumber);
         user.setPasswordHash(password);
         user.setRole(role);
@@ -122,12 +124,12 @@ public class AuthenticationController {
             patient.setPhoneNumber(phoneNumber);
             patient.setDob(parseDate(dob));
             patient.setGender(parseGender(gender));
-            patient.setBloodgroup(bloodGroup);
+            patient.setBloodgroup(parseString(bloodGroup));
             patient.setHeight(parseInteger(height));
             patient.setWeight(parseBigDecimal(weight));
-            patient.setAddress(address);
-            patient.setPermanentMedicalHistory(medicalHistory);
-            patient.setAllergyNotes(allergyNotes);
+            patient.setAddress(parseString(address));
+            patient.setPermanentMedicalHistory(parseString(medicalHistory));
+            patient.setAllergyNotes(parseString(allergyNotes));
             patientService.create(patient);
         } else {
             Profile profile = new Profile();
@@ -143,6 +145,19 @@ public class AuthenticationController {
 
     // ==================== Helpers ====================
 
+    private String getNewID(String roleId) {
+        String userId = null;
+        switch (roleId){
+            case "PAT":{
+                    do{
+                        String number = "00000" + new Random().nextInt(1000000);
+                        userId = "P" + number.substring(number.length() - 6);
+                    }while(userService.existsById(userId));
+            }
+        }
+        return userId;
+    }
+
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
     }
@@ -155,8 +170,12 @@ public class AuthenticationController {
         return isBlank(value) ? null : "1".equals(value);
     }
 
-    private int parseInteger(String value) {
-        return isBlank(value) ? 0 : Integer.parseInt(value);
+    private String parseString(String value){
+        return isBlank(value) ? null : value.trim();
+    }
+
+    private Integer parseInteger(String value) {
+        return isBlank(value) ? null : Integer.parseInt(value);
     }
 
     private BigDecimal parseBigDecimal(String value) {

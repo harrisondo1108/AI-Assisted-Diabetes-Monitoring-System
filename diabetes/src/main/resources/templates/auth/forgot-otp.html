@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Xác thực OTP - Diabetes Care System</title>
+    <title>OTP Verification - Diabetes Care System</title>
     <link rel="stylesheet" th:href="@{/css/pages/auth.css}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -16,31 +16,30 @@
                 <i class="fas fa-droplet"></i>
                 <span>Diabetes Care System</span>
             </div>
-            <h1>Xác nhận danh tính</h1>
-            <p class="subtitle">Mã xác thực duy nhất đã được gửi để đảm bảo rằng bạn chính là người yêu cầu khôi phục mật khẩu.</p>
+            <h1>Verify Your Identity</h1>
+            <p class="subtitle">A unique verification code has been sent to ensure that you are the one requesting password recovery.</p>
 
             <div class="feature-card">
-                <h3><i class="fas fa-info-circle"></i> Trợ giúp</h3>
+                <h3><i class="fas fa-info-circle"></i> Help</h3>
                 <ul>
-                    <li><i class="fas fa-clock"></i> Mã OTP có hiệu lực trong 5 phút</li>
-                    <li><i class="fas fa-comment-sms"></i> Kiểm tra tin nhắn SMS của bạn</li>
-                    <li><i class="fas fa-headset"></i> Liên hệ tổng đài nếu không nhận được mã</li>
+                    <li><i class="fas fa-clock"></i> OTP code is valid for 5 minutes</li>
+                    <li><i class="fas fa-comment-sms"></i> Check your SMS text messages</li>
+                    <li><i class="fas fa-headset"></i> Contact support if you do not receive the code</li>
                 </ul>
             </div>
         </div>
 
         <div class="right-panel">
             <div class="login-form">
-                <h2>Nhập mã OTP</h2>
+                <h2>Enter OTP Code</h2>
                 <div id="errorMsg" class="error-message" style="display: none;"></div>
 
                 <form id="verifyOtpForm" th:action="@{/forgot-password/verify-otp}" method="post">
                     <p style="text-align: center; color: #64748b; margin-bottom: 25px; font-size: 14px;">
-                        Mã xác thực gồm 6 chữ số đã được gửi đến số điện thoại<br>
+                        A 6-digit verification code has been sent to the phone number<br>
                         <strong style="color: #0f172a; font-size: 16px; display: inline-block; margin-top: 5px;">**** *** ***</strong>
                     </p>
 
-                    <!-- 6 ô nhập OTP (chỉ UI) - JS sẽ gom vào hidden input bên dưới -->
                     <div class="otp-container">
                         <input type="text" maxlength="1" class="otp-input" pattern="[0-9]" required autofocus>
                         <input type="text" maxlength="1" class="otp-input" pattern="[0-9]" required>
@@ -49,29 +48,28 @@
                         <input type="text" maxlength="1" class="otp-input" pattern="[0-9]" required>
                         <input type="text" maxlength="1" class="otp-input" pattern="[0-9]" required>
                     </div>
-                    <!-- Hidden input chứa giá trị OTP đã gom, gửi lên server -->
                     <input type="hidden" id="otpValue" name="otp">
 
                     <div class="resend-wrapper">
-                        <span id="countdown">Gửi lại sau 59s</span>
-                        <a href="#" id="resendBtn" style="display: none;">Gửi lại mã OTP</a>
+                        <span id="countdown">Resend in 59s</span>
+                        <a href="#" id="resendBtn" style="display: none;">Resend OTP</a>
                     </div>
 
                     <button type="submit" class="btn-primary" style="margin-top: 15px;">
-                        Xác nhận <i class="fas fa-check" style="margin-left: 8px;"></i>
+                        Confirm <i class="fas fa-check" style="margin-left: 8px;"></i>
                     </button>
                 </form>
 
                 <p class="login-link">
-                    <a th:href="@{/login}"><i class="fas fa-arrow-left"></i> Quay lại đăng nhập</a>
+                    <a th:href="@{/login}"><i class="fas fa-arrow-left"></i> Back to login</a>
                 </p>
             </div>
             <footer>
-                <p>© 2024 Diabetes Care System - Giải pháp quản lý bệnh tiểu đường</p>
+                <p>© 2024 Diabetes Care System - Diabetes Management Solution</p>
                 <div class="footer-links">
-                    <a href="#">Chính sách bảo mật</a> |
-                    <a href="#">Điều khoản sử dụng</a> |
-                    <a href="#">Hỗ trợ</a>
+                    <a href="#">Privacy Policy</a> |
+                    <a href="#">Terms of Service</a> |
+                    <a href="#">Support</a>
                 </div>
             </footer>
         </div>
