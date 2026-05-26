@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicine Directory - Admin | Diabetes Care System</title>
+    <!-- Thymeleaf natural templating links -->
+    <link rel="stylesheet" th:href="@{/css/pages/medicine_management.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="sidebar-brand">
+            <div class="brand-name">Diabetes Care</div>
+            <div class="brand-sub">Admin Console</div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item"><i class="fas fa-chart-line"></i> Dashboard</a>
+            <a href="user-management.html" th:href="@{/user-management.html}" class="nav-item"><i class="fas fa-users"></i> User Management</a>
+            <a href="medicine_Management.html" th:href="@{/medicine_Management.html}" class="nav-item active"><i class="fas fa-pills"></i> Medicine Management</a>
+            <a href="#" class="nav-item"><i class="fas fa-flask"></i> Lab Tests</a>
+            <a href="#" class="nav-item"><i class="fas fa-sliders"></i> Threshold Config</a>
+            <a href="#" class="nav-item"><i class="fas fa-desktop"></i> Monitoring</a>
+        </nav>
+        <div class="sidebar-footer">
+            <button type="button" class="btn-new-report"><i class="fas fa-plus"></i> New Report</button>
+            <div class="sidebar-footer-links">
+                <a href="#"><i class="fas fa-cog"></i> Settings</a>
+                <a href="#"><i class="fas fa-life-ring"></i> Support</a>
+            </div>
+        </div>
+    </aside>
+
+    <div class="admin-main">
+        <!-- Header -->
+        <header class="admin-header">
+            <div class="header-search">
+                <i class="fas fa-search"></i>
+                <input type="search" id="globalSearch" placeholder="Search by name, concentration, or route...">
+            </div>
+            <div class="header-actions">
+                <button type="button" class="icon-btn" title="Notifications"><i class="fas fa-bell"></i></button>
+                <button type="button" class="icon-btn" title="Help"><i class="fas fa-circle-question"></i></button>
+                <div class="admin-profile">
+                    <div class="admin-avatar-icon" aria-hidden="true"><i class="fas fa-user-shield"></i></div>
+                    <div class="profile-text">
+                        <div class="name">Administrator</div>
+                        <div class="role">Chief Administrator</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="admin-content">
+            <div class="page-header">
+                <div>
+                    <h1>Medicine Management</h1>
+                    <p class="subtitle">Manage anti-diabetic medication catalog, default administration routes, and clinical dosage guidelines.</p>
+                </div>
+                <div class="header-buttons">
+                    <button type="button" class="btn btn-primary" id="btnAddMedicine"><i class="fas fa-plus"></i> Add New Medicine</button>
+                </div>
+            </div>
+
+            <!-- Stats (Unified 3-Column Layout with Stock Removed) -->
+            <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-pills"></i></div>
+                    <div class="stat-label">Total Medicines</div>
+                    <div class="stat-value" id="statTotalMedications">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-tablet-alt"></i></div>
+                    <div class="stat-label">Oral Formulations</div>
+                    <div class="stat-value" id="statOral">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-syringe"></i></div>
+                    <div class="stat-label">Injectables / Insulins</div>
+                    <div class="stat-value" id="statInjectable">0</div>
+                </div>
+            </div>
+
+            <!-- Table Card -->
+            <div class="table-card">
+                <div class="table-toolbar">
+                    <div class="filter-tabs">
+                        <button type="button" class="filter-tab active" data-tab="all">All Medicines</button>
+                        <button type="button" class="filter-tab" data-tab="tablet">Tablets & Capsules</button>
+                        <button type="button" class="filter-tab" data-tab="injection">Injectables</button>
+                    </div>
+                    <div class="filter-dropdowns">
+                        <select class="filter-select" id="filterRoute" aria-label="Filter administration route">
+                            <option value="">Administration Route</option>
+                            <option value="Oral">Oral</option>
+                            <option value="Subcutaneous">Subcutaneous</option>
+                            <option value="Intravenous">Intravenous</option>
+                        </select>
+                    </div>
+                    <div class="toolbar-icons">
+                        <button type="button" class="icon-btn" title="Filters"><i class="fas fa-filter"></i></button>
+                    </div>
+                </div>
+
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th>Medicine Info</th>
+                            <th>Dosage Form</th>
+                            <th>Administration Route</th>
+                            <th>Default Usage Instruction</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="medicineTableBody">
+                        <!-- Rendered by JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-footer">
+                    <span id="tableInfo">Showing 0 results</span>
+                    <div class="pagination" id="pagination"></div>
+                </div>
+            </div>
+
+            <footer class="admin-page-footer">
+                <span>© 2024 Diabetes Care System</span>
+                <span>
+                    <a href="#">Legal</a>
+                    <a href="#">Privacy Policy</a>
+                </span>
+                <span class="system-status"><span class="dot"></span> System Status: Operational</span>
+            </footer>
+        </main>
+    </div>
+</div>
+
+<!-- Detail Drawer -->
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<aside class="detail-drawer" id="detailDrawer" aria-label="Medicine Detailed Profile">
+    <div class="drawer-header">
+        <h2>Medicine Detailed Profile</h2>
+        <button type="button" class="drawer-close" id="btnCloseDrawer" aria-label="Close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="drawer-body">
+        <div class="drawer-profile">
+            <h3 id="drawerName">—</h3>
+            <p class="meta" id="drawerMeta">—</p>
+        </div>
+        <div class="drawer-actions">
+            <button type="button" class="btn btn-primary" id="drawerEditBtn"><i class="fas fa-edit"></i> Edit Details</button>
+            <button type="button" class="btn btn-outline" id="drawerDeleteBtn" style="color: #c53030; border-color: #fdeaea;"><i class="fas fa-trash-alt"></i> Delete Medicine</button>
+        </div>
+
+        <div class="info-section">
+            <h4>Clinical Specifications</h4>
+            <div class="info-box">
+                <div class="info-row"><span class="label">Medicine ID</span><span class="value" id="drawerMedId">—</span></div>
+                <div class="info-row"><span class="label">Brand/Generic Name</span><span class="value" id="drawerMedName">—</span></div>
+                <div class="info-row"><span class="label">Concentration</span><span class="value" id="drawerConcentration">—</span></div>
+                <div class="info-row"><span class="label">Dosage Form</span><span class="value" id="drawerForm">—</span></div>
+                <div class="info-row"><span class="label">Administration Route</span><span class="value" id="drawerRoute">—</span></div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h4>Clinical Usage Instruction</h4>
+            <div class="info-box" style="line-height: 1.5; font-size: 0.85rem; color: var(--text-secondary);" id="drawerInstruction">
+                —
+            </div>
+        </div>
+    </div>
+</aside>
+
+<!-- Add / Edit Modal -->
+<div class="modal-overlay" id="medicineModalOverlay">
+    <div class="modal" role="dialog" aria-labelledby="modalTitle">
+        <div class="modal-header">
+            <h2 id="modalTitle">Add New Medicine</h2>
+            <button type="button" class="drawer-close" id="btnCloseModal" aria-label="Close"><i class="fas fa-times"></i></button>
+        </div>
+        <form id="medicineForm">
+            <input type="hidden" id="formAction" value="add">
+            <div class="modal-body">
+                <p class="form-hint" style="margin-bottom:16px">
+                    Update the therapeutic anti-diabetic medication catalog. Please input correct clinical parameters to assist practitioners with precision prescribing.
+                </p>
+
+                <div class="form-section-title">Medication Specifications</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="formMedId">Medication ID</label>
+                        <input type="text" id="formMedId" name="medicationId" placeholder="Leave empty to auto-generate (e.g. MED-001)" maxlength="50">
+                    </div>
+                    <div class="form-group">
+                        <label for="formName">Medicine Name <span class="required">*</span></label>
+                        <input type="text" id="formName" name="name" required maxlength="100" placeholder="e.g. Metformin HCl, Glucophage">
+                    </div>
+                    <div class="form-group">
+                        <label for="formConcentration">Concentration / Strength <span class="required">*</span></label>
+                        <input type="text" id="formConcentration" name="concentration" required maxlength="50" placeholder="e.g. 500mg, 1000mg, 100 IU/ml">
+                    </div>
+                    <div class="form-group">
+                        <label for="formForm">Dosage Form <span class="required">*</span></label>
+                        <select id="formForm" name="form" required>
+                            <option value="">— Select Form —</option>
+                            <option value="tablet">Tablet (Viên nén)</option>
+                            <option value="capsule">Capsule (Viên nang)</option>
+                            <option value="injection">Injection (Dạng tiêm)</option>
+                            <option value="syrup">Syrup (Siro)</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="formRoute">Administration Route <span class="required">*</span></label>
+                        <select id="formRoute" name="administrationRoute" required>
+                            <option value="">— Select Route —</option>
+                            <option value="Oral">Oral (Đường uống)</option>
+                            <option value="Subcutaneous">Subcutaneous (Tiêm dưới da)</option>
+                            <option value="Intravenous">Intravenous (Tiêm tĩnh mạch)</option>
+                            <option value="Intramuscular">Intramuscular (Tiêm bắp)</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="formInstruction">Default Usage Instruction <span class="required">*</span></label>
+                        <textarea id="formInstruction" name="usageInstruction" rows="3" required placeholder="e.g. Take 1 tablet orally once daily with breakfast."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" id="btnCancelModal">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Medicine</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Dynamic Toast alert container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Script -->
+<script th:src="@{/js/medicine_management.js}"></script>
+</body>
+</html>

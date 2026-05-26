@@ -17,4 +17,8 @@ public interface MedicationService {
     public void deleteById(String id);
 
     public boolean existsById(String id);
+
+    public List<Medication> searchByKeyword(String keyword);
+
+    public List<String> findAllDistinctRoutes();
 }
