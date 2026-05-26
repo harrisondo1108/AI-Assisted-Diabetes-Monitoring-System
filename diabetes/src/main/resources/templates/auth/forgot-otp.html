@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Xác thực OTP - Diabetes Care System</title>
-    <link rel="stylesheet" href="/static/css/pages/auth.css">
+    <link rel="stylesheet" th:href="@{/css/pages/auth.css}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -33,13 +33,14 @@
             <div class="login-form">
                 <h2>Nhập mã OTP</h2>
                 <div id="errorMsg" class="error-message" style="display: none;"></div>
-                
-                <form id="verifyOtpForm" action="/templates/auth/reset_pass.html" method="get">
+
+                <form id="verifyOtpForm" th:action="@{/forgot-password/verify-otp}" method="post">
                     <p style="text-align: center; color: #64748b; margin-bottom: 25px; font-size: 14px;">
                         Mã xác thực gồm 6 chữ số đã được gửi đến số điện thoại<br>
                         <strong style="color: #0f172a; font-size: 16px; display: inline-block; margin-top: 5px;">**** *** ***</strong>
                     </p>
-                    
+
+                    <!-- 6 ô nhập OTP (chỉ UI) - JS sẽ gom vào hidden input bên dưới -->
                     <div class="otp-container">
                         <input type="text" maxlength="1" class="otp-input" pattern="[0-9]" required autofocus>
                         <input type="text" maxlength="1" class="otp-input" pattern="[0-9]" required>
@@ -48,19 +49,21 @@
                         <input type="text" maxlength="1" class="otp-input" pattern="[0-9]" required>
                         <input type="text" maxlength="1" class="otp-input" pattern="[0-9]" required>
                     </div>
-                    
+                    <!-- Hidden input chứa giá trị OTP đã gom, gửi lên server -->
+                    <input type="hidden" id="otpValue" name="otp">
+
                     <div class="resend-wrapper">
                         <span id="countdown">Gửi lại sau 59s</span>
                         <a href="#" id="resendBtn" style="display: none;">Gửi lại mã OTP</a>
                     </div>
-                    
+
                     <button type="submit" class="btn-primary" style="margin-top: 15px;">
                         Xác nhận <i class="fas fa-check" style="margin-left: 8px;"></i>
                     </button>
                 </form>
-                
+
                 <p class="login-link">
-                    <a href="/templates/auth/login.html"><i class="fas fa-arrow-left"></i> Quay lại đăng nhập</a>
+                    <a th:href="@{/login}"><i class="fas fa-arrow-left"></i> Quay lại đăng nhập</a>
                 </p>
             </div>
             <footer>
@@ -75,6 +78,14 @@
     </div>
 </div>
 
-<script src="/static/js/forgot_otp.js.js"></script>
+<script th:src="@{/js/forgot_otp.js}"></script>
+<script th:inline="javascript">
+    const serverError = /*[[${errorMsg}]]*/ null;
+    if (serverError) {
+        const el = document.getElementById('errorMsg');
+        el.textContent = serverError;
+        el.style.display = 'block';
+    }
+</script>
 </body>
 </html>
