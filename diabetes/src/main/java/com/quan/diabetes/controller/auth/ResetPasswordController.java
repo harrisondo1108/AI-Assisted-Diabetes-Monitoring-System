@@ -1,4 +1,4 @@
-package com.quan.diabetes.controller;
+package com.quan.diabetes.controller.auth;
 
 import com.quan.diabetes.entity.User;
 import com.quan.diabetes.service.UserService;

@@ -1,4 +1,4 @@
-package com.quan.diabetes.controller;
+package com.quan.diabetes.controller.auth;
 
 import com.quan.diabetes.entity.Patient;
 import com.quan.diabetes.entity.Profile;
@@ -16,11 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.Optional;
-import java.util.Random;
-import java.util.UUID;
 
 @Controller
 public class AuthenticationController {
@@ -75,7 +71,7 @@ public class AuthenticationController {
         }
 
         session.setAttribute("loggedInUser", userOptional.get());
-        return "redirect:/dashboard";
+        return "redirect:/admin";
     }
 
     @PostMapping("/register")

@@ -1098,3 +1098,45 @@ body.modal-open {
         justify-content: center;
     }
 }
+/* Base style cho action-link */
+.action-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform 0.15s, background 0.2s, color 0.2s;
+    margin-right: 6px;  /* khoảng cách giữa các icon */
+}
+
+/* Hiệu ứng hover phóng nhẹ */
+.action-link:hover {
+    transform: scale(1.05);
+}
+
+/* Focus state cho accessibility */
+.action-link:focus-visible {
+    outline: 2px solid var(--green-600);
+    outline-offset: 2px;
+}
+
+/* View – xanh dương */
+.action-link.view {
+    background: var(--action-view-bg);  /* #e8f0fe */
+    color: var(--action-view-text);     /* #2b4acb */
+}
+
+/* Edit – vàng cam */
+.action-link.edit {
+    background: var(--action-edit-bg);  /* #fef9e6 */
+    color: var(--action-edit-text);     /* #b7791f */
+}
+
+/* Lock – đỏ (dùng cho cả khóa và mở khóa, icon sẽ thay đổi theo trạng thái) */
+.action-link.lock {
+    background: var(--action-lock-bg);  /* #fdeaea */
+    color: var(--action-lock-text);     /* #c53030 */
+}
