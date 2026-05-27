@@ -12,6 +12,8 @@ public interface UserService {
 
     public Optional<User> findByUsernameAndPassword(String username, String password);
 
+    public Optional<User> findByPhoneNumber(String phoneNumber);
+
     public User create(User entity);
 
     public User update(String id, User entity);
@@ -19,4 +21,6 @@ public interface UserService {
     public void deleteById(String id);
 
     public boolean existsById(String id);
+
+    public String getNewID(String roleId);
 }

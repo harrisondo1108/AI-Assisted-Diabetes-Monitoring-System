@@ -25,6 +25,9 @@ public class User {
     @JoinColumn(name = "RoleID")
     private Role role;
 
+    @Column(name = "Status", columnDefinition = "VARCHAR(20)")
+    private String status = "Active"; // Default status
+
     public User() {
     }
 
@@ -67,12 +70,22 @@ public class User {
         this.role = role;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
         return "User{" +
                 "userId='" + userId + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
-                ", role=" + (role != null ? role.getRoleId() : null) +
+                ", passwordHash='" + passwordHash + '\'' +
+                ", role=" + role +
+                ", status='" + status + '\'' +
                 '}';
     }
 }

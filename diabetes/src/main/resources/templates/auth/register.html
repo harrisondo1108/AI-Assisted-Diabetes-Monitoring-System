@@ -1,13 +1,11 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng ký - Diabetes Care System</title>
-    <link rel="stylesheet" href="/static/css/pages/auth.css">
+    <link rel="stylesheet" th:href="@{/css/pages/auth.css}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
 </head>
 <body>
 <div class="container">
@@ -18,90 +16,83 @@
                 <span>Diabetes Care System</span>
             </div>
             <h1>Diabetes Care System</h1>
-            <h2>Tạo tài khoản mới</h2>
-            <p class="subtitle">Đăng ký để quản lý hồ sơ bệnh tiểu đường.</p>
+            <h2>Create New Account</h2>
+            <p class="subtitle">Register to manage diabetes records.</p>
 
             <div class="feature-card">
-                <h3><i class="fas fa-shield-alt"></i> Bảo vệ sức khỏe toàn diện</h3>
+                <h3><i class="fas fa-shield-alt"></i> Comprehensive Health Care</h3>
                 <ul>
-                    <li><i class="fas fa-check-circle"></i> Theo dõi chỉ số đường huyết</li>
-                    <li><i class="fas fa-check-circle"></i> Nhắc lịch uống thuốc</li>
-                    <li><i class="fas fa-check-circle"></i> Tư vấn dinh dưỡng</li>
-                    <li><i class="fas fa-check-circle"></i> Kết nối với bác sĩ</li>
+                    <li><i class="fas fa-check-circle"></i> Track blood glucose levels</li>
+                    <li><i class="fas fa-check-circle"></i> Medication reminders</li>
+                    <li><i class="fas fa-check-circle"></i> Nutritional counseling</li>
+                    <li><i class="fas fa-check-circle"></i> Connect with doctors</li>
                 </ul>
             </div>
         </div>
 
         <div class="right-panel">
             <div class="register-form">
-                <h2>Đăng ký tài khoản</h2>
+                <h2>Account Registration</h2>
 
                 <div id="errorMsg" class="error-message" style="display: none;"></div>
                 <div id="successMsg" class="success-message" style="display: none;"></div>
 
-                <form id="registerForm">
-                    <!-- Loại tài khoản -->
+                <form id="registerForm" th:action="@{/register}" method="post">
                     <div class="input-group">
-                        <label for="role">Loại tài khoản <span class="required">*</span></label>
-                        <select id="role" required>
-                            <option value="PAT">Bệnh nhân</option>
-                            <option value="DOC">Bác sĩ / Nhân viên y tế</option>
+                        <label for="role">Account Type <span class="required">*</span></label>
+                        <select id="role" name="roleId" required>
+                            <option value="PAT">Patient</option>
                         </select>
                         <i class="fas fa-user-tag input-icon"></i>
                     </div>
 
-                    <!-- Họ tên -->
                     <div class="input-group">
-                        <label for="fullName">Họ và tên <span class="required">*</span></label>
-                        <input type="text" id="fullName" placeholder="Nguyễn Văn A" required>
+                        <label for="fullName">Full Name <span class="required">*</span></label>
+                        <input type="text" id="fullName" name="fullName" placeholder="John Doe" required>
                         <i class="fas fa-user input-icon"></i>
                     </div>
 
-                    <!-- Số điện thoại (dùng làm tài khoản) -->
                     <div class="input-group">
-                        <label for="phoneNumber">Số điện thoại <span class="required">*</span></label>
-                        <input type="tel" id="phoneNumber" placeholder="0912 345 678" required>
+                        <label for="phoneNumber">Phone Number <span class="required">*</span></label>
+                        <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="0912 345 678" required>
                         <i class="fas fa-phone input-icon"></i>
-                        <div class="error-hint" id="phoneHint">Số điện thoại phải có 10-11 số</div>
+                        <div class="error-hint" id="phoneHint">Phone number must be 10-11 digits</div>
                     </div>
 
-                    <!-- Mật khẩu -->
                     <div class="input-group">
-                        <label for="password">Mật khẩu <span class="required">*</span></label>
-                        <input type="password" id="password" placeholder="••••••••" required>
+                        <label for="password">Password <span class="required">*</span></label>
+                        <input type="password" id="password" name="password" placeholder="••••••••" required>
                         <i class="fas fa-lock input-icon"></i>
-                        <div class="error-hint" id="passwordHint">Mật khẩu phải có ít nhất 6 ký tự</div>
+                        <div class="error-hint" id="passwordHint">Password must be at least 6 characters</div>
                     </div>
 
-                    <!-- Xác nhận mật khẩu -->
                     <div class="input-group">
-                        <label for="confirmPassword">Xác nhận mật khẩu <span class="required">*</span></label>
+                        <label for="confirmPassword">Confirm Password <span class="required">*</span></label>
                         <input type="password" id="confirmPassword" placeholder="••••••••" required>
                         <i class="fas fa-check-circle input-icon"></i>
-                        <div class="error-hint" id="confirmHint">Mật khẩu xác nhận không khớp</div>
+                        <div class="error-hint" id="confirmHint">Passwords do not match</div>
                     </div>
 
-                    <!-- Thông tin Bệnh nhân (mặc định hiện) -->
                     <div id="patientFields">
                         <div class="row-3">
                             <div class="input-group">
-                                <label for="dob">Ngày sinh</label>
-                                <input type="date" id="dob">
+                                <label for="dob">Date of Birth</label>
+                                <input type="date" id="dob" name="dob">
                                 <i class="fas fa-calendar-alt input-icon"></i>
                             </div>
                             <div class="input-group">
-                                <label for="gender">Giới tính</label>
-                                <select id="gender">
-                                    <option value="">Chọn</option>
-                                    <option value="0">Nam</option>
-                                    <option value="1">Nữ</option>
+                                <label for="gender">Gender</label>
+                                <select id="gender" name="gender">
+                                    <option value="">Select</option>
+                                    <option value="0">Male</option>
+                                    <option value="1">Female</option>
                                 </select>
                                 <i class="fas fa-venus-mars input-icon"></i>
                             </div>
                             <div class="input-group">
-                                <label for="bloodGroup">Nhóm máu</label>
-                                <select id="bloodGroup">
-                                    <option value="">Chọn</option>
+                                <label for="bloodGroup">Blood Type</label>
+                                <select id="bloodGroup" name="bloodGroup">
+                                    <option value="">Select</option>
                                     <option value="A+">A+</option>
                                     <option value="A-">A-</option>
                                     <option value="B+">B+</option>
@@ -116,69 +107,69 @@
                         </div>
                         <div class="row-2">
                             <div class="input-group">
-                                <label for="height">Chiều cao (cm)</label>
-                                <input type="number" id="height" placeholder="VD: 165">
+                                <label for="height">Height (cm)</label>
+                                <input type="number" id="height" name="height" placeholder="e.g., 165">
                                 <i class="fas fa-ruler input-icon"></i>
+                                <div class="error-hint" id="heightHint">Please enter a valid height</div>
                             </div>
                             <div class="input-group">
-                                <label for="weight">Cân nặng (kg)</label>
-                                <input type="number" step="0.1" id="weight" placeholder="VD: 65.5">
+                                <label for="weight">Weight (kg)</label>
+                                <input type="number" step="0.1" id="weight" name="weight" placeholder="e.g., 65.5">
                                 <i class="fas fa-weight-scale input-icon"></i>
+                                <div class="error-hint" id="weightHint">Please enter a valid weight</div>
                             </div>
                         </div>
                         <div class="input-group">
-                            <label for="address">Địa chỉ</label>
-                            <input type="text" id="address" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố">
+                            <label for="address">Address</label>
+                            <input type="text" id="address" name="address" placeholder="House number, street, ward, district, city/province">
                             <i class="fas fa-map-marker-alt input-icon"></i>
                         </div>
                         <div class="input-group">
-                            <label for="medicalHistory">Tiền sử bệnh</label>
-                            <input id="medicalHistory" placeholder="Các bệnh lý nền, tiền sử gia đình...">
-                            <i class="fas fa-notes-medical input-icon"></i>
+                            <label for="medicalHistory">Medical History</label>
+                            <textarea id="medicalHistory" name="medicalHistory" rows="2" style="width:100%; padding:12px; border:2px solid #e2e8f0; border-radius:12px;" placeholder="Underlying conditions, family medical history..."></textarea>
+                            <i class="fas fa-notes-medical input-icon" style="top: 45px;"></i>
                         </div>
                         <div class="input-group">
-                            <label for="allergyNotes">Dị ứng</label>
-                            <input type="text" id="allergyNotes" placeholder="Thuốc, thực phẩm...">
+                            <label for="allergyNotes">Allergies</label>
+                            <input type="text" id="allergyNotes" name="allergyNotes" placeholder="Medications, food...">
                             <i class="fas fa-allergies input-icon"></i>
                         </div>
                     </div>
 
-                    <!-- Thông tin Bác sĩ (ẩn mặc định) -->
-                    <div id="doctorFields" style="display: none;">
-                        <div class="input-group">
-                            <label for="specialty">Chuyên khoa</label>
-                            <input type="text" id="specialty" placeholder="VD: Nội tiết, Tim mạch...">
-                            <i class="fas fa-stethoscope input-icon"></i>
-                        </div>
-                    </div>
-
-                    <!-- Điều khoản -->
                     <div class="checkbox-group">
                         <input type="checkbox" id="terms" required>
-                        <label for="terms">Tôi đồng ý với <a href="#">Điều khoản sử dụng</a> và <a href="#">Chính sách bảo mật</a>.</label>
+                        <label for="terms">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</label>
                     </div>
 
                     <button type="submit" class="btn-primary">
-                        <i class="fas fa-user-plus"></i> ĐĂNG KÝ TÀI KHOẢN
+                        <i class="fas fa-user-plus"></i> REGISTER ACCOUNT
                     </button>
                 </form>
 
                 <p class="login-link">
-                    Đã có tài khoản? <a href="/templates/auth/login.html">Đăng nhập ngay</a>
+                    Already have an account? <a th:href="@{/login}">Log in now</a>
                 </p>
             </div>
 
             <footer>
                 <div class="footer-links">
-                    <a href="#">Chính sách bảo mật</a> |
-                    <a href="#">Điều khoản sử dụng</a> |
-                    <a href="#">Hỗ trợ</a>
+                    <a href="#">Privacy Policy</a> |
+                    <a href="#">Terms of Service</a> |
+                    <a href="#">Support</a>
                 </div>
             </footer>
         </div>
     </div>
 </div>
 
-<script src="/static/js/register.js"></script>
+<script th:src="@{/js/auth/register.js}"></script>
+<script th:inline="javascript">
+    const serverError = /*[[${errorMsg}]]*/ null;
+    if (serverError) {
+        const el = document.getElementById('errorMsg');
+        el.textContent = serverError;
+        el.style.display = 'block';
+    }
+</script>
 </body>
 </html>

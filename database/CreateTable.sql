@@ -2,8 +2,8 @@
 --IF DB_ID('Diabetes') IS NOT NULL
 --   DROP DATABASE Diabetes;
 --GO
---CREATE DATABASE Diabetes;
---GO
+CREATE DATABASE Diabetes;
+GO
 
 USE Diabetes;
 GO
@@ -25,6 +25,7 @@ CREATE TABLE [Account] (
     PhoneNumber NVARCHAR(50) NOT NULL UNIQUE, -- accountName
     PasswordHash VARCHAR(255) NOT NULL, -- password
     RoleID VARCHAR(50),
+	Status VARCHAR(20) DEFAULT('Active') CHECK (Status in ('Active', 'Clocked'))
     FOREIGN KEY (RoleID) REFERENCES Role(RoleID) ON DELETE SET NULL ON UPDATE CASCADE
 	-- "ON DELETE SET NULL": nếu ta xóa 1 dòng A bên bảng Role thì thuộc tính FK RoleID của các dòng ở bảng User
 	--                       tham chiếu đến dòng A sẽ được sửa thành null
