@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Management - Admin | Diabetes Care System</title>
-    <link rel="stylesheet" th:href="@{/css.admin/admin-user-management.css}">
+    <link rel="stylesheet" th:href="@{/css/pages/user-management.css}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -48,14 +48,21 @@
             <div class="table-card">
                 <div class="table-toolbar">
                     <div class="filter-tabs">
-                        <button type="button" class="filter-tab active" data-tab="all">All Users</button>
-                        <button type="button" class="filter-tab" data-tab="patient">Patients</button>
-                        <button type="button" class="filter-tab" data-tab="doctor">Doctor</button>
+                        <a th:href="@{/admin/users(role='all', search=${currentSearch})}" 
+                           th:classappend="${currentRole == 'all' || currentRole == null} ? 'active' : ''" 
+                           class="filter-tab">All Users</a>
+                        <a th:href="@{/admin/users(role='patient', search=${currentSearch})}" 
+                           th:classappend="${currentRole == 'patient'} ? 'active' : ''" 
+                           class="filter-tab">Patients</a>
+                        <a th:href="@{/admin/users(role='doctor', search=${currentSearch})}" 
+                           th:classappend="${currentRole == 'doctor'} ? 'active' : ''" 
+                           class="filter-tab">Doctor</a>
                     </div>
-                    <div class="toolbar-search">
+                    <form th:action="@{/admin/users}" method="get" class="toolbar-search">
+                        <input type="hidden" name="role" th:value="${currentRole}" />
                         <i class="fas fa-search"></i>
-                        <input type="search" id="globalSearch" placeholder="Search by name, phone or role..." aria-label="Search users">
-                    </div>
+                        <input type="search" name="search" th:value="${currentSearch}" id="globalSearch" placeholder="Search by name, phone or role..." aria-label="Search users">
+                    </form>
                 </div>
 
                 <div class="table-wrap">
@@ -70,7 +77,54 @@
                         </tr>
                         </thead>
                         <tbody id="userTableBody">
-                        <!-- Rendered by JS -->
+                            <tr th:each="user : ${users}" 
+                                th:data-user-id="${user.userId}"
+                                th:data-full-name="${user.fullName}"
+                                th:data-account-phone="${user.accountPhone}"
+                                th:data-phone-number="${user.phoneNumber}"
+                                th:data-role="${user.role}"
+                                th:data-gender="${user.gender}"
+                                th:data-status="${user.status}"
+                                th:data-dob="${user.dob}"
+                                th:data-address="${user.address}"
+                                th:data-specialty="${user.specialty}"
+                                th:data-room-name="${user.roomName}"
+                                th:data-height="${user.height}"
+                                th:data-weight="${user.weight}"
+                                th:data-bloodgroup="${user.bloodgroup}"
+                                th:data-permanent-medical-history="${user.permanentMedicalHistory}"
+                                th:data-allergy-notes="${user.allergyNotes}"
+                                th:data-supervisor-name="${user.supervisorName}"
+                                th:data-supervisor-phone="${user.supervisorPhone}">
+                                
+                                <td>
+                                    <div class="user-cell">
+                                        <div class="user-name" th:text="${user.fullName}"></div>
+                                        <div class="user-phone" th:text="${user.accountPhone != null ? user.accountPhone : user.phoneNumber}"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge" 
+                                          th:classappend="${user.role != null && user.role.contains('doctor') ? 'badge-doctor' : (user.role != null && user.role.contains('patient') ? 'badge-patient' : 'badge-admin')}"
+                                          th:text="${user.role != null ? #strings.capitalize(user.role) : '—'}">
+                                    </span>
+                                </td>
+                                <td th:text="${user.gender != null && user.gender ? 'Female' : 'Male'}">Gender</td>
+                                <td>
+                                    <span class="status-badge" th:classappend="${user.status == 'Active' ? 'active' : 'locked'}" th:text="${user.status == 'Active' ? 'Active' : 'Locked'}"></span>
+                                </td>
+                                <td>
+                                    <div class="action-group">
+                                        <button type="button" class="action-btn view" title="View details" data-action="view" th:data-id="${user.userId}"><i class="fas fa-eye"></i></button>
+                                        <button type="button" class="action-btn edit" title="Edit" data-action="edit" th:data-id="${user.userId}"><i class="fas fa-pen"></i></button>
+                                        <form th:action="@{'/admin/users/toggle-lock/' + ${user.userId}}" method="post" style="display:inline">
+    <button type="submit" class="action-btn" th:classappend="${user.status == 'Active' ? 'lock' : 'unlock'}" th:title="${user.status == 'Active' ? 'Lock account' : 'Unlock account'}">
+        <i class="fas" th:classappend="${user.status == 'Active' ? 'fa-lock' : 'fa-lock-open'}"></i>
+    </button>
+</form>
+                                    </div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -97,7 +151,7 @@
             <h3 id="drawerName">—</h3>
             <p class="meta" id="drawerMeta">—</p>
         </div>
-        
+
         <div class="info-section">
             <h4>Account Information</h4>
             <div class="info-box">
@@ -165,7 +219,7 @@
             <h2 id="modalTitle">Add New User</h2>
             <button type="button" class="drawer-close" id="btnCloseModal" aria-label="Close"><i class="fas fa-times"></i></button>
         </div>
-        <form id="userForm">
+        <form id="userForm" th:action="@{/admin/users/save}" method="post">
             <div class="modal-body">
 
                 <div class="role-type-selector">
@@ -319,6 +373,6 @@
     </div>
 </div>
 
-<script th:src="@{/js.admin/admin-user-management.js}"></script>
+<script th:src="@{/js.admin/user-management.js}"></script>
 </body>
 </html>

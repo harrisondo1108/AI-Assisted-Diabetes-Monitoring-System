@@ -22,15 +22,9 @@
     /** @type {Array<object>} */
     let users = [];
 
-    async function fetchUsers() {
-        try {
-            const response = await fetch('/admin/api/users');
-            users = await response.json();
-            renderTable();
-            updateStats();
-        } catch (err) {
-            console.error('Error fetching users:', err);
-        }
+    function fetchUsers() {
+        // Obsolete: data is now rendered on the server side via Thymeleaf.
+        // We do not fetch from the REST API anymore.
     }
 
     let currentPage = 1;
@@ -71,85 +65,7 @@
         return d.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
     }
 
-    function getFilteredUsers() {
-        return users.filter(function (u) {
-            if (activeTab === 'patient' && u.role !== 'patient') return false;
-            if (activeTab === 'doctor' && u.role !== 'doctor') return false;
-            if (searchQuery) {
-                const q = searchQuery.toLowerCase();
-                const hay = [u.fullName, u.phoneNumber, u.accountPhone, roleLabel(u.role)].join(' ').toLowerCase();
-                if (!hay.includes(q)) return false;
-            }
-            return true;
-        });
-    }
-
-    function updateStats() {
-        const total = users.length;
-        const patients = users.filter(function (u) { return u.role === 'patient'; }).length;
-        const doctors = users.filter(function (u) { return u.role === 'doctor'; }).length;
-        if (els.statTotal) els.statTotal.textContent = total;
-        if (els.statPatients) els.statPatients.textContent = patients;
-        if (els.statDoctors) els.statDoctors.textContent = doctors;
-    }
-
-    function renderTable() {
-        const filtered = getFilteredUsers();
-        const total = filtered.length;
-        const totalPages = Math.max(1, Math.ceil(total / pageSize));
-        if (currentPage > totalPages) currentPage = totalPages;
-        const start = (currentPage - 1) * pageSize;
-        const pageItems = filtered.slice(start, start + pageSize);
-
-        if (!els.tableBody) return;
-
-        els.tableBody.innerHTML = pageItems.map(function (u) {
-            const isLocked = u.status === 'locked';
-            const lockBtnClass = isLocked ? 'unlock' : 'lock';
-            const lockIcon = isLocked ? 'fa-lock-open' : 'fa-lock';
-            const lockTitle = isLocked ? 'Unlock account' : 'Lock account';
-            const rowClass = selectedUserId === u.userId ? 'selected' : '';
-
-            return (
-                '<tr class="' + rowClass + '" data-user-id="' + u.userId + '">' +
-                '<td><div class="user-cell">' +
-                '<div class="user-name">' + escapeHtml(u.fullName) + '</div>' +
-                '<div class="user-phone">' + escapeHtml(u.accountPhone || u.phoneNumber) + '</div></div></td>' +
-                '<td><span class="badge ' + roleBadgeClass(u.role) + '">' + roleLabel(u.role) + '</span></td>' +
-                '<td>' + genderLabel(u.gender) + '</td>' +
-                '<td><span class="status-badge ' + (isLocked ? 'locked' : 'active') + '">' +
-                (isLocked ? 'Locked' : 'Active') + '</span></td>' +
-                '<td><div class="action-group">' +
-                '<button type="button" class="action-btn view" title="View details" data-action="view" data-id="' + u.userId + '"><i class="fas fa-eye"></i></button>' +
-                '<button type="button" class="action-btn edit" title="Edit" data-action="edit" data-id="' + u.userId + '"><i class="fas fa-pen"></i></button>' +
-                '<button type="button" class="action-btn ' + lockBtnClass + '" title="' + lockTitle + '" data-action="toggle-lock" data-id="' + u.userId + '">' +
-                '<i class="fas ' + lockIcon + '"></i></button></div></td></tr>'
-            );
-        }).join('');
-
-        renderPagination(totalPages);
-        bindRowActions();
-    }
-
-    function renderPagination(totalPages) {
-        if (!els.pagination) return;
-        let html = '<button type="button" data-page="prev"' + (currentPage <= 1 ? ' disabled' : '') + '><i class="fas fa-chevron-left"></i></button>';
-        for (let i = 1; i <= totalPages; i++) {
-            html += '<button type="button" data-page="' + i + '"' + (i === currentPage ? ' class="active"' : '') + '>' + i + '</button>';
-        }
-        html += '<button type="button" data-page="next"' + (currentPage >= totalPages ? ' disabled' : '') + '><i class="fas fa-chevron-right"></i></button>';
-        els.pagination.innerHTML = html;
-
-        els.pagination.querySelectorAll('button').forEach(function (btn) {
-            btn.addEventListener('click', function () {
-                const p = btn.getAttribute('data-page');
-                if (p === 'prev' && currentPage > 1) currentPage--;
-                else if (p === 'next') currentPage++;
-                else if (!isNaN(Number(p))) currentPage = Number(p);
-                renderTable();
-            });
-        });
-    }
+    // Table rendering and pagination are now handled by Thymeleaf on the server side.
 
     function escapeHtml(str) {
         if (!str) return '';
@@ -161,12 +77,15 @@
     }
 
     function findUser(id) {
-        return users.find(function (u) { return u.userId === id; });
+        // Look up the row in the DOM and reconstruct the user object
+        const row = document.querySelector(`tr[data-user-id="${id}"]`);
+        if (!row) return null;
+        return Object.assign({}, row.dataset);
     }
 
     function openDrawer(user) {
         selectedUserId = user.userId;
-        renderTable();
+        // highlight row if needed (optional)
 
         document.getElementById('drawerName').textContent = user.fullName;
         document.getElementById('drawerMeta').textContent =
@@ -299,14 +218,8 @@
     }
 
     function toggleLock(userId) {
-        const u = findUser(userId);
-        if (!u) return;
-        u.status = u.status === 'locked' ? 'active' : 'locked';
-        if (selectedUserId === userId && els.detailDrawer.classList.contains('open')) {
-            openDrawer(u);
-        }
-        updateStats();
-        renderTable();
+        // Status updates are now handled by form submit on the server side.
+        // This function is kept for structural parity if needed, but not used.
     }
 
     function collectFormData() {
@@ -345,25 +258,19 @@
     }
 
     function saveUser(e) {
-        e.preventDefault();
+        // e.preventDefault(); // Removed to allow standard HTML form POST to backend
         const data = collectFormData();
         if (!data.fullName || !data.accountPhone) {
             alert('Please enter Full Name and Login Phone.');
+            e.preventDefault();
             return;
         }
         if (!editingUserId && !data.password) {
             alert('Please enter a password for the new account.');
+            e.preventDefault();
             return;
         }
-        if (editingUserId) {
-            const idx = users.findIndex(function (u) { return u.userId === editingUserId; });
-            if (idx >= 0) users[idx] = Object.assign({}, users[idx], data);
-        } else {
-            users.push(data);
-        }
-        closeModal();
-        updateStats();
-        renderTable();
+        // Let the form submit normally
     }
 
     function bindRowActions() {
@@ -381,8 +288,7 @@
     }
 
     function init() {
-        updateStats();
-        renderTable();
+        bindRowActions();
 
         document.getElementById('btnAddUser').addEventListener('click', function () {
             openModal('add');
@@ -401,21 +307,11 @@
         });
 
         if (els.globalSearch) {
-            els.globalSearch.addEventListener('input', function () {
-                searchQuery = this.value.trim().toLowerCase();
-                currentPage = 1;
-                renderTable();
-            });
+            // Search is now handled by standard form submission
         }
 
         els.filterTabs.forEach(function (tab) {
-            tab.addEventListener('click', function () {
-                els.filterTabs.forEach(function (t) { t.classList.remove('active'); });
-                tab.classList.add('active');
-                activeTab = tab.getAttribute('data-tab');
-                currentPage = 1;
-                renderTable();
-            });
+            // Tabs are now links, no JS needed
         });
 
     }

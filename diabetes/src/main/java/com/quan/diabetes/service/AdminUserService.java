@@ -9,9 +9,9 @@ import java.util.List;
  */
 public interface AdminUserService {
     /**
-     * Retrieve all users together with their extended information for admin view.
+     * Retrieve users together with their extended information for admin view, optionally filtered.
      */
-    List<UserManagementDTO> getAllUserManagementDTOs();
+    List<UserManagementDTO> getAllUserManagementDTOs(String role, String search);
 
     /**
      * Create a new user together with the related patient/profile records.
@@ -27,4 +27,8 @@ public interface AdminUserService {
      * Toggle the lock status of a user between ACTIVE and LOCKED.
      */
     void toggleLock(String userId);
+
+    // New methods for Thymeleaf MVC
+    UserManagementDTO getUserManagementDTOById(String userId);
+
 }

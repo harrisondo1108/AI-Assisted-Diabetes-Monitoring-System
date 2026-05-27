@@ -43,19 +43,29 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<UserManagementDTO> getAllUserManagementDTOs() {
+    public List<UserManagementDTO> getAllUserManagementDTOs(String role, String search) {
         List<User> users = userRepository.findAll();
         List<UserManagementDTO> dtos = new ArrayList<>();
+        
+        final String searchLower = search != null ? search.toLowerCase() : "";
+        final String roleFilter = role != null && !role.isEmpty() && !role.equalsIgnoreCase("all") ? role.toLowerCase() : null;
+
         for (User u : users) {
+            String uRole = u.getRole() != null ? u.getRole().getRoleName().toLowerCase() : "";
+            
+            // Filter by role early
+            if (roleFilter != null && !uRole.contains(roleFilter)) {
+                continue;
+            }
+
             UserManagementDTO dto = new UserManagementDTO();
             dto.setUserId(u.getUserId());
             dto.setAccountPhone(u.getPhoneNumber());
             dto.setStatus(u.getStatus());
-            if (u.getRole() != null) {
-                dto.setRole(u.getRole().getRoleName().toLowerCase());
-            }
+            dto.setRole(uRole);
+
             // Populate patient‑specific fields
-            if (dto.getRole() != null && dto.getRole().contains("patient")) {
+            if (uRole.contains("patient")) {
                 patientRepository.findById(u.getUserId()).ifPresent(p -> {
                     dto.setFullName(p.getFullName());
                     dto.setPhoneNumber(p.getPhoneNumber());
@@ -83,6 +93,17 @@ public class AdminUserServiceImpl implements AdminUserService {
                     dto.setSpecialty(p.getSpecialty());
                 });
             }
+
+            // Filter by search query (name, phone, accountPhone)
+            if (!searchLower.isEmpty()) {
+                String fullName = dto.getFullName() != null ? dto.getFullName().toLowerCase() : "";
+                String phone = dto.getPhoneNumber() != null ? dto.getPhoneNumber().toLowerCase() : "";
+                String accPhone = dto.getAccountPhone() != null ? dto.getAccountPhone().toLowerCase() : "";
+                if (!fullName.contains(searchLower) && !phone.contains(searchLower) && !accPhone.contains(searchLower)) {
+                    continue;
+                }
+            }
+
             dtos.add(dto);
         }
         return dtos;
@@ -195,4 +216,48 @@ public class AdminUserServiceImpl implements AdminUserService {
         }
         userRepository.save(user);
     }
+    @Override
+    @Transactional(readOnly = true)
+    public UserManagementDTO getUserManagementDTOById(String userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
+        UserManagementDTO dto = new UserManagementDTO();
+        dto.setUserId(user.getUserId());
+        dto.setAccountPhone(user.getPhoneNumber());
+        dto.setStatus(user.getStatus());
+        if (user.getRole() != null) {
+            dto.setRole(user.getRole().getRoleName().toLowerCase());
+        }
+        if (dto.getRole() != null && dto.getRole().contains("patient")) {
+            patientRepository.findById(userId).ifPresent(p -> {
+                dto.setFullName(p.getFullName());
+                dto.setPhoneNumber(p.getPhoneNumber());
+                dto.setAddress(p.getAddress());
+                dto.setDob(p.getDob());
+                dto.setGender(p.getGender());
+                dto.setHeight(p.getHeight());
+                dto.setWeight(p.getWeight());
+                dto.setBloodgroup(p.getBloodgroup());
+                dto.setPermanentMedicalHistory(p.getPermanentMedicalHistory());
+                dto.setAllergyNotes(p.getAllergyNotes());
+                dto.setSupervisorName(p.getSupervisorName());
+                dto.setSupervisorPhone(p.getSupervisorPhone());
+            });
+        } else {
+            profileRepository.findById(userId).ifPresent(p -> {
+                dto.setFullName(p.getFullName());
+                dto.setPhoneNumber(p.getPhoneNumber());
+                dto.setAddress(p.getAddress());
+                dto.setDob(p.getDob());
+                dto.setGender(p.getGender());
+                if (p.getRoom() != null) {
+                    dto.setRoomName(p.getRoom().getRoomName());
+                }
+                dto.setSpecialty(p.getSpecialty());
+            });
+        }
+        return dto;
+    }
+
+
+
 }
