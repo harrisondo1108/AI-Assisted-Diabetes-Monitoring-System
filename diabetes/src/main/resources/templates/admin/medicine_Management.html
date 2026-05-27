@@ -3,24 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medicine Directory - Admin | Diabetes Care System</title>
-    <!-- Thymeleaf natural templating links -->
-    <link rel="stylesheet" th:href="@{/css/pages/medicine_management.css}">
+    <title>Medicine Management - Admin | Diabetes Care System</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/pages/medicine_management.css}">
+
 </head>
 <body>
 <div class="admin-layout">
     <!-- Sidebar -->
-    <aside class="admin-sidebar" id="adminSidebar">
+    <aside class="admin-sidebar">
         <div class="sidebar-brand">
             <div class="brand-name">Diabetes Care</div>
             <div class="brand-sub">Admin Console</div>
         </div>
         <nav class="sidebar-nav">
             <a href="#" class="nav-item"><i class="fas fa-chart-line"></i> Dashboard</a>
-            <a href="user-management.html" th:href="@{/user-management.html}" class="nav-item"><i class="fas fa-users"></i> User Management</a>
-            <a href="medicine_Management.html" th:href="@{/medicine_Management.html}" class="nav-item active"><i class="fas fa-pills"></i> Medicine Management</a>
+            <a href="#" class="nav-item active"><i class="fas fa-pills"></i> Medicine Management</a>
             <a href="#" class="nav-item"><i class="fas fa-flask"></i> Lab Tests</a>
             <a href="#" class="nav-item"><i class="fas fa-sliders"></i> Threshold Config</a>
             <a href="#" class="nav-item"><i class="fas fa-desktop"></i> Monitoring</a>
@@ -35,11 +34,13 @@
     </aside>
 
     <div class="admin-main">
-        <!-- Header -->
+        <!-- Header with Search -->
         <header class="admin-header">
             <div class="header-search">
                 <i class="fas fa-search"></i>
-                <input type="search" id="globalSearch" placeholder="Search by name, concentration, or route...">
+                <form th:action="@{/admin/medicines}" method="get" id="searchForm">
+                    <input type="text" name="keyword" placeholder="Search by name, concentration or route..." th:value="${searchKeyword}">
+                </form>
             </div>
             <div class="header-actions">
                 <button type="button" class="icon-btn" title="Notifications"><i class="fas fa-bell"></i></button>
@@ -58,50 +59,56 @@
             <div class="page-header">
                 <div>
                     <h1>Medicine Management</h1>
-                    <p class="subtitle">Manage anti-diabetic medication catalog, default administration routes, and clinical dosage guidelines.</p>
+                    <p class="subtitle">Manage diabetes medication catalog, administration routes, and clinical guidelines.</p>
                 </div>
                 <div class="header-buttons">
-                    <button type="button" class="btn btn-primary" id="btnAddMedicine"><i class="fas fa-plus"></i> Add New Medicine</button>
+                    <button type="button" class="btn btn-primary" id="btnAddMedicine"><i class="fas fa-plus"></i> Add Medicine</button>
                 </div>
             </div>
 
-            <!-- Stats (Unified 3-Column Layout with Stock Removed) -->
-            <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+            <!-- Stats -->
+            <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-icon"><i class="fas fa-pills"></i></div>
                     <div class="stat-label">Total Medicines</div>
-                    <div class="stat-value" id="statTotalMedications">0</div>
+                    <div class="stat-value" th:text="${totalMedications}">0</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon"><i class="fas fa-tablet-alt"></i></div>
-                    <div class="stat-label">Oral Formulations</div>
-                    <div class="stat-value" id="statOral">0</div>
+                    <div class="stat-label">Oral Forms</div>
+                    <div class="stat-value" th:text="${oralFormulations}">0</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon"><i class="fas fa-syringe"></i></div>
-                    <div class="stat-label">Injectables / Insulins</div>
-                    <div class="stat-value" id="statInjectable">0</div>
+                    <div class="stat-label">Injectable Forms</div>
+                    <div class="stat-value" th:text="${injectableFormulations}">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-route"></i></div>
+                    <div class="stat-label">Routes</div>
+                    <div class="stat-value" th:text="${routes != null ? routes.size() : 0}">0</div>
                 </div>
             </div>
 
-            <!-- Table Card -->
+            <!-- Table -->
             <div class="table-card">
                 <div class="table-toolbar">
                     <div class="filter-tabs">
-                        <button type="button" class="filter-tab active" data-tab="all">All Medicines</button>
-                        <button type="button" class="filter-tab" data-tab="tablet">Tablets & Capsules</button>
-                        <button type="button" class="filter-tab" data-tab="injection">Injectables</button>
+                        <a th:href="@{/admin/medicines}" class="filter-tab" th:classappend="${selectedRoute == null and searchKeyword == null} ? 'active' : ''">All</a>
+                        <a th:href="@{/admin/medicines(route='Oral')}" class="filter-tab" th:classappend="${selectedRoute == 'Oral'} ? 'active' : ''">Oral</a>
+                        <a th:href="@{/admin/medicines(route='Subcutaneous')}" class="filter-tab" th:classappend="${selectedRoute == 'Subcutaneous'} ? 'active' : ''">Subcutaneous</a>
+                        <a th:href="@{/admin/medicines(route='Intravenous')}" class="filter-tab" th:classappend="${selectedRoute == 'Intravenous'} ? 'active' : ''">Intravenous</a>
                     </div>
                     <div class="filter-dropdowns">
-                        <select class="filter-select" id="filterRoute" aria-label="Filter administration route">
-                            <option value="">Administration Route</option>
-                            <option value="Oral">Oral</option>
-                            <option value="Subcutaneous">Subcutaneous</option>
-                            <option value="Intravenous">Intravenous</option>
+                        <select class="filter-select" id="filterFormSelect">
+                            <option value="">All Forms</option>
+                            <option value="tablet">Tablet</option>
+                            <option value="capsule">Capsule</option>
+                            <option value="injection">Injection</option>
                         </select>
                     </div>
                     <div class="toolbar-icons">
-                        <button type="button" class="icon-btn" title="Filters"><i class="fas fa-filter"></i></button>
+                        <button type="button" class="icon-btn" id="btnRefresh"><i class="fas fa-sync-alt"></i></button>
                     </div>
                 </div>
 
@@ -109,21 +116,51 @@
                     <table class="data-table">
                         <thead>
                         <tr>
-                            <th>Medicine Info</th>
+                            <th>Medicine Name</th>
                             <th>Dosage Form</th>
-                            <th>Administration Route</th>
-                            <th>Default Usage Instruction</th>
+                            <th>Route</th>
+                            <th>Usage Instruction</th>
                             <th>Actions</th>
                         </tr>
                         </thead>
                         <tbody id="medicineTableBody">
-                        <!-- Rendered by JS -->
+                        <tr th:each="med : ${medications}">
+                            <td>
+                                <div class="medicine-cell">
+                                    <span class="medicine-name" th:text="${med.medicationName}"></span>
+                                    <span class="medicine-id" th:text="${med.medicationId} + ' — ' + ${med.concentration}"></span>
+                                </div>
+                            </td>
+                            <td>
+                                    <span th:class="${med.form == 'tablet' ? 'badge-tablet' : (med.form == 'capsule' ? 'badge-capsule' : (med.form == 'injection' ? 'badge-injection' : 'badge-syrup'))}"
+                                          th:text="${med.form == 'tablet' ? 'Tablet' : (med.form == 'capsule' ? 'Capsule' : (med.form == 'injection' ? 'Injection' : 'Other'))}"></span>
+                            </td>
+                            <td th:text="${med.administrationRoute != null ? med.administrationRoute : '—'}">—</td>
+                            <td class="usage-instruction-text" th:title="${med.usageInstruction}" th:text="${med.usageInstruction != null ? #strings.abbreviate(med.usageInstruction, 80) : '—'}">—</td>
+                            <td class="action-group">
+                                <button class="action-btn view" th:data-id="${med.medicationId}" onclick="openDetailDrawer(this.getAttribute('data-id'))" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="action-btn edit" th:data-id="${med.medicationId}" onclick="openEditModal(this.getAttribute('data-id'))" title="Edit">
+                                    <i class="fas fa-pen"></i>
+                                </button>
+                                <button class="action-btn delete" th:data-id="${med.medicationId}" onclick="showDeleteConfirm(this.getAttribute('data-id'))" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr th:if="${medications.isEmpty()}">
+                            <td colspan="5" style="text-align:center; padding:40px;">
+                                <i class="fas fa-pills" style="font-size:48px; opacity:0.5;"></i>
+                                <p style="margin-top:10px;">No data available</p>
+                            </td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
 
                 <div class="table-footer">
-                    <span id="tableInfo">Showing 0 results</span>
+                    <span th:text="'Showing ' + ${medications.size()} + ' results'">Showing 0 results</span>
                     <div class="pagination" id="pagination"></div>
                 </div>
             </div>
@@ -140,109 +177,134 @@
     </div>
 </div>
 
-<!-- Detail Drawer -->
-<div class="drawer-overlay" id="drawerOverlay"></div>
-<aside class="detail-drawer" id="detailDrawer" aria-label="Medicine Detailed Profile">
+<!-- DETAIL DRAWER -->
+<div class="drawer-overlay" id="detailDrawerOverlay"></div>
+<aside class="detail-drawer" id="detailDrawer">
     <div class="drawer-header">
-        <h2>Medicine Detailed Profile</h2>
-        <button type="button" class="drawer-close" id="btnCloseDrawer" aria-label="Close"><i class="fas fa-times"></i></button>
+        <h2><i class="fas fa-pills" style="margin-right: 8px;"></i> Medicine Details</h2>
+        <button type="button" class="drawer-close" id="closeDetailDrawerBtn"><i class="fas fa-times"></i></button>
     </div>
     <div class="drawer-body">
         <div class="drawer-profile">
-            <h3 id="drawerName">—</h3>
-            <p class="meta" id="drawerMeta">—</p>
-        </div>
-        <div class="drawer-actions">
-            <button type="button" class="btn btn-primary" id="drawerEditBtn"><i class="fas fa-edit"></i> Edit Details</button>
-            <button type="button" class="btn btn-outline" id="drawerDeleteBtn" style="color: #c53030; border-color: #fdeaea;"><i class="fas fa-trash-alt"></i> Delete Medicine</button>
+            <div style="width: 80px; height: 80px; background: #d4fae8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                <i class="fas fa-pills" style="font-size: 40px; color: #0f766e;"></i>
+            </div>
+            <h3 id="detailName">--</h3>
+            <p class="meta" id="detailMeta">--</p>
         </div>
 
-        <div class="info-section">
-            <h4>Clinical Specifications</h4>
-            <div class="info-box">
-                <div class="info-row"><span class="label">Medicine ID</span><span class="value" id="drawerMedId">—</span></div>
-                <div class="info-row"><span class="label">Brand/Generic Name</span><span class="value" id="drawerMedName">—</span></div>
-                <div class="info-row"><span class="label">Concentration</span><span class="value" id="drawerConcentration">—</span></div>
-                <div class="info-row"><span class="label">Dosage Form</span><span class="value" id="drawerForm">—</span></div>
-                <div class="info-row"><span class="label">Administration Route</span><span class="value" id="drawerRoute">—</span></div>
+        <div class="detail-section">
+            <h4><i class="fas fa-info-circle"></i> Basic Information</h4>
+            <div class="detail-item">
+                <div class="detail-label">Medicine ID</div>
+                <div class="detail-value" id="detailId">--</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Medicine Name</div>
+                <div class="detail-value" id="detailMedName">--</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Dosage Form</div>
+                <div class="detail-value" id="detailForm">--</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Concentration</div>
+                <div class="detail-value" id="detailConcentration">--</div>
             </div>
         </div>
 
-        <div class="info-section">
-            <h4>Clinical Usage Instruction</h4>
-            <div class="info-box" style="line-height: 1.5; font-size: 0.85rem; color: var(--text-secondary);" id="drawerInstruction">
-                —
+        <div class="detail-section">
+            <h4><i class="fas fa-route"></i> Administration & Instruction</h4>
+            <div class="detail-item">
+                <div class="detail-label">Route</div>
+                <div class="detail-value" id="detailRoute">--</div>
             </div>
+            <div class="detail-item">
+                <div class="detail-label">Instruction</div>
+                <div class="detail-value" id="detailInstruction">--</div>
+            </div>
+        </div>
+
+        <div class="drawer-actions" style="margin-top: 20px;">
+            <button class="btn btn-primary" id="editFromDrawerBtn"><i class="fas fa-pen"></i> Edit Medicine</button>
+            <button class="btn btn-outline" id="deleteFromDrawerBtn" style="color: #dc2626; border-color: #dc2626;"><i class="fas fa-trash"></i> Delete</button>
         </div>
     </div>
 </aside>
 
-<!-- Add / Edit Modal -->
-<div class="modal-overlay" id="medicineModalOverlay">
-    <div class="modal" role="dialog" aria-labelledby="modalTitle">
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal-overlay delete-modal" id="deleteModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2><i class="fas fa-trash-alt"></i> Confirm Delete</h2>
+            <button type="button" class="drawer-close" id="closeDeleteModalBtn"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" style="text-align: center;">
+            <div class="delete-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="delete-title" id="deleteTitle">Delete Medicine?</div>
+            <div class="delete-message" id="deleteMessage">Are you sure you want to delete this medicine? This action cannot be undone.</div>
+            <div class="delete-actions">
+                <button type="button" class="btn btn-outline" id="cancelDeleteBtn">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-overlay" id="medicineModal">
+    <div class="modal" role="dialog">
         <div class="modal-header">
             <h2 id="modalTitle">Add New Medicine</h2>
-            <button type="button" class="drawer-close" id="btnCloseModal" aria-label="Close"><i class="fas fa-times"></i></button>
+            <button type="button" class="drawer-close" id="closeModalBtn"><i class="fas fa-times"></i></button>
         </div>
-        <form id="medicineForm">
-            <input type="hidden" id="formAction" value="add">
+        <form id="medicineForm" method="post">
+            <input type="hidden" id="medicationId" name="medicationId">
             <div class="modal-body">
-                <p class="form-hint" style="margin-bottom:16px">
-                    Update the therapeutic anti-diabetic medication catalog. Please input correct clinical parameters to assist practitioners with precision prescribing.
-                </p>
-
-                <div class="form-section-title">Medication Specifications</div>
+                <div class="form-section-title">Medication Information</div>
                 <div class="form-grid">
-                    <div class="form-group">
-                        <label for="formMedId">Medication ID</label>
-                        <input type="text" id="formMedId" name="medicationId" placeholder="Leave empty to auto-generate (e.g. MED-001)" maxlength="50">
+                    <div class="form-group full-width">
+                        <label>Medicine Name <span class="required">*</span></label>
+                        <input type="text" id="medicationName" name="medicationName" required placeholder="e.g., Metformin, Insulin Glargine">
                     </div>
                     <div class="form-group">
-                        <label for="formName">Medicine Name <span class="required">*</span></label>
-                        <input type="text" id="formName" name="name" required maxlength="100" placeholder="e.g. Metformin HCl, Glucophage">
+                        <label>Dosage Form</label>
+                        <select id="form" name="form">
+                            <option value="tablet">Tablet</option>
+                            <option value="capsule">Capsule</option>
+                            <option value="injection">Injection</option>
+                        </select>
                     </div>
                     <div class="form-group">
-                        <label for="formConcentration">Concentration / Strength <span class="required">*</span></label>
-                        <input type="text" id="formConcentration" name="concentration" required maxlength="50" placeholder="e.g. 500mg, 1000mg, 100 IU/ml">
+                        <label>Concentration / Strength</label>
+                        <input type="text" id="concentration" name="concentration" placeholder="e.g., 500mg, 100IU/ml">
                     </div>
                     <div class="form-group">
-                        <label for="formForm">Dosage Form <span class="required">*</span></label>
-                        <select id="formForm" name="form" required>
-                            <option value="">— Select Form —</option>
-                            <option value="tablet">Tablet (Viên nén)</option>
-                            <option value="capsule">Capsule (Viên nang)</option>
-                            <option value="injection">Injection (Dạng tiêm)</option>
-                            <option value="syrup">Syrup (Siro)</option>
+                        <label>Administration Route <span class="required">*</span></label>
+                        <select id="administrationRoute" name="administrationRoute" required>
+                            <option value="">-- Select Route --</option>
+                            <option value="Oral">Oral (By mouth)</option>
+                            <option value="Subcutaneous">Subcutaneous (Under the skin)</option>
+                            <option value="Intravenous">Intravenous (Into the vein)</option>
+                            <option value="Intramuscular">Intramuscular (Into the muscle)</option>
                         </select>
                     </div>
                     <div class="form-group full-width">
-                        <label for="formRoute">Administration Route <span class="required">*</span></label>
-                        <select id="formRoute" name="administrationRoute" required>
-                            <option value="">— Select Route —</option>
-                            <option value="Oral">Oral (Đường uống)</option>
-                            <option value="Subcutaneous">Subcutaneous (Tiêm dưới da)</option>
-                            <option value="Intravenous">Intravenous (Tiêm tĩnh mạch)</option>
-                            <option value="Intramuscular">Intramuscular (Tiêm bắp)</option>
-                        </select>
-                    </div>
-                    <div class="form-group full-width">
-                        <label for="formInstruction">Default Usage Instruction <span class="required">*</span></label>
-                        <textarea id="formInstruction" name="usageInstruction" rows="3" required placeholder="e.g. Take 1 tablet orally once daily with breakfast."></textarea>
+                        <label>Usage Instruction</label>
+                        <textarea id="usageInstruction" name="usageInstruction" rows="3" placeholder="e.g., Take with meals once daily"></textarea>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline" id="btnCancelModal">Cancel</button>
+                <button type="button" class="btn btn-outline" id="cancelModalBtn">Cancel</button>
                 <button type="submit" class="btn btn-primary">Save Medicine</button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Dynamic Toast alert container -->
-<div class="toast-container" id="toastContainer"></div>
-
-<!-- Script -->
 <script th:src="@{/js/medicine_management.js}"></script>
 </body>
 </html>
