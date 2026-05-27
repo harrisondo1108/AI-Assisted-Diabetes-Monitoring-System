@@ -5,18 +5,17 @@
     <title>Lab Test Management</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Font -->
+    <!-- GOOGLE FONT -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
           rel="stylesheet">
 
-    <!-- Font Awesome -->
+    <!-- FONT AWESOME -->
     <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
     <!-- CSS -->
     <link rel="stylesheet"
-          href="/css.pages/lab-test-page.css"
-          th:href="@{/css.pages/lab-test-page.css}">
+          href="/css/pages/lab-test-page.css">
 </head>
 
 <body>
@@ -27,11 +26,14 @@
     <aside class="sidebar">
 
         <div>
+
+            <!-- BRAND -->
             <div class="brand">
                 <h1>MetabolicCare</h1>
                 <p>Admin Console</p>
             </div>
 
+            <!-- MENU -->
             <nav class="nav-menu">
 
                 <a href="#" class="nav-link">
@@ -50,8 +52,8 @@
                 </a>
 
                 <a href="/admin/lab-tests"
-                   th:href="@{/admin/lab-tests}"
                    class="nav-link active">
+
                     <i class="fa-solid fa-microscope"></i>
                     <span>Lab Tests</span>
                 </a>
@@ -67,11 +69,13 @@
                 </a>
 
             </nav>
+
         </div>
 
+        <!-- FOOTER -->
         <div class="sidebar-footer">
 
-            <button type="button" class="new-report-btn">
+            <button class="new-report-btn">
                 <i class="fa-solid fa-plus"></i>
                 <span>New Report</span>
             </button>
@@ -91,33 +95,46 @@
     </aside>
 
     <!-- MAIN -->
-    <main class="main">
+    <main class="main-content">
 
-        <!-- TOP BAR -->
+        <!-- HEADER -->
         <header class="topbar">
 
-            <div class="top-search">
+            <!-- SEARCH -->
+            <div class="search-box">
+
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" placeholder="Search lab tests or results...">
+
+                <input type="text"
+                       placeholder="Search lab tests or results...">
+
             </div>
 
+            <!-- USER -->
             <div class="user-area">
 
-                <button type="button" class="notification-btn">
+                <button class="notification-btn">
+
                     <i class="fa-regular fa-bell"></i>
-                    <span></span>
+
+                    <span class="dot"></span>
+
                 </button>
 
                 <div class="divider"></div>
 
                 <div class="user-info">
+
                     <h4>Dr. Julian Vance</h4>
+
                     <p>Chief Administrator</p>
+
                 </div>
 
                 <img src="https://i.pravatar.cc/100?img=12"
                      alt="avatar"
                      class="avatar">
+
             </div>
 
         </header>
@@ -125,176 +142,298 @@
         <!-- CONTENT -->
         <section class="content">
 
-            <!-- Breadcrumb -->
+            <!-- BREADCRUMB -->
             <div class="breadcrumb">
+
                 <span>Admin</span>
+
                 <span>/</span>
+
                 <strong>Laboratory Test Catalog</strong>
+
             </div>
 
-            <!-- Page Header -->
+            <!-- PAGE HEADER -->
             <div class="page-header">
 
                 <div>
+
                     <h2>Lab Test Management</h2>
-                    <p>Configure diagnostic parameters and view clinical lab results.</p>
+
+                    <p>
+                        Configure diagnostic parameters and view clinical lab results.
+                    </p>
+
                 </div>
 
+                <!-- ACTIONS -->
                 <div class="page-actions">
 
-                    <a href="/admin/lab-tests/export"
-                       th:href="@{/admin/lab-tests/export}"
-                       class="btn btn-outline">
-                        <i class="fa-solid fa-download"></i>
-                        <span>Export Data</span>
-                    </a>
+                    <button class="btn btn-primary"
+                            id="btnDefineTest">
 
-                    <button type="button" class="btn btn-primary" id="btnDefineNewTest">
-                        <i class="fa-regular fa-circle-plus"></i>
+                        <i class="fa-regular fa-square-plus"></i>
+
                         <span>Define New Test</span>
+
                     </button>
 
                 </div>
 
             </div>
 
-            <!-- Tabs -->
+            <!-- TABS -->
             <div class="tabs">
-                <button type="button"
-                        class="tab active"
+
+                <button class="tab active"
                         data-tab="catalog">
+
                     Test Catalog
+
                 </button>
 
-                <button type="button"
-                        class="tab"
+                <button class="tab"
                         data-tab="results">
+
                     Patient Lab Results
+
                 </button>
+
             </div>
 
-            <!-- CATALOG -->
-            <div class="card tab-content active" id="catalog">
+            <!-- TEST CATALOG -->
+            <div class="card tab-content active"
+                 id="catalog">
 
+                <!-- CARD HEADER -->
                 <div class="card-header">
+
                     <h3>Test Definitions</h3>
 
-                    <button type="button" class="filter-btn">
+                    <button class="filter-btn">
+
                         <i class="fa-solid fa-filter"></i>
+
                     </button>
+
                 </div>
 
+                <!-- TABLE -->
                 <table class="test-table">
 
                     <thead>
+
                     <tr>
+
                         <th>Test Name</th>
+
                         <th>Unit</th>
+
                         <th>Min<br>Value</th>
+
                         <th>Max<br>Value</th>
+
                         <th>Description</th>
-                        <th class="actions-col">Actions</th>
+
+                        <th class="actions-column">
+                            Actions
+                        </th>
+
                     </tr>
+
                     </thead>
 
                     <tbody>
 
-                    <!-- Thymeleaf data -->
+                    <!-- DATA -->
                     <tr th:each="test, iter : ${testList}">
+
+                        <!-- TEST NAME -->
                         <td>
-                            <div class="test-name-cell">
+
+                            <div class="test-info">
 
                                 <div class="test-icon">
-                                    <i th:if="${iter.index % 3 == 0}" class="fa-solid fa-droplet"></i>
-                                    <i th:if="${iter.index % 3 == 1}" class="fa-solid fa-flask"></i>
-                                    <i th:if="${iter.index % 3 == 2}" class="fa-regular fa-heart"></i>
+
+                                    <i th:if="${iter.index % 3 == 0}"
+                                       class="fa-solid fa-droplet"></i>
+
+                                    <i th:if="${iter.index % 3 == 1}"
+                                       class="fa-solid fa-vial"></i>
+
+                                    <i th:if="${iter.index % 3 == 2}"
+                                       class="fa-regular fa-heart"></i>
+
                                 </div>
 
-                                <strong th:text="${test.name}">
+                                <strong th:text="${test.testName}">
                                     HbA1c
                                 </strong>
 
                             </div>
+
                         </td>
 
-                        <td th:text="${test.unit}">%</td>
+                        <!-- UNIT -->
+                        <td th:text="${test.unit}">
+                            %
+                        </td>
 
-                        <td th:text="${test.minValue}">4.0</td>
+                        <!-- MIN -->
+                        <td th:text="${test.minValue}">
+                            4.0
+                        </td>
 
-                        <td th:text="${test.maxValue}">5.6</td>
+                        <!-- MAX -->
+                        <td th:text="${test.maxValue}">
+                            5.6
+                        </td>
 
+                        <!-- DESCRIPTION -->
                         <td class="description"
                             th:text="${test.description}">
+
+                            Glycated Hemoglobin diagnostic for long-term...
+
+                        </td>
+
+                        <!-- ACTIONS -->
+                        <td>
+
+                            <div class="row-actions">
+
+                                <!-- VIEW -->
+                                <button class="action-btn">
+
+                                    <i class="fa-regular fa-eye"></i>
+
+                                </button>
+
+                                <!-- EDIT -->
+                                <button class="action-btn">
+
+                                    <i class="fa-solid fa-pen"></i>
+
+                                </button>
+
+                                <!-- DELETE -->
+                                <form th:action="@{/admin/lab-tests/delete/{id}(id=${test.labTestId})}"
+                                      method="post">
+
+                                    <button type="submit"
+                                            class="action-btn delete-btn">
+
+                                        <i class="fa-regular fa-trash-can"></i>
+
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    <!-- DEMO DATA -->
+                    <tr th:if="${testList == null || testList.isEmpty()}">
+
+                        <td>
+
+                            <div class="test-info">
+
+                                <div class="test-icon">
+
+                                    <i class="fa-solid fa-droplet"></i>
+
+                                </div>
+
+                                <strong>HbA1c</strong>
+
+                            </div>
+
+                        </td>
+
+                        <td>%</td>
+
+                        <td>4.0</td>
+
+                        <td>5.6</td>
+
+                        <td class="description">
                             Glycated Hemoglobin diagnostic for long-term...
                         </td>
 
-                        <td>
-                            <div class="row-actions">
-                                <button type="button" class="row-btn">
-                                    <i class="fa-regular fa-eye"></i>
-                                </button>
-
-                                <button type="button" class="row-btn">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
-
-                                <form th:action="@{/admin/lab-tests/delete/{id}(id=${test.id})}"
-                                      method="post">
-                                    <button type="submit" class="row-btn delete">
-                                        <i class="fa-regular fa-trash-can"></i>
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <!-- Demo rows khi chưa có data -->
-                    <tr th:if="${testList == null || testList.isEmpty()}">
-                        <td>
-                            <div class="test-name-cell">
-                                <div class="test-icon">
-                                    <i class="fa-solid fa-droplet"></i>
-                                </div>
-                                <strong>HbA1c</strong>
-                            </div>
-                        </td>
-                        <td>%</td>
-                        <td>4.0</td>
-                        <td>5.6</td>
-                        <td class="description">Glycated Hemoglobin diagnostic for long-term...</td>
                         <td></td>
+
                     </tr>
 
                     <tr th:if="${testList == null || testList.isEmpty()}">
+
                         <td>
-                            <div class="test-name-cell">
+
+                            <div class="test-info">
+
                                 <div class="test-icon">
-                                    <i class="fa-solid fa-flask"></i>
+
+                                    <i class="fa-solid fa-vial"></i>
+
                                 </div>
-                                <strong>Glucose,<br>Fasting</strong>
+
+                                <strong>
+                                    Glucose,<br>Fasting
+                                </strong>
+
                             </div>
+
                         </td>
+
                         <td>mg/dL</td>
+
                         <td>70</td>
+
                         <td>99</td>
-                        <td class="description">Blood glucose level after an overnight fast.</td>
+
+                        <td class="description">
+                            Blood glucose level after an overnight fast.
+                        </td>
+
                         <td></td>
+
                     </tr>
 
                     <tr th:if="${testList == null || testList.isEmpty()}">
+
                         <td>
-                            <div class="test-name-cell">
+
+                            <div class="test-info">
+
                                 <div class="test-icon">
+
                                     <i class="fa-regular fa-heart"></i>
+
                                 </div>
-                                <strong>LDL<br>Cholesterol</strong>
+
+                                <strong>
+                                    LDL<br>Cholesterol
+                                </strong>
+
                             </div>
+
                         </td>
+
                         <td>mg/dL</td>
+
                         <td>0</td>
+
                         <td>100</td>
-                        <td class="description">Low-density lipoprotein cholesterol (Direct LD...</td>
+
+                        <td class="description">
+                            Low-density lipoprotein cholesterol...
+                        </td>
+
                         <td></td>
+
                     </tr>
 
                     </tbody>
@@ -304,14 +443,19 @@
             </div>
 
             <!-- RESULTS -->
-            <div class="card tab-content" id="results">
+            <div class="card tab-content"
+                 id="results">
 
                 <div class="card-header">
+
                     <h3>Patient Lab Results</h3>
+
                 </div>
 
                 <div class="empty-state">
+
                     No patient lab results yet.
+
                 </div>
 
             </div>
@@ -322,6 +466,8 @@
 
 </div>
 
-<script src="/js/lab-tests.js"
-        th:src="@{/js/lab-tests.js}"></script></body>
+<!-- JS -->
+<script src="/js/lab-tests.js"></script>
+
+</body>
 </html>
