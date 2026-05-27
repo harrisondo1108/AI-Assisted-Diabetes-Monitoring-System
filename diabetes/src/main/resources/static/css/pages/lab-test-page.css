@@ -1,0 +1,406 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: #f8f8fc;
+    color: #111827;
+}
+
+.page-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* SIDEBAR */
+
+.sidebar {
+    width: 300px;
+    background: #004d36;
+    color: white;
+    padding: 30px 20px 28px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.brand h1 {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.brand p {
+    margin-top: 6px;
+    font-size: 15px;
+    letter-spacing: 1px;
+    opacity: 0.75;
+}
+
+.nav-menu {
+    margin-top: 56px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.nav-link,
+.footer-link {
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.72);
+    height: 52px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 0 18px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.nav-link i,
+.footer-link i {
+    width: 22px;
+    font-size: 20px;
+}
+
+.nav-link.active {
+    background: #70f2b6;
+    color: #003d2b;
+    font-weight: 600;
+}
+
+.sidebar-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.new-report-btn {
+    height: 52px;
+    border: none;
+    border-radius: 12px;
+    background: #70f2b6;
+    color: #003d2b;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 4px;
+}
+
+.new-report-btn i {
+    margin-right: 12px;
+}
+
+/* MAIN */
+
+.main {
+    flex: 1;
+    min-width: 0;
+}
+
+/* TOPBAR */
+
+.topbar {
+    height: 68px;
+    background: #fff;
+    border-bottom: 1px solid #d8d8df;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 34px;
+}
+
+.top-search {
+    width: 420px;
+    height: 42px;
+    position: relative;
+}
+
+.top-search i {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #606775;
+    font-size: 17px;
+}
+
+.top-search input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    outline: none;
+    border-radius: 22px;
+    background: #eeeeef;
+    padding: 0 18px 0 48px;
+    font-size: 15px;
+}
+
+.user-area {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.notification-btn {
+    border: none;
+    background: transparent;
+    position: relative;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.notification-btn span {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 8px;
+    height: 8px;
+    background: red;
+    border-radius: 50%;
+}
+
+.divider {
+    width: 1px;
+    height: 34px;
+    background: #ccccd2;
+}
+
+.user-info {
+    text-align: right;
+}
+
+.user-info h4 {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.user-info p {
+    margin-top: 2px;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* CONTENT */
+
+.content {
+    padding: 38px 36px;
+}
+
+.breadcrumb {
+    display: flex;
+    gap: 9px;
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 12px;
+}
+
+.breadcrumb strong {
+    color: #003d2b;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 34px;
+}
+
+.page-header h2 {
+    color: #003d2b;
+    font-size: 34px;
+    font-weight: 800;
+    margin-bottom: 6px;
+}
+
+.page-header p {
+    font-size: 17px;
+    color: #333;
+}
+
+.page-actions {
+    display: flex;
+    gap: 14px;
+}
+
+.btn {
+    height: 50px;
+    padding: 0 26px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.btn-outline {
+    background: #fff;
+    border: 1px solid #8c9099;
+    color: #003d2b;
+}
+
+.btn-primary {
+    border: none;
+    background: #004d36;
+    color: #fff;
+}
+
+/* TABS */
+
+.tabs {
+    display: flex;
+    gap: 34px;
+    border-bottom: 1px solid #cfcfd6;
+    margin-bottom: 26px;
+}
+
+.tab {
+    border: none;
+    background: transparent;
+    padding: 0 0 12px;
+    font-size: 17px;
+    cursor: pointer;
+    color: #222;
+}
+
+.tab.active {
+    color: #003d2b;
+    font-weight: 700;
+    border-bottom: 3px solid #003d2b;
+}
+
+/* CARD */
+
+.card {
+    background: #fff;
+    border: 1px solid #e1e3e8;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.card-header {
+    height: 88px;
+    padding: 0 28px;
+    border-bottom: 1px solid #dfe1e5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.card-header h3 {
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.filter-btn {
+    width: 44px;
+    height: 44px;
+    border: none;
+    background: transparent;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+/* TABLE */
+
+.test-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.test-table thead tr {
+    height: 78px;
+}
+
+.test-table th {
+    text-align: left;
+    padding: 0 28px;
+    color: #333741;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.test-table .actions-col {
+    text-align: right;
+}
+
+.test-table tbody tr {
+    height: 80px;
+    border-top: 1px solid #eeeeee;
+}
+
+.test-table td {
+    padding: 0 28px;
+    font-size: 14px;
+}
+
+.test-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.test-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    background: #e8f3ef;
+    color: #003d2b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.description {
+    max-width: 380px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.row-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 18px;
+}
+
+.row-actions button {
+    border: none;
+    background: transparent;
+    color: #004d36;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.row-actions .delete {
+    color: red;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.empty-state {
+    padding: 48px;
+    text-align: center;
+    color: #777;
+}
