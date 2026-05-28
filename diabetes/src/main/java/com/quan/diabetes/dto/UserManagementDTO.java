@@ -22,7 +22,7 @@ public class UserManagementDTO {
     private Boolean gender; // true = male, false = female (or vice versa depending on app)
 
     // Patient‑specific fields
-    private int height;
+    private Integer height;
     private BigDecimal weight;
     private String bloodgroup;
     private String permanentMedicalHistory;
@@ -55,8 +55,15 @@ public class UserManagementDTO {
     public void setDob(LocalDate dob) { this.dob = dob; }
     public Boolean getGender() { return gender; }
     public void setGender(Boolean gender) { this.gender = gender; }
-    public int getHeight() { return height; }
-    public void setHeight(Integer height) { this.height = height; }
+
+    public Integer getHeight() {
+        return height;
+    }
+
+    public void setHeight(Integer height) {
+        this.height = height;
+    }
+
     public BigDecimal getWeight() { return weight; }
     public void setWeight(BigDecimal weight) { this.weight = weight; }
     public String getBloodgroup() { return bloodgroup; }
@@ -73,4 +80,29 @@ public class UserManagementDTO {
     public void setRoomName(String roomName) { this.roomName = roomName; }
     public String getSpecialty() { return specialty; }
     public void setSpecialty(String specialty) { this.specialty = specialty; }
+
+    @Override
+    public String toString() {
+        return "UserManagementDTO{" +
+                "userId='" + userId + '\'' +
+                ", accountPhone='" + accountPhone + '\'' +
+                ", status='" + status + '\'' +
+                ", role='" + role + '\'' +
+                ", password='" + password + '\'' +
+                ", fullName='" + fullName + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", address='" + address + '\'' +
+                ", dob=" + dob +
+                ", gender=" + gender +
+                ", height=" + height +
+                ", weight=" + weight +
+                ", bloodgroup='" + bloodgroup + '\'' +
+                ", permanentMedicalHistory='" + permanentMedicalHistory + '\'' +
+                ", allergyNotes='" + allergyNotes + '\'' +
+                ", supervisorName='" + supervisorName + '\'' +
+                ", supervisorPhone='" + supervisorPhone + '\'' +
+                ", roomName='" + roomName + '\'' +
+                ", specialty='" + specialty + '\'' +
+                '}';
+    }
 }

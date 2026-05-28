@@ -134,7 +134,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         // 3. Persist Patient or Profile depending on role
         if (dto.getRole() != null && dto.getRole().toLowerCase().contains("patient")) {
             Patient p = new Patient();
-            p.setUserId(user.getUserId());
+//            p.setUserId(user.getUserId());
             p.setUser(user);
             p.setFullName(dto.getFullName() != null ? dto.getFullName() : "Unknown");
             p.setPhoneNumber(dto.getPhoneNumber());
@@ -150,7 +150,7 @@ public class AdminUserServiceImpl implements AdminUserService {
             patientRepository.save(p);
         } else {
             Profile p = new Profile();
-            p.setUserId(user.getUserId());
+//            p.setUserId(user.getUserId());
             p.setUser(user);
             p.setFullName(dto.getFullName() != null ? dto.getFullName() : "Unknown");
             p.setPhoneNumber(dto.getPhoneNumber());

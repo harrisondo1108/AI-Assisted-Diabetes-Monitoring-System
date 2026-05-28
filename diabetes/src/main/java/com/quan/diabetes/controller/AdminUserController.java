@@ -34,6 +34,9 @@ public class AdminUserController {
     @PostMapping("/save")
     public String saveUser(@ModelAttribute("user") @Valid UserManagementDTO userDto,
                            BindingResult result) {
+        System.out.println("================================================");
+        System.out.println(userDto);
+        System.out.println("================================================");
         if (result.hasErrors()) {
             // Validation errors can be handled here; for now we redirect back with error feedback (to be enhanced if needed)
             return "redirect:/admin/users?error=validation";
@@ -53,6 +56,9 @@ public class AdminUserController {
             }
         } else {
             adminUserService.createUserManagementDTO(userDto);
+            System.out.println("================================================");
+            System.out.println(userDto);
+            System.out.println("================================================");
         }
         
         return "redirect:/admin/users";
