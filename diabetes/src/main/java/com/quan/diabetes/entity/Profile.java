@@ -119,6 +119,21 @@ public class Profile {
     public void setSpecialty(String specialty) {
         this.specialty = specialty;
     }
+
+    @Override
+    public String toString() {
+        return "Profile{" +
+                "userId='" + userId + '\'' +
+                ", user=" + user +
+                ", fullName='" + fullName + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", address='" + address + '\'' +
+                ", dob=" + dob +
+                ", gender=" + gender +
+                ", room=" + room +
+                ", specialty='" + specialty + '\'' +
+                '}';
+    }
 }
 
 

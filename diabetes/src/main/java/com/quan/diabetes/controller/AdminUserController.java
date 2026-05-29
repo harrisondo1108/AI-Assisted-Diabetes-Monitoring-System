@@ -34,15 +34,12 @@ public class AdminUserController {
     @PostMapping("/save")
     public String saveUser(@ModelAttribute("user") @Valid UserManagementDTO userDto,
                            BindingResult result) {
-        System.out.println("================================================");
-        System.out.println(userDto);
-        System.out.println("================================================");
         if (result.hasErrors()) {
             // Validation errors can be handled here; for now we redirect back with error feedback (to be enhanced if needed)
             return "redirect:/admin/users?error=validation";
         }
-        
-        if (userDto.getUserId() != null && !userDto.getUserId().trim().isEmpty() && !userDto.getUserId().startsWith("USR-")) {
+        System.out.println(userDto);
+        if (userDto.getUserId() != null && !userDto.getUserId().trim().isEmpty() ) {
             // If it has a known ID (not the auto-generated client-side one which might start with USR- or be empty)
             // Wait, our frontend JS sets `userId` to `USR-<timestamp>` if empty.
             // Let's check if the user exists to decide on update vs create.
@@ -56,9 +53,7 @@ public class AdminUserController {
             }
         } else {
             adminUserService.createUserManagementDTO(userDto);
-            System.out.println("================================================");
-            System.out.println(userDto);
-            System.out.println("================================================");
+
         }
         
         return "redirect:/admin/users";

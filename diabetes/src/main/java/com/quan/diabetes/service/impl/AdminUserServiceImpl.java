@@ -10,6 +10,9 @@ import com.quan.diabetes.repository.ProfileRepository;
 import com.quan.diabetes.repository.RoleRepository;
 import com.quan.diabetes.repository.UserRepository;
 import com.quan.diabetes.service.AdminUserService;
+import com.quan.diabetes.service.PatientService;
+import com.quan.diabetes.service.UserService;
+import com.quan.diabetes.util.ParseUtil;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,15 +33,20 @@ public class AdminUserServiceImpl implements AdminUserService {
     private final PatientRepository patientRepository;
     private final ProfileRepository profileRepository;
     private final RoleRepository roleRepository;
+    private final UserService userService;
+    private final PatientService patientService;
 
     public AdminUserServiceImpl(UserRepository userRepository,
-                               PatientRepository patientRepository,
-                               ProfileRepository profileRepository,
-                               RoleRepository roleRepository) {
+                                PatientRepository patientRepository,
+                                ProfileRepository profileRepository,
+                                RoleRepository roleRepository, UserService userService, PatientService patientService) {
         this.userRepository = userRepository;
         this.patientRepository = patientRepository;
         this.profileRepository = profileRepository;
         this.roleRepository = roleRepository;
+        this.userService = userService;
+        this.patientService = patientService;
+
     }
 
     @Override
@@ -68,7 +76,7 @@ public class AdminUserServiceImpl implements AdminUserService {
             if (uRole.contains("patient")) {
                 patientRepository.findById(u.getUserId()).ifPresent(p -> {
                     dto.setFullName(p.getFullName());
-                    dto.setPhoneNumber(p.getPhoneNumber());
+                    dto.setAccountPhone(p.getPhoneNumber());
                     dto.setAddress(p.getAddress());
                     dto.setDob(p.getDob());
                     dto.setGender(p.getGender());
@@ -83,7 +91,7 @@ public class AdminUserServiceImpl implements AdminUserService {
             } else { // profile (doctor) fields
                 profileRepository.findById(u.getUserId()).ifPresent(p -> {
                     dto.setFullName(p.getFullName());
-                    dto.setPhoneNumber(p.getPhoneNumber());
+                    dto.setAccountPhone(p.getPhoneNumber());
                     dto.setAddress(p.getAddress());
                     dto.setDob(p.getDob());
                     dto.setGender(p.getGender());
@@ -97,7 +105,7 @@ public class AdminUserServiceImpl implements AdminUserService {
             // Filter by search query (name, phone, accountPhone)
             if (!searchLower.isEmpty()) {
                 String fullName = dto.getFullName() != null ? dto.getFullName().toLowerCase() : "";
-                String phone = dto.getPhoneNumber() != null ? dto.getPhoneNumber().toLowerCase() : "";
+                String phone = dto.getAccountPhone() != null ? dto.getAccountPhone().toLowerCase() : "";
                 String accPhone = dto.getAccountPhone() != null ? dto.getAccountPhone().toLowerCase() : "";
                 if (!fullName.contains(searchLower) && !phone.contains(searchLower) && !accPhone.contains(searchLower)) {
                     continue;
@@ -114,50 +122,55 @@ public class AdminUserServiceImpl implements AdminUserService {
     public UserManagementDTO createUserManagementDTO(UserManagementDTO dto) {
         // 1. Create User entity
         User user = new User();
-        user.setUserId(dto.getUserId() != null && !dto.getUserId().isEmpty() ? dto.getUserId() : "USR-" + System.currentTimeMillis());
+        System.out.println(dto.getRole());
+        user.setUserId(userService.getNewID(dto.getRole()));
         user.setPhoneNumber(dto.getAccountPhone());
         user.setPasswordHash(dto.getPassword());
-        user.setStatus(User.STATUS_ACTIVE);
+
 
         // 2. Resolve (or create) Role entity
         Role role = null;
         if (dto.getRole() != null) {
-            String roleKey = dto.getRole().toLowerCase().contains("doctor") ? "doctor" : "patient";
+            String roleKey = dto.getRole().equals("DO") ? "DO" : "PAT";
+            String roleName = roleKey.equals("DO") ? "Doctor" : "Patient";
             role = roleRepository.findById(roleKey).orElseGet(() -> {
-                Role newRole = new Role(roleKey, dto.getRole());
+                Role newRole = new Role(roleKey, roleName);
                 return roleRepository.save(newRole);
             });
         }
         user.setRole(role);
-        user = userRepository.save(user);
+        user = userService.create(user);
 
         // 3. Persist Patient or Profile depending on role
-        if (dto.getRole() != null && dto.getRole().toLowerCase().contains("patient")) {
+        if (dto.getRole() != null && dto.getRole().equals("PAT")) {
             Patient p = new Patient();
 //            p.setUserId(user.getUserId());
             p.setUser(user);
             p.setFullName(dto.getFullName() != null ? dto.getFullName() : "Unknown");
-            p.setPhoneNumber(dto.getPhoneNumber());
-            p.setAddress(dto.getAddress());
+            p.setPhoneNumber(dto.getAccountPhone());
+            p.setAddress(ParseUtil.parseString(dto.getAddress()));
             p.setDob(dto.getDob());
             p.setGender(dto.getGender());
+            p.setHeight(dto.getHeight());
             p.setWeight(dto.getWeight());
-            p.setBloodgroup(dto.getBloodgroup());
-            p.setPermanentMedicalHistory(dto.getPermanentMedicalHistory());
-            p.setAllergyNotes(dto.getAllergyNotes());
-            p.setSupervisorName(dto.getSupervisorName());
-            p.setSupervisorPhone(dto.getSupervisorPhone());
-            patientRepository.save(p);
+            p.setBloodgroup(ParseUtil.parseString(dto.getBloodgroup()));
+            p.setPermanentMedicalHistory(ParseUtil.parseString(dto.getPermanentMedicalHistory()));
+            p.setAllergyNotes(ParseUtil.parseString(dto.getAllergyNotes()));
+            p.setSupervisorName(ParseUtil.parseString(dto.getSupervisorName()));
+            p.setSupervisorPhone(ParseUtil.parseString(dto.getSupervisorPhone()));
+
+            p = patientService.create(p);
+
         } else {
             Profile p = new Profile();
 //            p.setUserId(user.getUserId());
             p.setUser(user);
             p.setFullName(dto.getFullName() != null ? dto.getFullName() : "Unknown");
-            p.setPhoneNumber(dto.getPhoneNumber());
-            p.setAddress(dto.getAddress());
+            p.setPhoneNumber(dto.getAccountPhone());
+            p.setAddress(ParseUtil.parseString(dto.getAddress()));
             p.setDob(dto.getDob());
             p.setGender(dto.getGender());
-            p.setSpecialty(dto.getSpecialty());
+            p.setSpecialty(ParseUtil.parseString(dto.getSpecialty()));
             profileRepository.save(p);
         }
         dto.setUserId(user.getUserId());
@@ -179,7 +192,7 @@ public class AdminUserServiceImpl implements AdminUserService {
             p.setUserId(userId);
             p.setUser(user);
             p.setFullName(dto.getFullName() != null ? dto.getFullName() : p.getFullName());
-            p.setPhoneNumber(dto.getPhoneNumber());
+            p.setPhoneNumber(dto.getAccountPhone());
             p.setAddress(dto.getAddress());
             p.setDob(dto.getDob());
             p.setGender(dto.getGender());
@@ -195,7 +208,7 @@ public class AdminUserServiceImpl implements AdminUserService {
             p.setUserId(userId);
             p.setUser(user);
             p.setFullName(dto.getFullName() != null ? dto.getFullName() : p.getFullName());
-            p.setPhoneNumber(dto.getPhoneNumber());
+            p.setPhoneNumber(dto.getAccountPhone());
             p.setAddress(dto.getAddress());
             p.setDob(dto.getDob());
             p.setGender(dto.getGender());
@@ -230,7 +243,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         if (dto.getRole() != null && dto.getRole().contains("patient")) {
             patientRepository.findById(userId).ifPresent(p -> {
                 dto.setFullName(p.getFullName());
-                dto.setPhoneNumber(p.getPhoneNumber());
+                dto.setAccountPhone(p.getPhoneNumber());
                 dto.setAddress(p.getAddress());
                 dto.setDob(p.getDob());
                 dto.setGender(p.getGender());
@@ -245,7 +258,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         } else {
             profileRepository.findById(userId).ifPresent(p -> {
                 dto.setFullName(p.getFullName());
-                dto.setPhoneNumber(p.getPhoneNumber());
+                dto.setAccountPhone(p.getPhoneNumber());
                 dto.setAddress(p.getAddress());
                 dto.setDob(p.getDob());
                 dto.setGender(p.getGender());

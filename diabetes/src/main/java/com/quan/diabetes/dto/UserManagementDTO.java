@@ -9,14 +9,13 @@ import java.time.LocalDate;
  */
 public class UserManagementDTO {
     private String userId;
-    private String accountPhone;
+    private String accountPhone;  // -> phoneNumer
     private String status;
     private String role;
     private String password; // plain password for creation; not persisted in DB
 
     // Patient / Profile common fields
     private String fullName;
-    private String phoneNumber;
     private String address;
     private LocalDate dob;
     private Boolean gender; // true = male, false = female (or vice versa depending on app)
@@ -47,8 +46,7 @@ public class UserManagementDTO {
     public void setPassword(String password) { this.password = password; }
     public String getFullName() { return fullName; }
     public void setFullName(String fullName) { this.fullName = fullName; }
-    public String getPhoneNumber() { return phoneNumber; }
-    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+
     public String getAddress() { return address; }
     public void setAddress(String address) { this.address = address; }
     public LocalDate getDob() { return dob; }
@@ -90,7 +88,7 @@ public class UserManagementDTO {
                 ", role='" + role + '\'' +
                 ", password='" + password + '\'' +
                 ", fullName='" + fullName + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
+
                 ", address='" + address + '\'' +
                 ", dob=" + dob +
                 ", gender=" + gender +

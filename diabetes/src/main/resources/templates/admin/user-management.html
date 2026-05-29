@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Management - Admin | Diabetes Care System</title>
-    <link rel="stylesheet" th:href="@{/css/pages/user-management.css}">
+    <link rel="stylesheet" th:href="@{/css/admin/user-management.css}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -48,13 +48,13 @@
             <div class="table-card">
                 <div class="table-toolbar">
                     <div class="filter-tabs">
-                        <a th:href="@{/admin/users(role='all', search=${currentSearch})}" 
+                        <a th:href="@{/admin/users(role='all', search=${currentSearch})}"
                            th:classappend="${currentRole == 'all' || currentRole == null} ? 'active' : ''" 
                            class="filter-tab">All Users</a>
-                        <a th:href="@{/admin/users(role='patient', search=${currentSearch})}" 
+                        <a th:href="@{/admin/users(role='patient', search=${currentSearch})}"
                            th:classappend="${currentRole == 'patient'} ? 'active' : ''" 
                            class="filter-tab">Patients</a>
-                        <a th:href="@{/admin/users(role='doctor', search=${currentSearch})}" 
+                        <a th:href="@{/admin/users(role='doctor', search=${currentSearch})}"
                            th:classappend="${currentRole == 'doctor'} ? 'active' : ''" 
                            class="filter-tab">Doctor</a>
                     </div>
@@ -81,7 +81,6 @@
                                 th:data-user-id="${user.userId}"
                                 th:data-full-name="${user.fullName}"
                                 th:data-account-phone="${user.accountPhone}"
-                                th:data-phone-number="${user.phoneNumber}"
                                 th:data-role="${user.role}"
                                 th:data-gender="${user.gender}"
                                 th:data-status="${user.status}"
@@ -100,7 +99,7 @@
                                 <td>
                                     <div class="user-cell">
                                         <div class="user-name" th:text="${user.fullName}"></div>
-                                        <div class="user-phone" th:text="${user.accountPhone != null ? user.accountPhone : user.phoneNumber}"></div>
+                                        <div class="user-phone" th:text="${user.accountPhone}"></div>
                                     </div>
                                 </td>
                                 <td>
@@ -109,7 +108,7 @@
                                           th:text="${user.role != null ? #strings.capitalize(user.role) : '—'}">
                                     </span>
                                 </td>
-                                <td th:text="${user.gender != null && user.gender ? 'Female' : 'Male'}">Gender</td>
+                                <td th:text="${user.gender == null ? 'Empty' : (user.gender ? 'Male' : 'Female')}">Gender</td>
                                 <td>
                                     <span class="status-badge" th:classappend="${user.status == 'Active' ? 'active' : 'locked'}" th:text="${user.status == 'Active' ? 'Active' : 'Locked'}"></span>
                                 </td>
@@ -263,10 +262,10 @@
                             <label>Full Name <span class="required">*</span></label>
                             <input type="text" id="formFullName" name="fullName" maxlength="60" placeholder="Please enter full name">
                         </div>
-                        <div class="form-group">
-                            <label>Contact Phone</label>
-                            <input type="tel" id="formContactPhone" name="contactPhone" maxlength="15" placeholder="Please enter contact phone">
-                        </div>
+<!--                        <div class="form-group">-->
+<!--                            <label>Contact Phone</label>-->
+<!--                            <input type="tel" id="formContactPhone" name="contactPhone" maxlength="15" placeholder="Please enter contact phone">-->
+<!--                        </div>-->
                         <div class="form-group">
                             <label>Date of Birth</label>
                             <input type="date" id="formDob" name="dob" placeholder="Please enter date of birth">
@@ -274,8 +273,8 @@
                         <div class="form-group">
                             <label>Gender</label>
                             <select id="formGender" name="gender">
-                                <option value="0">Male</option>
-                                <option value="1">Female</option>
+                                <option value="1">Male</option>
+                                <option value="0">Female</option>
                             </select>
                         </div>
                         <div class="form-group full-width">
@@ -303,26 +302,26 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label>Full Name <span class="required">*</span></label>
-                            <input type="text" id="formPatFullName" name="patFullName" maxlength="60" placeholder="Please enter full name">
+                            <input type="text" id="formPatFullName" name="fullName" maxlength="60" placeholder="Please enter full name">
                         </div>
-                        <div class="form-group">
-                            <label>Contact Phone</label>
-                            <input type="tel" id="formPatPhone" name="patPhone" maxlength="15" placeholder="Please enter contact phone">
-                        </div>
+<!--                        <div class="form-group">-->
+<!--                            <label>Contact Phone</label>-->
+<!--                            <input type="tel" id="formPatPhone" name="contactPhone" maxlength="15" placeholder="Please enter contact phone">-->
+<!--                        </div>-->
                         <div class="form-group">
                             <label>Date of Birth</label>
-                            <input type="date" id="formPatDob" name="patDob" placeholder="Please enter date of birth">
+                            <input type="date" id="formPatDob" name="dob" placeholder="Please enter date of birth">
                         </div>
                         <div class="form-group">
                             <label>Gender</label>
-                            <select id="formPatGender" name="patGender">
-                                <option value="0">Male</option>
-                                <option value="1">Female</option>
+                            <select id="formPatGender" name="gender">
+                                <option value="1">Male</option>
+                                <option value="0">Female</option>
                             </select>
                         </div>
                         <div class="form-group full-width">
                             <label>Address</label>
-                            <input type="text" id="formPatAddress" name="patAddress" maxlength="200" placeholder="Please enter address">
+                            <input type="text" id="formPatAddress" name="address" maxlength="200" placeholder="Please enter address">
                         </div>
                         <div class="form-group">
                             <label>Height (cm)</label>
@@ -373,6 +372,6 @@
     </div>
 </div>
 
-<script th:src="@{/js.admin/user-management.js}"></script>
+<script th:src="@{/js/admin/user-management.js}"></script>
 </body>
 </html>

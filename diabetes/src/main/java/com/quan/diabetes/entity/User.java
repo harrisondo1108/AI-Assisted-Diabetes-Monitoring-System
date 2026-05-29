@@ -20,7 +20,7 @@ public class User {
     private String passwordHash;
 
     @Column(name = "Status", nullable = false, length = 50, columnDefinition = "NVARCHAR(50) CHECK (Status IN ('Active', 'Locked'))")
-    private String status;
+    private String status = STATUS_ACTIVE;
 
     @ManyToOne
     @JoinColumn(name = "RoleID")
@@ -29,11 +29,10 @@ public class User {
     public User() {
     }
 
-    public User(String userId, String phoneNumber, String passwordHash, String status, Role role) {
+    public User(String userId, String phoneNumber, String passwordHash, Role role) {
         this.userId = userId;
         this.phoneNumber = phoneNumber;
         this.passwordHash = passwordHash;
-        this.status = status;
         this.role = role;
     }
 

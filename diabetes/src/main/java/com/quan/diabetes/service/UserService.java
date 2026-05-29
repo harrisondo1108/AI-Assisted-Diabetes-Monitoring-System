@@ -19,4 +19,6 @@ public interface UserService {
     public void deleteById(String id);
 
     public boolean existsById(String id);
+
+    public String getNewID(String roleId);
 }

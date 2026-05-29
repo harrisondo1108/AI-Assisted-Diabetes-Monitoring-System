@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -57,5 +58,27 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean existsById(String id) {
         return userRepository.existsById(id);
+    }
+
+    @Override
+    public String getNewID(String roleId) {
+        String userId = null;
+        switch (roleId){
+            case "PAT":{
+                do{
+                    String number = "00000" + new Random().nextInt(1000000);
+                    userId = "P" + number.substring(number.length() - 6);
+                }while(this.existsById(userId));
+                break;
+            }
+            case "DO":{
+                do{
+                    String number = "00000" + new Random().nextInt(1000000);
+                    userId = "D" + number.substring(number.length() - 6);
+                }while(this.existsById(userId));
+                break;
+            }
+        }
+        return userId;
     }
 }

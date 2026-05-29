@@ -173,6 +173,26 @@ public class Patient {
     public void setSupervisorPhone(String supervisorPhone) {
         this.supervisorPhone = supervisorPhone;
     }
+
+    @Override
+    public String toString() {
+        return "Patient{" +
+                "userId='" + userId + '\'' +
+                ", user=" + user +
+                ", fullName='" + fullName + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", address='" + address + '\'' +
+                ", dob=" + dob +
+                ", gender=" + gender +
+                ", height=" + height +
+                ", weight=" + weight +
+                ", bloodgroup='" + bloodgroup + '\'' +
+                ", permanentMedicalHistory='" + permanentMedicalHistory + '\'' +
+                ", allergyNotes='" + allergyNotes + '\'' +
+                ", supervisorName='" + supervisorName + '\'' +
+                ", supervisorPhone='" + supervisorPhone + '\'' +
+                '}';
+    }
 }
 
 
