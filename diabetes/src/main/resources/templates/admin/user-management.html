@@ -24,17 +24,17 @@
                 <div class="stat-card">
                     <div class="stat-icon"><i class="fas fa-users"></i></div>
                     <div class="stat-label">Total Users</div>
-                    <div class="stat-value" id="statTotal">0</div>
+                    <div class="stat-value" id="statTotal" th:text="${totalUsers}">0</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon"><i class="fas fa-user-injured"></i></div>
                     <div class="stat-label">Total Patients</div>
-                    <div class="stat-value" id="statPatients">0</div>
+                    <div class="stat-value" id="statPatients" th:text="${totalPatients}">0</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon"><i class="fas fa-user-md"></i></div>
                     <div class="stat-label">Total Doctors</div>
-                    <div class="stat-value" id="statDoctors">0</div>
+                    <div class="stat-value" id="statDoctors" th:text="${totalDoctors}">0</div>
                 </div>
             </div>
 
@@ -48,14 +48,14 @@
             <div class="table-card">
                 <div class="table-toolbar">
                     <div class="filter-tabs">
-                        <a th:href="@{/admin/users(role='all', search=${currentSearch})}" 
-                           th:classappend="${currentRole == 'all' || currentRole == null} ? 'active' : ''" 
+                        <a th:href="@{/admin/users(role='all', search=${currentSearch})}"
+                           th:classappend="${currentRole == 'all' || currentRole == null} ? 'active' : ''"
                            class="filter-tab">All Users</a>
-                        <a th:href="@{/admin/users(role='patient', search=${currentSearch})}" 
-                           th:classappend="${currentRole == 'patient'} ? 'active' : ''" 
+                        <a th:href="@{/admin/users(role='patient', search=${currentSearch})}"
+                           th:classappend="${currentRole == 'patient'} ? 'active' : ''"
                            class="filter-tab">Patients</a>
-                        <a th:href="@{/admin/users(role='doctor', search=${currentSearch})}" 
-                           th:classappend="${currentRole == 'doctor'} ? 'active' : ''" 
+                        <a th:href="@{/admin/users(role='doctor', search=${currentSearch})}"
+                           th:classappend="${currentRole == 'doctor'} ? 'active' : ''"
                            class="filter-tab">Doctor</a>
                     </div>
                     <form th:action="@{/admin/users}" method="get" class="toolbar-search">
@@ -77,54 +77,53 @@
                         </tr>
                         </thead>
                         <tbody id="userTableBody">
-                            <tr th:each="user : ${users}" 
-                                th:data-user-id="${user.userId}"
-                                th:data-full-name="${user.fullName}"
-                                th:data-account-phone="${user.accountPhone}"
-                                th:data-phone-number="${user.phoneNumber}"
-                                th:data-role="${user.role}"
-                                th:data-gender="${user.gender}"
-                                th:data-status="${user.status}"
-                                th:data-dob="${user.dob}"
-                                th:data-address="${user.address}"
-                                th:data-specialty="${user.specialty}"
-                                th:data-room-name="${user.roomName}"
-                                th:data-height="${user.height}"
-                                th:data-weight="${user.weight}"
-                                th:data-bloodgroup="${user.bloodgroup}"
-                                th:data-permanent-medical-history="${user.permanentMedicalHistory}"
-                                th:data-allergy-notes="${user.allergyNotes}"
-                                th:data-supervisor-name="${user.supervisorName}"
-                                th:data-supervisor-phone="${user.supervisorPhone}">
-                                
-                                <td>
-                                    <div class="user-cell">
-                                        <div class="user-name" th:text="${user.fullName}"></div>
-                                        <div class="user-phone" th:text="${user.accountPhone != null ? user.accountPhone : user.phoneNumber}"></div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="badge" 
+                        <tr th:each="user : ${users}"
+                            th:data-user-id="${user.userId}"
+                            th:data-full-name="${user.fullName}"
+                            th:data-account-phone="${user.accountPhone}"
+                            th:data-role="${user.role}"
+                            th:data-gender="${user.gender}"
+                            th:data-status="${user.status}"
+                            th:data-dob="${user.dob}"
+                            th:data-address="${user.address}"
+                            th:data-specialty="${user.specialty}"
+                            th:data-room-name="${user.roomName}"
+                            th:data-height="${user.height}"
+                            th:data-weight="${user.weight}"
+                            th:data-bloodgroup="${user.bloodgroup}"
+                            th:data-permanent-medical-history="${user.permanentMedicalHistory}"
+                            th:data-allergy-notes="${user.allergyNotes}"
+                            th:data-supervisor-name="${user.supervisorName}"
+                            th:data-supervisor-phone="${user.supervisorPhone}">
+
+                            <td>
+                                <div class="user-cell">
+                                    <div class="user-name" th:text="${user.fullName}"></div>
+                                    <div class="user-phone" th:text="${user.accountPhone}"></div>
+                                </div>
+                            </td>
+                            <td>
+                                    <span class="badge"
                                           th:classappend="${user.role != null && user.role.contains('doctor') ? 'badge-doctor' : (user.role != null && user.role.contains('patient') ? 'badge-patient' : 'badge-admin')}"
                                           th:text="${user.role != null ? #strings.capitalize(user.role) : '—'}">
                                     </span>
-                                </td>
-                                <td th:text="${user.gender != null && user.gender ? 'Female' : 'Male'}">Gender</td>
-                                <td>
-                                    <span class="status-badge" th:classappend="${user.status == 'Active' ? 'active' : 'locked'}" th:text="${user.status == 'Active' ? 'Active' : 'Locked'}"></span>
-                                </td>
-                                <td>
-                                    <div class="action-group">
-                                        <button type="button" class="action-btn view" title="View details" data-action="view" th:data-id="${user.userId}"><i class="fas fa-eye"></i></button>
-                                        <button type="button" class="action-btn edit" title="Edit" data-action="edit" th:data-id="${user.userId}"><i class="fas fa-pen"></i></button>
-                                        <form th:action="@{'/admin/users/toggle-lock/' + ${user.userId}}" method="post" style="display:inline">
-    <button type="submit" class="action-btn" th:classappend="${user.status == 'Active' ? 'lock' : 'unlock'}" th:title="${user.status == 'Active' ? 'Lock account' : 'Unlock account'}">
-        <i class="fas" th:classappend="${user.status == 'Active' ? 'fa-lock' : 'fa-lock-open'}"></i>
-    </button>
-</form>
-                                    </div>
-                                </td>
-                            </tr>
+                            </td>
+                            <td th:text="${user.gender == null ? 'Empty' : (user.gender ? 'Female' : 'Male')}">Gender</td>
+                            <td>
+                                <span class="status-badge" th:classappend="${user.status == 'Active' ? 'active' : 'locked'}" th:text="${user.status == 'Active' ? 'Active' : 'Locked'}"></span>
+                            </td>
+                            <td>
+                                <div class="action-group">
+                                    <button type="button" class="action-btn view" title="View details" data-action="view" th:data-id="${user.userId}"><i class="fas fa-eye"></i></button>
+                                    <button type="button" class="action-btn edit" title="Edit" data-action="edit" th:data-id="${user.userId}"><i class="fas fa-pen"></i></button>
+                                    <form th:action="@{'/admin/users/toggle-lock/' + ${user.userId}}" method="post" style="display:inline">
+                                        <button type="submit" class="action-btn" th:classappend="${user.status == 'Active' ? 'lock' : 'unlock'}" th:title="${user.status == 'Active' ? 'Lock account' : 'Unlock account'}">
+                                            <i class="fas" th:classappend="${user.status == 'Active' ? 'fa-lock' : 'fa-lock-open'}"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
@@ -167,7 +166,6 @@
                 <div class="info-row"><span class="label">Full Name</span><span class="value" id="drawerFullName">—</span></div>
                 <div class="info-row"><span class="label">Gender</span><span class="value" id="drawerGender">—</span></div>
                 <div class="info-row"><span class="label">Date of Birth</span><span class="value" id="drawerDob">—</span></div>
-                <div class="info-row"><span class="label">Contact Phone</span><span class="value" id="drawerContactPhone">—</span></div>
                 <div class="info-row"><span class="label">Address</span><span class="value" id="drawerAddress">—</span></div>
             </div>
         </div>
@@ -213,25 +211,26 @@
 </aside>
 
 <!-- Add / Edit modal -->
-<div class="modal-overlay" id="userModalOverlay">
+<div class="modal-overlay" th:classappend="${serverValidationError} ? 'open' : ''" id="userModalOverlay">
     <div class="modal" role="dialog" aria-labelledby="modalTitle">
         <div class="modal-header">
             <h2 id="modalTitle">Add New User</h2>
             <button type="button" class="drawer-close" id="btnCloseModal" aria-label="Close"><i class="fas fa-times"></i></button>
         </div>
-        <form id="userForm" th:action="@{/admin/users/save}" method="post">
+        <form id="userForm" th:action="@{/admin/users/save}" th:object="${user}" method="post">
+            <input type="hidden" id="formUserId" name="userId" th:value="*{userId}">
             <div class="modal-body">
 
                 <div class="role-type-selector">
                     <div class="role-type-option">
-                        <input type="radio" name="userRoleType" id="roleDoctor" value="doctor" checked>
+                        <input type="radio" name="role" id="roleDoctor" value="DOC" th:checked="*{role == null || role == 'DOC' || role == 'doctor'}" th:disabled="*{userId != null && !userId.empty}">
                         <label for="roleDoctor">
                             <i class="fas fa-user-md"></i>
                             <span>Doctor</span>
                         </label>
                     </div>
                     <div class="role-type-option">
-                        <input type="radio" name="userRoleType" id="rolePatient" value="patient">
+                        <input type="radio" name="role" id="rolePatient" value="PAT" th:checked="*{role == 'PAT' || role == 'patient'}" th:disabled="*{userId != null && !userId.empty}">
                         <label for="rolePatient">
                             <i class="fas fa-user-injured"></i>
                             <span>Patient</span>
@@ -242,125 +241,131 @@
                 <div class="form-section-title">Account Information</div>
                 <div class="form-grid">
                     <div class="form-group">
-                        <label>User ID</label>
-                        <input type="text" id="formUserId" name="userId" placeholder="Please enter User ID (Auto if empty)" maxlength="50">
-                    </div>
-                    <div class="form-group">
                         <label>Login Phone <span class="required">*</span></label>
-                        <input type="tel" id="formAccountPhone" name="accountPhone" required maxlength="50" placeholder="Please enter login phone">
+                        <input type="tel" id="formAccountPhone" name="accountPhone" th:value="*{accountPhone}" required maxlength="50" placeholder="Please enter login phone" th:classappend="${#fields.hasErrors('accountPhone')} ? 'is-invalid' : ''">
+                        <div class="error-feedback"><span th:if="${#fields.hasErrors('accountPhone')}" th:errors="*{accountPhone}"></span></div>
                     </div>
-                    <div class="form-group" id="passwordGroup">
+                    <div class="form-group" id="passwordGroup" th:style="*{userId != null && !userId.empty} ? 'display: none;' : ''">
                         <label>Password <span class="required">*</span></label>
-                        <input type="password" id="formPassword" name="password" placeholder="Please enter password">
+                        <input type="password" id="formPassword" name="password" th:value="*{password}" placeholder="Please enter password" th:required="*{userId == null || userId.empty}" th:classappend="${#fields.hasErrors('password')} ? 'is-invalid' : ''">
+                        <div class="error-feedback"><span th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></span></div>
                     </div>
                 </div>
 
                 <!-- Doctor Profile -->
-                <div id="doctorFields" class="role-fields visible">
+                <div id="doctorFields" class="role-fields" th:classappend="${user == null || role == null || 'DOC'.equalsIgnoreCase(user.role) || 'doctor'.equalsIgnoreCase(user.role)} ? 'visible' : ''">
                     <div class="form-section-title">Doctor Profile</div>
                     <div class="form-grid">
                         <div class="form-group">
                             <label>Full Name <span class="required">*</span></label>
-                            <input type="text" id="formFullName" name="fullName" maxlength="60" placeholder="Please enter full name">
-                        </div>
-                        <div class="form-group">
-                            <label>Contact Phone</label>
-                            <input type="tel" id="formContactPhone" name="contactPhone" maxlength="15" placeholder="Please enter contact phone">
+                            <input type="text" id="formFullName" name="fullName" th:value="*{fullName}" maxlength="60" placeholder="Please enter full name" th:required="${user == null || role == null || 'DOC'.equalsIgnoreCase(user.role) || 'doctor'.equalsIgnoreCase(user.role)}" th:classappend="${#fields.hasErrors('fullName') && (user?.role == null || 'DOC'.equalsIgnoreCase(user.role) || 'doctor'.equalsIgnoreCase(user.role))} ? 'is-invalid' : ''">
+                            <div class="error-feedback"><span th:if="${#fields.hasErrors('fullName') && (user?.role == null || 'DOC'.equalsIgnoreCase(user.role) || 'doctor'.equalsIgnoreCase(user.role))}" th:errors="*{fullName}"></span></div>
                         </div>
                         <div class="form-group">
                             <label>Date of Birth</label>
-                            <input type="date" id="formDob" name="dob" placeholder="Please enter date of birth">
+                            <input type="date" id="formDob" name="dob" th:value="*{dob}" th:required="${user == null || role == null || 'DOC'.equalsIgnoreCase(user.role) || 'doctor'.equalsIgnoreCase(user.role)}" th:classappend="${#fields.hasErrors('dob') && ('DOC'.equalsIgnoreCase(user.role) || 'doctor'.equalsIgnoreCase(user.role))} ? 'is-invalid' : ''">
+                            <div class="error-feedback"><span th:if="${#fields.hasErrors('dob') && ('DOC'.equalsIgnoreCase(user.role) || 'doctor'.equalsIgnoreCase(user.role))}" th:errors="*{dob}"></span></div>
                         </div>
                         <div class="form-group">
                             <label>Gender</label>
-                            <select id="formGender" name="gender">
-                                <option value="0">Male</option>
-                                <option value="1">Female</option>
+                            <select id="formGender" name="gender" th:required="${user == null || role == null || 'DOC'.equalsIgnoreCase(user.role) || 'doctor'.equalsIgnoreCase(user.role)}" th:classappend="${#fields.hasErrors('gender') && (user?.role == null || 'DOC'.equalsIgnoreCase(user.role) || 'doctor'.equalsIgnoreCase(user.role))} ? 'is-invalid' : ''">
+                                <option value="0" th:selected="*{gender == false}">Male</option>
+                                <option value="1" th:selected="*{gender == true}">Female</option>
                             </select>
+                            <div class="error-feedback"><span th:if="${#fields.hasErrors('gender') && (user?.role == null || 'DOC'.equalsIgnoreCase(user.role) || 'doctor'.equalsIgnoreCase(user.role))}" th:errors="*{gender}"></span></div>
                         </div>
                         <div class="form-group full-width">
                             <label>Address</label>
-                            <input type="text" id="formAddress" name="address" maxlength="200" placeholder="Please enter address">
+                            <input type="text" id="formAddress" name="address" th:value="*{address}" maxlength="200" placeholder="Please enter address" th:classappend="${#fields.hasErrors('address') && (user?.role == null || 'DOC'.equalsIgnoreCase(user.role) || 'doctor'.equalsIgnoreCase(user.role))} ? 'is-invalid' : ''">
+                            <div class="error-feedback"><span th:if="${#fields.hasErrors('address') && (user?.role == null || 'DOC'.equalsIgnoreCase(user.role) || 'doctor'.equalsIgnoreCase(user.role))}" th:errors="*{address}"></span></div>
                         </div>
                         <div class="form-group">
                             <label>Specialty</label>
-                            <input type="text" id="formSpecialty" name="specialty" maxlength="60" placeholder="Please enter specialty">
+                            <input type="text" id="formSpecialty" name="specialty" th:value="*{specialty}" maxlength="60" placeholder="Please enter specialty" th:classappend="${#fields.hasErrors('specialty')} ? 'is-invalid' : ''">
+                            <div class="error-feedback"><span th:if="${#fields.hasErrors('specialty')}" th:errors="*{specialty}"></span></div>
                         </div>
                         <div class="form-group">
                             <label>Room</label>
-                            <select id="formRoom" name="roomId">
+                            <select id="formRoom" name="roomName" th:classappend="${#fields.hasErrors('roomName')} ? 'is-invalid' : ''">
                                 <option value="">— Please select room —</option>
-                                <option value="Room A">Room A</option>
-                                <option value="Room B">Room B</option>
+                                <option th:each="room : ${rooms}" th:value="${room.roomName}" th:text="${room.roomName}" th:selected="*{roomName == room.roomName}"></option>
                             </select>
+                            <div class="error-feedback"><span th:if="${#fields.hasErrors('roomName')}" th:errors="*{roomName}"></span></div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Patient Profile -->
-                <div id="patientFields" class="role-fields">
+                <div id="patientFields" class="role-fields" th:classappend="${user != null && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))} ? 'visible' : ''">
                     <div class="form-section-title">Patient Profile</div>
                     <div class="form-grid">
                         <div class="form-group">
                             <label>Full Name <span class="required">*</span></label>
-                            <input type="text" id="formPatFullName" name="patFullName" maxlength="60" placeholder="Please enter full name">
-                        </div>
-                        <div class="form-group">
-                            <label>Contact Phone</label>
-                            <input type="tel" id="formPatPhone" name="patPhone" maxlength="15" placeholder="Please enter contact phone">
+                            <input type="text" id="formPatFullName" name="fullName" th:value="*{fullName}" maxlength="60" placeholder="Please enter full name" th:required="${user != null && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))}" th:classappend="${#fields.hasErrors('fullName') && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))} ? 'is-invalid' : ''">
+                            <div class="error-feedback"><span th:if="${#fields.hasErrors('fullName') && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))}" th:errors="*{fullName}"></span></div>
                         </div>
                         <div class="form-group">
                             <label>Date of Birth</label>
-                            <input type="date" id="formPatDob" name="patDob" placeholder="Please enter date of birth">
+                            <input type="date" id="formPatDob"  required name="dob" th:value="*{dob}" th:required="${user != null && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))}" th:classappend="${#fields.hasErrors('dob') && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))} ? 'is-invalid' : ''">
+                            <div class="error-feedback"><span th:if="${#fields.hasErrors('dob') && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))}" th:errors="*{dob}"></span></div>
                         </div>
                         <div class="form-group">
                             <label>Gender</label>
-                            <select id="formPatGender" name="patGender">
-                                <option value="0">Male</option>
-                                <option value="1">Female</option>
+                            <select id="formPatGender" name="gender" th:required="${user != null && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))}" th:classappend="${#fields.hasErrors('gender') && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))} ? 'is-invalid' : ''">
+                                <option value="0" th:selected="*{gender == false}">Male</option>
+                                <option value="1" th:selected="*{gender == true}">Female</option>
                             </select>
+                            <div class="error-feedback"><span th:if="${#fields.hasErrors('gender') && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))}" th:errors="*{gender}"></span></div>
                         </div>
                         <div class="form-group full-width">
                             <label>Address</label>
-                            <input type="text" id="formPatAddress" name="patAddress" maxlength="200" placeholder="Please enter address">
+                            <input type="text" id="formPatAddress" name="address" th:value="*{address}" maxlength="200" placeholder="Please enter address" th:required="${user != null && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))}" th:classappend="${#fields.hasErrors('address') && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))} ? 'is-invalid' : ''">
+                            <div class="error-feedback"><span th:if="${#fields.hasErrors('address') && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))}" th:errors="*{address}"></span></div>
                         </div>
                         <div class="form-group">
                             <label>Height (cm)</label>
-                            <input type="number" id="formHeight" name="height" min="0" max="300" placeholder="Please enter height">
+                            <input type="number" id="formHeight" name="height" th:value="*{height}" min="0" max="300" placeholder="Please enter height" th:classappend="${#fields.hasErrors('height')} ? 'is-invalid' : ''">
+                            <div class="error-feedback"><span th:if="${#fields.hasErrors('height')}" th:errors="*{height}"></span></div>
                         </div>
                         <div class="form-group">
                             <label>Weight (kg)</label>
-                            <input type="number" id="formWeight" name="weight" min="0" step="0.1" placeholder="Please enter weight">
+                            <input type="number" id="formWeight" name="weight" th:value="*{weight}" min="0" step="0.1" placeholder="Please enter weight" th:classappend="${#fields.hasErrors('weight')} ? 'is-invalid' : ''">
+                            <div class="error-feedback"><span th:if="${#fields.hasErrors('weight')}" th:errors="*{weight}"></span></div>
                         </div>
                         <div class="form-group">
                             <label>Blood Group</label>
-                            <select id="formBloodgroup" name="bloodgroup">
+                            <select id="formBloodgroup" name="bloodgroup" th:classappend="${#fields.hasErrors('bloodgroup')} ? 'is-invalid' : ''">
                                 <option value="">— Please select —</option>
-                                <option value="A+">A+</option>
-                                <option value="A-">A-</option>
-                                <option value="B+">B+</option>
-                                <option value="B-">B-</option>
-                                <option value="AB+">AB+</option>
-                                <option value="AB-">AB-</option>
-                                <option value="O+">O+</option>
-                                <option value="O-">O-</option>
+                                <option value="A+" th:selected="*{bloodgroup == 'A+'}">A+</option>
+                                <option value="A-" th:selected="*{bloodgroup == 'A-'}">A-</option>
+                                <option value="B+" th:selected="*{bloodgroup == 'B+'}">B+</option>
+                                <option value="B-" th:selected="*{bloodgroup == 'B-'}">B-</option>
+                                <option value="AB+" th:selected="*{bloodgroup == 'AB+'}">AB+</option>
+                                <option value="AB-" th:selected="*{bloodgroup == 'AB-'}">AB-</option>
+                                <option value="O+" th:selected="*{bloodgroup == 'O+'}">O+</option>
+                                <option value="O-" th:selected="*{bloodgroup == 'O-'}">O-</option>
                             </select>
+                            <div class="error-feedback"><span th:if="${#fields.hasErrors('bloodgroup')}" th:errors="*{bloodgroup}"></span></div>
                         </div>
                         <div class="form-group">
                             <label>Supervisor Name</label>
-                            <input type="text" id="formSupervisorName" name="supervisorName" maxlength="90" placeholder="Please enter supervisor name">
+                            <input type="text" id="formSupervisorName" name="supervisorName" th:value="*{supervisorName}" maxlength="90" placeholder="Please enter supervisor name" th:classappend="${#fields.hasErrors('supervisorName')} ? 'is-invalid' : ''">
+                            <div class="error-feedback"><span th:if="${#fields.hasErrors('supervisorName')}" th:errors="*{supervisorName}"></span></div>
                         </div>
                         <div class="form-group">
                             <label>Supervisor Phone</label>
-                            <input type="tel" id="formSupervisorPhone" name="supervisorPhone" maxlength="15" placeholder="Please enter supervisor phone">
+                            <input type="tel" id="formSupervisorPhone" name="supervisorPhone" th:value="*{supervisorPhone}" maxlength="15" placeholder="Please enter supervisor phone" th:classappend="${#fields.hasErrors('supervisorPhone')} ? 'is-invalid' : ''">
+                            <div class="error-feedback"><span th:if="${#fields.hasErrors('supervisorPhone')}" th:errors="*{supervisorPhone}"></span></div>
                         </div>
                         <div class="form-group full-width">
                             <label>Medical History</label>
-                            <textarea id="formHistory" name="permanentMedicalHistory" rows="3" placeholder="Please enter medical history"></textarea>
+                            <textarea id="formHistory" name="permanentMedicalHistory" rows="3" placeholder="Please enter medical history" th:text="*{permanentMedicalHistory}" th:classappend="${#fields.hasErrors('permanentMedicalHistory')} ? 'is-invalid' : ''"></textarea>
+                            <div class="error-feedback"><span th:if="${#fields.hasErrors('permanentMedicalHistory')}" th:errors="*{permanentMedicalHistory}"></span></div>
                         </div>
                         <div class="form-group full-width">
                             <label>Allergy Notes</label>
-                            <textarea id="formAllergy" name="allergyNotes" rows="3" placeholder="Please enter allergy notes"></textarea>
+                            <textarea id="formAllergy" name="allergyNotes" rows="3" placeholder="Please enter allergy notes" th:text="*{allergyNotes}" th:classappend="${#fields.hasErrors('allergyNotes')} ? 'is-invalid' : ''"></textarea>
+                            <div class="error-feedback"><span th:if="${#fields.hasErrors('allergyNotes')}" th:errors="*{allergyNotes}"></span></div>
                         </div>
                     </div>
                 </div>

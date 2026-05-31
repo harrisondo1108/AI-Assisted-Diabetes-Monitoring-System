@@ -1,16 +1,14 @@
 /**
- * Admin User Management — UI logic (mock data until backend wired)
- * Doctor → Profile table | Patient → Patient table | Account → login credentials
+ * Admin User Management — final fix, role never null or duplicate
  */
 (function () {
     'use strict';
 
     const GENDER_LABEL = { false: 'Male', true: 'Female', '0': 'Male', '1': 'Female' };
 
-    /** Chuẩn hóa Gender (BIT: 0=Nam, 1=Nữ) để lọc khớp DB */
     function normalizeGenderKey(gender) {
-        if (gender === true || gender === 1 || gender === '1') return '1';
-        if (gender === false || gender === 0 || gender === '0') return '0';
+        if (gender === true || gender === 1 || gender === '1' || gender === 'true') return '1';
+        if (gender === false || gender === 0 || gender === '0' || gender === 'false') return '0';
         return '';
     }
 
@@ -19,44 +17,19 @@
         return key === '' ? '—' : (GENDER_LABEL[key] || '—');
     }
 
-    /** @type {Array<object>} */
-    let users = [];
-
-    function fetchUsers() {
-        // Obsolete: data is now rendered on the server side via Thymeleaf.
-        // We do not fetch from the REST API anymore.
-    }
-
-    let currentPage = 1;
-    const pageSize = 4;
-    let activeTab = 'all';
-    let searchQuery = '';
-    let selectedUserId = null;
     let editingUserId = null;
 
     const els = {
-        tableBody: document.getElementById('userTableBody'),
-        pagination: document.getElementById('pagination'),
-        globalSearch: document.getElementById('globalSearch'),
-        filterTabs: document.querySelectorAll('.filter-tab'),
         drawerOverlay: document.getElementById('drawerOverlay'),
         detailDrawer: document.getElementById('detailDrawer'),
         modalOverlay: document.getElementById('userModalOverlay'),
         userForm: document.getElementById('userForm'),
         modalTitle: document.getElementById('modalTitle'),
-        statTotal: document.getElementById('statTotal'),
-        statPatients: document.getElementById('statPatients'),
-        statDoctors: document.getElementById('statDoctors')
     };
 
     function roleLabel(role) {
-        const map = { doctor: 'Doctor', patient: 'Patient', admin: 'Admin' };
+        const map = { doctor: 'Doctor', patient: 'Patient', admin: 'Admin', DOC: 'Doctor', PAT: 'Patient' };
         return map[role] || role;
-    }
-
-    function roleBadgeClass(role) {
-        const map = { doctor: 'badge-doctor', patient: 'badge-patient', admin: 'badge-admin' };
-        return map[role] || 'badge-patient';
     }
 
     function formatDate(iso) {
@@ -65,31 +38,17 @@
         return d.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
     }
 
-    // Table rendering and pagination are now handled by Thymeleaf on the server side.
-
-    function escapeHtml(str) {
-        if (!str) return '';
-        return String(str)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;');
-    }
-
     function findUser(id) {
-        // Look up the row in the DOM and reconstruct the user object
         const row = document.querySelector(`tr[data-user-id="${id}"]`);
         if (!row) return null;
         return Object.assign({}, row.dataset);
     }
 
     function openDrawer(user) {
-        selectedUserId = user.userId;
-        // highlight row if needed (optional)
-
         document.getElementById('drawerName').textContent = user.fullName;
+        const isLocked = user.status && user.status.toLowerCase() === 'locked';
         document.getElementById('drawerMeta').textContent =
-            roleLabel(user.role) + ' • ' + (user.status === 'locked' ? 'Locked' : 'Active');
+            roleLabel(user.role) + ' • ' + (isLocked ? 'Locked' : 'Active');
 
         setDrawerRow('drawerUserId', user.userId);
         setDrawerRow('drawerAccountPhone', user.accountPhone);
@@ -99,16 +58,12 @@
         setDrawerRow('drawerAddress', user.address || '—');
         setDrawerRow('drawerContactPhone', user.phoneNumber || '—');
         setDrawerRow('drawerRole', roleLabel(user.role));
-        setDrawerRow('drawerStatus', user.status === 'locked' ? 'Locked' : 'Active');
+        setDrawerRow('drawerStatus', isLocked ? 'Locked' : 'Active');
 
         const doctorSec = document.querySelectorAll('.doctor-only-section');
         const patientSec = document.querySelectorAll('.patient-only-section');
-        doctorSec.forEach(function (el) {
-            el.classList.toggle('visible', user.role === 'doctor');
-        });
-        patientSec.forEach(function (el) {
-            el.classList.toggle('visible', user.role === 'patient');
-        });
+        doctorSec.forEach(el => el.classList.toggle('visible', user.role === 'doctor'));
+        patientSec.forEach(el => el.classList.toggle('visible', user.role === 'patient'));
 
         if (user.role === 'doctor') {
             setDrawerRow('drawerRoom', user.roomName || '—');
@@ -130,7 +85,7 @@
 
     function setDrawerRow(id, value) {
         const el = document.getElementById(id);
-        if (el) el.textContent = value;
+        if (el) el.textContent = value || '—';
     }
 
     function closeDrawer() {
@@ -138,36 +93,98 @@
         els.detailDrawer.classList.remove('open');
     }
 
+    function resetRoleFields() {
+        document.getElementById('doctorFields').classList.remove('visible');
+        document.getElementById('patientFields').classList.remove('visible');
+    }
+
+    function setFieldsDisabled(container, disabled) {
+        const fields = container.querySelectorAll('input, select, textarea');
+        fields.forEach(field => {
+            if (disabled) {
+                field.setAttribute('disabled', 'disabled');
+            } else {
+                field.removeAttribute('disabled');
+            }
+        });
+    }
+
+    function syncDisabledFieldsByRole() {
+        const isDoctor = document.getElementById('roleDoctor').checked;
+        const doctorContainer = document.getElementById('doctorFields');
+        const patientContainer = document.getElementById('patientFields');
+        setFieldsDisabled(doctorContainer, !isDoctor);
+        setFieldsDisabled(patientContainer, isDoctor);
+    }
+
+    function onRoleTypeChange() {
+        const isDoctor = document.getElementById('roleDoctor').checked;
+        document.getElementById('doctorFields').classList.toggle('visible', isDoctor);
+        document.getElementById('patientFields').classList.toggle('visible', !isDoctor);
+        syncDisabledFieldsByRole();
+    }
+
+    function enableAllFields() {
+        const doctorContainer = document.getElementById('doctorFields');
+        const patientContainer = document.getElementById('patientFields');
+        setFieldsDisabled(doctorContainer, false);
+        setFieldsDisabled(patientContainer, false);
+    }
+
+    // Xóa hidden role cũ (nếu có)
+    function removeHiddenRole() {
+        const hidden = document.querySelector('#userForm input[name="role"][type="hidden"]');
+        if (hidden) hidden.remove();
+    }
+
+    // Tạo hidden role với giá trị (chỉ dùng khi edit)
+    function addHiddenRole(value) {
+        removeHiddenRole();
+        const hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.name = 'role';
+        hidden.value = value;
+        document.getElementById('userForm').appendChild(hidden);
+    }
+
     function openModal(mode, user) {
         editingUserId = mode === 'edit' ? (user && user.userId) : null;
         els.modalTitle.textContent = mode === 'edit' ? 'Edit User' : 'Add New User';
         els.userForm.reset();
+
+        enableAllFields();
         resetRoleFields();
+        removeHiddenRole(); // xóa hidden cũ
 
         const roleDoctor = document.getElementById('roleDoctor');
         const rolePatient = document.getElementById('rolePatient');
         const pwdGroup = document.getElementById('passwordGroup');
+        const userIdInput = document.getElementById('formUserId');
 
         if (mode === 'edit' && user) {
-            document.getElementById('formUserId').value = user.userId;
+            if (userIdInput) userIdInput.value = user.userId || '';
             document.getElementById('formAccountPhone').value = user.accountPhone || '';
             if (pwdGroup) pwdGroup.style.display = 'none';
+            document.getElementById('formPassword').removeAttribute('required');
 
             const genderVal = normalizeGenderKey(user.gender) || '0';
 
             if (user.role === 'doctor') {
                 roleDoctor.checked = true;
                 document.getElementById('formFullName').value = user.fullName || '';
-                document.getElementById('formContactPhone').value = user.phoneNumber || '';
+                const contactPhoneInput = document.getElementById('formContactPhone');
+                if (contactPhoneInput) contactPhoneInput.value = user.phoneNumber || '';
                 document.getElementById('formAddress').value = user.address || '';
                 document.getElementById('formDob').value = user.dob || '';
                 document.getElementById('formGender').value = genderVal;
                 document.getElementById('formSpecialty').value = user.specialty || '';
                 document.getElementById('formRoom').value = user.roomName || '';
+                addHiddenRole('DOC');
             } else {
                 rolePatient.checked = true;
                 document.getElementById('formPatFullName').value = user.fullName || '';
-                document.getElementById('formPatPhone').value = user.phoneNumber || '';
+                const patPhoneInput = document.getElementById('formPatPhone');
+                if (patPhoneInput) patPhoneInput.value = user.phoneNumber || '';
                 document.getElementById('formPatAddress').value = user.address || '';
                 document.getElementById('formPatDob').value = user.dob || '';
                 document.getElementById('formPatGender').value = genderVal;
@@ -178,18 +195,22 @@
                 document.getElementById('formAllergy').value = user.allergyNotes || '';
                 document.getElementById('formSupervisorName').value = user.supervisorName || '';
                 document.getElementById('formSupervisorPhone').value = user.supervisorPhone || '';
+                addHiddenRole('PAT');
             }
-            document.querySelectorAll('input[name="userRoleType"]').forEach(function (r) {
-                r.disabled = true;
-            });
+            // Disable radio để chúng không được gửi
+            roleDoctor.disabled = true;
+            rolePatient.disabled = true;
         } else {
-            document.getElementById('formUserId').value = '';
+            // Add mode: radio hoạt động bình thường, không có hidden
+            if (userIdInput) userIdInput.value = '';
             if (pwdGroup) pwdGroup.style.display = '';
-            document.querySelectorAll('input[name="userRoleType"]').forEach(function (r) {
-                r.disabled = false;
-            });
-            roleDoctor.checked = true;
+            document.getElementById('formPassword').setAttribute('required', 'required');
+            roleDoctor.disabled = false;
+            rolePatient.disabled = false;
+            roleDoctor.checked = true; // mặc định doctor
+            removeHiddenRole(); // chắc chắn không có hidden
         }
+
         onRoleTypeChange();
         els.modalOverlay.classList.add('open');
         document.body.classList.add('modal-open');
@@ -197,123 +218,244 @@
         if (body) body.scrollTop = 0;
     }
 
+    function showError(inputEl, message) {
+        if (!inputEl) return;
+        inputEl.classList.add('is-invalid');
+        const feedback = inputEl.parentNode.querySelector('.error-feedback');
+        if (feedback) {
+            feedback.textContent = message;
+        }
+    }
+
+    function clearErrors() {
+        if (!els.userForm) return;
+        const invalidFields = els.userForm.querySelectorAll('.is-invalid');
+        invalidFields.forEach(el => el.classList.remove('is-invalid'));
+        const feedbacks = els.userForm.querySelectorAll('.error-feedback');
+        feedbacks.forEach(el => {
+            el.textContent = '';
+        });
+    }
+
     function closeModal() {
         els.modalOverlay.classList.remove('open');
         document.body.classList.remove('modal-open');
         editingUserId = null;
-        document.querySelectorAll('input[name="userRoleType"]').forEach(function (r) {
-            r.disabled = false;
-        });
-    }
 
-    function resetRoleFields() {
-        document.getElementById('doctorFields').classList.remove('visible');
-        document.getElementById('patientFields').classList.remove('visible');
-    }
+        const roleDoctor = document.getElementById('roleDoctor');
+        const rolePatient = document.getElementById('rolePatient');
+        if (roleDoctor) roleDoctor.disabled = false;
+        if (rolePatient) rolePatient.disabled = false;
 
-    function onRoleTypeChange() {
-        const isDoctor = document.getElementById('roleDoctor').checked;
-        document.getElementById('doctorFields').classList.toggle('visible', isDoctor);
-        document.getElementById('patientFields').classList.toggle('visible', !isDoctor);
-    }
-
-    function toggleLock(userId) {
-        // Status updates are now handled by form submit on the server side.
-        // This function is kept for structural parity if needed, but not used.
-    }
-
-    function collectFormData() {
-        const role = document.getElementById('roleDoctor').checked ? 'doctor' : 'patient';
-        const data = {
-            userId: document.getElementById('formUserId').value.trim() || ('USR-' + Date.now()),
-            accountPhone: document.getElementById('formAccountPhone').value.trim(),
-            password: document.getElementById('formPassword').value,
-            role: role,
-            status: 'active'
-        };
-
-        if (role === 'doctor') {
-            data.fullName = document.getElementById('formFullName').value.trim();
-            data.phoneNumber = document.getElementById('formContactPhone').value.trim();
-            data.address = document.getElementById('formAddress').value.trim();
-            data.dob = document.getElementById('formDob').value;
-            data.gender = document.getElementById('formGender').value === '1';
-            data.specialty = document.getElementById('formSpecialty').value.trim();
-            data.roomName = document.getElementById('formRoom').value;
-        } else {
-            data.fullName = document.getElementById('formPatFullName').value.trim();
-            data.phoneNumber = document.getElementById('formPatPhone').value.trim();
-            data.address = document.getElementById('formPatAddress').value.trim();
-            data.dob = document.getElementById('formPatDob').value;
-            data.gender = document.getElementById('formPatGender').value === '1';
-            data.height = parseInt(document.getElementById('formHeight').value, 10) || 0;
-            data.weight = parseFloat(document.getElementById('formWeight').value) || 0;
-            data.bloodgroup = document.getElementById('formBloodgroup').value;
-            data.permanentMedicalHistory = document.getElementById('formHistory').value.trim();
-            data.allergyNotes = document.getElementById('formAllergy').value.trim();
-            data.supervisorName = document.getElementById('formSupervisorName').value.trim();
-            data.supervisorPhone = document.getElementById('formSupervisorPhone').value.trim();
-        }
-        return data;
-    }
-
-    function saveUser(e) {
-        // e.preventDefault(); // Removed to allow standard HTML form POST to backend
-        const data = collectFormData();
-        if (!data.fullName || !data.accountPhone) {
-            alert('Please enter Full Name and Login Phone.');
-            e.preventDefault();
-            return;
-        }
-        if (!editingUserId && !data.password) {
-            alert('Please enter a password for the new account.');
-            e.preventDefault();
-            return;
-        }
-        // Let the form submit normally
-    }
-
-    function bindRowActions() {
-        document.querySelectorAll('[data-action]').forEach(function (btn) {
-            btn.onclick = function () {
-                const id = btn.getAttribute('data-id');
-                const action = btn.getAttribute('data-action');
-                const user = findUser(id);
-                if (!user) return;
-                if (action === 'view') openDrawer(user);
-                else if (action === 'edit') openModal('edit', user);
-                else if (action === 'toggle-lock') toggleLock(id);
-            };
-        });
+        removeHiddenRole();
+        enableAllFields();
+        clearErrors();
     }
 
     function init() {
-        bindRowActions();
-
-        document.getElementById('btnAddUser').addEventListener('click', function () {
-            openModal('add');
-        });
-        document.getElementById('btnCloseDrawer').addEventListener('click', closeDrawer);
-        document.getElementById('drawerOverlay').addEventListener('click', closeDrawer);
-        document.getElementById('btnCloseModal').addEventListener('click', closeModal);
-        document.getElementById('btnCancelModal').addEventListener('click', closeModal);
-        document.getElementById('userModalOverlay').addEventListener('click', function (e) {
-            if (e.target === els.modalOverlay) closeModal();
-        });
-        els.userForm.addEventListener('submit', saveUser);
-
-        document.querySelectorAll('input[name="userRoleType"]').forEach(function (r) {
-            r.addEventListener('change', onRoleTypeChange);
-        });
-
-        if (els.globalSearch) {
-            // Search is now handled by standard form submission
+        // Nếu có lỗi validation từ server, xác định xem là edit hay add từ dữ liệu ẩn
+        const userIdInput = document.getElementById('formUserId');
+        if (userIdInput && userIdInput.value) {
+            editingUserId = userIdInput.value;
         }
 
-        els.filterTabs.forEach(function (tab) {
-            // Tabs are now links, no JS needed
+        document.querySelectorAll('[data-action="view"]').forEach(btn => {
+            btn.onclick = function () {
+                const id = this.getAttribute('data-id');
+                const user = findUser(id);
+                if (user) openDrawer(user);
+            };
+        });
+        document.querySelectorAll('[data-action="edit"]').forEach(btn => {
+            btn.onclick = function () {
+                const id = this.getAttribute('data-id');
+                const user = findUser(id);
+                if (user) openModal('edit', user);
+            };
         });
 
+        const btnAdd = document.getElementById('btnAddUser');
+        if (btnAdd) btnAdd.addEventListener('click', () => openModal('add'));
+
+        const closeDrawerBtn = document.getElementById('btnCloseDrawer');
+        if (closeDrawerBtn) closeDrawerBtn.addEventListener('click', closeDrawer);
+        if (els.drawerOverlay) els.drawerOverlay.addEventListener('click', closeDrawer);
+
+        const closeModalBtn = document.getElementById('btnCloseModal');
+        const cancelModalBtn = document.getElementById('btnCancelModal');
+        if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+        if (cancelModalBtn) cancelModalBtn.addEventListener('click', closeModal);
+        if (els.modalOverlay) els.modalOverlay.addEventListener('click', function (e) {
+            if (e.target === els.modalOverlay) closeModal();
+        });
+
+        const roleRadios = document.querySelectorAll('input[name="role"]');
+        roleRadios.forEach(r => r.addEventListener('change', onRoleTypeChange));
+
+        // Submit form validation
+        if (els.userForm) {
+
+            const nameRegex = /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂÂÊÔƠƯưăâêôơư\s]+$/;
+            const phoneRegex = /^(0[35789])[0-9]{8}$/;
+
+            const show = (input, msg) => {
+                showError(input, msg);
+                return true;
+            };
+
+            const isFutureDate = (dateStr) => {
+                return new Date(dateStr) >= new Date();
+            };
+
+            els.userForm.addEventListener('submit', function (e) {
+                clearErrors();
+                let hasError = false;
+
+                const isEdit = !!editingUserId;
+                const isDoctor = document.getElementById('roleDoctor').checked;
+
+                // 1. Account Phone
+                const phoneInput = document.getElementById('formAccountPhone');
+                const phoneVal = phoneInput.value.trim();
+
+                if (!phoneVal) {
+                    hasError = show(phoneInput, 'Account phone number must not be empty');
+                } else if (!phoneRegex.test(phoneVal)) {
+                    hasError = show(phoneInput, 'Phone number must be a valid Vietnamese mobile number (10 digits, starting with 03, 05, 07, 08, 09)');
+                }
+
+                // 2. Password (only for create)
+                if (!isEdit) {
+                    const pwdInput = document.getElementById('formPassword');
+                    const pwdVal = pwdInput.value;
+
+                    if (!pwdVal) {
+                        hasError = show(pwdInput, 'Password must not be empty');
+                    } else if (pwdVal.length < 6) {
+                        hasError = show(pwdInput, 'Password must be at least 6 characters');
+                    }
+                }
+
+                // 3. Validation by role
+                if (isDoctor) {
+
+                    const nameInput = document.getElementById('formFullName');
+                    const nameVal = nameInput.value.trim();
+
+                    if (!nameVal) {
+                        hasError = show(nameInput, 'Doctor full name must not be empty');
+                    } else if (!nameRegex.test(nameVal)) {
+                        hasError = show(nameInput, 'Full name must contain only letters and spaces');
+                    } else if (nameVal.length > 60) {
+                        hasError = show(nameInput, 'Full name must not exceed 60 characters');
+                    }
+
+                    const dobInput = document.getElementById('formDob');
+                    const dobVal = dobInput.value;
+
+                    if (!dobVal) {
+                        hasError = show(dobInput, 'Please select date of birth');
+                    } else if (isFutureDate(dobVal)) {
+                        hasError = show(dobInput, 'Date of birth must be in the past');
+                    }
+
+                    const specialtyInput = document.getElementById('formSpecialty');
+                    if (specialtyInput && specialtyInput.value.trim().length > 60) {
+                        hasError = show(specialtyInput, 'Specialty must not exceed 60 characters');
+                    }
+
+                } else {
+
+                    const nameInput = document.getElementById('formPatFullName');
+                    const nameVal = nameInput.value.trim();
+
+                    if (!nameVal) {
+                        hasError = show(nameInput, 'Patient full name must not be empty');
+                    } else if (!nameRegex.test(nameVal)) {
+                        hasError = show(nameInput, 'Full name must contain only letters and spaces');
+                    } else if (nameVal.length > 60) {
+                        hasError = show(nameInput, 'Full name must not exceed 60 characters');
+                    }
+
+                    const dobInput = document.getElementById('formPatDob');
+                    const dobVal = dobInput.value;
+
+                    if (!dobVal) {
+                        hasError = show(dobInput, 'Please select date of birth');
+                    } else if (isFutureDate(dobVal)) {
+                        hasError = show(dobInput, 'Date of birth must be in the past');
+                    }
+
+                    const addrInput = document.getElementById('formPatAddress');
+                    const addrVal = addrInput.value.trim();
+
+                    if (!addrVal) {
+                        hasError = show(addrInput, 'Patient address must not be empty');
+                    } else if (addrVal.length > 200) {
+                        hasError = show(addrInput, 'Address must not exceed 200 characters');
+                    }
+
+                    const heightInput = document.getElementById('formHeight');
+                    const heightVal = heightInput.value ? parseInt(heightInput.value, 10) : null;
+
+                    if (heightVal !== null && !isNaN(heightVal)) {
+                        if (heightVal < 30 || heightVal > 250) {
+                            hasError = show(heightInput, 'Height must be between 30 cm and 250 cm');
+                        }
+                    }
+
+                    const weightInput = document.getElementById('formWeight');
+                    const weightVal = weightInput.value ? parseFloat(weightInput.value) : null;
+
+                    if (weightVal !== null && !isNaN(weightVal)) {
+                        if (weightVal < 5.0 || weightVal > 300.0) {
+                            hasError = show(weightInput, 'Weight must be between 5.0 kg and 300.0 kg');
+                        }
+                    }
+
+                    const svNameInput = document.getElementById('formSupervisorName');
+                    const svNameVal = svNameInput.value.trim();
+
+                    if (svNameVal) {
+                        if (!nameRegex.test(svNameVal)) {
+                            hasError = show(svNameInput, 'Guardian name must contain only letters and spaces');
+                        } else if (svNameVal.length > 90) {
+                            hasError = show(svNameInput, 'Guardian name must not exceed 90 characters');
+                        }
+                    }
+
+                    const svPhoneInput = document.getElementById('formSupervisorPhone');
+                    const svPhoneVal = svPhoneInput.value.trim();
+
+                    if (svPhoneVal && !phoneRegex.test(svPhoneVal)) {
+                        hasError = show(svPhoneInput, 'Guardian phone number is invalid');
+                    }
+                }
+
+                // prevent submit
+                if (hasError) {
+                    e.preventDefault();
+
+                    const firstError = els.userForm.querySelector('.is-invalid');
+                    if (firstError) {
+                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        firstError.focus();
+                    }
+                }
+            });
+
+            // Auto clear error when user edits
+            els.userForm.querySelectorAll('input, select, textarea').forEach(field => {
+                const clear = function () {
+                    this.classList.remove('is-invalid');
+                    const feedback = this.parentNode.querySelector('.error-feedback');
+                    if (feedback) feedback.textContent = '';
+                };
+
+                field.addEventListener('input', clear);
+                field.addEventListener('change', clear);
+            });
+        }
     }
 
     if (document.readyState === 'loading') {

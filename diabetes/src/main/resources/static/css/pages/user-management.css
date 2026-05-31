@@ -1091,3 +1091,18 @@ body.modal-open {
         justify-content: center;
     }
 }
+
+/* Validation styling */
+.form-group input.is-invalid,
+.form-group select.is-invalid,
+.form-group textarea.is-invalid {
+    border-color: #c53030 !important;
+    box-shadow: 0 0 0 3px rgba(197, 48, 48, 0.1) !important;
+}
+
+.error-feedback {
+    font-size: 0.75rem;
+    color: #c53030;
+    margin-top: 4px;
+    display: block;
+}
