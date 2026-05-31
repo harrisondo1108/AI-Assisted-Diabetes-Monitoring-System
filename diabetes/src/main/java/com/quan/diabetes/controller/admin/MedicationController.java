@@ -1,4 +1,4 @@
-package com.quan.diabetes.controller;
+package com.quan.diabetes.controller.admin;
 
 import com.quan.diabetes.entity.Medication;
 import com.quan.diabetes.service.MedicationService;

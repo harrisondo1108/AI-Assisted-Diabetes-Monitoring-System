@@ -10,12 +10,18 @@ import com.quan.diabetes.service.RoleService;
 import com.quan.diabetes.service.UserService;
 import com.quan.diabetes.util.ParseUtil;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -69,9 +75,39 @@ public class AuthenticationController {
             model.addAttribute("errorMsg", "Incorrect account or password");
             return "auth/login";
         }
+        User user = userOptional.get();
+        // Sau khi xác thực thành công (user hợp lệ)
+        List<SimpleGrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("ROLE_" + user.getRole().getRoleId())
+        );
+        UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(user.getPhoneNumber(), null, authorities);
+        SecurityContextHolder.getContext().setAuthentication(authToken);
 
-        session.setAttribute("loggedInUser", userOptional.get());
-        return "redirect:/admin";
+        session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
+
+        session.setAttribute("loggedInUser", user);
+
+        switch (user.getRole().getRoleId()) {
+            case "PAT" -> {
+                Patient patient = patientService.findById(user.getUserId()).orElse(null);
+                session.setAttribute("userProfile", patient);
+                return "redirect:/admin/medicines";
+            }
+            case "DO" -> {
+                Profile profile = profileService.findById(user.getUserId()).orElse(null);
+                session.setAttribute("userProfile", profile);
+                return "redirect:/doctor/dashboard";
+            }
+            case "AD" -> {
+                return "redirect:/admin";
+            }
+            default -> {
+                session.removeAttribute("loggedInUser");
+                model.addAttribute("errorMsg", "Your account role is not recognized.");
+                return "auth/login";
+            }
+        }
     }
 
     @PostMapping("/register")
