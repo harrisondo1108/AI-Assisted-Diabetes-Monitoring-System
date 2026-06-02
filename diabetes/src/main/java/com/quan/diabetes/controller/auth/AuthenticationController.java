@@ -1,15 +1,10 @@
 package com.quan.diabetes.controller.auth;
 
-import com.quan.diabetes.entity.Patient;
-import com.quan.diabetes.entity.Profile;
-import com.quan.diabetes.entity.Role;
-import com.quan.diabetes.entity.User;
-import com.quan.diabetes.service.PatientService;
-import com.quan.diabetes.service.ProfileService;
-import com.quan.diabetes.service.RoleService;
-import com.quan.diabetes.service.UserService;
+import com.quan.diabetes.entity.*;
+import com.quan.diabetes.service.*;
 import com.quan.diabetes.util.ParseUtil;
 import jakarta.servlet.http.HttpSession;
+import jakarta.transaction.Transactional;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,15 +26,18 @@ public class AuthenticationController {
     private final RoleService roleService;
     private final PatientService patientService;
     private final ProfileService profileService;
+    private final PatientRoutineService patientRoutineService;
 
     public AuthenticationController(UserService userService,
                                     RoleService roleService,
                                     PatientService patientService,
-                                    ProfileService profileService) {
+                                    ProfileService profileService,
+                                    PatientRoutineService patientRoutineService) {
         this.userService = userService;
         this.roleService = roleService;
         this.patientService = patientService;
         this.profileService = profileService;
+        this.patientRoutineService = patientRoutineService;
     }
 
     // ==================== GET ====================
@@ -110,6 +108,7 @@ public class AuthenticationController {
         }
     }
 
+    @Transactional
     @PostMapping("/register")
     public String register(@RequestParam String roleId,
                            @RequestParam String fullName,
@@ -125,7 +124,8 @@ public class AuthenticationController {
                            @RequestParam(required = false) String allergyNotes,
                            @RequestParam(required = false) String specialty,
                            @RequestParam(required = false) String licenseNumber,
-                           Model model) {
+                           Model model,
+                           HttpSession session) {
 
         if (ParseUtil.isBlank(roleId) || ParseUtil.isBlank(fullName) || ParseUtil.isBlank(phoneNumber) || ParseUtil.isBlank(password)) {
             model.addAttribute("errorMsg", "Please enter all required information.");
@@ -165,6 +165,11 @@ public class AuthenticationController {
             patient.setPermanentMedicalHistory(ParseUtil.parseString(medicalHistory));
             patient.setAllergyNotes(ParseUtil.parseString(allergyNotes));
             patientService.create(patient);
+            // khai patientRoutine
+            PatientRoutine patientRoutine = new PatientRoutine();
+            patientRoutine.setPatient(patient);
+            patientRoutineService.create(patientRoutine);
+
         } else {
             Profile profile = new Profile();
             profile.setUser(user);

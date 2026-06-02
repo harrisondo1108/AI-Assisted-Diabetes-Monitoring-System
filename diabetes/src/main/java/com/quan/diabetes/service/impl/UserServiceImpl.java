@@ -53,6 +53,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User create(User entity) {
         User newUser = new User();
+        newUser.setUserId(entity.getUserId());
         newUser.setPhoneNumber(entity.getPhoneNumber());
         newUser.setRole(entity.getRole());
         newUser.setPasswordHash(passwordEncoder.encode(entity.getPasswordHash()));
@@ -65,6 +66,7 @@ public class UserServiceImpl implements UserService {
             throw new EntityNotFoundException("User not found with id: " + id);
         }
         User newUser = new User();
+        newUser.setUserId(entity.getUserId());
         newUser.setPhoneNumber(entity.getPhoneNumber());
         newUser.setRole(entity.getRole());
         newUser.setPasswordHash(passwordEncoder.encode(entity.getPasswordHash()));

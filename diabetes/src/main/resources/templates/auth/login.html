@@ -40,8 +40,7 @@
                      th:text="${errorMsg}" >
                 </div>
                 <div id="successMsg" class="success-message"
-                     th:if="${successMsg}" th:text="${successMsg}">
-
+                     th:if="${successMsg != null}" th:text="${successMsg}">
                 </div>
 
                 <form id="loginForm" th:action="@{/login}" method="post">
