@@ -99,6 +99,7 @@ CREATE TABLE [ClinicalExamination] (
 CREATE TABLE [Symptoms_Catalog] (
     SymptomID VARCHAR(50) PRIMARY KEY,
     SymptomName NVARCHAR(200) UNIQUE
+	Status BIT DEFAULT(1) -- 1 -> unclock , 0 -> lock
 );
 
 -- 7. ExamSymptom
@@ -118,7 +119,8 @@ CREATE TABLE [Lab_Test_Catalog] (
     Unit NVARCHAR(20), -- đơn vị mô tả
     Description NVARCHAR(MAX),
 	RoomID INT,
-	FOREIGN KEY (RoomID) REFERENCES Room(RoomID) ON DELETE CASCADE ON UPDATE CASCADE
+	FOREIGN KEY (RoomID) REFERENCES Room(RoomID) ON DELETE CASCADE ON UPDATE CASCADE,
+	Status BIT DEFAULT(1) -- 1 -> unclock , 0 -> lock
 );
 
 CREATE TABLE PatientType (
@@ -186,7 +188,8 @@ CREATE TABLE [Medication] (
     Form NVARCHAR(50), -- dạng bào chế
     Concentration NVARCHAR(50), -- Nồng độ
     AdministrationRoute NVARCHAR(50), -- đường dùng
-    UsageInstruction NVARCHAR(MAX) -- hướng dẫn sử dụng mặc định
+    UsageInstruction NVARCHAR(MAX), -- hướng dẫn sử dụng mặc định
+	Status VARCHAR(20) DEFAULT('Active') CHECK (Status in ('Active', 'Clocked'))
 );
 
 -- 13. PrescriptionDetail
