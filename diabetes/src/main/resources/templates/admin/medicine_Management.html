@@ -6,54 +6,15 @@
     <title>Medicine Management - Admin | Diabetes Care System</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/common/admin-layout.css}">
     <link rel="stylesheet" th:href="@{/css/pages/medicine_management.css}">
 </head>
 <body>
 <div class="admin-layout">
-    <aside class="admin-sidebar">
-        <div class="sidebar-brand">
-            <div class="brand-name">Diabetes Care</div>
-            <div class="brand-sub">Admin Console</div>
-        </div>
-        <nav class="sidebar-nav">
-            <a href="#" class="nav-item"><i class="fas fa-chart-line"></i> Dashboard</a>
-            <a href="#" class="nav-item"><i class="fas fa-chart-line"></i> User Management</a>
-            <a href="medicines" class="nav-item active"><i class="fas fa-pills"></i> Medicine Management</a>
-            <a href="#" class="nav-item"><i class="fas fa-flask"></i> Lab Tests</a>
-            <a href="#" class="nav-item"><i class="fas fa-sliders"></i> Threshold Config</a>
-            <a href="#" class="nav-item"><i class="fas fa-desktop"></i> Monitoring</a>
-        </nav>
-        <div class="sidebar-footer">
-            <button type="button" class="btn-new-report"><i class="fas fa-plus"></i> New Report</button>
-            <div class="sidebar-footer-links">
-                <a href="#"><i class="fas fa-cog"></i> Settings</a>
-                <a href="#"><i class="fas fa-life-ring"></i> Support</a>
-            </div>
-        </div>
-    </aside>
+    <aside th:replace="layouts/admin-layout :: sidebar"></aside>
 
     <div class="admin-main">
-        <header class="admin-header">
-            <div class="header-search">
-                <i class="fas fa-search"></i>
-                <form id="searchForm" th:action="@{/admin/medicines}" method="get">
-                    <input type="text" name="keyword" id="searchKeyword" placeholder="Search by name, route..." th:value="${searchKeyword}">
-                    <button type="submit" class="search-btn">Search
-                    </button>
-                </form>
-            </div>
-            <div class="header-actions">
-                <button type="button" class="icon-btn" title="Notifications"><i class="fas fa-bell"></i></button>
-                <button type="button" class="icon-btn" title="Help"><i class="fas fa-circle-question"></i></button>
-                <div class="admin-profile">
-                    <div class="admin-avatar-icon"><i class="fas fa-user-shield"></i></div>
-                    <div class="profile-text">
-                        <div class="name">Administrator</div>
-                        <div class="role">Chief Administrator</div>
-                    </div>
-                </div>
-            </div>
-        </header>
+        <header th:replace="layouts/admin-layout :: header"></header>
 
         <main class="admin-content">
             <div class="page-header">
@@ -196,18 +157,7 @@
             </div>
         </main>
 
-        <footer class="admin-footer">
-            <span>© 2024 Diabetes Care System</span>
-            <span>
-                <a href="#">Legal</a>
-                <a href="#">Privacy Policy</a>
-                <a href="#">Terms of Use</a>
-            </span>
-            <span class="footer-status">
-                <span class="dot"></span>
-                System Status: Operational
-            </span>
-        </footer>
+        <footer th:replace="layouts/admin-layout :: footer"></footer>
     </div>
 </div>
 
