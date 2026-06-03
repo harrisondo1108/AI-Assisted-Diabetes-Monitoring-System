@@ -37,6 +37,7 @@ public class Patient {
 
     @Column(name = "Gender")
     private Boolean gender;
+    // true -> male, false -> female
 
     @Column(name = "Height")
     private Integer height;

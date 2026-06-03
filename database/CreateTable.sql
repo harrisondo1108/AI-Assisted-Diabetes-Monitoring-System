@@ -1,7 +1,7 @@
-
-IF DB_ID('Diabetes') IS NOT NULL
-   DROP DATABASE Diabetes;
-GO
+﻿--DROP trước
+--IF DB_ID('Diabetes') IS NOT NULL
+--   DROP DATABASE Diabetes;
+--GO
 CREATE DATABASE Diabetes;
 GO
 
@@ -24,8 +24,8 @@ CREATE TABLE [Account] (
     UserID VARCHAR(50) PRIMARY KEY,
     PhoneNumber NVARCHAR(50) NOT NULL UNIQUE, -- accountName
     PasswordHash VARCHAR(255) NOT NULL, -- password
-	Status NVARCHAR(50) NOT NULL CHECK (Status IN ('Active', 'Locked')),
     RoleID VARCHAR(50),
+	Status VARCHAR(20) DEFAULT('Active') CHECK (Status in ('Active', 'Clocked'))
     FOREIGN KEY (RoleID) REFERENCES Role(RoleID) ON DELETE SET NULL ON UPDATE CASCADE
 	-- "ON DELETE SET NULL": nếu ta xóa 1 dòng A bên bảng Role thì thuộc tính FK RoleID của các dòng ở bảng User
 	--                       tham chiếu đến dòng A sẽ được sửa thành null
@@ -43,10 +43,10 @@ CREATE TABLE [Profile] (
     Gender BIT, -- 0 -> male; 1 -> female
 	[RoomID] INT NULL,
 	Specialty NVARCHAR(60),
-    Status NVARCHAR(60),
     FOREIGN KEY (UserID) REFERENCES [Account](UserID) ON DELETE CASCADE  ON UPDATE CASCADE,
 	FOREIGN KEY ([RoomID]) REFERENCES [Room]([RoomID]) ON DELETE SET NULL ON UPDATE CASCADE
 );
+
 
 -- 4. Patient
 CREATE TABLE [Patient] (
@@ -65,6 +65,19 @@ CREATE TABLE [Patient] (
     SupervisorPhone VARCHAR(15),
     FOREIGN KEY (UserID) REFERENCES [Account](UserID) ON DELETE CASCADE ON UPDATE CASCADE,
     CHECK (Bloodgroup IN ('A+','A-','B+','B-','AB+','AB-','O+','O-'))
+);
+
+CREATE TABLE PatientRoutine (
+    UserID VARCHAR(50) PRIMARY KEY,
+    BreakfastTime TIME,
+    LunchTime TIME,
+    DinnerTime TIME,
+
+    WakeUpTime TIME,
+    SleepTime TIME,
+
+    FOREIGN KEY (UserID)
+        REFERENCES Patient(UserID) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- 5. ClinicalExamination
@@ -86,6 +99,7 @@ CREATE TABLE [ClinicalExamination] (
 CREATE TABLE [Symptoms_Catalog] (
     SymptomID VARCHAR(50) PRIMARY KEY,
     SymptomName NVARCHAR(200) UNIQUE
+	Status BIT DEFAULT(1) -- 1 -> unclock , 0 -> lock
 );
 
 -- 7. ExamSymptom
@@ -103,9 +117,38 @@ CREATE TABLE [Lab_Test_Catalog] (
     LabTestID VARCHAR(50) PRIMARY KEY,
     TestName NVARCHAR(100) UNIQUE,
     Unit NVARCHAR(20), -- đơn vị mô tả
-	MinValue INT,
-    MaxValue INT,
-    Description NVARCHAR(MAX)
+    Description NVARCHAR(MAX),
+	RoomID INT,
+	FOREIGN KEY (RoomID) REFERENCES Room(RoomID) ON DELETE CASCADE ON UPDATE CASCADE,
+	Status BIT DEFAULT(1) -- 1 -> unclock , 0 -> lock
+);
+
+CREATE TABLE PatientType (
+    PatientTypeID INT IDENTITY(1,1) PRIMARY KEY,
+
+    TypeName NVARCHAR(50) NOT NULL,
+
+    MinAge INT,
+
+    MaxAge INT
+);
+
+CREATE TABLE IndicatorThreshold (
+    ThresholdID INT IDENTITY(1,1) PRIMARY KEY,
+
+    LabTestID VARCHAR(50) NOT NULL,
+    PatientTypeID INT NOT NULL,
+
+    MinValue DECIMAL(10,2),
+    MaxValue DECIMAL(10,2),
+
+    CreatedAt DATETIME DEFAULT GETDATE(),
+
+    FOREIGN KEY (LabTestID)
+        REFERENCES Lab_Test_Catalog(LabTestID) ON DELETE CASCADE ON UPDATE CASCADE,
+
+    FOREIGN KEY (PatientTypeID)
+        REFERENCES PatientType(PatientTypeID)
 );
 
 -- 9. LabOrder
@@ -145,7 +188,8 @@ CREATE TABLE [Medication] (
     Form NVARCHAR(50), -- dạng bào chế
     Concentration NVARCHAR(50), -- Nồng độ
     AdministrationRoute NVARCHAR(50), -- đường dùng
-    UsageInstruction NVARCHAR(MAX) -- hướng dẫn sử dụng mặc định
+    UsageInstruction NVARCHAR(MAX), -- hướng dẫn sử dụng mặc định
+	Status VARCHAR(20) DEFAULT('Active') CHECK (Status in ('Active', 'Clocked'))
 );
 
 -- 13. PrescriptionDetail
@@ -154,7 +198,7 @@ CREATE TABLE [PrescriptionDetail] (
     PrescriptionID VARCHAR(50),
     MedicationID VARCHAR(50),
     Dosage NVARCHAR(50), -- liều lượng (mỗi lần dùng bn)
-    Timing NVARCHAR(MAX), -- thời điểm dùng
+    Timing Time, -- thời điểm dùng
     TotalQuantity INT, -- tổng số thuốc cung cấp
     DurationDays INT, -- tổng số ngày sử dụng
     FOREIGN KEY (PrescriptionID) REFERENCES Prescription(PrescriptionID) ON DELETE CASCADE,
@@ -167,6 +211,18 @@ CREATE TABLE [AI_Assistant] (
     AIName NVARCHAR(100) UNIQUE,
     Status NVARCHAR(50),
     ModelName VARCHAR(50)
+);
+
+CREATE TABLE PromptTemplate (
+    TemplateID INT IDENTITY(1,1) PRIMARY KEY,
+
+    TemplateName NVARCHAR(100) NOT NULL,
+
+    SystemPrompt NVARCHAR(MAX),
+
+    IsActive BIT DEFAULT 1,
+
+    CreatedAt DATETIME DEFAULT GETDATE()
 );
 
 -- 15. Conversation
@@ -202,3 +258,22 @@ CREATE TABLE [AI_Reminder] (
     FOREIGN KEY (PatientID) REFERENCES Patient(UserID) ON DELETE CASCADE,
 	FOREIGN KEY (AIAssistantID) REFERENCES AI_Assistant(AIAssistantID) ON DELETE CASCADE
 );
+
+------------------  INSERT  ----------------------------------------
+INSERT INTO [Role] (RoleID, RoleName) 
+VALUES 
+    ('AD', 'Administrator'),
+    ('PAT', 'Manager'),
+    ('DO', 'Employee');
+
+INSERT INTO PatientType (TypeName, MinAge, MaxAge)
+VALUES 
+    ('Adult', 18, 39),
+    ('Middle-aged', 40, 64),
+    ('Elderly', 65, 120),
+    ('Pregnant', NULL, NULL);
+
+INSERT INTO [Room] ([RoomName])
+VALUES
+('Endocrinology Clinic'),
+('Laboratory');

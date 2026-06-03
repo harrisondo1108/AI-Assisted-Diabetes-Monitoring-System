@@ -7,6 +7,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+import java.time.LocalTime;
+
 @Entity
 @Table(name = "PrescriptionDetail")
 public class PrescriptionDetail {
@@ -27,7 +29,7 @@ public class PrescriptionDetail {
     private String dosage;
 
     @Column(name = "Timing")
-    private String timing;
+    private LocalTime timing;
 
     @Column(name = "TotalQuantity")
     private int totalQuantity;
@@ -70,14 +72,13 @@ public class PrescriptionDetail {
         this.dosage = dosage;
     }
 
-    public String getTiming() {
+    public LocalTime getTiming() {
         return timing;
     }
 
-    public void setTiming(String timing) {
+    public void setTiming(LocalTime timing) {
         this.timing = timing;
     }
-
 
     public int getTotalQuantity() {
         return totalQuantity;

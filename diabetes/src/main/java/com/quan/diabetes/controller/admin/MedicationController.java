@@ -140,6 +140,53 @@ public class MedicationController {
         }
     }
 
+    @GetMapping("/list")
+    @ResponseBody
+    public java.util.Map<String, Object> listMedicinesJson(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String route,
+            @RequestParam(required = false) String form,
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "medicationName") String sortField,
+            @RequestParam(defaultValue = "asc") String sortDirection) {
+
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, sortField);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Medication> medicationsPage;
+
+        if ("active".equalsIgnoreCase(status)) {
+            medicationsPage = medicationService.findAllActive(pageable);
+        } else if ("clocked".equalsIgnoreCase(status)) {
+            medicationsPage = medicationService.findAllClocked(pageable);
+        } else {
+            medicationsPage = medicationService.findAll(pageable);
+        }
+
+        if (form != null && !form.isEmpty()) {
+            medicationsPage = medicationService.findByForm(form, pageable);
+        }
+
+        if (route != null && !route.isEmpty()) {
+            medicationsPage = medicationService.findByAdministrationRoute(route, pageable);
+        }
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            medicationsPage = medicationService.searchByKeyword(keyword, pageable);
+        }
+
+        java.util.Map<String, Object> response = new java.util.HashMap<>();
+        response.put("content", medicationsPage.getContent());
+        response.put("currentPage", medicationsPage.getNumber());
+        response.put("totalPages", medicationsPage.getTotalPages());
+        response.put("totalElements", medicationsPage.getTotalElements());
+        response.put("pageSize", medicationsPage.getSize());
+        return response;
+    }
+
     @GetMapping("/api/{id}")
     @ResponseBody
     public ResponseEntity<?> getMedicationById(@PathVariable String id) {

@@ -7,7 +7,7 @@ import jakarta.persistence.*;
 public class User {
 
     public static final String STATUS_ACTIVE = "Active";
-    public static final String STATUS_LOCKED = "Locked";
+    public static final String STATUS_LOCKED = "Clocked";
 
     @Id
     @Column(name = "UserID", length = 50)
@@ -19,7 +19,7 @@ public class User {
     @Column(name = "PasswordHash", nullable = false, length = 255)
     private String passwordHash;
 
-    @Column(name = "Status", nullable = false, length = 50, columnDefinition = "NVARCHAR(50) CHECK (Status IN ('Active', 'Locked'))")
+    @Column(name = "Status", nullable = false, length = 50, columnDefinition = "NVARCHAR(50) CHECK (Status IN ('Active', 'Clocked'))")
     private String status = STATUS_ACTIVE;
 
     @ManyToOne

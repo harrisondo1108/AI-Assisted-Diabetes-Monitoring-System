@@ -185,11 +185,198 @@ window.changePageSize = function() {
     window.location.href = currentUrl.toString();
 };
 
+// Live search (debounced) - update table via AJAX JSON endpoint
 var searchKeyword = document.getElementById('searchKeyword');
-if (searchKeyword) {
-    searchKeyword.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') { e.preventDefault(); document.getElementById('searchForm').submit(); }
+var searchForm = document.getElementById('searchForm');
+if (searchForm) {
+    searchForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        fetchAndRender(0);
     });
+}
+
+if (searchKeyword) {
+    var debounceTimer;
+    searchKeyword.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function() {
+            fetchAndRender(0);
+        }, 300);
+    });
+    searchKeyword.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            fetchAndRender(0);
+        }
+    });
+}
+
+function renderMedicines(list) {
+    var tbody = document.querySelector('.data-table tbody');
+    if (!tbody) return;
+    if (list.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="empty-row">
+                    <i class="fas fa-pills"></i>
+                    <p>No medications found</p>
+                </td>
+            </tr>`;
+        return;
+    }
+    var html = list.map(function(med) {
+        var formClass = med.form === 'tablet' ? 'badge-tablet' : (med.form === 'capsule' ? 'badge-capsule' : 'badge-injection');
+        var formText = med.form === 'tablet' ? 'Tablet' : (med.form === 'capsule' ? 'Capsule' : 'Injection');
+        var routeText = med.administrationRoute ? med.administrationRoute : '—';
+        var instrText = med.usageInstruction ? med.usageInstruction : '—';
+        var instrAbbrev = instrText.length > 80 ? instrText.substring(0, 80) + '...' : instrText;
+        var statusClass = med.status === 'Active' ? 'badge-active' : 'badge-clocked';
+        var lockIcon = med.status === 'Active' ? 'fas fa-lock' : 'fas fa-lock-open';
+        var lockTitle = med.status === 'Active' ? 'Clock Medicine' : 'Restore Medicine';
+
+        return `
+            <tr>
+                <td>
+                    <div class="medicine-cell">
+                        <span class="medicine-name">${escapeHtml(med.medicationName)}</span>
+                        <span class="medicine-id">${escapeHtml(med.medicationId)} — ${escapeHtml(med.concentration || '')}</span>
+                    </div>
+                </td>
+                <td>
+                    <span class="${formClass}">${formText}</span>
+                </td>
+                <td>${escapeHtml(routeText)}</td>
+                <td class="usage-instruction-text" title="${escapeHtml(instrText)}">${escapeHtml(instrAbbrev)}</td>
+                <td>
+                    <span class="${statusClass}">${escapeHtml(med.status)}</span>
+                </td>
+                <td class="action-group">
+                    <button class="action-btn view" data-id="${escapeHtml(med.medicationId)}" onclick="viewDetail(this.getAttribute('data-id'))" title="View Details">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="action-btn edit" data-id="${escapeHtml(med.medicationId)}" onclick="openEditModal(this.getAttribute('data-id'))" title="Edit">
+                        <i class="fas fa-pen"></i>
+                    </button>
+                    <button class="action-btn soft-delete" data-id="${escapeHtml(med.medicationId)}" data-status="${escapeHtml(med.status)}" data-name="${escapeHtml(med.medicationName)}" onclick="showConfirmModal(this.getAttribute('data-id'), this.getAttribute('data-status'), this.getAttribute('data-name'))" title="${lockTitle}">
+                        <i class="${lockIcon}"></i>
+                    </button>
+                </td>
+            </tr>`;
+    }).join('\n');
+    tbody.innerHTML = html;
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>"'`]/g, function (s) {
+        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;', '`':'&#96;'})[s];
+    });
+}
+
+function renderPagination(currentPage, totalPages, totalItems, pageSize) {
+    var container = document.querySelector('.pagination-container');
+    if (!container) return;
+    if (totalPages <= 0) {
+        container.style.display = 'none';
+        return;
+    }
+    container.style.display = 'flex';
+
+    var infoSpan = container.querySelector('.pagination-info');
+    if (infoSpan) {
+        infoSpan.innerHTML = 'Showing page <span>' + (currentPage + 1) + '</span> of <span>' + totalPages + '</span> (Total <span>' + totalItems + '</span> items)';
+    }
+
+    var controlsDiv = container.querySelector('.pagination-controls');
+    if (controlsDiv) {
+        var status = document.getElementById('statusSelect')?.value || '';
+        var form = document.getElementById('filterFormSelect')?.value || '';
+        var route = document.getElementById('routeSelect')?.value || '';
+        var keyword = (document.getElementById('searchKeyword')?.value || '').trim();
+        var urlParams = new URLSearchParams(window.location.search);
+        var sortField = urlParams.get('sortField') || 'medicationName';
+        var sortDirection = urlParams.get('sortDirection') || 'asc';
+
+        var buildPageUrl = function(p) {
+            var params = new URLSearchParams();
+            params.set('page', p);
+            params.set('size', pageSize);
+            if (status) params.set('status', status);
+            if (form) params.set('form', form);
+            if (route) params.set('route', route);
+            if (keyword) params.set('keyword', keyword);
+            if (sortField) params.set('sortField', sortField);
+            if (sortDirection) params.set('sortDirection', sortDirection);
+            return '/admin/medicines?' + params.toString();
+        };
+
+        var html = '';
+        if (currentPage > 0) {
+            html += '<a href="' + buildPageUrl(0) + '" class="pagination-btn"><i class="fas fa-chevron-left"></i> First</a>';
+            html += '<a href="' + buildPageUrl(currentPage - 1) + '" class="pagination-btn"><i class="fas fa-chevron-left"></i> Previous</a>';
+        }
+
+        html += '<div class="pagination-pages">';
+        var startPage = Math.max(0, currentPage - 2);
+        var endPage = Math.min(totalPages - 1, currentPage + 2);
+        for (var i = startPage; i <= endPage; i++) {
+            var activeClass = i === currentPage ? 'active' : '';
+            html += '<a href="' + buildPageUrl(i) + '" class="page-number ' + activeClass + '">' + (i + 1) + '</a>';
+        }
+        html += '</div>';
+
+        if (currentPage < totalPages - 1) {
+            html += '<a href="' + buildPageUrl(currentPage + 1) + '" class="pagination-btn">Next <i class="fas fa-chevron-right"></i></a>';
+            html += '<a href="' + buildPageUrl(totalPages - 1) + '" class="pagination-btn">Last <i class="fas fa-chevron-right"></i></a>';
+        }
+
+        controlsDiv.innerHTML = html;
+        
+        controlsDiv.querySelectorAll('a').forEach(function(a) {
+            a.addEventListener('click', function(e) {
+                e.preventDefault();
+                var href = this.getAttribute('href');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                setTimeout(function() { window.location.href = href; }, 120);
+            });
+        });
+    }
+}
+
+function fetchAndRender(page) {
+    var status = document.getElementById('statusSelect')?.value || '';
+    var form = document.getElementById('filterFormSelect')?.value || '';
+    var route = document.getElementById('routeSelect')?.value || '';
+    var keyword = (document.getElementById('searchKeyword')?.value || '').trim();
+    var urlParams = new URLSearchParams(window.location.search);
+    var pageSize = urlParams.get('size') || '5';
+    var sortField = urlParams.get('sortField') || 'medicationName';
+    var sortDirection = urlParams.get('sortDirection') || 'asc';
+
+    var url = '/admin/medicines/list?page=' + page +
+              '&size=' + pageSize +
+              '&status=' + status +
+              '&form=' + form +
+              '&route=' + route +
+              '&keyword=' + encodeURIComponent(keyword) +
+              '&sortField=' + sortField +
+              '&sortDirection=' + sortDirection;
+
+    fetch(url)
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            renderMedicines(data.content || []);
+            renderPagination(data.currentPage, data.totalPages, data.totalElements, data.pageSize);
+            
+            var currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('page', page);
+            if (keyword) currentUrl.searchParams.set('keyword', keyword);
+            else currentUrl.searchParams.delete('keyword');
+            window.history.replaceState({}, document.title, currentUrl.toString());
+        })
+        .catch(function(err) {
+            console.error('Error in live search:', err);
+        });
 }
 
 // ADD MODAL

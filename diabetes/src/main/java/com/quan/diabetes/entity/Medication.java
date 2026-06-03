@@ -29,7 +29,8 @@ public class Medication {
     private String usageInstruction;
 
     @Column(name = "Status", length = 20, columnDefinition = "VARCHAR(20) DEFAULT 'Active'")
-    private String status;
+    private String status = "Active";
+    // active, locked
 
     public Medication() {
     }
@@ -90,5 +91,3 @@ public class Medication {
         this.status = status;
     }
 }
-
-
