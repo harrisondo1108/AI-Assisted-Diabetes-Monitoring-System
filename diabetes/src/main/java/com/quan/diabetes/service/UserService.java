@@ -12,8 +12,6 @@ public interface UserService {
 
     public Optional<User> findByUsernameAndPassword(String username, String password);
 
-    public Optional<User> findByPhoneNumber(String phoneNumber);
-
     public User create(User entity);
 
     public User update(String id, User entity);

@@ -35,11 +35,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> findByPhoneNumber(String phoneNumber) {
-        return userRepository.findByPhoneNumber(phoneNumber);
-    }
-
-    @Override
     public User create(User entity) {
         return userRepository.save(entity);
     }
@@ -74,6 +69,14 @@ public class UserServiceImpl implements UserService {
                     String number = "00000" + new Random().nextInt(1000000);
                     userId = "P" + number.substring(number.length() - 6);
                 }while(this.existsById(userId));
+                break;
+            }
+            case "DOC":{
+                do{
+                    String number = "00000" + new Random().nextInt(1000000);
+                    userId = "D" + number.substring(number.length() - 6);
+                }while(this.existsById(userId));
+                break;
             }
         }
         return userId;
