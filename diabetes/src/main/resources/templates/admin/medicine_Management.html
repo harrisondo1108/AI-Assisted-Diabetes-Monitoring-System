@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicine Management - Admin | Diabetes Care System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/pages/medicine_management.css}">
+</head>
+<body>
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-name">Diabetes Care</div>
+            <div class="brand-sub">Admin Console</div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item"><i class="fas fa-chart-line"></i> Dashboard</a>
+            <a href="#" class="nav-item"><i class="fas fa-chart-line"></i> User Management</a>
+            <a href="medicines" class="nav-item active"><i class="fas fa-pills"></i> Medicine Management</a>
+            <a href="#" class="nav-item"><i class="fas fa-flask"></i> Lab Tests</a>
+            <a href="#" class="nav-item"><i class="fas fa-sliders"></i> Threshold Config</a>
+            <a href="#" class="nav-item"><i class="fas fa-desktop"></i> Monitoring</a>
+        </nav>
+        <div class="sidebar-footer">
+            <button type="button" class="btn-new-report"><i class="fas fa-plus"></i> New Report</button>
+            <div class="sidebar-footer-links">
+                <a href="#"><i class="fas fa-cog"></i> Settings</a>
+                <a href="#"><i class="fas fa-life-ring"></i> Support</a>
+            </div>
+        </div>
+    </aside>
+
+    <div class="admin-main">
+        <header class="admin-header">
+            <div class="header-search">
+                <i class="fas fa-search"></i>
+                <form id="searchForm" th:action="@{/admin/medicines}" method="get">
+                    <input type="text" name="keyword" id="searchKeyword" placeholder="Search by name, route..." th:value="${searchKeyword}">
+                    <button type="submit" class="search-btn">Search
+                    </button>
+                </form>
+            </div>
+            <div class="header-actions">
+                <button type="button" class="icon-btn" title="Notifications"><i class="fas fa-bell"></i></button>
+                <button type="button" class="icon-btn" title="Help"><i class="fas fa-circle-question"></i></button>
+                <div class="admin-profile">
+                    <div class="admin-avatar-icon"><i class="fas fa-user-shield"></i></div>
+                    <div class="profile-text">
+                        <div class="name">Administrator</div>
+                        <div class="role">Chief Administrator</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="admin-content">
+            <div class="page-header">
+                <div>
+                    <h1>Medicine Management</h1>
+                    <p class="subtitle">Manage diabetes medication catalog, administration routes, and clinical guidelines.</p>
+                </div>
+                <div class="header-buttons">
+                    <button type="button" class="btn btn-primary" id="btnShowAddModal"><i class="fas fa-plus"></i> Add Medicine</button>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-pills"></i></div>
+                    <div class="stat-label">Total Medicines</div>
+                    <div class="stat-value" th:text="${totalMedications}">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-label">Active</div>
+                    <div class="stat-value" th:text="${activeMedications}">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-ban"></i></div>
+                    <div class="stat-label">Clocked</div>
+                    <div class="stat-value" th:text="${clockedMedications}">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-route"></i></div>
+                    <div class="stat-label">Routes</div>
+                    <div class="stat-value" th:text="${routes.size()}">0</div>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <div class="table-toolbar">
+                    <div class="filter-controls">
+                        <form id="filterForm" th:action="@{/admin/medicines}" method="get">
+                            <select class="filter-select" name="status" id="statusSelect" onchange="this.form.submit()">
+                                <option value="">All Status</option>
+                                <option value="active" th:selected="${selectedStatus == 'active'}">Active</option>
+                                <option value="clocked" th:selected="${selectedStatus == 'clocked'}">Clocked</option>
+                            </select>
+                            <select class="filter-select" name="form" id="filterFormSelect" onchange="this.form.submit()">
+                                <option value="">All Forms</option>
+                                <option value="tablet" th:selected="${selectedForm == 'tablet'}">Tablet</option>
+                                <option value="capsule" th:selected="${selectedForm == 'capsule'}">Capsule</option>
+                                <option value="injection" th:selected="${selectedForm == 'injection'}">Injection</option>
+                            </select>
+                            <select class="filter-select" name="route" id="routeSelect" onchange="this.form.submit()">
+                                <option value="">All Routes</option>
+                                <option value="Oral" th:selected="${selectedRoute == 'Oral'}">Oral</option>
+                                <option value="Subcutaneous" th:selected="${selectedRoute == 'Subcutaneous'}">Subcutaneous</option>
+                                <option value="Intravenous" th:selected="${selectedRoute == 'Intravenous'}">Intravenous</option>
+                                <option value="Intramuscular" th:selected="${selectedRoute == 'Intramuscular'}">Intramuscular</option>
+                            </select>
+                            <input type="hidden" name="size" th:value="${pageSize}">
+                            <input type="hidden" name="sortField" th:value="${sortField}">
+                            <input type="hidden" name="sortDirection" th:value="${sortDirection}">
+                        </form>
+                    </div>
+                    <div class="toolbar-icons">
+                        <a th:href="@{/admin/medicines}" class="icon-btn" title="Refresh">
+                            <i class="fas fa-sync-alt"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th>Medicine Name</th>
+                            <th>Dosage Form</th>
+                            <th>Route</th>
+                            <th>Usage Instruction</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="med : ${medications}">
+                            <td>
+                                <div class="medicine-cell">
+                                    <span class="medicine-name" th:text="${med.medicationName}"></span>
+                                    <span class="medicine-id" th:text="${med.medicationId} + ' — ' + ${med.concentration}"></span>
+                                </div>
+                            </td>
+                            <td>
+                                <span th:class="${med.form == 'tablet' ? 'badge-tablet' : (med.form == 'capsule' ? 'badge-capsule' : 'badge-injection')}"
+                                      th:text="${med.form == 'tablet' ? 'Tablet' : (med.form == 'capsule' ? 'Capsule' : 'Injection')}"></span>
+                            </td>
+                            <td th:text="${med.administrationRoute != null ? med.administrationRoute : '—'}">—</td>
+                            <td class="usage-instruction-text" th:title="${med.usageInstruction}" th:text="${med.usageInstruction != null ? #strings.abbreviate(med.usageInstruction, 80) : '—'}">—</td>
+                            <td>
+                                <span th:class="${med.status == 'Active' ? 'badge-active' : 'badge-clocked'}" th:text="${med.status}"></span>
+                            </td>
+                            <td class="action-group">
+                                <button class="action-btn view" th:attr="data-id=${med.medicationId}" onclick="viewDetail(this.getAttribute('data-id'))" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="action-btn edit" th:attr="data-id=${med.medicationId}" onclick="openEditModal(this.getAttribute('data-id'))" title="Edit">
+                                    <i class="fas fa-pen"></i>
+                                </button>
+                                <button class="action-btn soft-delete" th:attr="data-id=${med.medicationId},data-status=${med.status},data-name=${med.medicationName}"
+                                        onclick="showConfirmModal(this.getAttribute('data-id'), this.getAttribute('data-status'), this.getAttribute('data-name'))"
+                                        th:title="${med.status == 'Active' ? 'Clock Medicine' : 'Restore Medicine'}">
+                                    <i th:class="${med.status == 'Active' ? 'fas fa-lock' : 'fas fa-lock-open'}"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr th:if="${medications.isEmpty()}">
+                            <td colspan="6" class="empty-row">
+                                <i class="fas fa-pills"></i>
+                                <p>No medications found</p>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pagination-container" th:if="${totalPages > 0}">
+                    <div class="pagination-info">
+                        Showing page <span th:text="${currentPage + 1}"></span> of <span th:text="${totalPages}"></span>
+                        (Total <span th:text="${totalItems}"></span> items)
+                    </div>
+                    <div class="pagination-controls">
+                        <a th:if="${currentPage > 0}" th:href="@{/admin/medicines(page=0, status=${selectedStatus}, form=${selectedForm}, route=${selectedRoute}, keyword=${searchKeyword})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> First</a>
+                        <a th:if="${currentPage > 0}" th:href="@{/admin/medicines(page=${currentPage - 1}, status=${selectedStatus}, form=${selectedForm}, route=${selectedRoute}, keyword=${searchKeyword})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> Previous</a>
+                        <div class="pagination-pages">
+                            <th:block th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}">
+                                <a th:if="${pageNum >= currentPage - 2 and pageNum <= currentPage + 2}" th:href="@{/admin/medicines(page=${pageNum}, status=${selectedStatus}, form=${selectedForm}, route=${selectedRoute}, keyword=${searchKeyword})}" class="page-number" th:classappend="${pageNum == currentPage} ? 'active' : ''" th:text="${pageNum + 1}"></a>
+                            </th:block>
+                        </div>
+                        <a th:if="${currentPage < totalPages - 1}" th:href="@{/admin/medicines(page=${currentPage + 1}, status=${selectedStatus}, form=${selectedForm}, route=${selectedRoute}, keyword=${searchKeyword})}" class="pagination-btn">Next <i class="fas fa-chevron-right"></i></a>
+                        <a th:if="${currentPage < totalPages - 1}" th:href="@{/admin/medicines(page=${totalPages - 1}, status=${selectedStatus}, form=${selectedForm}, route=${selectedRoute}, keyword=${searchKeyword})}" class="pagination-btn">Last <i class="fas fa-chevron-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="admin-footer">
+            <span>© 2024 Diabetes Care System</span>
+            <span>
+                <a href="#">Legal</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Use</a>
+            </span>
+            <span class="footer-status">
+                <span class="dot"></span>
+                System Status: Operational
+            </span>
+        </footer>
+    </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal confirm-modal">
+        <div class="modal-header">
+            <h2 id="confirmModalTitle">
+                <i class="fas fa-shield-alt" style="margin-right: 8px; color: #f59e0b;"></i>
+                Confirm Action
+            </h2>
+            <button type="button" class="modal-close" id="closeConfirmModalBtn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="confirm-icon">
+                <i class="fas fa-question-circle"></i>
+            </div>
+            <p id="confirmMessage">Are you sure you want to perform this action?</p>
+            <p class="confirm-submessage" id="confirmSubMessage">This action cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="cancelConfirmBtn">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+            <button type="button" class="btn btn-primary" id="okConfirmBtn">
+                <i class="fas fa-check"></i> Yes, Confirm
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ADD MODAL -->
+<div class="modal-overlay" id="addModal">
+    <div class="modal">
+        <div class="modal-header">
+
+            <h2><i class="fas fa-pills"></i>Add New Medicine</h2>
+            <button type="button" class="modal-close" id="closeAddModalBtn">&times;</button>
+        </div>
+        <form id="addForm" th:action="@{/admin/medicines/add}" method="post">
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label>Medicine Name <span class="required">*</span></label>
+                    <input type="text" name="medicationName" id="medicationName" required placeholder="e.g., Metformin, Insulin Glargine">
+                    <div id="nameError" style="display: none; color: #dc2626; font-size: 13px; margin-top: 5px;">
+                        <i class="fas fa-exclamation-circle"></i> <span id="nameErrorText"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Dosage Form <span class="required">*</span></label>
+                    <select name="form" required>
+                        <option value="">-- Select Form --</option>
+                        <option value="tablet">Tablet</option>
+                        <option value="capsule">Capsule</option>
+                        <option value="injection">Injection</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Concentration / Strength</label>
+                    <input type="text" name="concentration" placeholder="e.g., 500mg, 100IU/ml">
+                </div>
+                <div class="form-group">
+                    <label>Administration Route <span class="required">*</span></label>
+                    <select name="administrationRoute" required>
+                        <option value="">-- Select Route --</option>
+                        <option value="Oral">Oral (By mouth)</option>
+                        <option value="Subcutaneous">Subcutaneous (Under the skin)</option>
+                        <option value="Intravenous">Intravenous (Into the vein)</option>
+                        <option value="Intramuscular">Intramuscular (Into the muscle)</option>
+                    </select>
+                </div>
+                <div class="form-group full-width">
+                    <label>Usage Instruction</label>
+                    <textarea name="usageInstruction" rows="3" placeholder="e.g., Take with meals once daily"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelAddModalBtn">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Medicine</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="editModalTitle">Edit Medicine</h2>
+            <button type="button" class="modal-close" id="closeEditModalBtn">&times;</button>
+        </div>
+        <form id="editForm" method="post">
+            <input type="hidden" id="editMedicationId" name="medicationId">
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label>Medicine Name <span class="required">*</span></label>
+                    <input type="text" id="editMedicationName" name="medicationName" required>
+                </div>
+                <div class="form-group">
+                    <label>Dosage Form <span class="required">*</span></label>
+                    <select id="editFormSelect" name="form" required>
+                        <option value="">-- Select Form --</option>
+                        <option value="tablet">Tablet</option>
+                        <option value="capsule">Capsule</option>
+                        <option value="injection">Injection</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Concentration / Strength</label>
+                    <input type="text" id="editConcentration" name="concentration">
+                </div>
+                <div class="form-group">
+                    <label>Administration Route <span class="required">*</span></label>
+                    <select id="editRouteSelect" name="administrationRoute" required>
+                        <option value="">-- Select Route --</option>
+                        <option value="Oral">Oral (By mouth)</option>
+                        <option value="Subcutaneous">Subcutaneous (Under the skin)</option>
+                        <option value="Intravenous">Intravenous (Into the vein)</option>
+                        <option value="Intramuscular">Intramuscular (Into the muscle)</option>
+                    </select>
+                </div>
+                <div class="form-group full-width">
+                    <label>Usage Instruction</label>
+                    <textarea id="editInstruction" name="usageInstruction" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelEditModalBtn">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- DETAIL DRAWER -->
+<div class="drawer-overlay" id="detailDrawerOverlay"></div>
+<div class="detail-drawer" id="detailDrawer">
+    <div class="drawer-header">
+        <h2><i class="fas fa-pills"></i> Medicine Details</h2>
+        <button type="button" class="drawer-close" id="closeDetailDrawerBtn"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="drawer-body">
+        <div class="drawer-profile">
+            <div class="drawer-avatar">
+                <i class="fas fa-pills"></i>
+            </div>
+            <h3 id="detailName">--</h3>
+            <p class="meta" id="detailMeta">--</p>
+        </div>
+        <div class="detail-section">
+            <h4><i class="fas fa-info-circle"></i> Basic Information</h4>
+            <div class="detail-item"><div class="detail-label">Medicine ID</div><div class="detail-value" id="detailId">--</div></div>
+            <div class="detail-item"><div class="detail-label">Medicine Name</div><div class="detail-value" id="detailMedName">--</div></div>
+            <div class="detail-item"><div class="detail-label">Dosage Form</div><div class="detail-value" id="detailForm">--</div></div>
+            <div class="detail-item"><div class="detail-label">Concentration</div><div class="detail-value" id="detailConcentration">--</div></div>
+        </div>
+        <div class="detail-section">
+            <h4><i class="fas fa-route"></i> Administration & Instruction</h4>
+            <div class="detail-item"><div class="detail-label">Route</div><div class="detail-value" id="detailRoute">--</div></div>
+            <div class="detail-item"><div class="detail-label">Instruction</div><div class="detail-value" id="detailInstruction">--</div></div>
+        </div>
+        <div class="detail-section">
+            <h4><i class="fas fa-info-circle"></i> Status</h4>
+            <div class="detail-item"><div class="detail-label">Status</div><div class="detail-value" id="detailStatus">--</div></div>
+        </div>
+        <div class="drawer-actions">
+            <button class="btn btn-primary" id="editFromDrawerBtn"><i class="fas fa-pen"></i> Edit Medicine</button>
+            <button class="btn btn-outline" id="deleteFromDrawerBtn"><i class="fas fa-trash"></i> Clock</button>
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/medicine_management.js}"></script>
+</body>
+</html>
