@@ -16,7 +16,7 @@ function showToast(message, type) {
     toast.innerHTML = '<i class="fas ' + icon + '" style="margin-right:8px;"></i> ' + message;
     container.appendChild(toast);
 
-    // Tự động xóa sau 3 giây
+    // Auto remove after 3 seconds
     setTimeout(function() {
         toast.style.opacity = '0';
         toast.style.transform = 'translateX(100%)';
@@ -25,7 +25,7 @@ function showToast(message, type) {
     }, 3000);
 }
 
-// Xử lý message từ URL params (thay thế flash attributes)
+// Handle URL params messages
 function handleUrlMessages() {
     var urlParams = new URLSearchParams(window.location.search);
     var successMsg = urlParams.get('success');
@@ -43,7 +43,7 @@ function handleUrlMessages() {
         showToast(decodedSuccess, 'success');
     }
 
-    // Xóa params khỏi URL sau khi hiển thị toast
+    // Remove params from URL after showing toast
     if (successMsg || errorMsg) {
         var url = new URL(window.location.href);
         url.searchParams.delete('success');
@@ -52,7 +52,7 @@ function handleUrlMessages() {
     }
 }
 
-// Gọi hàm xử lý message khi trang load
+// Call handle messages when page loads
 document.addEventListener('DOMContentLoaded', function() {
     handleUrlMessages();
 });
@@ -132,42 +132,7 @@ function executeAction() {
     closeConfirmModal();
 }
 
-// Sort functions
-window.applySort = function(field) {
-    var currentUrl = new URL(window.location.href);
-    var currentSortField = currentUrl.searchParams.get('sortField') || 'medicationName';
-    var currentSortDirection = currentUrl.searchParams.get('sortDirection') || 'asc';
-    var newDirection = (currentSortField === field && currentSortDirection === 'asc') ? 'desc' : 'asc';
-    currentUrl.searchParams.set('sortField', field);
-    currentUrl.searchParams.set('sortDirection', newDirection);
-    currentUrl.searchParams.set('page', '0');
-    window.location.href = currentUrl.toString();
-};
-
-window.toggleDirection = function() {
-    var currentUrl = new URL(window.location.href);
-    var currentSortDirection = currentUrl.searchParams.get('sortDirection') || 'asc';
-    var newDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
-    currentUrl.searchParams.set('sortDirection', newDirection);
-    currentUrl.searchParams.set('page', '0');
-    window.location.href = currentUrl.toString();
-};
-
 document.addEventListener('DOMContentLoaded', function() {
-    var sortBtn = document.getElementById('sortBtn');
-    var sortMenu = document.getElementById('sortMenu');
-    if (sortBtn && sortMenu) {
-        sortBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            sortMenu.classList.toggle('open');
-        });
-        document.addEventListener('click', function(e) {
-            if (!sortMenu.contains(e.target) && !sortBtn.contains(e.target)) {
-                sortMenu.classList.remove('open');
-            }
-        });
-    }
-
     document.getElementById('closeConfirmModalBtn').onclick = closeConfirmModal;
     document.getElementById('cancelConfirmBtn').onclick = closeConfirmModal;
     document.getElementById('okConfirmBtn').onclick = executeAction;
@@ -175,16 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
     confirmModal.onclick = function(e) { if (e.target === confirmModal) closeConfirmModal(); };
 });
 
-function closeSortMenu() { document.getElementById('sortMenu').classList.remove('open'); }
-
-window.changePageSize = function() {
-    var size = document.getElementById('pageSizeSelect').value;
-    var currentUrl = new URL(window.location.href);
-    currentUrl.searchParams.set('size', size);
-    currentUrl.searchParams.set('page', '0');
-    window.location.href = currentUrl.toString();
-};
-
+// Search functionality
 var searchKeyword = document.getElementById('searchKeyword');
 if (searchKeyword) {
     searchKeyword.addEventListener('keypress', function(e) {
@@ -194,26 +150,37 @@ if (searchKeyword) {
 
 // ADD MODAL
 var addModal = document.getElementById('addModal');
-document.getElementById('btnShowAddModal').onclick = function() {
-    addModal.classList.add('open');
-    document.body.classList.add('modal-open');
-};
-document.getElementById('closeAddModalBtn').onclick = function() {
-    addModal.classList.remove('open');
-    document.body.classList.remove('modal-open');
-    document.getElementById('addForm').reset();
-};
-document.getElementById('cancelAddModalBtn').onclick = function() {
-    addModal.classList.remove('open');
-    document.body.classList.remove('modal-open');
-    document.getElementById('addForm').reset();
-};
-addModal.onclick = function(e) {
-    if (e.target === addModal) {
+var btnShowAddModal = document.getElementById('btnShowAddModal');
+if (btnShowAddModal) {
+    btnShowAddModal.onclick = function() {
+        addModal.classList.add('open');
+        document.body.classList.add('modal-open');
+    };
+}
+var closeAddModalBtn = document.getElementById('closeAddModalBtn');
+if (closeAddModalBtn) {
+    closeAddModalBtn.onclick = function() {
         addModal.classList.remove('open');
         document.body.classList.remove('modal-open');
-    }
-};
+        document.getElementById('addForm').reset();
+    };
+}
+var cancelAddModalBtn = document.getElementById('cancelAddModalBtn');
+if (cancelAddModalBtn) {
+    cancelAddModalBtn.onclick = function() {
+        addModal.classList.remove('open');
+        document.body.classList.remove('modal-open');
+        document.getElementById('addForm').reset();
+    };
+}
+if (addModal) {
+    addModal.onclick = function(e) {
+        if (e.target === addModal) {
+            addModal.classList.remove('open');
+            document.body.classList.remove('modal-open');
+        }
+    };
+}
 
 // EDIT MODAL
 var editModal = document.getElementById('editModal');
@@ -225,7 +192,10 @@ window.openEditModal = function(id) {
         .then(function(result) {
             if (result.success) {
                 var med = result.data;
-                document.getElementById('editModalTitle').innerText = 'Edit Medicine: ' + med.medicationName;
+                var editModalTitle = document.getElementById('editModalTitle');
+                if (editModalTitle) {
+                    editModalTitle.innerText = 'Edit Medicine: ' + med.medicationName;
+                }
                 document.getElementById('editMedicationId').value = med.medicationId;
                 document.getElementById('editMedicationName').value = med.medicationName;
                 document.getElementById('editFormSelect').value = med.form;
@@ -245,9 +215,17 @@ function closeEditModal() {
     document.body.classList.remove('modal-open');
 }
 
-document.getElementById('closeEditModalBtn').onclick = closeEditModal;
-document.getElementById('cancelEditModalBtn').onclick = closeEditModal;
-editModal.onclick = function(e) { if (e.target === editModal) closeEditModal(); };
+var closeEditModalBtn = document.getElementById('closeEditModalBtn');
+if (closeEditModalBtn) {
+    closeEditModalBtn.onclick = closeEditModal;
+}
+var cancelEditModalBtn = document.getElementById('cancelEditModalBtn');
+if (cancelEditModalBtn) {
+    cancelEditModalBtn.onclick = closeEditModal;
+}
+if (editModal) {
+    editModal.onclick = function(e) { if (e.target === editModal) closeEditModal(); };
+}
 
 // DETAIL DRAWER
 var detailDrawer = document.getElementById('detailDrawer');
@@ -281,22 +259,33 @@ function closeDetailDrawer() {
     detailOverlay.classList.remove('open');
 }
 
-document.getElementById('closeDetailDrawerBtn').onclick = closeDetailDrawer;
-detailOverlay.onclick = closeDetailDrawer;
+var closeDetailDrawerBtn = document.getElementById('closeDetailDrawerBtn');
+if (closeDetailDrawerBtn) {
+    closeDetailDrawerBtn.onclick = closeDetailDrawer;
+}
+if (detailOverlay) {
+    detailOverlay.onclick = closeDetailDrawer;
+}
 
-document.getElementById('editFromDrawerBtn').onclick = function() {
-    var id = document.getElementById('detailId').innerText;
-    if (id && id !== '--') {
-        closeDetailDrawer();
-        openEditModal(id);
-    }
-};
+var editFromDrawerBtn = document.getElementById('editFromDrawerBtn');
+if (editFromDrawerBtn) {
+    editFromDrawerBtn.onclick = function() {
+        var id = document.getElementById('detailId').innerText;
+        if (id && id !== '--') {
+            closeDetailDrawer();
+            openEditModal(id);
+        }
+    };
+}
 
-document.getElementById('deleteFromDrawerBtn').onclick = function() {
-    var id = document.getElementById('detailId').innerText;
-    var name = document.getElementById('detailName').innerText;
-    if (id && id !== '--') {
-        closeDetailDrawer();
-        showConfirmModal(id, 'Active', name);
-    }
-};
+var deleteFromDrawerBtn = document.getElementById('deleteFromDrawerBtn');
+if (deleteFromDrawerBtn) {
+    deleteFromDrawerBtn.onclick = function() {
+        var id = document.getElementById('detailId').innerText;
+        var name = document.getElementById('detailName').innerText;
+        if (id && id !== '--') {
+            closeDetailDrawer();
+            showConfirmModal(id, 'Active', name);
+        }
+    };
+}

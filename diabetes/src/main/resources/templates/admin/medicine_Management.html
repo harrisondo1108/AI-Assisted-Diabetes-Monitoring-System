@@ -38,11 +38,7 @@
                 <i class="fas fa-search"></i>
                 <form id="searchForm" th:action="@{/admin/medicines}" method="get">
                     <input type="text" name="keyword" id="searchKeyword" placeholder="Search by name, route..." th:value="${searchKeyword}">
-                    <input type="hidden" name="size" th:value="${pageSize}">
-                    <input type="hidden" name="sortField" th:value="${sortField}">
-                    <input type="hidden" name="sortDirection" th:value="${sortDirection}">
-                    <button type="submit" class="search-btn">
-                        <i class="fas fa-search"></i> Search
+                    <button type="submit" class="search-btn">Search
                     </button>
                 </form>
             </div>
@@ -121,61 +117,6 @@
                         </form>
                     </div>
                     <div class="toolbar-icons">
-                        <div class="sort-dropdown">
-                            <button type="button" class="icon-btn sort-btn" id="sortBtn" title="Sort">
-                                <i class="fas fa-sort"></i>
-                            </button>
-                            <div class="sort-menu" id="sortMenu">
-                                <div class="sort-menu-header">
-                                    <span>Sort by</span>
-                                    <button type="button" class="close-sort" onclick="closeSortMenu()">&times;</button>
-                                </div>
-                                <div class="sort-options">
-                                    <button type="button" class="sort-option" onclick="applySort('medicationId')">
-                                        <i class="fas fa-hashtag"></i> ID
-                                        <span class="sort-indicator" id="sort-indicator-id">
-                                            <i th:if="${sortField == 'medicationId' and sortDirection == 'asc'}" class="fas fa-arrow-up"></i>
-                                            <i th:if="${sortField == 'medicationId' and sortDirection == 'desc'}" class="fas fa-arrow-down"></i>
-                                        </span>
-                                    </button>
-                                    <button type="button" class="sort-option" onclick="applySort('medicationName')">
-                                        <i class="fas fa-pills"></i> Name
-                                        <span class="sort-indicator" id="sort-indicator-name">
-                                            <i th:if="${sortField == 'medicationName' and sortDirection == 'asc'}" class="fas fa-arrow-up"></i>
-                                            <i th:if="${sortField == 'medicationName' and sortDirection == 'desc'}" class="fas fa-arrow-down"></i>
-                                        </span>
-                                    </button>
-                                    <button type="button" class="sort-option" onclick="applySort('form')">
-                                        <i class="fas fa-tablets"></i> Form
-                                        <span class="sort-indicator" id="sort-indicator-form">
-                                            <i th:if="${sortField == 'form' and sortDirection == 'asc'}" class="fas fa-arrow-up"></i>
-                                            <i th:if="${sortField == 'form' and sortDirection == 'desc'}" class="fas fa-arrow-down"></i>
-                                        </span>
-                                    </button>
-                                    <button type="button" class="sort-option" onclick="applySort('administrationRoute')">
-                                        <i class="fas fa-route"></i> Route
-                                        <span class="sort-indicator" id="sort-indicator-route">
-                                            <i th:if="${sortField == 'administrationRoute' and sortDirection == 'asc'}" class="fas fa-arrow-up"></i>
-                                            <i th:if="${sortField == 'administrationRoute' and sortDirection == 'desc'}" class="fas fa-arrow-down"></i>
-                                        </span>
-                                    </button>
-                                    <button type="button" class="sort-option" onclick="applySort('status')">
-                                        <i class="fas fa-circle-info"></i> Status
-                                        <span class="sort-indicator" id="sort-indicator-status">
-                                            <i th:if="${sortField == 'status' and sortDirection == 'asc'}" class="fas fa-arrow-up"></i>
-                                            <i th:if="${sortField == 'status' and sortDirection == 'desc'}" class="fas fa-arrow-down"></i>
-                                        </span>
-                                    </button>
-                                </div>
-                                <div class="sort-menu-footer">
-                                    <button type="button" class="sort-direction-toggle" onclick="toggleDirection()">
-                                        <i th:if="${sortDirection == 'asc'}" class="fas fa-sort-amount-up-alt"></i>
-                                        <i th:if="${sortDirection == 'desc'}" class="fas fa-sort-amount-down"></i>
-                                        <span th:text="${sortDirection == 'asc' ? 'Ascending' : 'Descending'}">Ascending</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
                         <a th:href="@{/admin/medicines}" class="icon-btn" title="Refresh">
                             <i class="fas fa-sync-alt"></i>
                         </a>
@@ -241,24 +182,15 @@
                         (Total <span th:text="${totalItems}"></span> items)
                     </div>
                     <div class="pagination-controls">
-                        <a th:if="${currentPage > 0}" th:href="@{/admin/medicines(page=0, size=${pageSize}, status=${selectedStatus}, form=${selectedForm}, route=${selectedRoute}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> First</a>
-                        <a th:if="${currentPage > 0}" th:href="@{/admin/medicines(page=${currentPage - 1}, size=${pageSize}, status=${selectedStatus}, form=${selectedForm}, route=${selectedRoute}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> Previous</a>
+                        <a th:if="${currentPage > 0}" th:href="@{/admin/medicines(page=0, status=${selectedStatus}, form=${selectedForm}, route=${selectedRoute}, keyword=${searchKeyword})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> First</a>
+                        <a th:if="${currentPage > 0}" th:href="@{/admin/medicines(page=${currentPage - 1}, status=${selectedStatus}, form=${selectedForm}, route=${selectedRoute}, keyword=${searchKeyword})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> Previous</a>
                         <div class="pagination-pages">
                             <th:block th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}">
-                                <a th:if="${pageNum >= currentPage - 2 and pageNum <= currentPage + 2}" th:href="@{/admin/medicines(page=${pageNum}, size=${pageSize}, status=${selectedStatus}, form=${selectedForm}, route=${selectedRoute}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection})}" class="page-number" th:classappend="${pageNum == currentPage} ? 'active' : ''" th:text="${pageNum + 1}"></a>
+                                <a th:if="${pageNum >= currentPage - 2 and pageNum <= currentPage + 2}" th:href="@{/admin/medicines(page=${pageNum}, status=${selectedStatus}, form=${selectedForm}, route=${selectedRoute}, keyword=${searchKeyword})}" class="page-number" th:classappend="${pageNum == currentPage} ? 'active' : ''" th:text="${pageNum + 1}"></a>
                             </th:block>
                         </div>
-                        <a th:if="${currentPage < totalPages - 1}" th:href="@{/admin/medicines(page=${currentPage + 1}, size=${pageSize}, status=${selectedStatus}, form=${selectedForm}, route=${selectedRoute}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection})}" class="pagination-btn">Next <i class="fas fa-chevron-right"></i></a>
-                        <a th:if="${currentPage < totalPages - 1}" th:href="@{/admin/medicines(page=${totalPages - 1}, size=${pageSize}, status=${selectedStatus}, form=${selectedForm}, route=${selectedRoute}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection})}" class="pagination-btn">Last <i class="fas fa-chevron-right"></i></a>
-                    </div>
-                    <div class="page-size-selector">
-                        <label>Items per page: </label>
-                        <select id="pageSizeSelect" onchange="changePageSize()">
-                            <option value="5" th:selected="${pageSize == 5}">5</option>
-                            <option value="10" th:selected="${pageSize == 10}">10</option>
-                            <option value="20" th:selected="${pageSize == 20}">20</option>
-                            <option value="50" th:selected="${pageSize == 50}">50</option>
-                        </select>
+                        <a th:if="${currentPage < totalPages - 1}" th:href="@{/admin/medicines(page=${currentPage + 1}, status=${selectedStatus}, form=${selectedForm}, route=${selectedRoute}, keyword=${searchKeyword})}" class="pagination-btn">Next <i class="fas fa-chevron-right"></i></a>
+                        <a th:if="${currentPage < totalPages - 1}" th:href="@{/admin/medicines(page=${totalPages - 1}, status=${selectedStatus}, form=${selectedForm}, route=${selectedRoute}, keyword=${searchKeyword})}" class="pagination-btn">Last <i class="fas fa-chevron-right"></i></a>
                     </div>
                 </div>
             </div>
@@ -313,7 +245,8 @@
 <div class="modal-overlay" id="addModal">
     <div class="modal">
         <div class="modal-header">
-            <h2>Add New Medicine</h2>
+
+            <h2><i class="fas fa-pills"></i>Add New Medicine</h2>
             <button type="button" class="modal-close" id="closeAddModalBtn">&times;</button>
         </div>
         <form id="addForm" th:action="@{/admin/medicines/add}" method="post">

@@ -6,13 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.*;
 
@@ -23,6 +21,8 @@ public class MedicationController {
     @Autowired
     private MedicationService medicationService;
 
+    private static final int PAGE_SIZE = 8; // Fixed page size
+
     @GetMapping
     public String medicineManagementPage(
             @RequestParam(required = false) String keyword,
@@ -30,15 +30,10 @@ public class MedicationController {
             @RequestParam(required = false) String form,
             @RequestParam(required = false) String status,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size,
-            @RequestParam(defaultValue = "medicationName") String sortField,
-            @RequestParam(defaultValue = "asc") String sortDirection,
             Model model) {
 
-        // Create sort object
-        Sort.Direction direction = sortDirection.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Sort sort = Sort.by(direction, sortField);
-        Pageable pageable = PageRequest.of(page, size, sort);
+        // No sorting, only pagination
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
 
         Page<Medication> medicationsPage;
 
@@ -75,9 +70,7 @@ public class MedicationController {
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", medicationsPage.getTotalPages());
         model.addAttribute("totalItems", medicationsPage.getTotalElements());
-        model.addAttribute("pageSize", size);
-        model.addAttribute("sortField", sortField);
-        model.addAttribute("sortDirection", sortDirection);
+        model.addAttribute("pageSize", PAGE_SIZE);
         model.addAttribute("totalMedications", stats.get("totalMedications"));
         model.addAttribute("activeMedications", stats.get("activeMedications"));
         model.addAttribute("clockedMedications", stats.get("clockedMedications"));
