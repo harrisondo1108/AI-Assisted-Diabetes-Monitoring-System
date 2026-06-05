@@ -90,7 +90,7 @@ public class AuthenticationController {
             case "PAT" -> {
                 Patient patient = patientService.findById(user.getUserId()).orElse(null);
                 session.setAttribute("userProfile", patient);
-                return "redirect:/admin/medicines";
+                return "redirect:/admin/dashboard";
             }
             case "DO" -> {
                 Profile profile = profileService.findById(user.getUserId()).orElse(null);
@@ -98,7 +98,7 @@ public class AuthenticationController {
                 return "redirect:/doctor/dashboard";
             }
             case "AD" -> {
-                return "redirect:/admin";
+                return "redirect:/admin/dashboard";
             }
             default -> {
                 session.removeAttribute("loggedInUser");
