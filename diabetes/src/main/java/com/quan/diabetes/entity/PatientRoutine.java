@@ -1,7 +1,6 @@
 package com.quan.diabetes.entity;
 
 import jakarta.persistence.*;
-import org.springframework.security.core.parameters.P;
 
 import java.time.LocalTime;
 

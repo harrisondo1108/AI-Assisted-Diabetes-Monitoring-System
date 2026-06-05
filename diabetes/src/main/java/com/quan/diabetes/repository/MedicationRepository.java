@@ -33,6 +33,14 @@ public interface MedicationRepository extends JpaRepository<Medication, String> 
 
     Page<Medication> findByAdministrationRoute(String route, Pageable pageable);
 
+    Page<Medication> findByStatus(String status, Pageable pageable);
+
+    // Non-paginated methods (for stats and other purposes)
+    @Query("SELECT m FROM Medication m WHERE " +
+            "LOWER(m.medicationName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(m.concentration) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(m.administrationRoute) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    List<Medication> searchByKeywordList(@Param("keyword") String keyword);
 
     @Query("SELECT m FROM Medication m WHERE m.status = 'Active'")
     List<Medication> findAllActiveList();

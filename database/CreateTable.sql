@@ -47,7 +47,6 @@ CREATE TABLE [Profile] (
 	FOREIGN KEY ([RoomID]) REFERENCES [Room]([RoomID]) ON DELETE SET NULL ON UPDATE CASCADE
 );
 
-
 -- 4. Patient
 CREATE TABLE [Patient] (
     UserID VARCHAR(50) PRIMARY KEY,
@@ -260,14 +259,14 @@ CREATE TABLE [AI_Reminder] (
 );
 
 ------------------  INSERT  ----------------------------------------
-INSERT INTO [Role] (RoleID, RoleName) 
-VALUES 
+INSERT INTO [Role] (RoleID, RoleName)
+VALUES
     ('AD', 'Administrator'),
     ('PAT', 'Manager'),
     ('DO', 'Employee');
 
 INSERT INTO PatientType (TypeName, MinAge, MaxAge)
-VALUES 
+VALUES
     ('Adult', 18, 39),
     ('Middle-aged', 40, 64),
     ('Elderly', 65, 120),

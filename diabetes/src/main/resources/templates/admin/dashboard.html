@@ -6,32 +6,13 @@
     <title>GlucoCare AI · Intelligent Monitoring Dashboard | Diabetes Care System</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/admin/dashboard.css}">
+<!--    <link rel="stylesheet" th:href="@{/css/common/admin-layout.css}">-->
     <link rel="stylesheet" href="/static/css/admin/dashboard.css">
 </head>
 <body>
 <div class="admin-layout">
-    <!-- Sidebar -->
-    <aside class="admin-sidebar">
-        <div class="sidebar-brand">
-            <div class="brand-name">Diabetes Care</div>
-            <div class="brand-sub">AI Console</div>
-        </div>
-        <nav class="sidebar-nav">
-            <a href="/admin/dashboard" class="nav-item active"><i class="fas fa-chart-line"></i> Dashboard</a>
-            <a href="/admin/medicines" class="nav-item"><i class="fas fa-pills"></i> Medicine Management</a>
-            <a href="#" class="nav-item"><i class="fas fa-flask"></i> Lab Tests</a>
-            <a href="#" class="nav-item"><i class="fas fa-sliders-h"></i> Threshold Config</a>
-            <a href="#" class="nav-item"><i class="fas fa-desktop"></i> Monitoring</a>
-        </nav>
-        <div class="sidebar-footer">
-            <button type="button" class="btn-new-report"><i class="fas fa-plus"></i> New Report</button>
-            <div class="sidebar-footer-links">
-                <a href="#"><i class="fas fa-cog"></i> Settings</a>
-                <a href="#"><i class="fas fa-life-ring"></i> Support</a>
-            </div>
-        </div>
-    </aside>
-
+<!--    SIDEBAR-->
+    <div th:replace="~{layout/sidebar :: sidebar('dashboard')}"></div>
     <div class="admin-main">
         <!-- Header: only admin profile on the right -->
         <header class="admin-header">
@@ -156,18 +137,7 @@
                 </div>
             </div>
         </main>
-        <footer class="admin-footer">
-            <span>© 2024 Diabetes Care System</span>
-            <span>
-                <a href="#">Legal</a>
-                <a href="#">Privacy Policy</a>
-                <a href="#">Terms of Use</a>
-            </span>
-            <span class="footer-status">
-                <span class="dot"></span>
-                System Status: Operational
-            </span>
-        </footer>
+        <div th:replace="~{layout/footer :: footer}"></div>
     </div>
 </div>
 <script src="/static/js/admin/dashboard.js"></script>
