@@ -118,7 +118,7 @@ public class AdminUserController {
     }
 
     @PostMapping("/toggle-lock/{id}")
-    public String toggleLock(@PathVariable String id, RedirectAttributes redirectAttributes) {
+    public String toggleLock(@PathVariable("id") String id, RedirectAttributes redirectAttributes) {
         adminUserService.toggleLock(id);
         try {
             UserManagementDTO user = adminUserService.getUserManagementDTOById(id);

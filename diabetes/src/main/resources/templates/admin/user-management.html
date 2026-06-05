@@ -389,7 +389,7 @@
                                 <select id="formRoom" name="roomName"
                                     th:classappend="${#fields.hasErrors('roomName')} ? 'is-invalid' : ''">
                                     <option value="">— Please select room —</option>
-                                    <!--                                <option th:each="room : ${rooms}" th:value="${room.roomName}" th:text="${room.roomName}" th:selected="*{roomName == room.roomName}"></option>-->
+                                    <option th:each="room : ${rooms}" th:value="${room.roomName}" th:text="${room.roomName}" th:selected="${user.roomName == room.roomName}"></option>
                                 </select>
                                 <div class="error-feedback"><span th:if="${#fields.hasErrors('roomName')}"
                                         th:errors="*{roomName}"></span></div>

@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.*;
 
@@ -25,14 +24,14 @@ public class MedicationController {
 
     @GetMapping
     public String medicineManagementPage(
-            @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) String route,
-            @RequestParam(required = false) String form,
-            @RequestParam(required = false) String status,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size,
-            @RequestParam(defaultValue = "medicationName") String sortField,
-            @RequestParam(defaultValue = "asc") String sortDirection,
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "route", required = false) String route,
+            @RequestParam(name = "form", required = false) String form,
+            @RequestParam(name = "status", required = false) String status,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "5") int size,
+            @RequestParam(name = "sortField", defaultValue = "medicationName") String sortField,
+            @RequestParam(name = "sortDirection", defaultValue = "asc") String sortDirection,
             Model model) {
 
         // Create sort object
@@ -101,7 +100,7 @@ public class MedicationController {
     }
 
     @PostMapping("/edit/{id}")
-    public String editMedication(@PathVariable String id, @ModelAttribute Medication medication) {
+    public String editMedication(@PathVariable("id") String id, @ModelAttribute Medication medication) {
         try {
             medicationService.update(id, medication);
             return "redirect:/admin/medicines?success=Medicine \"" + medication.getMedicationName() + "\" updated successfully!";
@@ -111,7 +110,7 @@ public class MedicationController {
     }
 
     @PostMapping("/soft-delete/{id}")
-    public String softDeleteMedication(@PathVariable String id) {
+    public String softDeleteMedication(@PathVariable("id") String id) {
         try {
             Optional<Medication> med = medicationService.findById(id);
             if (med.isPresent()) {
@@ -126,7 +125,7 @@ public class MedicationController {
     }
 
     @PostMapping("/restore/{id}")
-    public String restoreMedication(@PathVariable String id) {
+    public String restoreMedication(@PathVariable("id") String id) {
         try {
             Optional<Medication> med = medicationService.findById(id);
             if (med.isPresent()) {
@@ -143,14 +142,14 @@ public class MedicationController {
     @GetMapping("/list")
     @ResponseBody
     public java.util.Map<String, Object> listMedicinesJson(
-            @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) String route,
-            @RequestParam(required = false) String form,
-            @RequestParam(required = false) String status,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size,
-            @RequestParam(defaultValue = "medicationName") String sortField,
-            @RequestParam(defaultValue = "asc") String sortDirection) {
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "route", required = false) String route,
+            @RequestParam(name = "form", required = false) String form,
+            @RequestParam(name = "status", required = false) String status,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "5") int size,
+            @RequestParam(name = "sortField", defaultValue = "medicationName") String sortField,
+            @RequestParam(name = "sortDirection", defaultValue = "asc") String sortDirection) {
 
         Sort.Direction direction = sortDirection.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
         Sort sort = Sort.by(direction, sortField);
@@ -189,7 +188,7 @@ public class MedicationController {
 
     @GetMapping("/api/{id}")
     @ResponseBody
-    public ResponseEntity<?> getMedicationById(@PathVariable String id) {
+    public ResponseEntity<?> getMedicationById(@PathVariable("id") String id) {
         Optional<Medication> medication = medicationService.findById(id);
         if (medication.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)

@@ -21,6 +21,7 @@
     let pendingUserId = null;
     let pendingUserStatus = null;
     let pendingUserName = null;
+    let resetValidationState = null;
 
     window.showConfirmModal = function(id, currentStatus, fullName) {
         const isActive = currentStatus === 'Active';
@@ -221,6 +222,7 @@
         editingUserId = mode === 'edit' ? (user && user.userId) : null;
         els.modalTitle.textContent = mode === 'edit' ? 'Edit User' : 'Add New User';
         els.userForm.reset();
+        if (resetValidationState) resetValidationState();
 
         enableAllFields();
         resetRoleFields();
@@ -458,12 +460,24 @@
                     submitBtn.disabled = !!els.userForm.querySelector('.is-invalid');
                 };
 
+                resetValidationState = function() {
+                    phoneTouched = false;
+                    for (const key in touched) {
+                        delete touched[key];
+                    }
+                    clearErrors();
+                    setSubmitState();
+                };
+
                 const validatePhone = () => {
                     if (!phoneInput) return false;
                     const v = (phoneInput.value || '').trim();
                     if (!v) {
-                        showError(phoneInput, 'Account phone number must not be empty');
-                        return true;
+                        if (phoneTouched) {
+                            showError(phoneInput, 'Account phone number must not be empty');
+                            return true;
+                        }
+                        return false;
                     }
                     if (!phoneRegex.test(v)) {
                         showError(phoneInput, 'Phone number must be a valid Vietnamese mobile number (10 digits, starting with 03, 05, 07, 08, 09)');
@@ -612,9 +626,6 @@
                 };
 
                 debouncedRemoteCheck = debounce(remoteCheck, 350);
-
-                // Initial state check (in case modal opened with prefilled values)
-                setTimeout(() => { validatePhone(); validatePassword(); validateName(docName, 'Doctor full name'); validateName(patName, 'Patient full name'); validateDob(dobDoc); validateDob(dobPat); setSubmitState(); }, 50);
             })();
         }
 
