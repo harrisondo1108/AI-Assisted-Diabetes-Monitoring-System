@@ -3,16 +3,16 @@ package com.quan.diabetes.controller.admin;
 import com.quan.diabetes.entity.Medication;
 import com.quan.diabetes.service.MedicationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Controller
 @RequestMapping("/admin/medicines")
@@ -21,78 +21,116 @@ public class MedicationController {
     @Autowired
     private MedicationService medicationService;
 
+    private static final int PAGE_SIZE = 8; // Fixed page size
+
     @GetMapping
     public String medicineManagementPage(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String route,
             @RequestParam(required = false) String form,
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "0") int page,
             Model model) {
 
-        List<Medication> medications = medicationService.findAll();
+        // No sorting, only pagination
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+
+        Page<Medication> medicationsPage;
+
+        if ("active".equalsIgnoreCase(status)) {
+            medicationsPage = medicationService.findAllActive(pageable);
+            model.addAttribute("selectedStatus", "active");
+        } else if ("clocked".equalsIgnoreCase(status)) {
+            medicationsPage = medicationService.findAllClocked(pageable);
+            model.addAttribute("selectedStatus", "clocked");
+        } else {
+            medicationsPage = medicationService.findAll(pageable);
+            model.addAttribute("selectedStatus", "all");
+        }
 
         if (form != null && !form.isEmpty()) {
-            medications = medications.stream().filter(m -> form.equals(m.getForm())).toList();
+            medicationsPage = medicationService.findByForm(form, pageable);
             model.addAttribute("selectedForm", form);
         }
+
         if (route != null && !route.isEmpty()) {
-            medications = medications.stream().filter(m -> route.equals(m.getAdministrationRoute())).toList();
+            medicationsPage = medicationService.findByAdministrationRoute(route, pageable);
             model.addAttribute("selectedRoute", route);
         }
+
         if (keyword != null && !keyword.trim().isEmpty()) {
-            medications = medicationService.searchByKeyword(keyword);
+            medicationsPage = medicationService.searchByKeyword(keyword, pageable);
             model.addAttribute("searchKeyword", keyword);
         }
 
-        long total = medications.size();
-        long oral = medications.stream().filter(m -> m.getForm() != null && ("tablet".equalsIgnoreCase(m.getForm()) || "capsule".equalsIgnoreCase(m.getForm()))).count();
-        long injectable = medications.stream().filter(m -> m.getForm() != null && "injection".equalsIgnoreCase(m.getForm())).count();
+        Map<String, Object> stats = medicationService.getSummary();
 
-        model.addAttribute("medications", medications);
-        model.addAttribute("totalMedications", total);
-        model.addAttribute("oralFormulations", oral);
-        model.addAttribute("injectableFormulations", injectable);
+        model.addAttribute("medicationsPage", medicationsPage);
+        model.addAttribute("medications", medicationsPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", medicationsPage.getTotalPages());
+        model.addAttribute("totalItems", medicationsPage.getTotalElements());
+        model.addAttribute("pageSize", PAGE_SIZE);
+        model.addAttribute("totalMedications", stats.get("totalMedications"));
+        model.addAttribute("activeMedications", stats.get("activeMedications"));
+        model.addAttribute("clockedMedications", stats.get("clockedMedications"));
+        model.addAttribute("oralFormulations", stats.get("oralFormulations"));
+        model.addAttribute("injectableFormulations", stats.get("injectableFormulations"));
         model.addAttribute("routes", medicationService.findAllDistinctRoutes());
 
         return "admin/medicine_management";
     }
 
     @PostMapping("/add")
-    public String addMedication(@ModelAttribute Medication medication, RedirectAttributes redirectAttributes) {
+    public String addMedication(@ModelAttribute Medication medication) {
         try {
             medicationService.create(medication);
-            redirectAttributes.addFlashAttribute("success", "Medicine \"" + medication.getMedicationName() + "\" added successfully!");
+            return "redirect:/admin/medicines?success=Medicine \"" + medication.getMedicationName() + "\" added successfully!";
+        } catch (IllegalArgumentException e) {
+            return "redirect:/admin/medicines?error=" + e.getMessage();
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error: " + e.getMessage());
+            return "redirect:/admin/medicines?error=Error: " + e.getMessage();
         }
-        return "redirect:/admin/medicines";
     }
 
     @PostMapping("/edit/{id}")
-    public String editMedication(@PathVariable String id, @ModelAttribute Medication medication, RedirectAttributes redirectAttributes) {
+    public String editMedication(@PathVariable String id, @ModelAttribute Medication medication) {
         try {
             medicationService.update(id, medication);
-            redirectAttributes.addFlashAttribute("success", "Medicine \"" + medication.getMedicationName() + "\" updated successfully!");
+            return "redirect:/admin/medicines?success=Medicine \"" + medication.getMedicationName() + "\" updated successfully!";
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error: " + e.getMessage());
+            return "redirect:/admin/medicines?error=Error: " + e.getMessage();
         }
-        return "redirect:/admin/medicines";
     }
 
-    @GetMapping("/delete/{id}")
-    public String deleteMedication(@PathVariable String id, RedirectAttributes redirectAttributes) {
+    @PostMapping("/soft-delete/{id}")
+    public String softDeleteMedication(@PathVariable String id) {
         try {
             Optional<Medication> med = medicationService.findById(id);
             if (med.isPresent()) {
-                String name = med.get().getMedicationName();
-                medicationService.deleteById(id);
-                redirectAttributes.addFlashAttribute("success", "Medicine \"" + name + "\" deleted successfully!");
+                medicationService.softDelete(id);
+                return "redirect:/admin/medicines?success=Medicine \"" + med.get().getMedicationName() + "\" has been clocked!";
             } else {
-                redirectAttributes.addFlashAttribute("error", "Medicine not found!");
+                return "redirect:/admin/medicines?error=Medicine not found!";
             }
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error: " + e.getMessage());
+            return "redirect:/admin/medicines?error=Error: " + e.getMessage();
         }
-        return "redirect:/admin/medicines";
+    }
+
+    @PostMapping("/restore/{id}")
+    public String restoreMedication(@PathVariable String id) {
+        try {
+            Optional<Medication> med = medicationService.findById(id);
+            if (med.isPresent()) {
+                medicationService.restore(id);
+                return "redirect:/admin/medicines?success=Medicine \"" + med.get().getMedicationName() + "\" has been restored!";
+            } else {
+                return "redirect:/admin/medicines?error=Medicine not found!";
+            }
+        } catch (Exception e) {
+            return "redirect:/admin/medicines?error=Error: " + e.getMessage();
+        }
     }
 
     @GetMapping("/api/{id}")
@@ -100,7 +138,8 @@ public class MedicationController {
     public ResponseEntity<?> getMedicationById(@PathVariable String id) {
         Optional<Medication> medication = medicationService.findById(id);
         if (medication.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("success", false, "message", "Medication not found"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("success", false, "message", "Medication not found"));
         }
         return ResponseEntity.ok(Map.of("success", true, "data", medication.get()));
     }
