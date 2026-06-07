@@ -29,7 +29,7 @@ public class ProfileServiceImpl implements ProfileService {
         List<Profile> profiles = this.findAll();
         List<Profile> doctors = new ArrayList<>();
         for (Profile profile : profiles) {
-            if ("DO".equals(profile.getUser().getRole().getRoleId())) {
+            if ("DOC".equals(profile.getUser().getRole().getRoleId())) {
                 doctors.add(profile);
             }
         }
@@ -42,7 +42,7 @@ public class ProfileServiceImpl implements ProfileService {
         List<Profile> profiles = this.findAll();
         List<Profile> admins = new ArrayList<>();
         for (Profile profile : profiles) {
-            if ("DO".equals(profile.getUser().getRole().getRoleId())) {
+            if ("AD".equals(profile.getUser().getRole().getRoleId())) {
                 admins.add(profile);
             }
         }
