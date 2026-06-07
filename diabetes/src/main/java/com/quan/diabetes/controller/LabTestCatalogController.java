@@ -47,4 +47,9 @@ public class LabTestCatalogController {
     public LabTestCatalog getLabTestDetail(@PathVariable("id") String id) {
         return labTestCatalogService.findById(id).orElse(null);
     }
+    @PostMapping("/toggle-status/{id}")
+    public String toggleStatus(@PathVariable("id") String id) {
+        System.out.println("Toggle lock/unlock lab test: " + id);
+        return "redirect:/admin/lab-tests";
+    }
 }

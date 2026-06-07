@@ -88,6 +88,7 @@
             <div class="search-box">
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <input type="text"
+                       id="tableSearch"
                        placeholder="Tìm theo tên xét nghiệm...">
             </div>
 
@@ -120,9 +121,7 @@
             <div class="page-header">
                 <div>
                     <h2>Lab Test Management</h2>
-                    <p>
-                        Configure diagnostic parameters and view clinical lab results.
-                    </p>
+                    <p>Configure diagnostic parameters and manage clinical laboratory tests.</p>
                 </div>
 
                 <div class="page-actions">
@@ -135,23 +134,14 @@
                 </div>
             </div>
 
-            <!-- TABS -->
             <div class="tabs">
-                <button type="button"
-                        class="tab active"
-                        data-tab="catalog">
+                <button type="button" class="tab active">
                     Test Catalog
-                </button>
-
-                <button type="button"
-                        class="tab"
-                        data-tab="results">
-                    Patient Lab Results
                 </button>
             </div>
 
-            <!-- TEST CATALOG -->
-            <div class="card tab-content active" id="catalog">
+            <div class="card">
+
                 <div class="card-header">
                     <h3>Test Definitions</h3>
 
@@ -165,21 +155,21 @@
                     <tr>
                         <th>Test Name</th>
                         <th>Unit</th>
-                        <th>Min<br>Value</th>
-                        <th>Max<br>Value</th>
-                        <th>Description</th>
+                        <th>Min Value</th>
+                        <th>Max Value</th>
+                        <th>Status</th>
                         <th class="actions-column">Actions</th>
                     </tr>
                     </thead>
 
-                    <tbody>
-                    <tr th:each="test, iter : ${testList}">
+                    <tbody id="labTestTableBody">
+
+                    <!-- DATA FROM DATABASE -->
+                    <tr th:each="test : ${testList}">
                         <td>
                             <div class="test-info">
                                 <div class="test-icon">
-                                    <i th:if="${iter.index % 3 == 0}" class="fa-solid fa-droplet"></i>
-                                    <i th:if="${iter.index % 3 == 1}" class="fa-solid fa-vial"></i>
-                                    <i th:if="${iter.index % 3 == 2}" class="fa-regular fa-heart"></i>
+                                    <i class="fa-solid fa-vial"></i>
                                 </div>
 
                                 <strong th:text="${test.testName}">
@@ -194,33 +184,52 @@
 
                         <td th:text="${test.maxValue}">5.6</td>
 
-                        <td class="description"
-                            th:text="${test.description}">
-                            Glycated Hemoglobin diagnostic for long-term...
+                        <td>
+                            <span class="status-badge active">
+                                Active
+                            </span>
                         </td>
 
                         <td>
                             <div class="row-actions">
-                                <button type="button" class="action-btn">
+
+                                <!-- VIEW DETAIL -->
+                                <button type="button"
+                                        class="action-btn view-btn"
+                                        th:attr="data-id=${test.labTestId},
+                                                 data-name=${test.testName},
+                                                 data-unit=${test.unit},
+                                                 data-min=${test.minValue},
+                                                 data-max=${test.maxValue},
+                                                 data-description=${test.description}">
                                     <i class="fa-regular fa-eye"></i>
                                 </button>
 
-                                <button type="button" class="action-btn">
+                                <!-- EDIT -->
+                                <button type="button"
+                                        class="action-btn edit-btn"
+                                        title="Edit">
                                     <i class="fa-solid fa-pen"></i>
                                 </button>
 
-                                <form th:action="@{/admin/lab-tests/delete/{id}(id=${test.labTestId})}"
-                                      method="post">
+                                <!-- LOCK / UNLOCK -->
+                                <form th:action="@{/admin/lab-tests/toggle-status/{id}(id=${test.labTestId})}"
+                                      method="post"
+                                      class="lock-form">
+
                                     <button type="submit"
-                                            class="action-btn delete-btn">
-                                        <i class="fa-regular fa-trash-can"></i>
+                                            class="action-btn lock-btn"
+                                            title="Lock / Unlock">
+                                        <i class="fa-solid fa-lock"></i>
                                     </button>
+
                                 </form>
+
                             </div>
                         </td>
                     </tr>
 
-                    <!-- DEMO DATA nếu chưa có dữ liệu -->
+                    <!-- DEMO DATA -->
                     <tr th:if="${testList == null || testList.isEmpty()}">
                         <td>
                             <div class="test-info">
@@ -230,61 +239,73 @@
                                 <strong>HbA1c</strong>
                             </div>
                         </td>
+
                         <td>%</td>
                         <td>4.0</td>
                         <td>5.6</td>
-                        <td class="description">Glycated Hemoglobin diagnostic for long-term...</td>
-                        <td></td>
-                    </tr>
 
-                    <tr th:if="${testList == null || testList.isEmpty()}">
                         <td>
-                            <div class="test-info">
-                                <div class="test-icon">
-                                    <i class="fa-solid fa-vial"></i>
-                                </div>
-                                <strong>Glucose,<br>Fasting</strong>
+                            <span class="status-badge active">
+                                Active
+                            </span>
+                        </td>
+
+                        <td>
+                            <div class="row-actions">
+
+                                <button type="button"
+                                        class="action-btn view-btn"
+                                        data-id="LT001"
+                                        data-name="HbA1c"
+                                        data-unit="%"
+                                        data-min="4.0"
+                                        data-max="5.6"
+                                        data-description="Glycated Hemoglobin diagnostic for long-term glucose control.">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+
+                                <button type="button"
+                                        class="action-btn edit-btn">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+
+                                <button type="button"
+                                        class="action-btn lock-btn">
+                                    <i class="fa-solid fa-lock"></i>
+                                </button>
+
                             </div>
                         </td>
-                        <td>mg/dL</td>
-                        <td>70</td>
-                        <td>99</td>
-                        <td class="description">Blood glucose level after an overnight fast.</td>
-                        <td></td>
                     </tr>
 
-                    <tr th:if="${testList == null || testList.isEmpty()}">
-                        <td>
-                            <div class="test-info">
-                                <div class="test-icon">
-                                    <i class="fa-regular fa-heart"></i>
-                                </div>
-                                <strong>LDL<br>Cholesterol</strong>
-                            </div>
-                        </td>
-                        <td>mg/dL</td>
-                        <td>0</td>
-                        <td>100</td>
-                        <td class="description">Low-density lipoprotein cholesterol...</td>
-                        <td></td>
-                    </tr>
                     </tbody>
                 </table>
-            </div>
 
-            <!-- PATIENT LAB RESULTS -->
-            <div class="card tab-content" id="results">
-                <div class="card-header">
-                    <h3>Patient Lab Results</h3>
+                <!-- PAGINATION -->
+                <div class="pagination-wrapper">
+                    <div class="pagination-info" id="paginationInfo">
+                        Hiển thị 0 - 0 / 0 xét nghiệm
+                    </div>
+
+                    <div class="pagination-buttons">
+                        <button type="button" id="prevPageBtn">
+                            Previous
+                        </button>
+
+                        <div id="pageNumbers"></div>
+
+                        <button type="button" id="nextPageBtn">
+                            Next
+                        </button>
+                    </div>
                 </div>
 
-                <div class="empty-state">
-                    No patient lab results yet.
-                </div>
             </div>
 
         </section>
+
     </main>
+
 </div>
 
 <!-- DEFINE NEW TEST MODAL -->
@@ -333,6 +354,7 @@
                 <div class="form-group">
                     <label>Min Value</label>
                     <input type="number"
+                           step="0.01"
                            name="minValue"
                            placeholder="0">
                 </div>
@@ -340,6 +362,7 @@
                 <div class="form-group">
                     <label>Max Value</label>
                     <input type="number"
+                           step="0.01"
                            name="maxValue"
                            placeholder="100">
                 </div>
@@ -364,7 +387,100 @@
                     Save Test
                 </button>
             </div>
+
         </form>
+
+    </div>
+</div>
+
+<!-- VIEW DETAIL MODAL -->
+<div class="modal-overlay" id="viewDetailModal">
+    <div class="modal-box">
+
+        <div class="modal-header">
+            <h2>Lab Test Detail</h2>
+
+            <button type="button"
+                    class="modal-close"
+                    id="btnCloseViewModal">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="detail-container">
+
+            <div class="detail-item">
+                <label>Test ID</label>
+                <p id="detailId">---</p>
+            </div>
+
+            <div class="detail-item">
+                <label>Test Name</label>
+                <p id="detailName">---</p>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-item">
+                    <label>Unit</label>
+                    <p id="detailUnit">---</p>
+                </div>
+
+                <div class="detail-item">
+                    <label>Min Value</label>
+                    <p id="detailMin">---</p>
+                </div>
+
+                <div class="detail-item">
+                    <label>Max Value</label>
+                    <p id="detailMax">---</p>
+                </div>
+            </div>
+
+            <div class="detail-item">
+                <label>Description</label>
+                <div class="description-box" id="detailDescription">
+                    ---
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- LOCK CONFIRM MODAL -->
+<div class="modal-overlay" id="lockConfirmModal">
+    <div class="modal-box lock-modal-box">
+
+        <div class="modal-header">
+            <h2>Xác nhận thay đổi trạng thái</h2>
+
+            <button type="button"
+                    class="modal-close"
+                    id="btnCloseLockModal">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="modal-form">
+            <p class="lock-message">
+                Bạn có chắc chắn muốn khóa hoặc mở khóa xét nghiệm này không?
+            </p>
+
+            <div class="modal-actions">
+                <button type="button"
+                        class="btn-cancel"
+                        id="btnCancelLock">
+                    Không
+                </button>
+
+                <button type="button"
+                        class="btn-save lock-confirm-btn"
+                        id="btnConfirmLock">
+                    Xác nhận
+                </button>
+            </div>
+        </div>
 
     </div>
 </div>
