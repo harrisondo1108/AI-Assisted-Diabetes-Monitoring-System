@@ -51,16 +51,6 @@
                             <div class="metric-icon"><i class="fas fa-triangle-exclamation"></i></div>
                         </div>
                     </div>
-                    <div class="metric-card bg-gradient-slate">
-                        <div class="metric-card-inner">
-                            <div class="metric-info">
-                                <span class="metric-label">Clinical Rooms Status</span>
-                                <h3 class="metric-val">Active</h3>
-                                <p class="metric-sub">Labs operating at normal rate</p>
-                            </div>
-                            <div class="metric-icon"><i class="fas fa-circle-nodes"></i></div>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="dashboard-grid">
@@ -110,6 +100,89 @@
                     </div>
                 </div>
             </main>
+        </div>
+    </div>
+
+    <!-- COMPLETED EXAM DETAIL MODAL -->
+    <div class="modal-overlay" id="completedExamModal">
+        <div class="modal modal-history" style="max-width: 680px; width: 90%;">
+            <div class="modal-header">
+                <h2 id="modalExamTitle">Consultation Details</h2>
+                <button type="button" class="modal-close" onclick="closeCompletedExam()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" style="max-height: 75vh; overflow-y: auto; display: flex; flex-direction: column; gap: 20px;">
+                <!-- Basic Meta Info -->
+                <div class="history-specs-row" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                    <div class="history-spec-col" style="background: var(--doctor-bg); padding: 12px; border-radius: 8px;">
+                        <span class="lbl" style="font-size: 0.75rem; color: var(--doctor-text-muted); display: block;">Patient</span>
+                        <strong class="val" id="modalExamPatient" style="font-size: 0.95rem;"></strong>
+                    </div>
+                    <div class="history-spec-col" style="background: var(--doctor-bg); padding: 12px; border-radius: 8px;">
+                        <span class="lbl" style="font-size: 0.75rem; color: var(--doctor-text-muted); display: block;">Date</span>
+                        <strong class="val" id="modalExamDate" style="font-size: 0.95rem;"></strong>
+                    </div>
+                    <div class="history-spec-col" style="background: var(--doctor-bg); padding: 12px; border-radius: 8px;">
+                        <span class="lbl" style="font-size: 0.75rem; color: var(--doctor-text-muted); display: block;">Next Appt.</span>
+                        <strong class="val" id="modalExamNextAppt" style="font-size: 0.95rem;"></strong>
+                    </div>
+                </div>
+
+                <!-- Symptoms & Observations -->
+                <div style="background: var(--doctor-bg); border-radius: 8px; padding: 16px;">
+                    <span class="lbl" style="font-size: 0.75rem; color: var(--doctor-text-muted); display: block; margin-bottom: 10px;"><i class="fas fa-stethoscope"></i> Symptoms & Clinical Notes</span>
+                    <div id="modalExamSymptoms" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
+                        <!-- Symptoms badges will be injected here -->
+                    </div>
+                    <div style="padding-top: 10px; border-top: 1px dashed var(--doctor-border);">
+                        <span class="val" id="modalExamNotes" style="font-size: 0.85rem; line-height: 1.5; color: var(--doctor-text-main); font-style: italic;"></span>
+                    </div>
+                </div>
+
+                <!-- Diagnosis & Plan -->
+                <div style="background: var(--doctor-primary-light); border-radius: 8px; padding: 16px; border: 1px solid rgba(26, 107, 86, 0.2);">
+                    <span class="lbl" style="font-size: 0.75rem; color: var(--green-900); font-weight: 600; display: block; margin-bottom: 6px;"><i class="fas fa-file-medical"></i> Final Diagnosis</span>
+                    <strong class="val" id="modalExamDiagnosis" style="font-size: 0.95rem; line-height: 1.5; color: var(--green-900);"></strong>
+                </div>
+
+                <!-- Lab results table -->
+                <div>
+                    <span class="lbl" style="font-size: 0.8rem; font-weight: 700; color: var(--doctor-primary); display: block; margin-bottom: 10px;"><i class="fas fa-flask"></i> Laboratory Tests & Results</span>
+                    <div style="overflow-x: auto; border: 1px solid var(--doctor-border); border-radius: 8px;">
+                        <table class="clinical-table" style="font-size: 0.85rem; width: 100%; border-collapse: collapse;">
+                            <thead style="background: #fafcfb;">
+                                <tr>
+                                    <th style="padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--doctor-border);">Test Name</th>
+                                    <th style="padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--doctor-border);">Value</th>
+                                    <th style="padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--doctor-border);">Flag</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalExamLabsTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Prescription table -->
+                <div>
+                    <span class="lbl" style="font-size: 0.8rem; font-weight: 700; color: var(--doctor-primary); display: block; margin-bottom: 10px;"><i class="fas fa-pills"></i> Prescribed Medications</span>
+                    <div style="overflow-x: auto; border: 1px solid var(--doctor-border); border-radius: 8px;">
+                        <table class="clinical-table" style="font-size: 0.85rem; width: 100%; border-collapse: collapse;">
+                            <thead style="background: #fafcfb;">
+                                <tr>
+                                    <th style="padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--doctor-border);">Medication</th>
+                                    <th style="padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--doctor-border);">Dosage</th>
+                                    <th style="padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--doctor-border);">Timing</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalExamPrescriptionTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="padding: 14px 20px; border-top: 1px solid var(--doctor-border); text-align: right;">
+                <button type="button" class="btn btn-secondary" onclick="closeCompletedExam()">Close</button>
+            </div>
         </div>
     </div>
 

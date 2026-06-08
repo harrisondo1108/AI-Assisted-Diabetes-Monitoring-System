@@ -110,7 +110,7 @@ function renderQueue() {
                 break;
             case 'Completed':
                 statusBadge = `<span class="badge-status badge-completed"><i class="fa-solid fa-circle-check"></i> Completed</span>`;
-                actionBtn = `<button class="btn btn-secondary btn-sm" onclick="startExamination('${p.id}', true)"><i class="fas fa-eye"></i> View</button>`;
+                actionBtn = `<button class="btn btn-secondary btn-sm" onclick="viewCompletedExam('${p.id}')"><i class="fas fa-eye"></i> View</button>`;
                 break;
         }
 
@@ -184,7 +184,10 @@ function filterQueue(status) {
     // Update active UI class
     const pills = document.querySelectorAll('.filter-pills .pill');
     pills.forEach(pill => {
-        if (pill.textContent.toLowerCase() === status.toLowerCase() || (status === 'all' && pill.textContent.toLowerCase() === 'all')) {
+        const pillText = pill.textContent.replace(/\s+/g, '').toLowerCase();
+        const targetStatus = status.replace(/\s+/g, '').toLowerCase();
+        
+        if (pillText === targetStatus) {
             pill.classList.add('active');
         } else {
             pill.classList.remove('active');
@@ -221,4 +224,65 @@ function startExamination(patientId, viewOnly = false) {
     }
 
     window.location.href = '/doctor/examine';
+}
+
+// Show completed exam details modal
+function viewCompletedExam(patientId) {
+    const patient = patientsQueue.find(p => p.id === patientId);
+    if (!patient) return;
+
+    // Open modal
+    const modal = document.getElementById('completedExamModal');
+    if (modal) modal.classList.add('open');
+
+    document.getElementById('modalExamPatient').textContent = `${patient.name} (${patient.age} yrs / ${patient.gender})`;
+    
+    // Format today's date
+    const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    document.getElementById('modalExamDate').textContent = today;
+    document.getElementById('modalExamNextAppt').textContent = "Jul 08, 2026";
+
+    // Symptoms
+    const symptomsDiv = document.getElementById('modalExamSymptoms');
+    symptomsDiv.innerHTML = `
+        <span style="background: #ffffff; border: 1px solid var(--doctor-border); padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; color: var(--doctor-text-main); font-weight: 600;">Frequent Urination</span>
+        <span style="background: #ffffff; border: 1px solid var(--doctor-border); padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; color: var(--doctor-text-main); font-weight: 600;">Excessive Thirst</span>
+        <span style="background: #ffffff; border: 1px solid var(--doctor-border); padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; color: var(--doctor-text-main); font-weight: 600;">Fatigue</span>
+    `;
+
+    // Notes
+    document.getElementById('modalExamNotes').textContent = "Patient reports feeling very tired during the afternoon. No signs of peripheral neuropathy. Blood pressure is normal.";
+
+    // Generate contextual mock data
+    document.getElementById('modalExamDiagnosis').textContent = `Reviewed ${patient.reason.toLowerCase()}. Blood glucose is slightly elevated. Advised to strictly follow diet plan.`;
+
+    // Labs Table
+    const labsBody = document.getElementById('modalExamLabsTableBody');
+    labsBody.innerHTML = `
+        <tr>
+            <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border);">Fasting Blood Glucose</td>
+            <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); font-weight: 600;">6.2 <span style="font-size: 0.75rem; color: var(--doctor-text-muted); font-weight: normal;">mmol/L</span></td>
+            <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); color: var(--doctor-danger); font-weight: bold;">High</td>
+        </tr>
+        <tr>
+            <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border);">HbA1c</td>
+            <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); font-weight: 600;">5.8 <span style="font-size: 0.75rem; color: var(--doctor-text-muted); font-weight: normal;">%</span></td>
+            <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); color: var(--doctor-danger); font-weight: bold;">High</td>
+        </tr>
+    `;
+
+    // Prescription Table
+    const prescBody = document.getElementById('modalExamPrescriptionTableBody');
+    prescBody.innerHTML = `
+        <tr>
+            <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); font-weight: 600;">Metformin Hydrochloride (500mg)</td>
+            <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border);">1 Tablet</td>
+            <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); font-style: italic; color: var(--doctor-primary);">After breakfast</td>
+        </tr>
+    `;
+}
+
+function closeCompletedExam() {
+    const modal = document.getElementById('completedExamModal');
+    if (modal) modal.classList.remove('open');
 }

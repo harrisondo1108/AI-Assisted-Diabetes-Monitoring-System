@@ -154,6 +154,78 @@
     flex-grow: 1;
 }
 
+/* Toast Notification Styles */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.toast {
+    background: white;
+    padding: 16px 24px;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid #e2e8f0;
+    border-left: 5px solid #cbd5e1;
+    transform: translateX(120%);
+    transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--doctor-text-main);
+    min-width: 320px;
+}
+
+.toast-close-btn {
+    margin-left: auto;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    color: inherit;
+    opacity: 0.6;
+    padding: 0 0 0 10px;
+    transition: opacity 0.2s;
+}
+.toast-close-btn:hover {
+    opacity: 1;
+}
+
+.toast.show {
+    transform: translateX(0);
+}
+
+.toast.success { 
+    background-color: #f0fdf4; 
+    border-color: #bbf7d0; 
+    border-left-color: #22c55e; 
+    color: #166534; 
+}
+.toast.success i { color: #22c55e; font-size: 1.1rem; }
+
+.toast.error { 
+    background-color: #fef2f2; 
+    border-color: #fecaca; 
+    border-left-color: #ef4444; 
+    color: #991b1b; 
+}
+.toast.error i { color: #ef4444; font-size: 1.1rem; }
+
+.toast.warning { 
+    background-color: #fffbeb; 
+    border-color: #fde68a; 
+    border-left-color: #f59e0b; 
+    color: #92400e; 
+}
+.toast.warning i { color: #f59e0b; font-size: 1.1rem; }
+
 /* 2. Main Diagnostic Workspace */
 .examination-workspace {
     flex-grow: 1;
@@ -254,6 +326,7 @@
     font-size: 0.95rem;
     font-weight: 700;
     color: var(--green-900);
+    margin-bottom: 10px;
 }
 
 .section-description {
@@ -530,6 +603,9 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin: 0 auto;
     gap: 8px;
 }
 

@@ -57,7 +57,7 @@ const symptomsCatalog = [
     { id: 'S09', name: 'Dry skin & Itchiness' }
 ];
 
-// Mock Lab Tests Catalog
+// Mock Laboratory Tests Catalog
 const labTestsCatalog = [
     { id: 'L01', name: 'Fasting Blood Glucose', unit: 'mmol/L', range: '3.9 - 5.6', room: 'Laboratory' },
     { id: 'L02', name: 'HbA1c (Glycated Hemoglobin)', unit: '%', range: '4.0 - 5.6', room: 'Laboratory' },
@@ -225,7 +225,7 @@ function initLabTestChecklist() {
     });
 }
 
-// Show/Hide Lab Test Modal
+// Show/Hide Laboratory Test Modal
 function showLabTestModal() {
     if (viewOnlyMode) return;
     
@@ -279,8 +279,10 @@ function confirmLabOrders() {
     });
 
     renderOrderedLabsList();
-    simulateLabResults();
     closeLabTestModal();
+    
+    // Simulate realistic lab delay
+    simulateLabProcessing();
 }
 
 // Render summary of ordered labs in page
@@ -325,7 +327,51 @@ function removeLabOrder(id) {
     if (viewOnlyMode) return;
     delete orderedLabs[id];
     renderOrderedLabsList();
-    simulateLabResults();
+    
+    // If currently processing, let the timeout handle it. Otherwise, update results immediately.
+    if (!isLabProcessing) {
+        simulateLabResults();
+    }
+}
+
+let isLabProcessing = false;
+
+// Simulate the waiting time for the lab
+function simulateLabProcessing() {
+    const tbody = document.getElementById('labResultsTableBody');
+    if (!tbody) return;
+
+    const selectedIds = Object.keys(orderedLabs);
+    if (selectedIds.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--doctor-text-muted); padding: 30px;">Please select one or more tests from the catalog above to view results</td></tr>`;
+        return;
+    }
+
+    isLabProcessing = true;
+
+    // Show loading UI
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="4" style="text-align: center; padding: 40px 20px;">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px;">
+                    <i class="fa-solid fa-spinner fa-spin fa-2x" style="color: var(--doctor-primary);"></i>
+                    <strong style="color: var(--doctor-text-main); font-size: 1.1rem;">Processing samples at the Laboratory...</strong>
+                    <span style="color: var(--doctor-text-muted); font-size: 0.9rem;">Please wait a moment</span>
+                </div>
+            </td>
+        </tr>
+    `;
+
+    // Wait 10 seconds then show results
+    setTimeout(() => {
+        isLabProcessing = false;
+        // Only show results if there are still ordered labs
+        if (Object.keys(orderedLabs).length > 0) {
+            simulateLabResults();
+        } else {
+             tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--doctor-text-muted); padding: 30px;">Please select one or more tests from the catalog above to view results</td></tr>`;
+        }
+    }, 5000);
 }
 
 // Laboratory simulator mapping results
@@ -390,6 +436,30 @@ function simulateLabResults() {
 
 // Diagnostic Switch Tab Logic
 function switchTab(evt, tabId) {
+    if (!viewOnlyMode) {
+        if (tabId === 'labs-tab' || tabId === 'prescription-tab') {
+            const history = document.getElementById('examHistory').value.trim();
+            const diagnosis = document.getElementById('examDiagnosis').value.trim();
+            const checkedSymptoms = document.querySelectorAll('#symptomsGrid input:checked').length;
+            if (!history || !diagnosis || checkedSymptoms === 0) {
+                showToast('Please complete Symptoms, History, and Diagnosis first.', 'warning');
+                return;
+            }
+        }
+
+        if (tabId === 'prescription-tab') {
+            const orderedCount = Object.keys(orderedLabs).length;
+            if (orderedCount === 0) {
+                showToast('At least 1 laboratory test is required for proper diagnosis.', 'warning');
+                return;
+            }
+            if (isLabProcessing) {
+                showToast('Please wait for laboratory tests to finish processing.', 'warning');
+                return;
+            }
+        }
+    }
+
     const tabcontents = document.getElementsByClassName('tab-content');
     for (let i = 0; i < tabcontents.length; i++) {
         tabcontents[i].classList.remove('active');
@@ -406,11 +476,25 @@ function switchTab(evt, tabId) {
 
 
 
-// Prescription line operations
+let editingMedIndex = -1;
+
 function showMedicationModal() {
     const modal = document.getElementById('medicationModal');
     if (modal) modal.classList.add('open');
     document.getElementById('medSearch').value = '';
+    
+    // Reset add/edit states
+    editingMedIndex = -1;
+    selectedMed = null;
+    document.getElementById('medDetailFields').style.display = 'none';
+    const btn = document.getElementById('addMedBtn');
+    if (btn) btn.textContent = 'Add to Prescription';
+    
+    // Clear detail fields
+    document.getElementById('medDosage').value = '';
+    document.getElementById('medDuration').value = '30';
+    document.getElementById('medQuantity').value = '30';
+
     document.getElementById('medSearch').focus();
     filterMedications();
 }
@@ -451,6 +535,11 @@ function selectMedication(med) {
     selectedMed = med;
     document.getElementById('medSearch').value = `${med.name} (${med.concentration})`;
     document.getElementById('medAutocompleteList').style.display = 'none';
+    
+    // Show detail fields
+    const detailFields = document.getElementById('medDetailFields');
+    if (detailFields) detailFields.style.display = 'grid';
+    
     document.getElementById('medDosage').focus();
 }
 
@@ -484,7 +573,13 @@ function addMedicationLine() {
         timingText: timingText
     };
 
-    prescriptionLines.push(line);
+    if (editingMedIndex >= 0) {
+        prescriptionLines[editingMedIndex] = line;
+        editingMedIndex = -1;
+    } else {
+        prescriptionLines.push(line);
+    }
+    
     renderPrescriptionLines();
     closeMedicationModal();
     selectedMed = null;
@@ -493,6 +588,35 @@ function addMedicationLine() {
 function removePrescriptionLine(index) {
     prescriptionLines.splice(index, 1);
     renderPrescriptionLines();
+}
+
+function editPrescriptionLine(index) {
+    const line = prescriptionLines[index];
+    if (!line) return;
+
+    selectedMed = medicationsCatalog.find(m => m.id === line.medId);
+    editingMedIndex = index;
+
+    // Open modal
+    const modal = document.getElementById('medicationModal');
+    if (modal) modal.classList.add('open');
+
+    // Populate data
+    document.getElementById('medSearch').value = selectedMed ? `${selectedMed.name} (${selectedMed.concentration})` : line.name;
+    document.getElementById('medAutocompleteList').style.display = 'none';
+
+    document.getElementById('medDosage').value = line.dosage;
+    document.getElementById('medDuration').value = line.duration;
+    document.getElementById('medQuantity').value = line.quantity;
+    document.getElementById('medTiming').value = line.timing;
+
+    // Show details
+    const detailFields = document.getElementById('medDetailFields');
+    if (detailFields) detailFields.style.display = 'grid';
+
+    // Update button
+    const btn = document.getElementById('addMedBtn');
+    if (btn) btn.textContent = 'Update Prescription';
 }
 
 function renderPrescriptionLines() {
@@ -532,7 +656,10 @@ function renderPrescriptionLines() {
                 <span class="presc-lbl">Intake Timing</span>
                 <span class="presc-val" style="font-size: 0.7rem;">${line.timingText}</span>
             </div>
-            <button class="btn-remove-line" onclick="removePrescriptionLine(${index})"><i class="fas fa-trash"></i></button>
+            <div style="display: flex; gap: 4px; justify-content: flex-end;">
+                <button class="btn-remove-line" style="color: var(--doctor-primary);" onclick="editPrescriptionLine(${index})" title="Edit"><i class="fas fa-pen"></i></button>
+                <button class="btn-remove-line" onclick="removePrescriptionLine(${index})" title="Remove"><i class="fas fa-trash"></i></button>
+            </div>
         `;
         list.appendChild(div);
     });
@@ -541,14 +668,25 @@ function renderPrescriptionLines() {
 // Complete Clinical Checkup
 function saveExam() {
     if (viewOnlyMode) {
-        alert('This checkup session is read-only. Returning to dashboard.');
-        window.location.href = '/doctor/dashboard';
+        showToast('This checkup session is read-only. Returning to dashboard.', 'warning');
+        setTimeout(() => window.location.href = '/doctor/dashboard', 1500);
         return;
     }
 
     const diagnosis = document.getElementById('examDiagnosis').value.trim();
     if (!diagnosis) {
-        alert('Please fill out the Diagnosis Note before completing checkup.');
+        showToast('Please fill out the Diagnosis Note before completing checkup.', 'error');
+        return;
+    }
+
+    // Validate if Prescription is filled
+    const prescribedCount = prescribedMeds.length;
+    if (prescribedCount === 0) {
+        showToast('Please prescribe at least 1 medicine before completing.', 'warning');
+        // Switch to prescription tab just in case
+        if (!document.getElementById('prescription-tab').classList.contains('active')) {
+             switchTab({currentTarget: document.querySelectorAll('.tab-btn')[2]}, 'prescription-tab');
+        }
         return;
     }
 
@@ -563,15 +701,86 @@ function saveExam() {
         }
     }
 
-    alert(`Consultation and Clinical Checkup for patient ${currentPatient.name} completed successfully!`);
-    window.location.href = '/doctor/dashboard';
+    showToast(`Consultation and Clinical Checkup completed successfully!`, 'success');
+    setTimeout(() => {
+        window.location.href = '/doctor/dashboard';
+    }, 1500);
 }
 
 function cancelExam() {
-    if (confirm('Are you sure you want to cancel the clinical consultation? All entered notes will be discarded.')) {
+    if (viewOnlyMode) {
         window.location.href = '/doctor/dashboard';
+        return;
     }
+    const modal = document.getElementById('cancelConfirmModal');
+    if (modal) modal.classList.add('open');
 }
+
+function closeCancelModal() {
+    const modal = document.getElementById('cancelConfirmModal');
+    if (modal) modal.classList.remove('open');
+}
+
+function confirmCancelExam() {
+    closeCancelModal();
+    showToast('Examination cancelled. Discarding notes...', 'error');
+    setTimeout(() => {
+        window.location.href = '/doctor/dashboard';
+    }, 1500);
+}
+
+// --- EXAMINE ROOM JAVASCRIPT ---
+
+// Toast Notification System
+function showToast(message, type = 'success') {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
+    
+    // Limit to 4 toasts
+    while (container.children.length >= 4) {
+        const oldest = container.firstChild;
+        if (oldest) {
+            container.removeChild(oldest);
+        }
+    }
+    
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    let icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-times-circle' : 'fa-exclamation-triangle';
+    toast.innerHTML = `
+        <i class="fas ${icon}"></i> 
+        <span>${message}</span>
+        <button class="toast-close-btn"><i class="fas fa-times"></i></button>
+    `;
+    
+    container.appendChild(toast);
+    
+    // Close button logic
+    const closeBtn = toast.querySelector('.toast-close-btn');
+    closeBtn.addEventListener('click', () => {
+        toast.classList.remove('show');
+        setTimeout(() => { if (toast.parentNode) toast.remove(); }, 300);
+    });
+    
+    // Trigger animation
+    setTimeout(() => toast.classList.add('show'), 10);
+    
+    // Auto remove
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.classList.remove('show');
+            setTimeout(() => { if (toast.parentNode) toast.remove(); }, 300);
+        }
+    }, 4000);
+}
+
+// Check view-only mode
+const urlParams = new URLSearchParams(window.location.search);
 
 function goToHistory() {
     window.location.href = '/doctor/examine/patients';

@@ -590,7 +590,7 @@ function openTimelineDetail(date, index) {
             labsTableBody.appendChild(tr);
         });
     } else {
-        labsTableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 15px; color: var(--doctor-text-muted); font-size: 0.8rem;">No lab tests ordered in this session</td></tr>';
+        labsTableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 15px; color: var(--doctor-text-muted); font-size: 0.8rem;">No laboratory tests ordered in this session</td></tr>';
     }
 
     // Prescription Table

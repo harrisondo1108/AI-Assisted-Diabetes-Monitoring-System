@@ -1,4 +1,4 @@
-package com.quan.diabetes.controller;
+package com.quan.diabetes.controller.doctor;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

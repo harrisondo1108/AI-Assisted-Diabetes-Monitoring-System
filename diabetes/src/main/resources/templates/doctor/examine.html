@@ -107,15 +107,14 @@
 
                     <!-- Horizontal Diagnostic Tabs -->
                     <div class="diagnostic-tabs">
-                        <button class="tab-btn active" onclick="switchTab(event, 'symptoms-tab')"><i class="fas fa-notes-medical"></i> Symptoms & Notes</button>
-                        <button class="tab-btn" onclick="switchTab(event, 'labs-tab')"><i class="fas fa-flask"></i> Lab Orders & Flags</button>
+                        <button class="tab-btn active" onclick="switchTab(event, 'symptoms-tab')"><i class="fas fa-notes-medical"></i> Symptoms </button>
+                        <button class="tab-btn" onclick="switchTab(event, 'labs-tab')"><i class="fas fa-flask"></i> Laboratory Orders </button>
                         <button class="tab-btn" onclick="switchTab(event, 'prescription-tab')"><i class="fas fa-pills"></i> Prescription</button>
                     </div>
 
                     <!-- TAB CONTENT 1: Symptoms Checklist -->
                     <div class="tab-content active" id="symptoms-tab">
                         <div class="form-section">
-                            <h3 class="section-header-title">Patient Symptoms & Clinical Notes</h3>
                             <p class="section-description">Select patient symptoms and record medical history notes.</p>
                             
                             <div class="form-grid-columns-2">
@@ -147,10 +146,9 @@
                         <div class="form-section">
                             <div class="prescription-header">
                                 <div class="prescription-titles">
-                                    <h3 class="section-header-title">Laboratory Orders</h3>
-                                    <p class="section-description">Order diagnostic laboratory examinations for the patient. Simulated test results will update instantly.</p>
+                                    <p class="section-description">Order diagnostic laboratory examinations for the patient.</p>
                                 </div>
-                                <button type="button" class="btn btn-secondary btn-sm" onclick="showLabTestModal()"><i class="fas fa-plus"></i> Order Lab Tests</button>
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="showLabTestModal()"><i class="fas fa-plus"></i> Order Laboratory Tests</button>
                             </div>
                             
                             <div class="ordered-labs-summary" id="orderedLabsSummary">
@@ -164,14 +162,13 @@
                         <div class="form-section" style="margin-top: 20px;">
                             <div class="card">
                                 <div class="card-header">
-                                    <h2 class="card-title">Laboratory Test Results</h2>
-                                    <span class="badge-status badge-completed"><i class="fas fa-vial"></i> Simulated Laboratory Analysis </span>
+                                    <span class="badge-status badge-completed"><i class="fas fa-vial"></i> Laboratory Test Results </span>
                                 </div>
                                 <div class="table-container">
                                     <table class="clinical-table">
                                         <thead>
                                             <tr>
-                                                <th>Lab Test Name</th>
+                                                <th>Laboratory Test Name</th>
                                                 <th>Reference Threshold Range</th>
                                                 <th>Result Value</th>
                                                 <th>Flag Status</th>
@@ -195,7 +192,6 @@
                         <div class="form-section">
                             <div class="prescription-header">
                                 <div class="prescription-titles">
-                                    <h3 class="section-header-title">Prescription Formulation</h3>
                                     <p class="section-description">Add medical compounds, specify dosage timing according to the patient's daily routine.</p>
                                 </div>
                                 <button type="button" class="btn btn-secondary btn-sm" onclick="showMedicationModal()"><i class="fas fa-plus"></i> Add Medication</button>
@@ -234,7 +230,7 @@
                     </div>
                 </div>
                 
-                <div class="form-grid-columns-2" style="margin-top: 15px;">
+                <div class="form-grid-columns-2" id="medDetailFields" style="margin-top: 15px; display: none;">
                     <div class="form-group">
                         <label>Dosage Rate <span class="required">*</span></label>
                         <input type="text" id="medDosage" placeholder="e.g. 1 Tablet (500mg)">
@@ -248,7 +244,7 @@
                         <input type="number" id="medQuantity" min="1" max="500" value="30">
                     </div>
                     <div class="form-group">
-                        <label>Preferred Daily Intake Hour <span class="required">*</span></label>
+                        <label>Daily Intake Hour <span class="required">*</span></label>
                         <select id="medTiming">
                             <option value="07:30:00">Breakfast Time (07:30 AM)</option>
                             <option value="12:15:00">Lunch Time (12:15 PM)</option>
@@ -261,12 +257,31 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="closeMedicationModal()">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="addMedicationLine()">Add to Prescription</button>
+                <button type="button" class="btn btn-primary" id="addMedBtn" onclick="addMedicationLine()">Add to Prescription</button>
             </div>
         </div>
     </div>
 
-    <!-- LAB TEST DIALOG MODAL -->
+    <!-- CANCEL CONFIRMATION MODAL -->
+    <div class="modal-overlay" id="cancelConfirmModal">
+        <div class="modal" style="max-width: 550px; padding: 25px;">
+            <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
+                <h3 style="font-size: 1.4rem;">Cancel Examination</h3>
+                <button type="button" class="close-btn" onclick="closeCancelModal()" style="font-size: 1.5rem;"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" style="text-align: center; padding: 25px 20px;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 4.5rem; color: var(--doctor-danger); margin-bottom: 25px;"></i>
+                <p style="font-size: 1.35rem; font-weight: 600; color: var(--doctor-text-main); margin-bottom: 15px;">Are you sure you want to cancel this examination?</p>
+                <p style="font-size: 1.1rem; color: var(--doctor-text-muted);">All unsaved progress will be permanently lost.</p>
+            </div>
+            <div class="modal-footer" style="justify-content: center; gap: 20px; padding-top: 15px; border-top: none;">
+                <button type="button" class="btn btn-secondary" onclick="closeCancelModal()" style="font-size: 1.1rem; padding: 12px 24px;">No, Keep Editing</button>
+                <button type="button" class="btn btn-outline-danger" onclick="confirmCancelExam()" style="background: var(--doctor-danger); color: white; font-size: 1.1rem; padding: 12px 24px;">Yes, Cancel It</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LABORATORY TEST DIALOG MODAL -->
     <div class="modal-overlay" id="labTestModal">
         <div class="modal modal-prescription">
             <div class="modal-header">
@@ -275,10 +290,10 @@
             </div>
             <div class="modal-body">
                 <div class="form-group" style="margin-bottom: 15px; position: relative;">
-                    <label>Search Lab Tests</label>
+                    <label>Search Laboratory Tests</label>
                     <div class="custom-select-autocomplete">
                         <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--doctor-text-muted); font-size: 0.8rem;"></i>
-                        <input type="text" id="labSearch" placeholder="Type to filter lab tests..." onkeyup="filterLabTestsInModal()" style="padding-left: 32px; width: 100%;">
+                        <input type="text" id="labSearch" placeholder="Type to filter laboratory tests..." onkeyup="filterLabTestsInModal()" style="padding-left: 32px; width: 100%;">
                     </div>
                 </div>
                 
@@ -288,7 +303,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="closeLabTestModal()">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="confirmLabOrders()">Apply Orders</button>
+                <button type="button" class="btn btn-primary" onclick="confirmLabOrders()">Assign</button>
             </div>
         </div>
     </div>
