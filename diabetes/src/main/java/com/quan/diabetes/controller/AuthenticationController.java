@@ -20,12 +20,38 @@ public class AuthenticationController {
         this.userService = userService;
     }
 
+    @GetMapping("/")
+    public String home() {
+        return "index";
+    }
+
     @GetMapping("/login")
     public String login(){
         return "auth/login";
     }
+
+    @GetMapping("/register")
+    public String register(){
+        return "auth/register";
+    }
+
+    @GetMapping("/forgot-phone")
+    public String forgotPhone(){
+        return "auth/forgot-phone";
+    }
+
+    @GetMapping("/forgot-otp")
+    public String forgotOtp(){
+        return "auth/forgot-otp";
+    }
+
+    @GetMapping("/reset-pass")
+    public String resetPass(){
+        return "auth/reset_pass";
+    }
+
     @PostMapping("/login")
-    public String login(@RequestParam String username, @RequestParam String password){
+    public String login(@RequestParam("username") String username, @RequestParam("password") String password){
         Optional<User> userOptional = userService.findByUsernameAndPassword(username, password);
         if(userOptional.isPresent()){
             User use = userOptional.get();

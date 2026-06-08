@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patients Database | Diabetes Care System</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Page CSS -->
+    <link rel="stylesheet" th:href="@{/css/pages/doctor-common.css}">
+    <link rel="stylesheet" th:href="@{/css/pages/doctor-patients.css}">
+</head>
+<body>
+    <div class="doctor-layout">
+        <div class="doctor-main">
+            <!-- Header layout replacement -->
+            <div th:replace="~{layout/doctor_header :: header('Patient Medical Record & History', 'patients')}"></div>
+
+            <main class="doctor-content history-layout">
+                
+                <!-- Detailed Medical Timeline (Full-Width) -->
+                <section class="patient-history-detail" id="patientDetailSection">
+                    <div class="patient-history-container" id="historyDetails">
+                        <!-- Top Details Header -->
+                        <div class="history-profile-header">
+                            <div class="profile-header-meta">
+                                <div class="profile-avatar"><i class="fas fa-hospital-user"></i></div>
+                                <div>
+                                    <h2 class="profile-name" id="detName">Nguyen Van A</h2>
+                                    <span class="profile-id" id="detId" style="display: none;">P012932</span>
+                                </div>
+                            </div>
+                            <div class="profile-header-actions">
+                                <a th:href="@{/doctor/examine}" class="btn btn-secondary btn-sm">
+                                    <i class="fas fa-arrow-left"></i> Back to Checkup
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Statistics Grid details -->
+                        <div class="history-specs-row">
+                            <div class="history-spec-col">
+                                <span class="lbl">Age / Gender</span>
+                                <strong class="val" id="detAgeGender">45 yrs / Male</strong>
+                            </div>
+                            <div class="history-spec-col">
+                                <span class="lbl">Blood Group</span>
+                                <strong class="val" id="detBlood">O+</strong>
+                            </div>
+                            <div class="history-spec-col">
+                                <span class="lbl">Supervisor</span>
+                                <strong class="val" id="detSupervisor">Nguyen Van B</strong>
+                            </div>
+                            <div class="history-spec-col">
+                                <span class="lbl">Supervisor Phone</span>
+                                <strong class="val" id="detSupervisorPhone">0912345678</strong>
+                            </div>
+                        </div>
+
+                        <!-- Historical Blood Sugar Trend Chart -->
+                        <div class="history-section-card">
+                            <h3 class="section-title-label"><i class="fas fa-chart-line"></i> Fasting Blood Glucose Trend (6 Months)</h3>
+                            <div class="chart-wrapper">
+                                <!-- Canvas used to draw blood sugar trend graph dynamically without external dependencies -->
+                                <canvas id="glucoseTrendChart" width="800" height="220"></canvas>
+                            </div>
+                            <div class="chart-legend">
+                                <span class="legend-item"><span class="legend-color normal"></span> Target Normal (3.9 - 5.6 mmol/L)</span>
+                                <span class="legend-item"><span class="legend-color patient-line"></span> Patient Readings (mmol/L)</span>
+                            </div>
+                        </div>
+
+                        <!-- Patient Diagnostics History Timeline -->
+                        <div class="history-section-card" style="margin-top: 20px;">
+                            <div class="timeline-header-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <h3 class="section-title-label" style="margin-bottom: 0;"><i class="fas fa-timeline"></i> Consultation Timeline</h3>
+                                <div class="timeline-search-box" style="position: relative; width: 260px;">
+                                    <i class="fas fa-search" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--doctor-text-muted); font-size: 0.8rem;"></i>
+                                    <input type="text" id="timelineSearchInput" placeholder="Filter by date (e.g. May 2026)..." oninput="filterTimeline()" style="width: 100%; padding: 6px 12px 6px 30px; border-radius: 6px; border: 1px solid var(--doctor-border); outline: none; font-size: 0.78rem; transition: all 0.2s;">
+                                </div>
+                            </div>
+                            <div class="timeline-trail" id="consultationTimeline">
+                                <!-- Timelines items loaded dynamically via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- TIMELINE DETAIL MODAL -->
+    <div class="modal-overlay" id="timelineDetailModal">
+        <div class="modal modal-history">
+            <div class="modal-header">
+                <h2 id="modalTitle">Consultation Details</h2>
+                <button type="button" class="modal-close" onclick="closeTimelineDetail()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" style="max-height: 75vh; overflow-y: auto; display: flex; flex-direction: column; gap: 20px;">
+                <!-- Basic Meta Info -->
+                <div class="history-specs-row" style="grid-template-columns: repeat(2, 1fr);">
+                    <div class="history-spec-col">
+                        <span class="lbl">Date of Visit</span>
+                        <strong class="val" id="modalDate">May 12, 2026</strong>
+                    </div>
+                    <div class="history-spec-col">
+                        <span class="lbl">Examiner Doctor</span>
+                        <strong class="val" id="modalDoctor">Dr. Harrison</strong>
+                    </div>
+                </div>
+
+                <!-- Diagnosis & Notes -->
+                <div class="history-spec-col" style="gap: 8px; padding: 16px;">
+                    <span class="lbl" style="font-size: 0.75rem;">Diagnosis</span>
+                    <strong class="val" id="modalDiagnosis" style="font-size: 0.9rem; line-height: 1.4;">Type 2 Diabetes mellitus under control.</strong>
+                </div>
+
+                <div class="history-spec-col" style="gap: 8px; padding: 16px;">
+                    <span class="lbl" style="font-size: 0.75rem;">Clinical Notes</span>
+                    <p id="modalNotes" style="font-size: 0.82rem; color: var(--doctor-text-main); line-height: 1.5; margin: 0;"></p>
+                </div>
+
+                <!-- Symptoms -->
+                <div class="history-spec-col" style="gap: 8px; padding: 16px;">
+                    <span class="lbl" style="font-size: 0.75rem;">Symptoms Checked</span>
+                    <div class="timeline-badges-wrap" id="modalSymptoms" style="margin-bottom: 0; margin-top: 4px;">
+                        <!-- dynamic badges -->
+                    </div>
+                </div>
+
+                <!-- Lab results table -->
+                <div class="history-spec-col" style="gap: 12px; padding: 16px;">
+                    <span class="lbl" style="font-size: 0.75rem;">Lab Tests & Results</span>
+                    <div style="overflow-x: auto; width: 100%;">
+                        <table class="clinical-table" style="font-size: 0.85rem; text-align: left; width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr>
+                                    <th style="padding: 10px 12px; font-size: 0.75rem;">Test Name</th>
+                                    <th style="padding: 10px 12px; font-size: 0.75rem;">Value</th>
+                                    <th style="padding: 10px 12px; font-size: 0.75rem;">Reference Range</th>
+                                    <th style="padding: 10px 12px; font-size: 0.75rem;">Flag</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalLabsTableBody">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Prescription table -->
+                <div class="history-spec-col" style="gap: 12px; padding: 16px;">
+                    <span class="lbl" style="font-size: 0.75rem;">Prescribed Medications</span>
+                    <div style="overflow-x: auto; width: 100%;">
+                        <table class="clinical-table" style="font-size: 0.85rem; text-align: left; width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr>
+                                    <th style="padding: 10px 12px; font-size: 0.75rem;">Medication</th>
+                                    <th style="padding: 10px 12px; font-size: 0.75rem;">Dosage</th>
+                                    <th style="padding: 10px 12px; font-size: 0.75rem;">Timing</th>
+                                    <th style="padding: 10px 12px; font-size: 0.75rem;">Duration / Qty</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalPrescriptionTableBody">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeTimelineDetail()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script assets -->
+    <script th:src="@{/js/doctor/patients.js}"></script>
+</body>
+</html>

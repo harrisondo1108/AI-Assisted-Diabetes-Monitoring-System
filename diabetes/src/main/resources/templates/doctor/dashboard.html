@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Dashboard | Diabetes Care System</title>
+    <!-- Premium Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Page CSS -->
+    <link rel="stylesheet" th:href="@{/css/pages/doctor-common.css}">
+    <link rel="stylesheet" th:href="@{/css/pages/doctor-dashboard.css}">
+</head>
+<body>
+    <div class="doctor-layout">
+        <div class="doctor-main">
+            <!-- Header layout replacement -->
+            <div th:replace="~{layout/doctor_header :: header('Clinical Dashboard', 'dashboard')}"></div>
+
+            <main class="doctor-content">
+                <!-- Statistics cards with modern glassmorphic look -->
+                <div class="metrics-grid">
+                    <div class="metric-card bg-gradient-teal">
+                        <div class="metric-card-inner">
+                            <div class="metric-info">
+                                <span class="metric-label">Waiting Queue</span>
+                                <h3 class="metric-val" id="queueCount">4 Patients</h3>
+                                <p class="metric-sub">Expected wait: ~30 mins</p>
+                            </div>
+                            <div class="metric-icon"><i class="fas fa-hospital-user"></i></div>
+                        </div>
+                    </div>
+                    <div class="metric-card bg-gradient-blue">
+                        <div class="metric-card-inner">
+                            <div class="metric-info">
+                                <span class="metric-label">Diagnosed Today</span>
+                                <h3 class="metric-val" id="completedCount">8 Cases</h3>
+                                <p class="metric-sub">Target: 12 daily cases</p>
+                            </div>
+                            <div class="metric-icon"><i class="fas fa-square-check"></i></div>
+                        </div>
+                    </div>
+                    <div class="metric-card bg-gradient-orange">
+                        <div class="metric-card-inner">
+                            <div class="metric-info">
+                                <span class="metric-label">Abnormal Glucose Alerts</span>
+                                <h3 class="metric-val text-alert" id="alertCount">2 Alerts</h3>
+                                <p class="metric-sub">Require urgent reviews</p>
+                            </div>
+                            <div class="metric-icon"><i class="fas fa-triangle-exclamation"></i></div>
+                        </div>
+                    </div>
+                    <div class="metric-card bg-gradient-slate">
+                        <div class="metric-card-inner">
+                            <div class="metric-info">
+                                <span class="metric-label">Clinical Rooms Status</span>
+                                <h3 class="metric-val">Active</h3>
+                                <p class="metric-sub">Labs operating at normal rate</p>
+                            </div>
+                            <div class="metric-icon"><i class="fas fa-circle-nodes"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <!-- Consultation Queue Card -->
+                    <div class="card grid-span-3">
+                        <div class="card-header">
+                            <div class="header-titles">
+                                <h2 class="card-title">Consultation Queue</h2>
+                                <p class="card-subtitle">Manage patient consultations scheduled for today</p>
+                            </div>
+                            <div class="header-actions">
+                                <div class="card-search-box">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" id="queueSearchInput" placeholder="Search by name..." oninput="handleQueueSearch()">
+                                </div>
+                                <div class="filter-pills">
+                                    <button class="pill active" onclick="filterQueue('all')">All</button>
+                                    <button class="pill" onclick="filterQueue('Pending')">Pending</button>
+                                    <button class="pill" onclick="filterQueue('InProgress')">In Progress</button>
+                                    <button class="pill" onclick="filterQueue('Completed')">Completed</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table class="clinical-table">
+                                <thead>
+                                    <tr>
+                                        <th style="display: none;">Patient ID</th>
+                                        <th>Patient Name</th>
+                                        <th>Age/Gender</th>
+                                        <th>Scheduled</th>
+                                        <th>Reason</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="queueTableBody">
+                                    <!-- Dynamic rows from doctor-dashboard.js -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-footer">
+                            <div class="pagination" id="queuePagination">
+                                <!-- Dynamic pagination buttons via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Script assets -->
+    <script th:src="@{/js/doctor/dashboard.js}"></script>
+</body>
+</html>

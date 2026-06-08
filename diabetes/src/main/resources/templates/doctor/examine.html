@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examine Room | Diabetes Care System</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Page CSS -->
+    <link rel="stylesheet" th:href="@{/css/pages/doctor-common.css}">
+    <link rel="stylesheet" th:href="@{/css/pages/doctor-examine.css}">
+</head>
+<body>
+    <div class="doctor-layout">
+        <div class="doctor-main">
+            <!-- Header layout replacement -->
+            <div th:replace="~{layout/doctor_header :: header('Consultation & Diagnostic', 'examine')}"></div>
+
+            <main class="doctor-content flex-row-container">
+                
+                <!-- Left Panel: Patient Medical Card (320px) -->
+                <aside class="patient-medical-card">
+                    <div class="patient-card-header">
+                        <div class="patient-avatar-large"><i class="fas fa-hospital-user"></i></div>
+                        <h2 class="patient-name-title" id="patName">Nguyen Van A</h2>
+                        <span class="patient-id-badge" id="patId" style="display: none;">P012932</span>
+                    </div>
+
+                    <div class="patient-specs-grid">
+                        <div class="spec-item">
+                            <span class="spec-label">Age</span>
+                            <span class="spec-val" id="patAge">45 yrs</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label">Gender</span>
+                            <span class="spec-val" id="patGender">Male</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label">Blood Group</span>
+                            <span class="spec-val" id="patBlood">O+</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label">BMI</span>
+                            <span class="spec-val" id="patBmi">24.2 (Normal)</span>
+                        </div>
+                    </div>
+
+
+                    <div class="medical-details-section">
+                        <h4 class="section-title"><i class="fas fa-weight-scale"></i> Vital Metrics</h4>
+                        <div class="detail-row">
+                            <span>Height:</span> <strong id="patHeight">172 cm</strong>
+                        </div>
+                        <div class="detail-row">
+                            <span>Weight:</span> <strong id="patWeight">71.5 kg</strong>
+                        </div>
+                    </div>
+
+                    <div class="medical-details-section">
+                        <h4 class="section-title"><i class="fas fa-circle-exclamation"></i> Medical Warnings</h4>
+                        <div class="alert-box alert-danger">
+                            <strong>Allergies:</strong>
+                            <p id="patAllergy">No known drug allergies</p>
+                        </div>
+                        <div class="alert-box alert-info">
+                            <strong>History:</strong>
+                            <p id="patHistory">Type 2 Diabetes diagnosed 3 years ago. Hypertension.</p>
+                        </div>
+                    </div>
+
+                    <div class="medical-details-section">
+                        <h4 class="section-title"><i class="fas fa-clock"></i> Daily Routine</h4>
+                        <div class="routine-item">
+                            <i class="fas fa-mug-saucer"></i> <span>Breakfast:</span> <strong id="patBreakfast">07:30 AM</strong>
+                        </div>
+                        <div class="routine-item">
+                            <i class="fas fa-utensils"></i> <span>Lunch:</span> <strong id="patLunch">12:15 PM</strong>
+                        </div>
+                        <div class="routine-item">
+                            <i class="fas fa-bowl-food"></i> <span>Dinner:</span> <strong id="patDinner">07:00 PM</strong>
+                        </div>
+                        <div class="routine-item">
+                            <i class="fas fa-bed"></i> <span>Sleep / Wake:</span> <strong id="patSleep">10:00 PM / 06:00 AM</strong>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-secondary btn-sm" id="viewHistoryBtn" onclick="goToHistory()" style="width: 100%; margin: 12px 0 0 0; justify-content: center; gap: 8px;">
+                        <i class="fas fa-clock-rotate-left"></i> View Medical History
+                    </button>
+                </aside>
+
+                <!-- Right/Main Workspace Container -->
+                <section class="examination-workspace">
+                    <div class="workspace-header">
+                        <!-- Diagnostic Session Status -->
+                        <div class="session-info" style="display: none;">
+                            <span class="session-label">Session ID:</span>
+                            <span class="session-id">EXAM-2026-9923</span>
+                        </div>
+                        <!-- Top actions -->
+                        <div class="workspace-actions">
+                            <button type="button" class="btn btn-outline-danger" onclick="cancelExam()">Cancel</button>
+                            <button type="button" class="btn btn-primary" onclick="saveExam()"><i class="fas fa-floppy-disk"></i> Complete Examination</button>
+                        </div>
+                    </div>
+
+                    <!-- Horizontal Diagnostic Tabs -->
+                    <div class="diagnostic-tabs">
+                        <button class="tab-btn active" onclick="switchTab(event, 'symptoms-tab')"><i class="fas fa-notes-medical"></i> Symptoms & Notes</button>
+                        <button class="tab-btn" onclick="switchTab(event, 'labs-tab')"><i class="fas fa-flask"></i> Lab Orders & Flags</button>
+                        <button class="tab-btn" onclick="switchTab(event, 'prescription-tab')"><i class="fas fa-pills"></i> Prescription</button>
+                    </div>
+
+                    <!-- TAB CONTENT 1: Symptoms Checklist -->
+                    <div class="tab-content active" id="symptoms-tab">
+                        <div class="form-section">
+                            <h3 class="section-header-title">Patient Symptoms & Clinical Notes</h3>
+                            <p class="section-description">Select patient symptoms and record medical history notes.</p>
+                            
+                            <div class="form-grid-columns-2">
+                                <div class="form-group full-width">
+                                    <label>Current Medical Complaints & History</label>
+                                    <textarea id="examHistory" rows="3" placeholder="Enter patient's description of symptoms, duration, and context..."></textarea>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label>Clinical Diagnosis Note</label>
+                                    <textarea id="examDiagnosis" rows="3" placeholder="Enter clinical diagnosis and notes..."></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Next Appointment Date</label>
+                                    <input type="date" id="examNextDate">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section" style="margin-top: 20px;">
+                            <h3 class="section-header-title">Symptoms Checkbox Catalog</h3>
+                            <div class="symptoms-selection-grid" id="symptomsGrid">
+                                <!-- Symptoms list will be dynamically loaded via JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB CONTENT 2: Lab Orders -->
+                    <div class="tab-content" id="labs-tab">
+                        <div class="form-section">
+                            <div class="prescription-header">
+                                <div class="prescription-titles">
+                                    <h3 class="section-header-title">Laboratory Orders</h3>
+                                    <p class="section-description">Order diagnostic laboratory examinations for the patient. Simulated test results will update instantly.</p>
+                                </div>
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="showLabTestModal()"><i class="fas fa-plus"></i> Order Lab Tests</button>
+                            </div>
+                            
+                            <div class="ordered-labs-summary" id="orderedLabsSummary">
+                                <div class="no-medications-message" id="emptyLabs">
+                                    <i class="fas fa-vial-circle-check"></i>
+                                    <p>No laboratory tests ordered yet.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section" style="margin-top: 20px;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h2 class="card-title">Laboratory Test Results</h2>
+                                    <span class="badge-status badge-completed"><i class="fas fa-vial"></i> Simulated Laboratory Analysis </span>
+                                </div>
+                                <div class="table-container">
+                                    <table class="clinical-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Lab Test Name</th>
+                                                <th>Reference Threshold Range</th>
+                                                <th>Result Value</th>
+                                                <th>Flag Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="labResultsTableBody">
+                                            <tr>
+                                                <td colspan="4" style="text-align: center; color: var(--doctor-text-muted); padding: 30px;">
+                                                    Please select one or more tests from the catalog above to view results
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB CONTENT 3: Prescription Detail -->
+                    <div class="tab-content" id="prescription-tab">
+                        <div class="form-section">
+                            <div class="prescription-header">
+                                <div class="prescription-titles">
+                                    <h3 class="section-header-title">Prescription Formulation</h3>
+                                    <p class="section-description">Add medical compounds, specify dosage timing according to the patient's daily routine.</p>
+                                </div>
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="showMedicationModal()"><i class="fas fa-plus"></i> Add Medication</button>
+                            </div>
+
+                            <div class="prescription-items-list" id="prescriptionLines">
+                                <!-- Dynamic prescription detail rows loaded via JS -->
+                                <div class="no-medications-message" id="emptyPrescription">
+                                    <i class="fas fa-prescription-bottle-medical"></i>
+                                    <p>No medications added to this prescription yet.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- MEDICATION DIALOG MODAL -->
+    <div class="modal-overlay" id="medicationModal">
+        <div class="modal modal-prescription">
+            <div class="modal-header">
+                <h2>Add Medication Line</h2>
+                <button type="button" class="modal-close" onclick="closeMedicationModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Select Medication <span class="required">*</span></label>
+                    <div class="custom-select-autocomplete">
+                        <input type="text" id="medSearch" placeholder="Type to search medicine..." onkeyup="filterMedications()">
+                        <div class="autocomplete-list" id="medAutocompleteList">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-grid-columns-2" style="margin-top: 15px;">
+                    <div class="form-group">
+                        <label>Dosage Rate <span class="required">*</span></label>
+                        <input type="text" id="medDosage" placeholder="e.g. 1 Tablet (500mg)">
+                    </div>
+                    <div class="form-group">
+                        <label>Duration Days <span class="required">*</span></label>
+                        <input type="number" id="medDuration" min="1" max="180" value="30">
+                    </div>
+                    <div class="form-group">
+                        <label>Total Supply Quantity <span class="required">*</span></label>
+                        <input type="number" id="medQuantity" min="1" max="500" value="30">
+                    </div>
+                    <div class="form-group">
+                        <label>Preferred Daily Intake Hour <span class="required">*</span></label>
+                        <select id="medTiming">
+                            <option value="07:30:00">Breakfast Time (07:30 AM)</option>
+                            <option value="12:15:00">Lunch Time (12:15 PM)</option>
+                            <option value="19:00:00">Dinner Time (07:00 PM)</option>
+                            <option value="06:00:00">Wake Up Time (06:00 AM)</option>
+                            <option value="22:00:00">Sleep Time (10:00 PM)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeMedicationModal()">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="addMedicationLine()">Add to Prescription</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LAB TEST DIALOG MODAL -->
+    <div class="modal-overlay" id="labTestModal">
+        <div class="modal modal-prescription">
+            <div class="modal-header">
+                <h2>Order Laboratory Examinations</h2>
+                <button type="button" class="modal-close" onclick="closeLabTestModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group" style="margin-bottom: 15px; position: relative;">
+                    <label>Search Lab Tests</label>
+                    <div class="custom-select-autocomplete">
+                        <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--doctor-text-muted); font-size: 0.8rem;"></i>
+                        <input type="text" id="labSearch" placeholder="Type to filter lab tests..." onkeyup="filterLabTestsInModal()" style="padding-left: 32px; width: 100%;">
+                    </div>
+                </div>
+                
+                <div class="lab-checklist-container" id="labChecklist">
+                    <!-- Checkbox items populated dynamically -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeLabTestModal()">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="confirmLabOrders()">Apply Orders</button>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Script assets -->
+    <script th:src="@{/js/doctor/examine.js}"></script>
+</body>
+</html>
