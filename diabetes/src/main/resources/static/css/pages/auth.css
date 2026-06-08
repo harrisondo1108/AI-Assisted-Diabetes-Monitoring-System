@@ -344,7 +344,7 @@ footer {
     margin-bottom: 20px;
     font-size: 14px;
     text-align: center;
-    display: none;
+    /*display: none;*/
 }
 
 /* ========== RESPONSIVE ========== */

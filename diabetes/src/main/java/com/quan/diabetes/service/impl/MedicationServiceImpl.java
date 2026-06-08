@@ -161,6 +161,14 @@ public class MedicationServiceImpl implements MedicationService {
     }
 
     @Override
+    public List<Medication> searchByKeywordList(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return findAllList();
+        }
+        return medicationRepository.searchByKeywordList(keyword);
+    }
+
+    @Override
     public List<String> findAllDistinctRoutes() {
         return medicationRepository.findAllDistinctRoutes();
     }

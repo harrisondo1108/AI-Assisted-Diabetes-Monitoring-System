@@ -22,6 +22,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Service implementation for admin‑level user management.
@@ -122,6 +126,21 @@ public class AdminUserServiceImpl implements AdminUserService {
             dtos.add(dto);
         }
         return dtos;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<UserManagementDTO> getPagedUserManagementDTOs(String role, String search, int page, int size) {
+        List<UserManagementDTO> all = getAllUserManagementDTOs(role, search);
+        int total = all.size();
+        int from = page * size;
+        if (from >= total) {
+            return new PageImpl<>(new ArrayList<>(), PageRequest.of(page, size), total);
+        }
+        int to = Math.min(from + size, total);
+        List<UserManagementDTO> content = all.subList(from, to);
+        Pageable pageable = PageRequest.of(page, size);
+        return new PageImpl<>(content, pageable, total);
     }
 
     @Override
@@ -291,6 +310,16 @@ public class AdminUserServiceImpl implements AdminUserService {
             });
         }
         return dto;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isPhoneTaken(String phone, String excludeUserId) {
+        if (phone == null || phone.trim().isEmpty()) return false;
+        Optional<User> existing = userRepository.findByPhoneNumber(phone.trim());
+        if (existing.isEmpty()) return false;
+        if (excludeUserId == null || excludeUserId.trim().isEmpty()) return true;
+        return !existing.get().getUserId().equals(excludeUserId);
     }
 
 

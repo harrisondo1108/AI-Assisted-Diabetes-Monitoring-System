@@ -1,6 +1,7 @@
 package com.quan.diabetes.service;
 
 import com.quan.diabetes.dto.UserManagementDTO;
+import org.springframework.data.domain.Page;
 import java.util.List;
 
 /**
@@ -12,6 +13,15 @@ public interface AdminUserService {
      * Retrieve users together with their extended information for admin view, optionally filtered.
      */
     List<UserManagementDTO> getAllUserManagementDTOs(String role, String search);
+
+    /**
+     * Retrieve a paged list of user DTOs for admin view.
+     * @param role role filter (or "all")
+     * @param search search text
+     * @param page zero-based page index
+     * @param size page size
+     */
+    Page<UserManagementDTO> getPagedUserManagementDTOs(String role, String search, int page, int size);
 
     /**
      * Create a new user together with the related patient/profile records.
@@ -30,5 +40,13 @@ public interface AdminUserService {
 
     // New methods for Thymeleaf MVC
     UserManagementDTO getUserManagementDTOById(String userId);
+
+    /**
+     * Check whether a phone number is already used by another account.
+     * @param phone phone to check
+     * @param excludeUserId optional userId to exclude (when updating)
+     * @return true if the phone is taken by a different user
+     */
+    boolean isPhoneTaken(String phone, String excludeUserId);
 
 }

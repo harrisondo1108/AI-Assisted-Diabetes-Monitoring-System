@@ -163,7 +163,8 @@ body {
     padding: 8px 14px;
     color: rgba(255, 255, 255, 0.55);
     text-decoration: none;
-    font-size: 0.82rem;
+    font-size: 0.95rem;
+    font-weight: 500;
 }
 
 .sidebar-footer-links a:hover {
@@ -520,7 +521,8 @@ body {
     color: var(--status-active-text);
 }
 
-.status-badge.locked {
+.status-badge.locked,
+.status-badge.clocked {
     background: var(--status-locked-bg);
     color: var(--status-locked-text);
 }
@@ -575,38 +577,80 @@ body {
     border-top: 1px solid var(--border);
 }
 
-.pagination {
+/*.pagination {*/
+/*    display: flex;*/
+/*    align-items: center;*/
+/*    gap: 4px;*/
+/*}*/
+
+/*.pagination button {*/
+/*    min-width: 36px;*/
+/*    height: 36px;*/
+/*    border: 1px solid var(--border);*/
+/*    border-radius: var(--radius-sm);*/
+/*    background: var(--bg-card);*/
+/*    color: var(--text-secondary);*/
+/*    font-size: 0.85rem;*/
+/*    cursor: pointer;*/
+/*    transition: background 0.2s, border-color 0.2s;*/
+/*}*/
+
+/*.pagination button:hover:not(:disabled) {*/
+/*    border-color: var(--green-600);*/
+/*    color: var(--green-700);*/
+/*}*/
+
+/*.pagination button.active {*/
+/*    background: var(--green-800);*/
+/*    color: #fff;*/
+/*    border-color: var(--green-800);*/
+/*}*/
+
+/*.pagination button:disabled {*/
+/*    opacity: 0.4;*/
+/*    cursor: not-allowed;*/
+/*}*/
+.table-footer {
     display: flex;
-    align-items: center;
-    gap: 4px;
+    justify-content: center;
 }
 
-.pagination button {
+.pagination {
+    display: flex;
+    flex-direction: row; /* Ép nằm ngang */
+    align-items: center;
+    gap: 8px; /* Khoảng cách giữa các ô */
+}
+
+/* Style chung cho nút số và nút điều hướng */
+.pagination a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     min-width: 36px;
     height: 36px;
+    padding: 0 10px;
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     background: var(--bg-card);
     color: var(--text-secondary);
+    text-decoration: none;
     font-size: 0.85rem;
-    cursor: pointer;
-    transition: background 0.2s, border-color 0.2s;
+    transition: all 0.2s;
 }
 
-.pagination button:hover:not(:disabled) {
+/* Hiệu ứng hover */
+.pagination a:hover {
     border-color: var(--green-600);
     color: var(--green-700);
+    background: var(--mint-200);
 }
 
-.pagination button.active {
-    background: var(--green-800);
+/* Style cho trang hiện tại */
+.pagination a.active {
+    background: var(--green-700);
     color: #fff;
-    border-color: var(--green-800);
-}
-
-.pagination button:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
+    border-color: var(--green-700);
 }
 
 .admin-page-footer {
@@ -1105,4 +1149,159 @@ body.modal-open {
     color: #c53030;
     margin-top: 4px;
     display: block;
+}
+
+/* Flash Toast Notification - styled exactly like medicine management */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    border-radius: 12px;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 280px;
+    max-width: 400px;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: opacity 0.3s ease, transform 0.3s ease, box-shadow 0.2s ease;
+    pointer-events: none;
+}
+
+.toast:hover {
+    transform: translateX(-4px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.toast.visible {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: all;
+}
+
+.toast-success {
+    background: linear-gradient(135deg, #10b981, #059669);
+    border-left: 4px solid #047857;
+}
+
+.toast-success::before {
+    content: "\f058"; /* FontAwesome check-circle */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    color: white;
+    font-size: 18px;
+}
+
+.toast-body {
+    font-size: 13px;
+    font-weight: 500;
+    color: white;
+    flex: 1;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 20px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px;
+    transition: color 0.2s;
+}
+
+.toast-close:hover {
+    color: white;
+}
+
+/* Confirm Modal Styles */
+.confirm-modal {
+    max-width: 450px;
+    animation: modalFadeIn 0.3s ease;
+}
+
+.confirm-modal .modal-body {
+    text-align: center;
+    padding: 32px 28px;
+}
+
+.confirm-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #fff3e0, #ffe8cc);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    animation: iconPulse 0.5s ease;
+}
+
+.confirm-icon i {
+    font-size: 40px;
+    color: #f59e0b;
+    animation: iconBounce 0.5s ease;
+}
+
+#confirmMessage {
+    font-size: 1rem;
+    color: var(--text-primary);
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+.confirm-submessage {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 8px;
+}
+
+.confirm-modal .modal-footer {
+    justify-content: center;
+    gap: 16px;
+    padding: 20px 24px 24px;
+}
+
+.confirm-modal .btn {
+    min-width: 110px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.btn-primary:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes iconPulse {
+    0% { transform: scale(0.8); opacity: 0; }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes iconBounce {
+    0% { transform: scale(0); }
+    60% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.fa-spin {
+    animation: spin 1s linear infinite;
 }
