@@ -4,6 +4,7 @@ import com.quan.diabetes.entity.User;
 import com.quan.diabetes.repository.UserRepository;
 import com.quan.diabetes.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,8 +16,11 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    private final PasswordEncoder passwordEncoder;
+
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -31,12 +35,29 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<User> findByUsernameAndPassword(String username, String password) {
-        return userRepository.findByPhoneNumberAndPasswordHash(username, password);
+        Optional<User> userOpt = this.findByPhoneNumber(username);
+        if (userOpt.isPresent()){
+            User user = userOpt.get();
+            if (passwordEncoder.matches(password, user.getPasswordHash())) {
+                return Optional.of(user);
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<User> findByPhoneNumber(String phoneNumber) {
+        return userRepository.findByPhoneNumber(phoneNumber);
     }
 
     @Override
     public User create(User entity) {
-        return userRepository.save(entity);
+        User newUser = new User();
+        newUser.setUserId(entity.getUserId());
+        newUser.setPhoneNumber(entity.getPhoneNumber());
+        newUser.setRole(entity.getRole());
+        newUser.setPasswordHash(passwordEncoder.encode(entity.getPasswordHash()));
+        return userRepository.save(newUser);
     }
 
     @Override
@@ -44,7 +65,12 @@ public class UserServiceImpl implements UserService {
         if (!userRepository.existsById(id)) {
             throw new EntityNotFoundException("User not found with id: " + id);
         }
-        return userRepository.save(entity);
+        User newUser = new User();
+        newUser.setUserId(entity.getUserId());
+        newUser.setPhoneNumber(entity.getPhoneNumber());
+        newUser.setRole(entity.getRole());
+        newUser.setPasswordHash(passwordEncoder.encode(entity.getPasswordHash()));
+        return userRepository.save(newUser);
     }
 
     @Override

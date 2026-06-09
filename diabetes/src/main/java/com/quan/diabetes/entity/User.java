@@ -19,7 +19,7 @@ public class User {
     @Column(name = "PasswordHash", nullable = false, length = 255)
     private String passwordHash;
 
-    @Column(name = "Status", nullable = false, length = 50, columnDefinition = "NVARCHAR(50) CHECK (Status IN ('Active', 'Clocked'))")
+    @Column(name = "Status", nullable = false, length = 20, columnDefinition = "NVARCHAR(20) CHECK (Status IN ('Active', 'Clocked'))")
     private String status = STATUS_ACTIVE;
 
     @ManyToOne

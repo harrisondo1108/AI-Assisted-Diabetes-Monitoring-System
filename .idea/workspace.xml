@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="35d4ee31-efef-433e-940d-fdb413c90a79" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/config/SecurityConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/admin/DashboardController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/admin/SymptomController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/auth/AuthenticationController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/auth/ResetPasswordController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/entity/MedicationTiming.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/entity/PrescriptionTiming.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/IndicatorThresholdRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/MedicationTimingRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/PatientRoutineRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/PatientTypeRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/PrescriptionTimingRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/PromptTemplateRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/IndicatorThresholdService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/MedicationTimingService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/PatientRoutineService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/PatientTypeService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/PrescriptionTimingService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/PromptTemplateService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/impl/IndicatorThresholdServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/impl/MedicationTimingServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/impl/PatientRoutineServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/impl/PatientTypeServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/impl/PrescriptionTimingServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/impl/PromptTemplateServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/admin/dashboard.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/admin/symptoms.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/admin/dashboard.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/admin/symptoms.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/auth/forgot_otp.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/auth/forgot_phone.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/auth/login.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/auth/register.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/auth/reset_pass.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/admin/dashboard.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/admin/symptoms.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/.vs/Solution1/v15/.ssms_suo" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/CreateTable.sql" beforeDir="false" afterPath="$PROJECT_DIR$/database/CreateTable.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/AuthenticationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/AuthenticationController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/entity/LabTestCatalog.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/entity/LabTestCatalog.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/entity/Medication.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/entity/Medication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/entity/PrescriptionDetail.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/entity/PrescriptionDetail.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/entity/SymptomsCatalog.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/entity/SymptomsCatalog.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/entity/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/entity/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/SymptomsCatalogRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/SymptomsCatalogRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/UserRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ProfileService.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ProfileService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/SymptomsCatalogService.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/SymptomsCatalogService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/impl/ProfileServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/impl/ProfileServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/impl/SymptomsCatalogServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/impl/SymptomsCatalogServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/impl/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/impl/UserServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/util/ParseUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/util/ParseUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/pages/auth.css" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/pages/auth.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/pages/medicine_management.css" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/admin/medicine_management.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/pages/user-management.css" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/admin/user-management.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js.admin/medicine_management.js" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/admin/medicine_management.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js.admin/user-management.js" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/admin/user-management.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/forgot_otp.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/forgot_phone.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/login.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/register.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/reset_pass.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/admin/medicine_management.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/admin/medicine_Management.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/admin/user-management.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/admin/user-management.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/auth/forgot-otp.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/auth/forgot-otp.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/auth/forgot-phone.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/auth/forgot-phone.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/auth/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/auth/login.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/auth/register.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/auth/register.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/auth/reset_pass.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/auth/reset_pass.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/sidebar.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/sidebar.html" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="160" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHomeTypeForPersistence" value="WRAPPER" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="3ErZXWT4L2S9rpmKGdNf43hA6CE" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.Unnamed.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "Merging CSon",
+    "kotlin-language-version-configured": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2"
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration name="Unnamed" type="Application" factoryName="Application" nameIsGenerated="true">
+      <option name="ALTERNATIVE_JRE_PATH" value="C:/Program Files/Java/jdk-21.0.11" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <option name="MAIN_CLASS_NAME" value="com.quan.diabetes.DiabetesApplication" />
+      <module name="diabetes" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="35d4ee31-efef-433e-940d-fdb413c90a79" name="Changes" comment="" />
+      <created>1780938695397</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1780938695397</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

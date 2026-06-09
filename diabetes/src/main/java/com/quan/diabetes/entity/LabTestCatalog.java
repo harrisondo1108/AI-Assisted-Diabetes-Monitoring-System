@@ -23,6 +23,9 @@ public class LabTestCatalog {
     @JoinColumn(name="RoomID")
     private Room room;
 
+    @Column(name = "Status", columnDefinition = "BIT")
+    private Boolean status = true; // true: unlock  false: lock
+
     public LabTestCatalog() {
     }
 
@@ -52,6 +55,14 @@ public class LabTestCatalog {
 
     public Room getRoom() {
         return room;
+    }
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
     }
 
     public void setRoom(Room room) {

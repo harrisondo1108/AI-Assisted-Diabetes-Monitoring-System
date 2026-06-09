@@ -47,7 +47,6 @@ CREATE TABLE [Profile] (
 	FOREIGN KEY ([RoomID]) REFERENCES [Room]([RoomID]) ON DELETE SET NULL ON UPDATE CASCADE
 );
 
-
 -- 4. Patient
 CREATE TABLE [Patient] (
     UserID VARCHAR(50) PRIMARY KEY,
@@ -98,7 +97,7 @@ CREATE TABLE [ClinicalExamination] (
 -- 6. Symptoms Catalog
 CREATE TABLE [Symptoms_Catalog] (
     SymptomID VARCHAR(50) PRIMARY KEY,
-    SymptomName NVARCHAR(200) UNIQUE
+    SymptomName NVARCHAR(200) UNIQUE,
 	Status BIT DEFAULT(1) -- 1 -> unclock , 0 -> lock
 );
 
@@ -198,11 +197,32 @@ CREATE TABLE [PrescriptionDetail] (
     PrescriptionID VARCHAR(50),
     MedicationID VARCHAR(50),
     Dosage NVARCHAR(50), -- liều lượng (mỗi lần dùng bn)
-    Timing Time, -- thời điểm dùng
     TotalQuantity INT, -- tổng số thuốc cung cấp
     DurationDays INT, -- tổng số ngày sử dụng
     FOREIGN KEY (PrescriptionID) REFERENCES Prescription(PrescriptionID) ON DELETE CASCADE,
     FOREIGN KEY (MedicationID) REFERENCES Medication(MedicationID)
+);
+
+CREATE TABLE MedicationTiming (
+    TimingID INT IDENTITY(1,1) PRIMARY KEY,
+    TimingName NVARCHAR(100)
+);
+
+CREATE TABLE PrescriptionTiming (
+    PrescriptionTimingID BIGINT IDENTITY(1,1) PRIMARY KEY,
+
+    PrescriptionDetailID VARCHAR(50) NOT NULL,
+    TimingID INT NOT NULL,
+
+    CONSTRAINT UQ_PrescriptionTiming
+        UNIQUE(PrescriptionDetailID, TimingID),
+
+    FOREIGN KEY (PrescriptionDetailID)
+        REFERENCES PrescriptionDetail(PrescriptionDetailID)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (TimingID)
+        REFERENCES MedicationTiming(TimingID)
 );
 
 -- 14. AI Assistant
@@ -260,14 +280,14 @@ CREATE TABLE [AI_Reminder] (
 );
 
 ------------------  INSERT  ----------------------------------------
-INSERT INTO [Role] (RoleID, RoleName) 
-VALUES 
-    ('AD', 'Administrator'),
-    ('PAT', 'Manager'),
-    ('DO', 'Employee');
+INSERT INTO [Role] (RoleID, RoleName)
+VALUES
+    ('AD', 'Admin'),
+    ('PAT', 'Patient'),
+    ('DOC', 'Doctor');
 
 INSERT INTO PatientType (TypeName, MinAge, MaxAge)
-VALUES 
+VALUES
     ('Adult', 18, 39),
     ('Middle-aged', 40, 64),
     ('Elderly', 65, 120),

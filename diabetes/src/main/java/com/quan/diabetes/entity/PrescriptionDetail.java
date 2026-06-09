@@ -1,13 +1,8 @@
 package com.quan.diabetes.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import java.util.List;
 
-import java.time.LocalTime;
 
 @Entity
 @Table(name = "PrescriptionDetail")
@@ -28,8 +23,12 @@ public class PrescriptionDetail {
     @Column(name = "Dosage", length = 50)
     private String dosage;
 
-    @Column(name = "Timing")
-    private LocalTime timing;
+    @OneToMany(
+            mappedBy = "prescriptionDetail",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<PrescriptionTiming> prescriptionTimings;
 
     @Column(name = "TotalQuantity")
     private int totalQuantity;
@@ -39,13 +38,29 @@ public class PrescriptionDetail {
 
     public PrescriptionDetail() {
     }
+    public void addTiming(PrescriptionTiming timing){
+        prescriptionTimings.add(timing);
+        timing.setPrescriptionDetail(this);
+    }
 
+    public void removeTiming(PrescriptionTiming timing){
+        prescriptionTimings.remove(timing);
+        timing.setPrescriptionDetail(null);
+    }
     public String getPrescriptionDetailId() {
         return prescriptionDetailId;
     }
 
     public void setPrescriptionDetailId(String prescriptionDetailId) {
         this.prescriptionDetailId = prescriptionDetailId;
+    }
+
+    public List<PrescriptionTiming> getPrescriptionTimings() {
+        return prescriptionTimings;
+    }
+
+    public void setPrescriptionTimings(List<PrescriptionTiming> prescriptionTimings) {
+        this.prescriptionTimings = prescriptionTimings;
     }
 
     public Prescription getPrescription() {
@@ -70,14 +85,6 @@ public class PrescriptionDetail {
 
     public void setDosage(String dosage) {
         this.dosage = dosage;
-    }
-
-    public LocalTime getTiming() {
-        return timing;
-    }
-
-    public void setTiming(LocalTime timing) {
-        this.timing = timing;
     }
 
     public int getTotalQuantity() {

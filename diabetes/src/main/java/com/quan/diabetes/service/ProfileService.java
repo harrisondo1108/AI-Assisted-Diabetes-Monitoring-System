@@ -8,6 +8,10 @@ public interface ProfileService {
 
     public List<Profile> findAll();
 
+    public List<Profile> findTotalDoctor();
+
+    public List<Profile> findTotalAdmin();
+
     public Optional<Profile> findById(String id);
 
     public Profile create(Profile entity);
