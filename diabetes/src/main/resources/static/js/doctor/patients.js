@@ -559,6 +559,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // Check if there is already an active patient from the session
     const activePatientId = sessionStorage.getItem('selectedPatientId') || 'P067823'; // Default to Le Hoang D
     selectPatient(activePatientId);
+
+    // Adjust Back Button dynamically based on origin
+    const backBtn = document.getElementById('backBtn');
+    if (backBtn) {
+        const fromExamineRoom = sessionStorage.getItem('fromExamineRoom') === 'true';
+        if (fromExamineRoom) {
+            backBtn.href = '/doctor/examine';
+            backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back to Checkup';
+        } else {
+            backBtn.href = '/doctor/dashboard';
+            backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back to Dashboard';
+        }
+    }
 });
 
 // Select a patient and load history details
@@ -768,11 +781,84 @@ function openTimelineDetail(date, index) {
     const visit = combinedTimeline[index];
     if (!visit) return;
 
+    if (visit.status === 'Cancelled' || visit.diagnosis === 'Cancelled') {
+        document.getElementById('modalTitle').textContent = `Consultation Cancelled - ${visit.date}`;
+        document.getElementById('modalDate').textContent = visit.date;
+        document.getElementById('modalDoctor').textContent = visit.doctor;
+        document.getElementById('modalDiagnosis').textContent = 'Cancelled';
+        document.getElementById('modalNotes').textContent = visit.clinicalNotes || 'Examination was cancelled.';
+        
+        document.getElementById('modalSymptoms').innerHTML = '<span style="font-size: 0.8rem; color: var(--doctor-danger); font-weight: 600;">Cancelled</span>';
+        document.getElementById('modalLabsTableBody').innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 15px; color: var(--doctor-text-muted); font-size: 0.8rem;">Examination was cancelled</td></tr>';
+        document.getElementById('modalPrescriptionTableBody').innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 15px; color: var(--doctor-text-muted); font-size: 0.8rem;">No medications prescribed (Cancelled)</td></tr>';
+        
+        const planContainer = document.getElementById('modalTreatmentPlanContainer');
+        if (planContainer) planContainer.style.display = 'none';
+        
+        document.getElementById('timelineDetailModal').classList.add('open');
+        return;
+    }
+
     document.getElementById('modalTitle').textContent = `Consultation Details - ${visit.date}`;
     document.getElementById('modalDate').textContent = visit.date;
     document.getElementById('modalDoctor').textContent = visit.doctor;
     document.getElementById('modalDiagnosis').textContent = visit.diagnosis;
     document.getElementById('modalNotes').textContent = visit.clinicalNotes || 'No additional clinical notes recorded.';
+
+    // Treatment Plan population
+    const planContainer = document.getElementById('modalTreatmentPlanContainer');
+    if (planContainer) {
+        if (visit.treatmentPlan && (visit.treatmentPlan.goal || visit.treatmentPlan.diet || visit.treatmentPlan.exercise || visit.treatmentPlan.glucose || visit.treatmentPlan.medication)) {
+            planContainer.style.display = 'flex';
+            
+            const goalRow = document.getElementById('modalPlanGoalRow');
+            const goalVal = document.getElementById('modalPlanGoalVal');
+            if (visit.treatmentPlan.goal) {
+                goalVal.textContent = visit.treatmentPlan.goal;
+                goalRow.style.display = 'block';
+            } else {
+                goalRow.style.display = 'none';
+            }
+            
+            const dietRow = document.getElementById('modalPlanDietRow');
+            const dietVal = document.getElementById('modalPlanDietVal');
+            if (visit.treatmentPlan.diet) {
+                dietVal.textContent = visit.treatmentPlan.diet;
+                dietRow.style.display = 'block';
+            } else {
+                dietRow.style.display = 'none';
+            }
+            
+            const exerciseRow = document.getElementById('modalPlanExerciseRow');
+            const exerciseVal = document.getElementById('modalPlanExerciseVal');
+            if (visit.treatmentPlan.exercise) {
+                exerciseVal.textContent = visit.treatmentPlan.exercise;
+                exerciseRow.style.display = 'block';
+            } else {
+                exerciseRow.style.display = 'none';
+            }
+            
+            const glucoseRow = document.getElementById('modalPlanGlucoseRow');
+            const glucoseVal = document.getElementById('modalPlanGlucoseVal');
+            if (visit.treatmentPlan.glucose) {
+                glucoseVal.textContent = visit.treatmentPlan.glucose;
+                glucoseRow.style.display = 'block';
+            } else {
+                glucoseRow.style.display = 'none';
+            }
+            
+            const medicationRow = document.getElementById('modalPlanMedicationRow');
+            const medicationVal = document.getElementById('modalPlanMedicationVal');
+            if (visit.treatmentPlan.medication) {
+                medicationVal.textContent = visit.treatmentPlan.medication;
+                medicationRow.style.display = 'block';
+            } else {
+                medicationRow.style.display = 'none';
+            }
+        } else {
+            planContainer.style.display = 'none';
+        }
+    }
 
     // Symptoms Badges
     const symptomsContainer = document.getElementById('modalSymptoms');

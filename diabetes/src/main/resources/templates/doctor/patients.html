@@ -32,7 +32,7 @@
                                 </div>
                             </div>
                             <div class="profile-header-actions">
-                                <a th:href="@{/doctor/examine}" class="btn btn-secondary btn-sm">
+                                <a id="backBtn" th:href="@{/doctor/examine}" class="btn btn-secondary btn-sm">
                                     <i class="fas fa-arrow-left"></i> Back to Checkup
                                 </a>
                             </div>
@@ -119,6 +119,33 @@
                 <div class="history-spec-col" style="gap: 8px; padding: 16px;">
                     <span class="lbl" style="font-size: 0.75rem;">Clinical Notes</span>
                     <p id="modalNotes" style="font-size: 0.82rem; color: var(--doctor-text-main); line-height: 1.5; margin: 0;"></p>
+                </div>
+
+                <!-- Clinical Treatment Plan -->
+                <div id="modalTreatmentPlanContainer" class="history-spec-col" style="gap: 8px; padding: 16px; display: none;">
+                    <span class="lbl" style="font-size: 0.75rem;">Clinical Treatment Plan</span>
+                    <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.82rem; line-height: 1.5;">
+                        <div id="modalPlanGoalRow" style="display: none;">
+                            <strong style="color: var(--doctor-text-main);">Goal: </strong>
+                            <span id="modalPlanGoalVal" style="color: var(--doctor-text-muted);"></span>
+                        </div>
+                        <div id="modalPlanDietRow" style="display: none;">
+                            <strong style="color: var(--doctor-text-main);">Dietary & Nutrition: </strong>
+                            <span id="modalPlanDietVal" style="color: var(--doctor-text-muted);"></span>
+                        </div>
+                        <div id="modalPlanExerciseRow" style="display: none;">
+                            <strong style="color: var(--doctor-text-main);">Physical Exercise: </strong>
+                            <span id="modalPlanExerciseVal" style="color: var(--doctor-text-muted);"></span>
+                        </div>
+                        <div id="modalPlanGlucoseRow" style="display: none;">
+                            <strong style="color: var(--doctor-text-main);">Self Glucose Monitoring: </strong>
+                            <span id="modalPlanGlucoseVal" style="color: var(--doctor-text-muted);"></span>
+                        </div>
+                        <div id="modalPlanMedicationRow" style="display: none;">
+                            <strong style="color: var(--doctor-text-main);">Medication Instructions / Summary: </strong>
+                            <span id="modalPlanMedicationVal" style="color: var(--doctor-text-muted);"></span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Symptoms -->

@@ -2,7 +2,6 @@ package com.quan.diabetes.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import jakarta.validation.constraints.*;
 
 /**
  * Data Transfer Object used by admin UI to display and edit user information.

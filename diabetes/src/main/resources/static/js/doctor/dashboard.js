@@ -28,6 +28,7 @@ let currentFilter = 'all';
 let currentPage = 1;
 const pageSize = 10;
 let currentSearchQuery = '';
+let activeModalPatientId = null;
 
 // Initialize Dashboard
 document.addEventListener('DOMContentLoaded', () => {
@@ -110,6 +111,10 @@ function renderQueue() {
                 break;
             case 'Completed':
                 statusBadge = `<span class="badge-status badge-completed"><i class="fa-solid fa-circle-check"></i> Completed</span>`;
+                actionBtn = `<button class="btn btn-secondary btn-sm" onclick="viewCompletedExam('${p.id}')"><i class="fas fa-eye"></i> View</button>`;
+                break;
+            case 'Cancelled':
+                statusBadge = `<span class="badge-status" style="background: rgba(220, 38, 38, 0.1); color: var(--doctor-danger); border: 1px solid rgba(220, 38, 38, 0.2);"><i class="fa-solid fa-ban"></i> Cancelled</span>`;
                 actionBtn = `<button class="btn btn-secondary btn-sm" onclick="viewCompletedExam('${p.id}')"><i class="fas fa-eye"></i> View</button>`;
                 break;
         }
@@ -224,6 +229,7 @@ function startExamination(patientId, viewOnly = false) {
 
 // Show completed exam details modal
 function viewCompletedExam(patientId) {
+    activeModalPatientId = patientId;
     const patient = patientsQueue.find(p => p.id === patientId);
     if (!patient) return;
 
@@ -238,6 +244,20 @@ function viewCompletedExam(patientId) {
     const dynamicExam = (dynamicConsultations[patientId] && dynamicConsultations[patientId][0]);
 
     if (dynamicExam) {
+        if (dynamicExam.status === 'Cancelled') {
+            document.getElementById('modalExamDate').textContent = dynamicExam.date;
+            document.getElementById('modalExamNextAppt').textContent = "None scheduled";
+            document.getElementById('modalExamSymptoms').innerHTML = '<span style="background: rgba(220, 38, 38, 0.1); color: var(--doctor-danger); border: 1px solid rgba(220, 38, 38, 0.2); padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">Cancelled</span>';
+            document.getElementById('modalExamNotes').textContent = dynamicExam.clinicalNotes;
+            document.getElementById('modalExamDiagnosis').textContent = 'Cancelled (No diagnosis recorded)';
+            document.getElementById('modalExamLabsTableBody').innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--doctor-text-muted); padding: 10px;">Examination was cancelled</td></tr>`;
+            document.getElementById('modalExamPrescriptionTableBody').innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--doctor-text-muted); padding: 10px;">No medications prescribed (Cancelled)</td></tr>`;
+            
+            const container = document.getElementById('modalExamTreatmentPlanContainer');
+            if (container) container.style.display = 'none';
+            return;
+        }
+
         document.getElementById('modalExamDate').textContent = dynamicExam.date;
         document.getElementById('modalExamNextAppt').textContent = dynamicExam.nextAppointment || "None scheduled";
         
@@ -290,7 +310,65 @@ function viewCompletedExam(patientId) {
         } else {
             prescBody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--doctor-text-muted); padding: 10px;">No medications prescribed</td></tr>`;
         }
+
+        // Treatment Plan population
+        const container = document.getElementById('modalExamTreatmentPlanContainer');
+        if (container) {
+            if (dynamicExam.treatmentPlan && (dynamicExam.treatmentPlan.goal || dynamicExam.treatmentPlan.diet || dynamicExam.treatmentPlan.exercise || dynamicExam.treatmentPlan.glucose || dynamicExam.treatmentPlan.medication)) {
+                container.style.display = 'block';
+                
+                const goalRow = document.getElementById('modalPlanGoalRow');
+                const goalVal = document.getElementById('modalPlanGoalVal');
+                if (dynamicExam.treatmentPlan.goal) {
+                    goalVal.textContent = dynamicExam.treatmentPlan.goal;
+                    goalRow.style.display = 'block';
+                } else {
+                    goalRow.style.display = 'none';
+                }
+                
+                const dietRow = document.getElementById('modalPlanDietRow');
+                const dietVal = document.getElementById('modalPlanDietVal');
+                if (dynamicExam.treatmentPlan.diet) {
+                    dietVal.textContent = dynamicExam.treatmentPlan.diet;
+                    dietRow.style.display = 'block';
+                } else {
+                    dietRow.style.display = 'none';
+                }
+                
+                const exerciseRow = document.getElementById('modalPlanExerciseRow');
+                const exerciseVal = document.getElementById('modalPlanExerciseVal');
+                if (dynamicExam.treatmentPlan.exercise) {
+                    exerciseVal.textContent = dynamicExam.treatmentPlan.exercise;
+                    exerciseRow.style.display = 'block';
+                } else {
+                    exerciseRow.style.display = 'none';
+                }
+                
+                const glucoseRow = document.getElementById('modalPlanGlucoseRow');
+                const glucoseVal = document.getElementById('modalPlanGlucoseVal');
+                if (dynamicExam.treatmentPlan.glucose) {
+                    glucoseVal.textContent = dynamicExam.treatmentPlan.glucose;
+                    glucoseRow.style.display = 'block';
+                } else {
+                    glucoseRow.style.display = 'none';
+                }
+                
+                const medicationRow = document.getElementById('modalPlanMedicationRow');
+                const medicationVal = document.getElementById('modalPlanMedicationVal');
+                if (dynamicExam.treatmentPlan.medication) {
+                    medicationVal.textContent = dynamicExam.treatmentPlan.medication;
+                    medicationRow.style.display = 'block';
+                } else {
+                    medicationRow.style.display = 'none';
+                }
+            } else {
+                container.style.display = 'none';
+            }
+        }
     } else {
+        const container = document.getElementById('modalExamTreatmentPlanContainer');
+        if (container) container.style.display = 'none';
+
         // Fallback to static mock values
         const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
         document.getElementById('modalExamDate').textContent = today;
@@ -340,4 +418,18 @@ function viewCompletedExam(patientId) {
 function closeCompletedExam() {
     const modal = document.getElementById('completedExamModal');
     if (modal) modal.classList.remove('open');
+    activeModalPatientId = null;
+}
+
+// Navigate to patient medical history timeline page
+function viewPatientHistory(patientId) {
+    sessionStorage.setItem('selectedPatientId', patientId);
+    sessionStorage.setItem('fromExamineRoom', 'false');
+    window.location.href = '/doctor/examine/patients';
+}
+
+function viewPatientHistoryFromModal() {
+    if (activeModalPatientId) {
+        viewPatientHistory(activeModalPatientId);
+    }
 }

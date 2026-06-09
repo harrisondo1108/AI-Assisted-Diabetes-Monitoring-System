@@ -134,6 +134,7 @@ let viewOnlyMode = false;
 let selectedSymptoms = {};
 let orderedLabs = {};
 let prescriptionLines = [];
+let isSubmitting = false;
 
 document.addEventListener('DOMContentLoaded', () => {
     loadSessionPatient();
@@ -141,6 +142,10 @@ document.addEventListener('DOMContentLoaded', () => {
     initLabTestChecklist();
     renderOrderedLabsList();
     setupNextAppointmentMinDate();
+    if (viewOnlyMode) {
+        simulateLabResults();
+        renderPrescriptionLines();
+    }
 });
 
 // Load patient from session storage or default
@@ -220,8 +225,79 @@ function loadSessionPatient() {
                 el.disabled = true;
             }
         });
-        document.getElementById('examDiagnosis').value = currentPatient.pastDiagnosis;
-        document.getElementById('examHistory').value = 'Reviewed patient complaints and automated test schedules.';
+        
+        // Attempt to load dynamic consultation
+        const dynamicConsultations = JSON.parse(sessionStorage.getItem('dynamicConsultations') || '{}');
+        const lastExam = (dynamicConsultations[currentPatient.id] && dynamicConsultations[currentPatient.id][0]);
+        if (lastExam) {
+            document.getElementById('examDiagnosis').value = lastExam.diagnosis || '';
+            document.getElementById('examHistory').value = lastExam.clinicalNotes || '';
+            document.getElementById('examNextDate').value = lastExam.nextAppointmentRaw || '';
+            
+            // Populate treatment plan
+            if (lastExam.treatmentPlan) {
+                document.getElementById('planGoal').value = lastExam.treatmentPlan.goal || '';
+                document.getElementById('planDiet').value = lastExam.treatmentPlan.diet || '';
+                document.getElementById('planExercise').value = lastExam.treatmentPlan.exercise || '';
+                document.getElementById('planGlucose').value = lastExam.treatmentPlan.glucose || '';
+                document.getElementById('planMedication').value = lastExam.treatmentPlan.medication || '';
+            }
+            
+            // Map symptoms
+            selectedSymptoms = {};
+            if (lastExam.symptoms) {
+                lastExam.symptoms.forEach(name => {
+                    const sym = symptomsCatalog.find(s => s.name === name);
+                    if (sym) {
+                        selectedSymptoms[sym.id] = '';
+                    }
+                });
+            }
+            
+            // Map ordered labs
+            orderedLabs = {};
+            if (lastExam.labResults) {
+                lastExam.labResults.forEach(res => {
+                    const test = labTestsCatalog.find(l => l.name === res.name);
+                    if (test) {
+                        orderedLabs[test.id] = true;
+                    }
+                });
+            }
+            
+            // Map prescription lines
+            prescriptionLines = [];
+            if (lastExam.prescription) {
+                prescriptionLines = lastExam.prescription.map(p => {
+                    let baseName = p.name;
+                    let conc = '';
+                    const match = p.name.match(/^(.*?)\s*\((.*?)\)$/);
+                    if (match) {
+                        baseName = match[1];
+                        conc = match[2];
+                    }
+                    const med = medicationsCatalog.find(m => m.name === baseName) || {};
+                    return {
+                        medId: med.id || '',
+                        name: baseName,
+                        concentration: conc,
+                        form: med.form || '',
+                        dosage: p.dosage,
+                        duration: p.duration,
+                        quantity: p.quantity,
+                        timing: p.timing,
+                        timingText: p.timing === '07:30:00' ? 'Breakfast Time (07:30 AM)' : 
+                                    p.timing === '12:15:00' ? 'Lunch Time (12:15 PM)' : 
+                                    p.timing === '19:00:00' ? 'Dinner Time (07:00 PM)' : 
+                                    p.timing === '06:00:00' ? 'Wake Up Time (06:00 AM)' : 
+                                    p.timing === '22:00:00' ? 'Sleep Time (10:00 PM)' : 'Custom Time'
+                    };
+                });
+            }
+        } else {
+            document.getElementById('examDiagnosis').value = currentPatient.pastDiagnosis;
+            document.getElementById('examHistory').value = 'Reviewed patient complaints and automated test schedules.';
+        }
     }
 }
 
@@ -247,12 +323,13 @@ function renderSymptomsGrid() {
 
     grid.innerHTML = '';
     symptomsCatalog.forEach(s => {
+        const isChecked = selectedSymptoms[s.id] !== undefined;
         const div = document.createElement('div');
-        div.className = 'symptom-card';
+        div.className = `symptom-card ${isChecked ? 'selected' : ''}`;
         div.setAttribute('data-id', s.id);
         div.innerHTML = `
             <div class="symptom-card-header">
-                <input type="checkbox" id="chk-${s.id}" onchange="toggleSymptom('${s.id}')">
+                <input type="checkbox" id="chk-${s.id}" onchange="toggleSymptom('${s.id}')" ${isChecked ? 'checked' : ''}>
                 <label for="chk-${s.id}">${s.name}</label>
             </div>
             <div class="symptom-comment-box">
@@ -800,6 +877,7 @@ function renderPrescriptionLines() {
 
 // Complete Clinical Checkup
 function saveExam() {
+    isSubmitting = true;
     if (viewOnlyMode) {
         showToast('This checkup session is read-only. Returning to dashboard.', 'warning');
         setTimeout(() => window.location.href = '/doctor/dashboard', 1500);
@@ -809,6 +887,22 @@ function saveExam() {
     const diagnosis = document.getElementById('examDiagnosis').value.trim();
     if (!diagnosis) {
         showToast('Please fill out the Diagnosis Note before completing checkup.', 'error');
+        return;
+    }
+
+    // Validate that at least one field of the Treatment Plan is filled
+    const planGoal = document.getElementById('planGoal').value.trim();
+    const planDiet = document.getElementById('planDiet').value.trim();
+    const planExercise = document.getElementById('planExercise').value.trim();
+    const planGlucose = document.getElementById('planGlucose').value.trim();
+    const planMedication = document.getElementById('planMedication').value.trim();
+
+    if (!planGoal && !planDiet && !planExercise && !planGlucose && !planMedication) {
+        showToast('At least 1 field of the Treatment Plan is required to complete.', 'error');
+        // Switch to the Treatment & Prescription tab (index 2)
+        if (!document.getElementById('prescription-tab').classList.contains('active')) {
+             switchTab({currentTarget: document.querySelectorAll('.tab-btn')[2]}, 'prescription-tab');
+        }
         return;
     }
 
@@ -910,7 +1004,15 @@ function saveExam() {
         symptoms: selectedSymptomNames,
         labResults: labResultsList,
         prescription: prescriptionList,
-        nextAppointment: nextApptText
+        nextAppointment: nextApptText,
+        nextAppointmentRaw: nextApptVal,
+        treatmentPlan: {
+            goal: planGoal,
+            diet: planDiet,
+            exercise: planExercise,
+            glucose: planGlucose,
+            medication: planMedication
+        }
     };
 
     dynamicConsultations[patientId].unshift(newConsultation);
@@ -927,6 +1029,8 @@ function cancelExam() {
         window.location.href = '/doctor/dashboard';
         return;
     }
+    const reasonInput = document.getElementById('cancelReason');
+    if (reasonInput) reasonInput.value = ''; // Reset reason field
     const modal = document.getElementById('cancelConfirmModal');
     if (modal) modal.classList.add('open');
 }
@@ -937,22 +1041,56 @@ function closeCancelModal() {
 }
 
 function confirmCancelExam() {
+    const reasonVal = document.getElementById('cancelReason').value.trim();
+    if (!reasonVal) {
+        showToast('Please enter a cancellation reason before proceeding.', 'error');
+        return;
+    }
+
     closeCancelModal();
     
-    // Reset status in Session mockQueue back to Pending if it was InProgress (or Pending)
     if (!viewOnlyMode) {
+        isSubmitting = true;
         const patientId = currentPatient.id;
+        
+        // Update status in Session mockQueue to Cancelled
         const localQueue = JSON.parse(sessionStorage.getItem('mockQueue') || 'null');
         if (localQueue) {
             const patient = localQueue.find(p => p.id === patientId);
-            if (patient && (patient.status === 'InProgress' || patient.status === 'Pending')) {
-                patient.status = 'Pending';
+            if (patient) {
+                patient.status = 'Cancelled';
                 sessionStorage.setItem('mockQueue', JSON.stringify(localQueue));
             }
         }
+
+        // Gather clinical notes with cancellation reason
+        const notes = `Cancelled: ${reasonVal}`;
+        
+        // Create a cancelled consultation record
+        let dynamicConsultations = JSON.parse(sessionStorage.getItem('dynamicConsultations') || '{}');
+        if (!dynamicConsultations[patientId]) {
+            dynamicConsultations[patientId] = [];
+        }
+        const today = new Date();
+        const formattedDate = today.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        
+        const cancelledExam = {
+            date: formattedDate,
+            doctor: 'Dr. Harrison',
+            status: 'Cancelled',
+            diagnosis: 'Cancelled',
+            clinicalNotes: notes,
+            symptoms: [],
+            labResults: [],
+            prescription: [],
+            nextAppointment: 'None scheduled',
+            nextAppointmentRaw: ''
+        };
+        dynamicConsultations[patientId].unshift(cancelledExam);
+        sessionStorage.setItem('dynamicConsultations', JSON.stringify(dynamicConsultations));
     }
 
-    showToast('Examination cancelled. Discarding notes...', 'error');
+    showToast('Examination cancelled. Status updated to Cancelled.', 'error');
     setTimeout(() => {
         window.location.href = '/doctor/dashboard';
     }, 1500);
@@ -1043,5 +1181,20 @@ function showToast(message, type = 'success') {
 const urlParams = new URLSearchParams(window.location.search);
 
 function goToHistory() {
+    isSubmitting = true; // Bypass beforeunload warning for medical history view
+    sessionStorage.setItem('fromExamineRoom', 'true');
     window.location.href = '/doctor/examine/patients';
 }
+
+// Warn when leaving page with unsaved changes
+window.addEventListener('beforeunload', (e) => {
+    if (!viewOnlyMode && !isSubmitting) {
+        const overlay = document.getElementById('examStartOverlay');
+        const isExamActive = overlay && overlay.style.display === 'none';
+        if (isExamActive) {
+            e.preventDefault();
+            e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+            return e.returnValue;
+        }
+    }
+});

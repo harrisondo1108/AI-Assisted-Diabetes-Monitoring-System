@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 
@@ -38,6 +40,9 @@ public class ClinicalExamination {
     @ManyToOne
     @JoinColumn(name = "DoctorID", nullable = false)
     private User doctor;
+
+    @OneToOne(mappedBy = "clinicalExamination", cascade = CascadeType.ALL)
+    private TreatmentPlan treatmentPlan;
 
     public ClinicalExamination() {
     }
@@ -104,6 +109,14 @@ public class ClinicalExamination {
 
     public void setDoctor(User doctor) {
         this.doctor = doctor;
+    }
+
+    public TreatmentPlan getTreatmentPlan() {
+        return treatmentPlan;
+    }
+
+    public void setTreatmentPlan(TreatmentPlan treatmentPlan) {
+        this.treatmentPlan = treatmentPlan;
     }
 }
 

@@ -71,6 +71,7 @@
                                     <button class="pill" onclick="filterQueue('Pending')">Pending</button>
                                     <button class="pill" onclick="filterQueue('InProgress')">In Progress</button>
                                     <button class="pill" onclick="filterQueue('Completed')">Completed</button>
+                                    <button class="pill" onclick="filterQueue('Cancelled')">Cancelled</button>
                                 </div>
                             </div>
                         </div>
@@ -144,6 +145,33 @@
                     <strong class="val" id="modalExamDiagnosis" style="font-size: 0.95rem; line-height: 1.5; color: var(--green-900);"></strong>
                 </div>
 
+                <!-- Treatment Plan Details -->
+                <div id="modalExamTreatmentPlanContainer" style="background: var(--doctor-bg); border-radius: 8px; padding: 16px; border: 1px solid var(--doctor-border); display: none;">
+                    <span class="lbl" style="font-size: 0.8rem; font-weight: 700; color: var(--doctor-primary); display: block; margin-bottom: 10px;"><i class="fas fa-notes-medical"></i> Clinical Treatment Plan</span>
+                    <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.85rem; line-height: 1.5;">
+                        <div id="modalPlanGoalRow" style="display: none;">
+                            <strong style="color: var(--doctor-text-main);">Goal: </strong>
+                            <span id="modalPlanGoalVal" style="color: var(--doctor-text-muted);"></span>
+                        </div>
+                        <div id="modalPlanDietRow" style="display: none;">
+                            <strong style="color: var(--doctor-text-main);">Dietary & Nutrition: </strong>
+                            <span id="modalPlanDietVal" style="color: var(--doctor-text-muted);"></span>
+                        </div>
+                        <div id="modalPlanExerciseRow" style="display: none;">
+                            <strong style="color: var(--doctor-text-main);">Physical Exercise: </strong>
+                            <span id="modalPlanExerciseVal" style="color: var(--doctor-text-muted);"></span>
+                        </div>
+                        <div id="modalPlanGlucoseRow" style="display: none;">
+                            <strong style="color: var(--doctor-text-main);">Self Glucose Monitoring: </strong>
+                            <span id="modalPlanGlucoseVal" style="color: var(--doctor-text-muted);"></span>
+                        </div>
+                        <div id="modalPlanMedicationRow" style="display: none;">
+                            <strong style="color: var(--doctor-text-main);">Medication Instructions / Summary: </strong>
+                            <span id="modalPlanMedicationVal" style="color: var(--doctor-text-muted);"></span>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Lab results table -->
                 <div>
                     <span class="lbl" style="font-size: 0.8rem; font-weight: 700; color: var(--doctor-primary); display: block; margin-bottom: 10px;"><i class="fas fa-flask"></i> Laboratory Tests & Results</span>
@@ -180,7 +208,8 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer" style="padding: 14px 20px; border-top: 1px solid var(--doctor-border); text-align: right;">
+            <div class="modal-footer" style="padding: 14px 20px; border-top: 1px solid var(--doctor-border); display: flex; justify-content: space-between; align-items: center;">
+                <button type="button" class="btn btn-primary" id="modalViewHistoryBtn" onclick="viewPatientHistoryFromModal()"><i class="fas fa-history"></i> View Full History</button>
                 <button type="button" class="btn btn-secondary" onclick="closeCompletedExam()">Close</button>
             </div>
         </div>
