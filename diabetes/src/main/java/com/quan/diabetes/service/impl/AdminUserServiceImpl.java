@@ -16,6 +16,7 @@ import com.quan.diabetes.service.PatientService;
 import com.quan.diabetes.service.UserService;
 import com.quan.diabetes.util.ParseUtil;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,14 +43,14 @@ public class AdminUserServiceImpl implements AdminUserService {
     private final RoomRepository roomRepository;
     private final UserService userService;
     private final PatientService patientService;
-
+    private final PasswordEncoder passwordEncoder;
     public AdminUserServiceImpl(UserRepository userRepository,
                                 PatientRepository patientRepository,
                                 ProfileRepository profileRepository,
                                 RoleRepository roleRepository,
                                 RoomRepository roomRepository,
                                 UserService userService,
-                                PatientService patientService) {
+                                PatientService patientService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.patientRepository = patientRepository;
         this.profileRepository = profileRepository;
@@ -57,7 +58,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         this.roomRepository = roomRepository;
         this.userService = userService;
         this.patientService = patientService;
-
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override

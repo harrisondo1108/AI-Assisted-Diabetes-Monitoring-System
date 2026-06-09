@@ -4,43 +4,91 @@ const patientRecords = {
         id: 'P012932', name: 'Nguyen Van A', age: 45, gender: 'Male', bloodGroup: 'O+', height: 172, weight: 71.5,
         allergies: 'Penicillin', history: 'Type 2 Diabetes diagnosed 3 years ago. Hypertension.',
         routine: { breakfast: '07:30 AM', lunch: '12:15 PM', dinner: '07:00 PM', sleep: '10:00 PM', wake: '06:00 AM' },
-
         pastDiagnosis: 'Type 2 Diabetes mellitus under control. Stage 1 Hypertension.'
     },
     'P023945': {
         id: 'P023945', name: 'Tran Thi B', age: 62, gender: 'Female', bloodGroup: 'A+', height: 156, weight: 58.2,
         allergies: 'Aspirin', history: 'Type 2 Diabetes (5 years). Mild Diabetic Neuropathy.',
         routine: { breakfast: '07:00 AM', lunch: '12:00 PM', dinner: '06:30 PM', sleep: '09:30 PM', wake: '05:30 AM' },
-
         pastDiagnosis: 'Type 2 Diabetes with neuropathy. Needs medication adjustment.'
     },
     'P048590': {
         id: 'P048590', name: 'Pham Minh C', age: 38, gender: 'Male', bloodGroup: 'AB-', height: 180, weight: 89.0,
         allergies: 'None reported', history: 'Obesity Class 1. Recently diagnosed pre-diabetes. Family history of Type 2 Diabetes.',
         routine: { breakfast: '08:00 AM', lunch: '01:00 PM', dinner: '08:00 PM', sleep: '11:00 PM', wake: '07:00 AM' },
-
         pastDiagnosis: 'Impaired Fasting Glucose (Pre-diabetes). Dyslipidemia.'
     },
     'P067823': {
         id: 'P067823', name: 'Le Hoang D', age: 55, gender: 'Male', bloodGroup: 'B+', height: 168, weight: 78.3,
         allergies: 'Sulfa Drugs', history: 'Type 2 Diabetes (8 years). Chronic kidney disease stage 2.',
         routine: { breakfast: '07:15 AM', lunch: '12:00 PM', dinner: '06:45 PM', sleep: '10:00 PM', wake: '05:45 AM' },
-
         pastDiagnosis: 'Uncontrolled Type 2 Diabetes. Diabetic Nephropathy stage 2.'
     },
     'P089123': {
         id: 'P089123', name: 'Vu Thi E', age: 29, gender: 'Female', bloodGroup: 'O-', height: 162, weight: 64.0,
         allergies: 'None', history: '24 weeks pregnant. Gestational Diabetes diagnosed 2 weeks ago.',
         routine: { breakfast: '07:30 AM', lunch: '12:30 PM', dinner: '07:00 PM', sleep: '10:30 PM', wake: '06:30 AM' },
-
         pastDiagnosis: 'Gestational Diabetes Mellitus (GDM) on diet control.'
     },
     'P091102': {
         id: 'P091102', name: 'Hoang Van F', age: 70, gender: 'Male', bloodGroup: 'AB+', height: 170, weight: 62.0,
         allergies: 'None', history: 'Type 1 Diabetes diagnosed 30 years ago. Retinopathy.',
         routine: { breakfast: '07:00 AM', lunch: '12:00 PM', dinner: '06:30 PM', sleep: '09:30 PM', wake: '06:00 AM' },
-
         pastDiagnosis: 'Type 1 Diabetes. History of frequent nocturnal hypoglycemia. Diabetic Retinopathy.'
+    },
+    'P102938': {
+        id: 'P102938', name: 'Nguyen Thi G', age: 33, gender: 'Female', bloodGroup: 'A-', height: 160, weight: 52.4,
+        allergies: 'Sulfa Drugs', history: 'Gestational diabetes history. Pre-diabetes.',
+        routine: { breakfast: '07:00 AM', lunch: '12:00 PM', dinner: '06:30 PM', sleep: '10:30 PM', wake: '06:30 AM' },
+        pastDiagnosis: 'Impaired fasting glucose. Borderline gestational risk.'
+    },
+    'P112390': {
+        id: 'P112390', name: 'Tran Minh H', age: 49, gender: 'Male', bloodGroup: 'O-', height: 175, weight: 82.0,
+        allergies: 'None', history: 'Type 2 Diabetes diagnosed 1 year ago. Obese.',
+        routine: { breakfast: '08:00 AM', lunch: '01:00 PM', dinner: '07:30 PM', sleep: '11:00 PM', wake: '06:30 AM' },
+        pastDiagnosis: 'Mild hyperglycemia. Impaired lipids. Obesity Class 1.'
+    },
+    'P123490': {
+        id: 'P123490', name: 'Le Van I', age: 60, gender: 'Male', bloodGroup: 'B-', height: 165, weight: 65.5,
+        allergies: 'None', history: 'Type 2 Diabetes (6 years). Hypertension.',
+        routine: { breakfast: '07:15 AM', lunch: '12:15 PM', dinner: '06:45 PM', sleep: '10:00 PM', wake: '05:30 AM' },
+        pastDiagnosis: 'Type 2 Diabetes. Stage 1 Hypertension.'
+    },
+    'P139402': {
+        id: 'P139402', name: 'Pham Thi K', age: 27, gender: 'Female', bloodGroup: 'AB+', height: 158, weight: 50.0,
+        allergies: 'Aspirin', history: 'Suspected early-onset Type 2 Diabetes.',
+        routine: { breakfast: '07:30 AM', lunch: '12:00 PM', dinner: '07:00 PM', sleep: '10:30 PM', wake: '06:30 AM' },
+        pastDiagnosis: 'Borderline high blood glucose. Needs diet control.'
+    },
+    'P148201': {
+        id: 'P148201', name: 'Hoang Minh L', age: 42, gender: 'Male', bloodGroup: 'A+', height: 170, weight: 74.0,
+        allergies: 'Penicillin', history: 'Pre-diabetes, family history of type 2 diabetes.',
+        routine: { breakfast: '07:30 AM', lunch: '12:30 PM', dinner: '07:00 PM', sleep: '10:00 PM', wake: '06:00 AM' },
+        pastDiagnosis: 'Borderline impaired fasting glucose. Advised lifestyle changes.'
+    },
+    'P159203': {
+        id: 'P159203', name: 'Vu Van M', age: 68, gender: 'Male', bloodGroup: 'O+', height: 168, weight: 61.2,
+        allergies: 'None', history: 'Type 2 Diabetes (12 years). Neuropathy symptoms.',
+        routine: { breakfast: '07:00 AM', lunch: '11:45 AM', dinner: '06:15 PM', sleep: '09:30 PM', wake: '05:00 AM' },
+        pastDiagnosis: 'Diabetes with mild peripheral neuropathy. High neuropathy risk.'
+    },
+    'P162901': {
+        id: 'P162901', name: 'Tran Thi N', age: 50, gender: 'Female', bloodGroup: 'B-', height: 155, weight: 56.5,
+        allergies: 'None', history: 'Type 2 Diabetes (4 years). Stable.',
+        routine: { breakfast: '07:00 AM', lunch: '12:00 PM', dinner: '06:30 PM', sleep: '10:00 PM', wake: '05:45 AM' },
+        pastDiagnosis: 'Stable Type 2 Diabetes on Metformin monotherapy.'
+    },
+    'P172039': {
+        id: 'P172039', name: 'Nguyen Thi P', age: 65, gender: 'Female', bloodGroup: 'A-', height: 152, weight: 54.0,
+        allergies: 'Sulfa Drugs', history: 'Type 2 Diabetes (7 years). Mild retinopathy.',
+        routine: { breakfast: '07:30 AM', lunch: '12:15 PM', dinner: '06:30 PM', sleep: '09:45 PM', wake: '05:30 AM' },
+        pastDiagnosis: 'Type 2 Diabetes. Dry eyes & early non-proliferative retinopathy.'
+    },
+    'P182390': {
+        id: 'P182390', name: 'Le Hoang Q', age: 58, gender: 'Male', bloodGroup: 'O+', height: 172, weight: 79.5,
+        allergies: 'None', history: 'Type 2 Diabetes (5 years). Mild chronic kidney disease.',
+        routine: { breakfast: '07:00 AM', lunch: '12:00 PM', dinner: '07:00 PM', sleep: '10:00 PM', wake: '06:00 AM' },
+        pastDiagnosis: 'Type 2 Diabetes. Stage 1 Kidney Disease (CKD stage 1).'
     }
 };
 
@@ -129,7 +177,41 @@ function loadSessionPatient() {
     document.getElementById('patDinner').textContent = currentPatient.routine.dinner;
     document.getElementById('patSleep').textContent = `${currentPatient.routine.sleep} / ${currentPatient.routine.wake}`;
 
+    // Check status to display overlay if Pending
+    const localQueue = JSON.parse(sessionStorage.getItem('mockQueue') || 'null');
+    let isPending = false;
+    if (localQueue) {
+        const qPat = localQueue.find(p => p.id === currentPatient.id);
+        if (qPat && qPat.status === 'Pending') {
+            isPending = true;
+        }
+    }
 
+    if (!viewOnlyMode && isPending) {
+        const overlay = document.getElementById('examStartOverlay');
+        if (overlay) {
+            document.getElementById('overlayPatName').textContent = currentPatient.name;
+            overlay.style.display = 'flex';
+            
+            // Disable workspace except for the cancel button
+            const workspace = document.querySelector('.examination-workspace');
+            const tabs = workspace.querySelectorAll('.diagnostic-tabs, .tab-content, .btn-primary');
+            tabs.forEach(el => {
+                if(el.closest('#examStartOverlay')) return; // keep overlay buttons active
+                el.style.pointerEvents = 'none';
+                el.style.opacity = '0.4';
+            });
+            
+            // Ensure cancel button is clickable
+            const cancelBtn = workspace.querySelector('.btn-outline-danger');
+            if (cancelBtn) {
+                cancelBtn.style.pointerEvents = 'auto';
+                cancelBtn.style.opacity = '1';
+                cancelBtn.style.position = 'relative';
+                cancelBtn.style.zIndex = '1000';
+            }
+        }
+    }
 
     // If view only mode, disable form elements
     if (viewOnlyMode) {
@@ -434,6 +516,8 @@ function simulateLabResults() {
     });
 }
 
+let pendingTabTransition = null;
+
 // Diagnostic Switch Tab Logic
 function switchTab(evt, tabId) {
     if (!viewOnlyMode) {
@@ -450,7 +534,15 @@ function switchTab(evt, tabId) {
         if (tabId === 'prescription-tab') {
             const orderedCount = Object.keys(orderedLabs).length;
             if (orderedCount === 0) {
-                showToast('At least 1 laboratory test is required for proper diagnosis.', 'warning');
+                // Open confirmation modal instead of blocking completely
+                pendingTabTransition = { 
+                    tabId: tabId, 
+                    targetBtn: evt ? evt.currentTarget : null 
+                };
+                const skipModal = document.getElementById('skipLabConfirmModal');
+                if (skipModal) {
+                    skipModal.classList.add('open');
+                }
                 return;
             }
             if (isLabProcessing) {
@@ -460,6 +552,16 @@ function switchTab(evt, tabId) {
         }
     }
 
+    executeTabSwitch(evt ? evt.currentTarget : null, tabId);
+}
+
+const tabIndexMap = {
+    'symptoms-tab': 0,
+    'labs-tab': 1,
+    'prescription-tab': 2
+};
+
+function executeTabSwitch(targetBtn, tabId) {
     const tabcontents = document.getElementsByClassName('tab-content');
     for (let i = 0; i < tabcontents.length; i++) {
         tabcontents[i].classList.remove('active');
@@ -471,7 +573,38 @@ function switchTab(evt, tabId) {
     }
 
     document.getElementById(tabId).classList.add('active');
-    evt.currentTarget.classList.add('active');
+    if (targetBtn) {
+        targetBtn.classList.add('active');
+    } else {
+        const btns = document.querySelectorAll('.tab-btn');
+        const idx = tabIndexMap[tabId];
+        if (btns[idx]) {
+            btns[idx].classList.add('active');
+        }
+    }
+}
+
+function closeSkipLabModal() {
+    const skipModal = document.getElementById('skipLabConfirmModal');
+    if (skipModal) skipModal.classList.remove('open');
+    pendingTabTransition = null;
+}
+
+function confirmSkipLab() {
+    if (pendingTabTransition) {
+        const targetTabId = pendingTabTransition.tabId;
+        const targetBtn = pendingTabTransition.targetBtn;
+        
+        // Clear transition state first
+        pendingTabTransition = null;
+        
+        // Close modal
+        const skipModal = document.getElementById('skipLabConfirmModal');
+        if (skipModal) skipModal.classList.remove('open');
+        
+        // Execute the switch
+        executeTabSwitch(targetBtn, targetTabId);
+    }
 }
 
 
@@ -680,7 +813,7 @@ function saveExam() {
     }
 
     // Validate if Prescription is filled
-    const prescribedCount = prescribedMeds.length;
+    const prescribedCount = prescriptionLines.length;
     if (prescribedCount === 0) {
         showToast('Please prescribe at least 1 medicine before completing.', 'warning');
         // Switch to prescription tab just in case
@@ -700,6 +833,88 @@ function saveExam() {
             sessionStorage.setItem('mockQueue', JSON.stringify(localQueue));
         }
     }
+
+    // Gather and save dynamic consultation details to sessionStorage
+    const selectedSymptomNames = [];
+    const checkedChks = document.querySelectorAll('#symptomsGrid input:checked');
+    checkedChks.forEach(chk => {
+        const id = chk.id.replace('chk-', '');
+        const symptom = symptomsCatalog.find(s => s.id === id);
+        if (symptom) {
+            selectedSymptomNames.push(symptom.name);
+        }
+    });
+
+    const labResultsList = [];
+    Object.keys(orderedLabs).forEach(id => {
+        const test = labTestsCatalog.find(l => l.id === id);
+        if (test) {
+            let val = 0.0;
+            let flag = 'NORMAL';
+            if (test.id === 'L01') {
+                val = currentPatient.id === 'P048590' ? 6.1 : (currentPatient.id === 'P089123' ? 5.1 : 9.4);
+                if (val > 5.6) flag = 'High';
+            } else if (test.id === 'L02') {
+                val = currentPatient.id === 'P048590' ? 6.1 : (currentPatient.id === 'P089123' ? 5.5 : 8.2);
+                if (val > 5.6) flag = 'High';
+            } else if (test.id === 'L03') {
+                val = currentPatient.id === 'P089123' ? 8.4 : 11.2;
+                if (val >= 7.8) flag = 'High';
+            } else if (test.id === 'L05') {
+                val = currentPatient.id === 'P067823' ? 128.0 : 85.0;
+                if (val > 115) flag = 'High';
+            } else {
+                val = 4.8;
+                flag = 'Normal';
+            }
+            labResultsList.push({
+                name: test.name,
+                value: val.toString(),
+                unit: test.unit,
+                range: test.range,
+                flag: flag
+            });
+        }
+    });
+
+    const prescriptionList = prescriptionLines.map(line => {
+        return {
+            name: `${line.name} (${line.concentration})`,
+            dosage: line.dosage,
+            timing: line.timing,
+            quantity: parseInt(line.quantity),
+            duration: parseInt(line.duration)
+        };
+    });
+
+    let nextApptVal = document.getElementById('examNextDate').value;
+    let nextApptText = "None scheduled";
+    if (nextApptVal) {
+        const d = new Date(nextApptVal);
+        nextApptText = d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+
+    const today = new Date();
+    const formattedDate = today.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+    let dynamicConsultations = JSON.parse(sessionStorage.getItem('dynamicConsultations') || '{}');
+    if (!dynamicConsultations[patientId]) {
+        dynamicConsultations[patientId] = [];
+    }
+
+    const newConsultation = {
+        date: formattedDate,
+        doctor: 'Dr. Harrison',
+        diagnosis: diagnosis,
+        clinicalNotes: document.getElementById('examHistory').value.trim() || 'No additional clinical notes recorded.',
+        symptoms: selectedSymptomNames,
+        labResults: labResultsList,
+        prescription: prescriptionList,
+        nextAppointment: nextApptText
+    };
+
+    dynamicConsultations[patientId].unshift(newConsultation);
+    sessionStorage.setItem('dynamicConsultations', JSON.stringify(dynamicConsultations));
 
     showToast(`Consultation and Clinical Checkup completed successfully!`, 'success');
     setTimeout(() => {
@@ -723,10 +938,55 @@ function closeCancelModal() {
 
 function confirmCancelExam() {
     closeCancelModal();
+    
+    // Reset status in Session mockQueue back to Pending if it was InProgress (or Pending)
+    if (!viewOnlyMode) {
+        const patientId = currentPatient.id;
+        const localQueue = JSON.parse(sessionStorage.getItem('mockQueue') || 'null');
+        if (localQueue) {
+            const patient = localQueue.find(p => p.id === patientId);
+            if (patient && (patient.status === 'InProgress' || patient.status === 'Pending')) {
+                patient.status = 'Pending';
+                sessionStorage.setItem('mockQueue', JSON.stringify(localQueue));
+            }
+        }
+    }
+
     showToast('Examination cancelled. Discarding notes...', 'error');
     setTimeout(() => {
         window.location.href = '/doctor/dashboard';
     }, 1500);
+}
+
+// Start Examination Logic
+function startExamination() {
+    const overlay = document.getElementById('examStartOverlay');
+    if (overlay) {
+        overlay.style.display = 'none';
+    }
+    
+    // Restore workspace interactions
+    const workspace = document.querySelector('.examination-workspace');
+    if (workspace) {
+        const tabs = workspace.querySelectorAll('.diagnostic-tabs, .tab-content, .btn-primary');
+        tabs.forEach(el => {
+            el.style.pointerEvents = '';
+            el.style.opacity = '';
+        });
+    }
+
+    // Update session status to InProgress
+    const patientId = currentPatient.id;
+    const localQueue = JSON.parse(sessionStorage.getItem('mockQueue') || 'null');
+    if (localQueue) {
+        const patient = localQueue.find(p => p.id === patientId);
+        if (patient && patient.status === 'Pending') {
+            patient.status = 'InProgress';
+            sessionStorage.setItem('mockQueue', JSON.stringify(localQueue));
+        }
+    }
+    
+    showToast('Examination started. Status updated to In Progress.', 'success');
 }
 
 // --- EXAMINE ROOM JAVASCRIPT ---

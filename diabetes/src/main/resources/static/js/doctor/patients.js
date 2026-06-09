@@ -347,6 +347,209 @@ const patientsDb = [
                 ]
             }
         ]
+    },
+    {
+        id: 'P102938', name: 'Nguyen Thi G', age: 33, gender: 'Female', bloodGroup: 'A-', status: 'Active',
+        supervisor: 'Le Van Y', supervisorPhone: '0908887776',
+        glucoseTrend: [5.8, 6.2, 5.7, 6.0, 5.9, 6.1],
+        timeline: [
+            {
+                date: 'Apr 10, 2026', doctor: 'Dr. Harrison',
+                diagnosis: 'Impaired Fasting Glucose. Borderline gestational risk.',
+                clinicalNotes: 'Glucose is slightly elevated. Provided dietary counseling and advised to monitor blood sugar twice weekly.',
+                symptoms: ['Fatigue & Lethargy'],
+                labResults: [
+                    { name: 'Fasting Blood Glucose', value: '6.1', unit: 'mmol/L', range: '3.9 - 5.6', flag: 'High' }
+                ],
+                prescription: []
+            }
+        ]
+    },
+    {
+        id: 'P112390', name: 'Tran Minh H', age: 49, gender: 'Male', bloodGroup: 'O-', status: 'Active',
+        supervisor: 'Tran Minh K', supervisorPhone: '0917778889',
+        glucoseTrend: [7.2, 7.8, 7.5, 8.2, 7.9, 8.0],
+        timeline: [
+            {
+                date: 'Mar 15, 2026', doctor: 'Dr. Harrison',
+                diagnosis: 'Mild Hyperglycemia. Impaired Lipids. Obesity Class 1.',
+                clinicalNotes: 'First consultation. Blood glucose and lipid panel are elevated. Initiated low-dose Metformin and low-fat diet program.',
+                symptoms: ['Polyuria (Frequent Urination)', 'Fatigue & Lethargy'],
+                labResults: [
+                    { name: 'Fasting Blood Glucose', value: '8.0', unit: 'mmol/L', range: '3.9 - 5.6', flag: 'High' }
+                ],
+                prescription: [
+                    { name: 'Metformin Hydrochloride (500mg)', dosage: '1 Tablet', timing: 'After breakfast', quantity: 30, duration: 30 }
+                ]
+            }
+        ]
+    },
+    {
+        id: 'P123490', name: 'Le Van I', age: 60, gender: 'Male', bloodGroup: 'B-', status: 'Active',
+        supervisor: 'Le Van J', supervisorPhone: '0922223334',
+        glucoseTrend: [8.5, 7.9, 8.0, 8.4, 7.8, 8.1],
+        timeline: [
+            {
+                date: 'May 01, 2026', doctor: 'Dr. Harrison',
+                diagnosis: 'Type 2 Diabetes. Stage 1 Hypertension. Controlled.',
+                clinicalNotes: 'Patient is adhering well to medications. Blood pressure is stable. Continue Metformin and Amlodipine regimen.',
+                symptoms: [],
+                labResults: [
+                    { name: 'Fasting Blood Glucose', value: '8.1', unit: 'mmol/L', range: '3.9 - 5.6', flag: 'High' }
+                ],
+                prescription: [
+                    { name: 'Metformin Hydrochloride (500mg)', dosage: '1 Tablet', timing: 'After breakfast', quantity: 30, duration: 30 },
+                    { name: 'Amlodipine Besylate (5mg)', dosage: '1 Tablet', timing: 'Before sleep', quantity: 30, duration: 30 }
+                ]
+            },
+            {
+                date: 'Feb 15, 2026', doctor: 'Dr. Harrison',
+                diagnosis: 'Type 2 Diabetes Mellitus. Stage 1 Hypertension.',
+                clinicalNotes: 'Elevated fasting blood sugar and blood pressure. Initiated Metformin and Amlodipine therapy.',
+                symptoms: ['Fatigue & Lethargy'],
+                labResults: [
+                    { name: 'Fasting Blood Glucose', value: '8.4', unit: 'mmol/L', range: '3.9 - 5.6', flag: 'High' }
+                ],
+                prescription: [
+                    { name: 'Metformin Hydrochloride (500mg)', dosage: '1 Tablet', timing: 'After breakfast', quantity: 30, duration: 30 },
+                    { name: 'Amlodipine Besylate (5mg)', dosage: '1 Tablet', timing: 'Before sleep', quantity: 30, duration: 30 }
+                ]
+            }
+        ]
+    },
+    {
+        id: 'P139402', name: 'Pham Thi K', age: 27, gender: 'Female', bloodGroup: 'AB+', status: 'Active',
+        supervisor: 'Pham Van L', supervisorPhone: '0933334445',
+        glucoseTrend: [5.4, 5.8, 5.6, 5.9, 5.8, 5.7],
+        timeline: [
+            {
+                date: 'Mar 20, 2026', doctor: 'Dr. Harrison',
+                diagnosis: 'Borderline High Blood Glucose. Needs Diet Control.',
+                clinicalNotes: 'Glucose levels are at the upper limits of normal. Instructed patient on sugar restriction and scheduled checkup in 3 months.',
+                symptoms: ['Fatigue & Lethargy'],
+                labResults: [
+                    { name: 'Fasting Blood Glucose', value: '5.7', unit: 'mmol/L', range: '3.9 - 5.6', flag: 'High' }
+                ],
+                prescription: []
+            }
+        ]
+    },
+    {
+        id: 'P148201', name: 'Hoang Minh L', age: 42, gender: 'Male', bloodGroup: 'A+', status: 'Active',
+        supervisor: 'Hoang Thi M', supervisorPhone: '0944445556',
+        glucoseTrend: [5.7, 5.9, 5.8, 6.1, 5.9, 6.0],
+        timeline: [
+            {
+                date: 'Apr 25, 2026', doctor: 'Dr. Harrison',
+                diagnosis: 'Borderline Impaired Fasting Glucose. Advised Lifestyle Changes.',
+                clinicalNotes: 'Instructed patient on healthy diet plan and regular exercise to improve insulin sensitivity.',
+                symptoms: [],
+                labResults: [
+                    { name: 'Fasting Blood Glucose', value: '6.0', unit: 'mmol/L', range: '3.9 - 5.6', flag: 'High' }
+                ],
+                prescription: []
+            }
+        ]
+    },
+    {
+        id: 'P159203', name: 'Vu Van M', age: 68, gender: 'Male', bloodGroup: 'O+', status: 'Active',
+        supervisor: 'Vu Thi N', supervisorPhone: '0955556667',
+        glucoseTrend: [8.8, 9.2, 8.5, 9.0, 8.6, 8.9],
+        timeline: [
+            {
+                date: 'Apr 12, 2026', doctor: 'Dr. Harrison',
+                diagnosis: 'Type 2 Diabetes. Mild Peripheral Neuropathy.',
+                clinicalNotes: 'Glucose is high. Mild neuropathy symptoms present in hands. Prescribed Metformin XR and vitamins.',
+                symptoms: ['Numbness/Tingling in extremities', 'Fatigue & Lethargy'],
+                labResults: [
+                    { name: 'Fasting Blood Glucose', value: '8.9', unit: 'mmol/L', range: '3.9 - 5.6', flag: 'High' }
+                ],
+                prescription: [
+                    { name: 'Metformin XR (1000mg)', dosage: '1 Tablet', timing: 'After dinner', quantity: 30, duration: 30 }
+                ]
+            },
+            {
+                date: 'Jan 10, 2026', doctor: 'Dr. Harrison',
+                diagnosis: 'Uncontrolled Type 2 Diabetes.',
+                clinicalNotes: 'Glucose remains uncontrolled. Advised diet modifications and scheduled neuropathy check.',
+                symptoms: ['Fatigue & Lethargy'],
+                labResults: [
+                    { name: 'Fasting Blood Glucose', value: '8.6', unit: 'mmol/L', range: '3.9 - 5.6', flag: 'High' }
+                ],
+                prescription: [
+                    { name: 'Metformin Hydrochloride (500mg)', dosage: '1 Tablet', timing: 'After breakfast', quantity: 30, duration: 30 }
+                ]
+            }
+        ]
+    },
+    {
+        id: 'P162901', name: 'Tran Thi N', age: 50, gender: 'Female', bloodGroup: 'B-', status: 'Active',
+        supervisor: 'Tran Van O', supervisorPhone: '0966667778',
+        glucoseTrend: [7.2, 7.5, 7.1, 7.8, 7.4, 7.3],
+        timeline: [
+            {
+                date: 'May 02, 2026', doctor: 'Dr. Harrison',
+                diagnosis: 'Stable Type 2 Diabetes on Metformin Monotherapy.',
+                clinicalNotes: 'Fasting blood sugar is reasonably controlled. Continue Metformin 500mg daily.',
+                symptoms: ['Fatigue & Lethargy'],
+                labResults: [
+                    { name: 'Fasting Blood Glucose', value: '7.3', unit: 'mmol/L', range: '3.9 - 5.6', flag: 'High' }
+                ],
+                prescription: [
+                    { name: 'Metformin Hydrochloride (500mg)', dosage: '1 Tablet', timing: 'After breakfast', quantity: 30, duration: 30 }
+                ]
+            }
+        ]
+    },
+    {
+        id: 'P172039', name: 'Nguyen Thi P', age: 65, gender: 'Female', bloodGroup: 'A-', status: 'Active',
+        supervisor: 'Nguyen Van R', supervisorPhone: '0977778889',
+        glucoseTrend: [7.8, 8.0, 7.6, 8.2, 7.9, 8.1],
+        timeline: [
+            {
+                date: 'Apr 08, 2026', doctor: 'Dr. Harrison',
+                diagnosis: 'Type 2 Diabetes. Dry eyes & early non-proliferative retinopathy.',
+                clinicalNotes: 'Fasting glucose is slightly high. Ophthalmology check confirms stable early retinopathy. Adjusted diet regulations.',
+                symptoms: ['Blurry Vision', 'Fatigue & Lethargy'],
+                labResults: [
+                    { name: 'Fasting Blood Glucose', value: '8.1', unit: 'mmol/L', range: '3.9 - 5.6', flag: 'High' }
+                ],
+                prescription: [
+                    { name: 'Metformin Hydrochloride (500mg)', dosage: '1 Tablet', timing: 'After breakfast', quantity: 30, duration: 30 }
+                ]
+            }
+        ]
+    },
+    {
+        id: 'P182390', name: 'Le Hoang Q', age: 58, gender: 'Male', bloodGroup: 'O+', status: 'Active',
+        supervisor: 'Le Thi S', supervisorPhone: '0988889990',
+        glucoseTrend: [8.2, 8.5, 8.0, 8.6, 8.1, 8.4],
+        timeline: [
+            {
+                date: 'May 04, 2026', doctor: 'Dr. Harrison',
+                diagnosis: 'Type 2 Diabetes. Stage 1 Kidney Disease (CKD stage 1).',
+                clinicalNotes: 'Glucose is slightly high. Urine microalbumin test ordered for follow-up. Ensure strict blood pressure control.',
+                symptoms: ['Fatigue & Lethargy'],
+                labResults: [
+                    { name: 'Fasting Blood Glucose', value: '8.4', unit: 'mmol/L', range: '3.9 - 5.6', flag: 'High' }
+                ],
+                prescription: [
+                    { name: 'Metformin XR (1000mg)', dosage: '1 Tablet', timing: 'After dinner', quantity: 30, duration: 30 }
+                ]
+            },
+            {
+                date: 'Feb 02, 2026', doctor: 'Dr. Harrison',
+                diagnosis: 'Type 2 Diabetes mellitus. Renal baseline screening.',
+                clinicalNotes: 'Obtained kidney baseline logs. Advised low protein diets.',
+                symptoms: [],
+                labResults: [
+                    { name: 'Fasting Blood Glucose', value: '8.1', unit: 'mmol/L', range: '3.9 - 5.6', flag: 'High' }
+                ],
+                prescription: [
+                    { name: 'Metformin Hydrochloride (500mg)', dosage: '1 Tablet', timing: 'After breakfast', quantity: 30, duration: 30 }
+                ]
+            }
+        ]
     }
 ];
 
@@ -374,8 +577,15 @@ function selectPatient(id) {
     // Draw Chart.js equivalent HTML5 Canvas Line Chart
     drawGlucoseChart(selectedPatient.glucoseTrend);
 
+    // Load static + dynamic Timeline items
+    let combinedTimeline = [...selectedPatient.timeline];
+    const dynamicConsultations = JSON.parse(sessionStorage.getItem('dynamicConsultations') || '{}');
+    if (dynamicConsultations[selectedPatient.id]) {
+        combinedTimeline = [...dynamicConsultations[selectedPatient.id], ...combinedTimeline];
+    }
+
     // Load Timeline items
-    renderTimeline(selectedPatient.timeline);
+    renderTimeline(combinedTimeline);
 }
 
 // Render Medical Timeline Entries
@@ -530,12 +740,18 @@ function filterTimeline() {
     const query = document.getElementById('timelineSearchInput').value.toLowerCase().trim();
     if (!selectedPatient) return;
 
+    let combinedTimeline = [...selectedPatient.timeline];
+    const dynamicConsultations = JSON.parse(sessionStorage.getItem('dynamicConsultations') || '{}');
+    if (dynamicConsultations[selectedPatient.id]) {
+        combinedTimeline = [...dynamicConsultations[selectedPatient.id], ...combinedTimeline];
+    }
+
     if (!query) {
-        renderTimeline(selectedPatient.timeline);
+        renderTimeline(combinedTimeline);
         return;
     }
 
-    const filtered = selectedPatient.timeline.filter(t => t.date.toLowerCase().includes(query));
+    const filtered = combinedTimeline.filter(t => t.date.toLowerCase().includes(query));
     renderTimeline(filtered);
 }
 
@@ -543,8 +759,13 @@ function filterTimeline() {
 function openTimelineDetail(date, index) {
     if (!selectedPatient) return;
 
-    // Since index corresponds to the filtered view, find target by date in the patient's timeline list
-    const visit = selectedPatient.timeline.find(t => t.date === date);
+    let combinedTimeline = [...selectedPatient.timeline];
+    const dynamicConsultations = JSON.parse(sessionStorage.getItem('dynamicConsultations') || '{}');
+    if (dynamicConsultations[selectedPatient.id]) {
+        combinedTimeline = [...dynamicConsultations[selectedPatient.id], ...combinedTimeline];
+    }
+
+    const visit = combinedTimeline[index];
     if (!visit) return;
 
     document.getElementById('modalTitle').textContent = `Consultation Details - ${visit.date}`;

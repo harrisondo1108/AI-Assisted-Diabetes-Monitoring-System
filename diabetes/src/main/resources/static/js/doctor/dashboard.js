@@ -215,13 +215,9 @@ function startExamination(patientId, viewOnly = false) {
     sessionStorage.setItem('selectedPatientId', patientId);
     sessionStorage.setItem('examineViewOnly', viewOnly ? 'true' : 'false');
     
-    // If pending, mark it as InProgress temporarily in local session store
-    const localQueue = JSON.parse(sessionStorage.getItem('mockQueue')) || defaultPatientsQueue;
-    const patient = localQueue.find(p => p.id === patientId);
-    if (patient && patient.status === 'Pending' && !viewOnly) {
-        patient.status = 'InProgress';
-        sessionStorage.setItem('mockQueue', JSON.stringify(localQueue));
-    }
+    // We do NOT change status to InProgress here. The status remains 'Pending'
+    // so that the examine page can show the start confirmation overlay.
+    // The state transition to 'InProgress' happens only when the doctor confirms it on the examine page.
 
     window.location.href = '/doctor/examine';
 }
@@ -237,49 +233,108 @@ function viewCompletedExam(patientId) {
 
     document.getElementById('modalExamPatient').textContent = `${patient.name} (${patient.age} yrs / ${patient.gender})`;
     
-    // Format today's date
-    const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-    document.getElementById('modalExamDate').textContent = today;
-    document.getElementById('modalExamNextAppt').textContent = "Jul 08, 2026";
+    // Check if there is a dynamic consultation for this patient (retrieve the first one, which is the latest)
+    const dynamicConsultations = JSON.parse(sessionStorage.getItem('dynamicConsultations') || '{}');
+    const dynamicExam = (dynamicConsultations[patientId] && dynamicConsultations[patientId][0]);
 
-    // Symptoms
-    const symptomsDiv = document.getElementById('modalExamSymptoms');
-    symptomsDiv.innerHTML = `
-        <span style="background: #ffffff; border: 1px solid var(--doctor-border); padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; color: var(--doctor-text-main); font-weight: 600;">Frequent Urination</span>
-        <span style="background: #ffffff; border: 1px solid var(--doctor-border); padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; color: var(--doctor-text-main); font-weight: 600;">Excessive Thirst</span>
-        <span style="background: #ffffff; border: 1px solid var(--doctor-border); padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; color: var(--doctor-text-main); font-weight: 600;">Fatigue</span>
-    `;
+    if (dynamicExam) {
+        document.getElementById('modalExamDate').textContent = dynamicExam.date;
+        document.getElementById('modalExamNextAppt').textContent = dynamicExam.nextAppointment || "None scheduled";
+        
+        // Symptoms
+        const symptomsDiv = document.getElementById('modalExamSymptoms');
+        symptomsDiv.innerHTML = '';
+        if (dynamicExam.symptoms && dynamicExam.symptoms.length > 0) {
+            dynamicExam.symptoms.forEach(s => {
+                symptomsDiv.innerHTML += `<span style="background: #ffffff; border: 1px solid var(--doctor-border); padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; color: var(--doctor-text-main); font-weight: 600;">${s}</span> `;
+            });
+        } else {
+            symptomsDiv.textContent = 'None';
+        }
 
-    // Notes
-    document.getElementById('modalExamNotes').textContent = "Patient reports feeling very tired during the afternoon. No signs of peripheral neuropathy. Blood pressure is normal.";
+        // Notes & Diagnosis
+        document.getElementById('modalExamNotes').textContent = dynamicExam.clinicalNotes || "None";
+        document.getElementById('modalExamDiagnosis').textContent = dynamicExam.diagnosis || "None";
 
-    // Generate contextual mock data
-    document.getElementById('modalExamDiagnosis').textContent = `Reviewed ${patient.reason.toLowerCase()}. Blood glucose is slightly elevated. Advised to strictly follow diet plan.`;
+        // Labs Table
+        const labsBody = document.getElementById('modalExamLabsTableBody');
+        labsBody.innerHTML = '';
+        if (dynamicExam.labResults && dynamicExam.labResults.length > 0) {
+            dynamicExam.labResults.forEach(l => {
+                let flagColor = l.flag === 'High' ? 'var(--doctor-danger)' : 'var(--doctor-success)';
+                labsBody.innerHTML += `
+                    <tr>
+                        <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border);">${l.name}</td>
+                        <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); font-weight: 600;">${l.value} <span style="font-size: 0.75rem; color: var(--doctor-text-muted); font-weight: normal;">${l.unit}</span></td>
+                        <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); color: ${flagColor}; font-weight: bold;">${l.flag}</td>
+                    </tr>
+                `;
+            });
+        } else {
+            labsBody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--doctor-text-muted); padding: 10px;">No laboratory tests ordered in this session</td></tr>`;
+        }
 
-    // Labs Table
-    const labsBody = document.getElementById('modalExamLabsTableBody');
-    labsBody.innerHTML = `
-        <tr>
-            <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border);">Fasting Blood Glucose</td>
-            <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); font-weight: 600;">6.2 <span style="font-size: 0.75rem; color: var(--doctor-text-muted); font-weight: normal;">mmol/L</span></td>
-            <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); color: var(--doctor-danger); font-weight: bold;">High</td>
-        </tr>
-        <tr>
-            <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border);">HbA1c</td>
-            <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); font-weight: 600;">5.8 <span style="font-size: 0.75rem; color: var(--doctor-text-muted); font-weight: normal;">%</span></td>
-            <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); color: var(--doctor-danger); font-weight: bold;">High</td>
-        </tr>
-    `;
+        // Prescription Table
+        const prescBody = document.getElementById('modalExamPrescriptionTableBody');
+        prescBody.innerHTML = '';
+        if (dynamicExam.prescription && dynamicExam.prescription.length > 0) {
+            dynamicExam.prescription.forEach(p => {
+                prescBody.innerHTML += `
+                    <tr>
+                        <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); font-weight: 600;">${p.name}</td>
+                        <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border);">${p.dosage} (${p.duration} days / ${p.quantity} pcs)</td>
+                        <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); font-style: italic; color: var(--doctor-primary);">${p.timing}</td>
+                    </tr>
+                `;
+            });
+        } else {
+            prescBody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--doctor-text-muted); padding: 10px;">No medications prescribed</td></tr>`;
+        }
+    } else {
+        // Fallback to static mock values
+        const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        document.getElementById('modalExamDate').textContent = today;
+        document.getElementById('modalExamNextAppt').textContent = "Jul 08, 2026";
 
-    // Prescription Table
-    const prescBody = document.getElementById('modalExamPrescriptionTableBody');
-    prescBody.innerHTML = `
-        <tr>
-            <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); font-weight: 600;">Metformin Hydrochloride (500mg)</td>
-            <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border);">1 Tablet</td>
-            <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); font-style: italic; color: var(--doctor-primary);">After breakfast</td>
-        </tr>
-    `;
+        // Symptoms
+        const symptomsDiv = document.getElementById('modalExamSymptoms');
+        symptomsDiv.innerHTML = `
+            <span style="background: #ffffff; border: 1px solid var(--doctor-border); padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; color: var(--doctor-text-main); font-weight: 600;">Frequent Urination</span>
+            <span style="background: #ffffff; border: 1px solid var(--doctor-border); padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; color: var(--doctor-text-main); font-weight: 600;">Excessive Thirst</span>
+            <span style="background: #ffffff; border: 1px solid var(--doctor-border); padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; color: var(--doctor-text-main); font-weight: 600;">Fatigue</span>
+        `;
+
+        // Notes
+        document.getElementById('modalExamNotes').textContent = "Patient reports feeling very tired during the afternoon. No signs of peripheral neuropathy. Blood pressure is normal.";
+
+        // Generate contextual mock data
+        document.getElementById('modalExamDiagnosis').textContent = `Reviewed ${patient.reason.toLowerCase()}. Blood glucose is slightly elevated. Advised to strictly follow diet plan.`;
+
+        // Labs Table
+        const labsBody = document.getElementById('modalExamLabsTableBody');
+        labsBody.innerHTML = `
+            <tr>
+                <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border);">Fasting Blood Glucose</td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); font-weight: 600;">6.2 <span style="font-size: 0.75rem; color: var(--doctor-text-muted); font-weight: normal;">mmol/L</span></td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); color: var(--doctor-danger); font-weight: bold;">High</td>
+            </tr>
+            <tr>
+                <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border);">HbA1c</td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); font-weight: 600;">5.8 <span style="font-size: 0.75rem; color: var(--doctor-text-muted); font-weight: normal;">%</span></td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); color: var(--doctor-danger); font-weight: bold;">High</td>
+            </tr>
+        `;
+
+        // Prescription Table
+        const prescBody = document.getElementById('modalExamPrescriptionTableBody');
+        prescBody.innerHTML = `
+            <tr>
+                <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); font-weight: 600;">Metformin Hydrochloride (500mg)</td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border);">1 Tablet</td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); font-style: italic; color: var(--doctor-primary);">After breakfast</td>
+            </tr>
+        `;
+    }
 }
 
 function closeCompletedExam() {

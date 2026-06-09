@@ -9,14 +9,14 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Page CSS -->
-    <link rel="stylesheet" th:href="@{/css/pages/doctor-common.css}">
-    <link rel="stylesheet" th:href="@{/css/pages/doctor-dashboard.css}">
+    <link rel="stylesheet" th:href="@{/css/doctor/doctor-common.css}">
+    <link rel="stylesheet" th:href="@{/css/doctor/doctor-dashboard.css}">
 </head>
 <body>
     <div class="doctor-layout">
         <div class="doctor-main">
             <!-- Header layout replacement -->
-            <div th:replace="~{layout/doctor_header :: header('Clinical Dashboard', 'dashboard')}"></div>
+            <div th:replace="~{doctor/doctor_header :: header('Clinical Dashboard', 'dashboard')}"></div>
 
             <main class="doctor-content">
                 <!-- Statistics cards with modern glassmorphic look -->

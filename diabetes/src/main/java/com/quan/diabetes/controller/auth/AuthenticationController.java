@@ -98,7 +98,7 @@ public class AuthenticationController {
                 session.setAttribute("userProfile", patient);
                 return "redirect:/admin/dashboard";
             }
-            case "DO" -> {
+            case "DOC" -> {
                 Profile profile = profileService.findById(user.getUserId()).orElse(null);
                 session.setAttribute("userProfile", profile);
                 return "redirect:/doctor/dashboard";

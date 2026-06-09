@@ -8,14 +8,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Page CSS -->
-    <link rel="stylesheet" th:href="@{/css/pages/doctor-common.css}">
-    <link rel="stylesheet" th:href="@{/css/pages/doctor-patients.css}">
+    <link rel="stylesheet" th:href="@{/css/doctor/doctor-common.css}">
+    <link rel="stylesheet" th:href="@{/css/doctor/doctor-patients.css}">
 </head>
 <body>
     <div class="doctor-layout">
         <div class="doctor-main">
             <!-- Header layout replacement -->
-            <div th:replace="~{layout/doctor_header :: header('Patient Medical Record & History', 'patients')}"></div>
+            <div th:replace="~{doctor/doctor_header :: header('Patient Medical Record & History', 'patients')}"></div>
 
             <main class="doctor-content history-layout">
                 

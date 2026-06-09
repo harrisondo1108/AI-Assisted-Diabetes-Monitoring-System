@@ -8,14 +8,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Page CSS -->
-    <link rel="stylesheet" th:href="@{/css/pages/doctor-common.css}">
-    <link rel="stylesheet" th:href="@{/css/pages/doctor-examine.css}">
+    <link rel="stylesheet" th:href="@{/css/doctor/doctor-common.css}">
+    <link rel="stylesheet" th:href="@{/css/doctor/doctor-examine.css}">
 </head>
 <body>
     <div class="doctor-layout">
         <div class="doctor-main">
             <!-- Header layout replacement -->
-            <div th:replace="~{layout/doctor_header :: header('Consultation & Diagnostic', 'examine')}"></div>
+            <div th:replace="~{doctor/doctor_header :: header('Consultation & Diagnostic', 'examine')}"></div>
 
             <main class="doctor-content flex-row-container">
                 
@@ -103,6 +103,16 @@
                             <button type="button" class="btn btn-outline-danger" onclick="cancelExam()">Cancel</button>
                             <button type="button" class="btn btn-primary" onclick="saveExam()"><i class="fas fa-floppy-disk"></i> Complete Examination</button>
                         </div>
+                    </div>
+
+                    <!-- Examination Start Overlay -->
+                    <div id="examStartOverlay" class="exam-start-overlay" style="display: none;">
+                        <i class="fas fa-stethoscope"></i>
+                        <h3>Begin Clinical Consultation</h3>
+                        <p>You are about to start the examination for <strong id="overlayPatName">this patient</strong>. <br>This action will change their status to <strong>In Progress</strong>.</p>
+                        <button type="button" class="btn btn-primary" onclick="startExamination()" style="font-size: 1.1rem; padding: 12px 24px;">
+                            <i class="fas fa-play"></i> Start Examination
+                        </button>
                     </div>
 
                     <!-- Horizontal Diagnostic Tabs -->
@@ -277,6 +287,25 @@
             <div class="modal-footer" style="justify-content: center; gap: 20px; padding-top: 15px; border-top: none;">
                 <button type="button" class="btn btn-secondary" onclick="closeCancelModal()" style="font-size: 1.1rem; padding: 12px 24px;">No, Keep Editing</button>
                 <button type="button" class="btn btn-outline-danger" onclick="confirmCancelExam()" style="background: var(--doctor-danger); color: white; font-size: 1.1rem; padding: 12px 24px;">Yes, Cancel It</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SKIP LAB CONFIRMATION MODAL -->
+    <div class="modal-overlay" id="skipLabConfirmModal">
+        <div class="modal" style="max-width: 550px; padding: 25px;">
+            <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
+                <h3 style="font-size: 1.4rem;">Skip Laboratory Tests</h3>
+                <button type="button" class="close-btn" onclick="closeSkipLabModal()" style="font-size: 1.5rem;"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" style="text-align: center; padding: 25px 20px;">
+                <i class="fas fa-exclamation-circle" style="font-size: 4.5rem; color: #d97706; margin-bottom: 25px;"></i>
+                <p style="font-size: 1.35rem; font-weight: 600; color: var(--doctor-text-main); margin-bottom: 15px;">Skip Laboratory Testing?</p>
+                <p style="font-size: 1.1rem; color: var(--doctor-text-muted);">This patient has no laboratory tests ordered today. Are you sure you want to proceed to prescription without tests?</p>
+            </div>
+            <div class="modal-footer" style="justify-content: center; gap: 20px; padding-top: 15px; border-top: none;">
+                <button type="button" class="btn btn-secondary" onclick="closeSkipLabModal()" style="font-size: 1.1rem; padding: 12px 24px;">No, Go Back</button>
+                <button type="button" class="btn btn-primary" onclick="confirmSkipLab()" style="background: #d97706; border-color: #d97706; color: white; font-size: 1.1rem; padding: 12px 24px;">Yes, Proceed</button>
             </div>
         </div>
     </div>
