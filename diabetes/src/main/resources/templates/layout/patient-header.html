@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<header class="admin-header patient-header" th:fragment="patientHeader(pageTitle)">
+    <div class="header-title-block">
+        <span class="header-kicker">Patient support center</span>
+        <h1 class="header-page-title" th:text="${pageTitle}">Patient Page</h1>
+    </div>
+
+    <div class="header-actions">
+        <a th:href="@{/patient/notifications}" class="icon-btn header-link-btn" title="Medication reminders">
+            <i class="fas fa-bell"></i>
+        </a>
+
+        <a th:href="@{/patient/chat}" class="icon-btn header-link-btn" title="AI care assistant">
+            <i class="fas fa-robot"></i>
+        </a>
+
+        <div class="admin-profile patient-header-profile">
+            <div class="admin-avatar-icon" aria-hidden="true">
+                <i class="fas fa-user"></i>
+            </div>
+
+            <div class="profile-text">
+                <div class="name" th:text="${patient != null ? patient.fullName : 'Patient'}">Patient</div>
+                <div class="role">Diabetes monitoring</div>
+            </div>
+        </div>
+    </div>
+</header>
+</body>
+</html>

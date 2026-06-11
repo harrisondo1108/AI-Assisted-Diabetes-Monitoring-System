@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<aside class="admin-sidebar patient-sidebar" th:fragment="patientSidebar(activeMenu)">
+    <div class="sidebar-brand patient-brand">
+        <div class="brand-logo-mark">
+            <i class="fas fa-heart-pulse"></i>
+        </div>
+        <div>
+            <div class="brand-name">Diabetes Care</div>
+            <div class="brand-sub">Patient Support Portal</div>
+        </div>
+    </div>
+
+    <div class="sidebar-care-card">
+        <div class="care-card-icon">
+            <i class="fas fa-droplet"></i>
+        </div>
+        <div>
+            <strong>Daily glucose care</strong>
+            <span>Track tests, medicine and follow-up on time.</span>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav patient-nav">
+        <a th:href="@{/patient/dashboard}"
+           class="nav-item"
+           th:classappend="${activeMenu == 'dashboard'} ? 'active' : ''">
+            <i class="fas fa-chart-line"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <a th:href="@{/patient/profile}"
+           class="nav-item"
+           th:classappend="${activeMenu == 'profile'} ? 'active' : ''">
+            <i class="fas fa-user-shield"></i>
+            <span>Profile</span>
+        </a>
+
+        <a th:href="@{/patient/notifications}"
+           class="nav-item"
+           th:classappend="${activeMenu == 'notifications'} ? 'active' : ''">
+            <i class="fas fa-bell"></i>
+            <span>Medication Reminders</span>
+        </a>
+
+        <a th:href="@{/patient/progress}"
+           class="nav-item"
+           th:classappend="${activeMenu == 'progress'} ? 'active' : ''">
+            <i class="fas fa-notes-medical"></i>
+            <span>Medical Progress</span>
+        </a>
+
+        <a th:href="@{/patient/risk}"
+           class="nav-item"
+           th:classappend="${activeMenu == 'risk'} ? 'active' : ''">
+            <i class="fas fa-shield-heart"></i>
+            <span>Risk Assessment</span>
+        </a>
+
+        <a th:href="@{/patient/history}"
+           class="nav-item"
+           th:classappend="${activeMenu == 'history'} ? 'active' : ''">
+            <i class="fas fa-clock-rotate-left"></i>
+            <span>Medical History</span>
+        </a>
+
+        <a th:href="@{/patient/chat}"
+           class="nav-item"
+           th:classappend="${activeMenu == 'chat'} ? 'active' : ''">
+            <i class="fas fa-robot"></i>
+            <span>AI Care Chat</span>
+        </a>
+    </nav>
+
+    <div class="sidebar-footer patient-sidebar-footer">
+        <div class="sidebar-footer-status">
+            <i class="fas fa-circle-check"></i>
+            <span>Care plan active</span>
+        </div>
+
+        <div class="sidebar-footer-links">
+            <a th:href="@{/logout}">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </a>
+        </div>
+    </div>
+</aside>
+</body>
+</html>

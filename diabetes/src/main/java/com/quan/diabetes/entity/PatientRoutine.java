@@ -1,6 +1,12 @@
 package com.quan.diabetes.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 
 import java.time.LocalTime;
 
@@ -12,30 +18,38 @@ public class PatientRoutine {
     @Column(name = "UserID", length = 50)
     private String userId;
 
-    @OneToOne
-    @MapsId
-    @JoinColumn(name = "UserID")
+    /*
+        Không dùng @MapsId ở đây để tránh lỗi:
+        null identifier (com.quan.diabetes.entity.PatientRoutine)
+
+        UserID vừa là PK của PatientRoutine, vừa là FK sang Patient.
+        Mapping patient chỉ dùng để đọc, không dùng để insert/update UserID.
+    */
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "UserID", referencedColumnName = "UserID", insertable = false, updatable = false)
     private Patient patient;
 
     @Column(name = "BreakfastTime")
-    private LocalTime breakfastTime = LocalTime.of(7, 0);;
+    private LocalTime breakfastTime = LocalTime.of(7, 0);
 
     @Column(name = "LunchTime")
-    private LocalTime lunchTime = LocalTime.of(11, 0);;
+    private LocalTime lunchTime = LocalTime.of(12, 0);
 
     @Column(name = "DinnerTime")
-    private LocalTime dinnerTime = LocalTime.of(18, 0);;
+    private LocalTime dinnerTime = LocalTime.of(18, 0);
 
     @Column(name = "WakeUpTime")
-    private LocalTime wakeUpTime = LocalTime.of(6, 0);;
+    private LocalTime wakeUpTime = LocalTime.of(6, 0);
 
     @Column(name = "SleepTime")
-    private LocalTime sleepTime = LocalTime.of(22, 0);;
+    private LocalTime sleepTime = LocalTime.of(22, 0);
 
-    public PatientRoutine() {}
+    public PatientRoutine() {
+    }
 
-    // Getters and Setters
-
+    public PatientRoutine(String userId) {
+        this.userId = userId;
+    }
 
     public String getUserId() {
         return userId;
@@ -51,6 +65,10 @@ public class PatientRoutine {
 
     public void setPatient(Patient patient) {
         this.patient = patient;
+
+        if (patient != null) {
+            this.userId = patient.getUserId();
+        }
     }
 
     public LocalTime getBreakfastTime() {
@@ -91,18 +109,5 @@ public class PatientRoutine {
 
     public void setSleepTime(LocalTime sleepTime) {
         this.sleepTime = sleepTime;
-    }
-
-    @Override
-    public String toString() {
-        return "PatientRoutine{" +
-                "userId='" + userId + '\'' +
-                ", patient=" + patient +
-                ", breakfastTime=" + breakfastTime +
-                ", lunchTime=" + lunchTime +
-                ", dinnerTime=" + dinnerTime +
-                ", wakeUpTime=" + wakeUpTime +
-                ", sleepTime=" + sleepTime +
-                '}';
     }
 }

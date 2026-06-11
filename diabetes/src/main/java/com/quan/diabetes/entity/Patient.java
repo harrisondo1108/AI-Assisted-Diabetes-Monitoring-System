@@ -37,7 +37,8 @@ public class Patient {
 
     @Column(name = "Gender")
     private Boolean gender;
-    // true -> male, false -> female
+    // Database BIT: 0 -> male, 1 -> female
+    // Java Boolean: false -> male, true -> female
 
     @Column(name = "Height")
     private Integer height;

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Patient Dashboard | Diabetes Care System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/patient/patient.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+<div class="admin-layout">
+    <div th:replace="~{layout/patient-sidebar :: patientSidebar('dashboard')}"></div>
+
+    <div class="admin-main">
+        <div th:replace="~{layout/patient-header :: patientHeader('Patient Dashboard')}"></div>
+
+        <main class="admin-content">
+            <div class="page-header dashboard-hero">
+                <div>
+                    <h1>
+                        <i class="fas fa-heart-pulse"></i>
+                        Diabetes Care Overview
+                    </h1>
+                    <p class="subtitle">
+                        Welcome,
+                        <strong th:text="${patient != null ? patient.fullName : 'Patient'}">Patient</strong>.
+                        Track your diabetes indicators, medical progress, reminders and next appointment.
+                    </p>
+                </div>
+
+                <div class="dashboard-actions">
+                    <a th:href="@{/patient/progress}" class="btn-primary-link">
+                        <i class="fas fa-notes-medical"></i>
+                        View Medical Progress
+                    </a>
+                </div>
+            </div>
+
+            <div class="dashboard-stats diabetes-stats">
+                <div class="stat-card diabetes-stat-card">
+                    <div class="stat-icon warning-icon">
+                        <i class="fas fa-droplet"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h4>Latest HbA1c</h4>
+                        <div class="stat-number">
+                            <span th:text="${latestHbA1c}">N/A</span>
+                            <small th:if="${latestHbA1c != 'N/A'}">%</small>
+                        </div>
+                        <p th:text="${latestHbA1cStatus}">No data</p>
+                    </div>
+                </div>
+
+                <div class="stat-card diabetes-stat-card">
+                    <div class="stat-icon danger-icon">
+                        <i class="fas fa-vial"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h4>Fasting Glucose</h4>
+                        <div class="stat-number">
+                            <span th:text="${latestGlucose}">N/A</span>
+                            <small th:if="${latestGlucose != 'N/A'}">mg/dL</small>
+                        </div>
+                        <p th:text="${latestGlucoseStatus}">No data</p>
+                    </div>
+                </div>
+
+                <div class="stat-card diabetes-stat-card">
+                    <div class="stat-icon success-icon">
+                        <i class="fas fa-weight-scale"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h4>BMI</h4>
+                        <div class="stat-number" th:text="${bmi}">N/A</div>
+                        <p th:text="${bmiStatus}">No data</p>
+                    </div>
+                </div>
+
+                <div class="stat-card diabetes-stat-card">
+                    <div class="stat-icon info-icon">
+                        <i class="fas fa-shield-heart"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h4>Diabetes Risk</h4>
+                        <div class="stat-number">
+                            <span th:text="${riskScore}">0</span>
+                            <small>/100</small>
+                        </div>
+                        <span class="badge"
+                              th:classappend="${riskBadgeClass}"
+                              th:text="${riskLevel}">
+                            Low Risk
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-grid dashboard-main-grid">
+                <section class="insight-card">
+                    <div class="card-header">
+                        <i class="fas fa-calendar-check" style="color: var(--green-600);"></i>
+                        <h3>Current Care Status</h3>
+                    </div>
+
+                    <div class="care-status-grid">
+                        <div class="care-status-item">
+                            <label>Total Examinations</label>
+                            <strong th:text="${examinationCount}">0</strong>
+                        </div>
+
+                        <div class="care-status-item">
+                            <label>Lab Orders</label>
+                            <strong th:text="${labOrderCount}">0</strong>
+                        </div>
+
+                        <div class="care-status-item">
+                            <label>Completed Orders</label>
+                            <strong th:text="${completedOrderCount}">0</strong>
+                        </div>
+
+                        <div class="care-status-item alert-item">
+                            <label>Abnormal Results</label>
+                            <strong th:text="${abnormalResultCount}">0</strong>
+                        </div>
+                    </div>
+
+                    <div class="latest-exam-box" th:if="${latestExam != null}">
+                        <h4>
+                            <i class="fas fa-stethoscope"></i>
+                            Latest Examination
+                        </h4>
+
+                        <p>
+                            <strong>Exam date:</strong>
+                            <span th:text="${latestExam.examDate != null ? #temporals.format(latestExam.examDate, 'dd/MM/yyyy HH:mm') : 'No date'}">
+                                01/06/2026 09:00
+                            </span>
+                        </p>
+
+                        <p>
+                            <strong>Diagnosis:</strong>
+                            <span th:text="${latestExam.diagnosisNote != null && !#strings.isEmpty(latestExam.diagnosisNote) ? latestExam.diagnosisNote : 'No diagnosis note.'}">
+                                Diagnosis note
+                            </span>
+                        </p>
+
+                        <p>
+                            <strong>Next appointment:</strong>
+                            <span th:text="${latestExam.nextAppointment != null ? #temporals.format(latestExam.nextAppointment, 'dd/MM/yyyy HH:mm') : 'Not scheduled'}">
+                                Not scheduled
+                            </span>
+                        </p>
+                    </div>
+
+                    <div class="empty-message" th:if="${latestExam == null}">
+                        No clinical examination has been recorded yet.
+                    </div>
+                </section>
+
+                <section class="insight-card">
+                    <div class="card-header">
+                        <i class="fas fa-bell" style="color: var(--green-600);"></i>
+                        <h3>Medication Reminders</h3>
+                    </div>
+
+                    <div class="dashboard-reminder-summary">
+                        <div class="care-status-grid">
+                            <div class="care-status-item">
+                                <label>Today Alerts</label>
+                                <strong th:text="${todayMedicationReminderCount}">0</strong>
+                            </div>
+
+                            <div class="care-status-item alert-item">
+                                <label>Due Now</label>
+                                <strong th:text="${dueMedicationReminderCount}">0</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="summary-list"
+                         th:if="${recentMedicationReminders != null && !recentMedicationReminders.isEmpty()}">
+
+                        <div class="summary-item dashboard-medication-reminder"
+                             th:each="reminder : ${recentMedicationReminders}">
+                            <div class="item-label">
+                                <i class="fas fa-pills"></i>
+
+                                <div>
+                                    <strong th:text="${reminder.medicationName}">Metformin</strong>
+                                    <p>
+                                        <span th:text="${reminder.dosage}">500mg</span>
+                                        -
+                                        <span th:text="${reminder.timingName}">After breakfast</span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="item-value">
+                                <span th:text="${#temporals.format(reminder.reminderTime, 'HH:mm')}">07:00</span>
+                                <small th:text="${reminder.minutesBefore + ' min before'}">15 min before</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="empty-message"
+                         th:if="${recentMedicationReminders == null || recentMedicationReminders.isEmpty()}">
+                        No medication reminders found today. Reminders will appear after prescription timing is created.
+                    </div>
+
+                    <div class="dashboard-help-box">
+                        <h4>
+                            <i class="fas fa-circle-info"></i>
+                            Reminder rule
+                        </h4>
+                        <p>
+                            The system reminds you 15 minutes and 10 minutes before each medication time.
+                        </p>
+
+                        <a th:href="@{/patient/notifications}" class="text-link">
+                            View all reminders
+                        </a>
+                    </div>
+                </section>
+            </div>
+
+            <div class="summary-grid dashboard-main-grid">
+                <section class="insight-card">
+                    <div class="card-header">
+                        <i class="fas fa-flask-vial" style="color: var(--green-600);"></i>
+                        <h3>Recent Lab Results</h3>
+                    </div>
+
+                    <div class="table-wrapper" th:if="${recentLabResults != null && !recentLabResults.isEmpty()}">
+                        <table class="patient-table">
+                            <thead>
+                            <tr>
+                                <th>Test</th>
+                                <th>Value</th>
+                                <th>Reference</th>
+                                <th>Flag</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="result : ${recentLabResults}">
+                                <td th:text="${result.labTest != null ? result.labTest.testName : 'Unknown'}">HbA1c</td>
+                                <td>
+                                    <span th:text="${result.resultValue != null ? result.resultValue.stripTrailingZeros().toPlainString() : 'N/A'}">7.2</span>
+                                    <span th:text="${result.labTest != null && result.labTest.unit != null ? result.labTest.unit : ''}">%</span>
+                                </td>
+                                <td th:text="${result.referenceRange != null ? result.referenceRange : 'N/A'}">4.0 - 5.6</td>
+                                <td>
+                                    <span class="badge"
+                                          th:classappend="${result.flag != null && (#strings.contains(#strings.toLowerCase(result.flag), 'high') || #strings.contains(#strings.toLowerCase(result.flag), 'low') || #strings.contains(#strings.toLowerCase(result.flag), 'abnormal') || #strings.contains(#strings.toLowerCase(result.flag), 'cao') || #strings.contains(#strings.toLowerCase(result.flag), 'thấp'))} ? ' badge-danger' : ' badge-success'"
+                                          th:text="${result.flag != null ? result.flag : 'Normal'}">
+                                        Normal
+                                    </span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="empty-message" th:if="${recentLabResults == null || recentLabResults.isEmpty()}">
+                        No lab results found.
+                    </div>
+                </section>
+
+                <section class="insight-card">
+                    <div class="card-header">
+                        <i class="fas fa-clipboard-list" style="color: var(--green-600);"></i>
+                        <h3>Recent Lab Orders</h3>
+                    </div>
+
+                    <div class="summary-list" th:if="${recentLabOrders != null && !recentLabOrders.isEmpty()}">
+                        <div class="summary-item" th:each="order : ${recentLabOrders}">
+                            <div class="item-label">
+                                <i class="fas fa-vials"></i>
+                                <span th:text="${order.labOrderId}">LO001</span>
+                            </div>
+
+                            <span class="badge"
+                                  th:classappend="${order.status != null && #strings.contains(#strings.toLowerCase(order.status), 'complete')} ? ' badge-success' : (${order.status != null && #strings.contains(#strings.toLowerCase(order.status), 'cancel')} ? ' badge-danger' : ' badge-warning')"
+                                  th:text="${order.status != null ? order.status : 'Pending'}">
+                                Pending
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="empty-message" th:if="${recentLabOrders == null || recentLabOrders.isEmpty()}">
+                        No lab orders found.
+                    </div>
+
+                    <div class="dashboard-help-box">
+                        <h4><i class="fas fa-circle-info"></i> Diabetes monitoring guide</h4>
+                        <p>
+                            Keep track of HbA1c, fasting glucose, BMI and abnormal lab results.
+                            Contact your doctor when values remain high or symptoms worsen.
+                        </p>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <div th:replace="~{layout/footer :: footer}"></div>
+    </div>
+</div>
+
+<script th:src="@{/js/patient/patient.js}"></script>
+</body>
+</html>

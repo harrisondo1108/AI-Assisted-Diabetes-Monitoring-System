@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Patient Profile | Diabetes Care System</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/patient/patient.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+<div class="admin-layout">
+    <div th:replace="~{layout/patient-sidebar :: patientSidebar('profile')}"></div>
+
+    <div class="admin-main">
+        <div th:replace="~{layout/patient-header :: patientHeader('Patient Profile')}"></div>
+
+        <main class="admin-content">
+            <div class="page-header">
+                <div>
+                    <h1>
+                        <i class="fas fa-user"></i>
+                        Patient Profile
+                    </h1>
+                    <p class="subtitle">
+                        View and update your personal information and daily routine.
+                    </p>
+                </div>
+            </div>
+
+            <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}">
+                Success message
+            </div>
+
+            <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}">
+                Error message
+            </div>
+
+            <!-- CURRENT PROFILE DISPLAY -->
+            <div class="patient-card profile-display-card">
+                <div class="card-header-between">
+                    <div class="card-header no-margin">
+                        <i class="fas fa-id-card" style="color: var(--green-600);"></i>
+                        <h3>Current Profile</h3>
+                    </div>
+
+                    <button type="button" class="primary-btn" onclick="openPatientModal('profileModal')">
+                        <i class="fas fa-pen"></i>
+                        Update Profile
+                    </button>
+                </div>
+
+                <div class="profile-summary">
+                    <div class="profile-avatar-large">
+                        <span th:text="${patient != null && patient.fullName != null && !patient.fullName.isEmpty() ? #strings.substring(patient.fullName,0,1) : 'P'}">
+                            P
+                        </span>
+                    </div>
+
+                    <div>
+                        <h2 th:text="${patient != null ? patient.fullName : 'No profile yet'}">
+                            Nguyen Van An
+                        </h2>
+                        <p>
+                            Patient ID:
+                            <strong th:text="${patient != null ? patient.userId : (currentUser != null ? currentUser.userId : '')}">
+                                PAT001
+                            </strong>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="profile-grid profile-view-grid">
+                    <div class="profile-field">
+                        <label>Phone Number</label>
+                        <div th:text="${patient != null ? patient.phoneNumber : (currentUser != null ? currentUser.phoneNumber : '')}">
+                            0900000000
+                        </div>
+                    </div>
+
+                    <div class="profile-field">
+                        <label>Date of Birth</label>
+                        <div th:text="${patient != null && patient.dob != null ? #temporals.format(patient.dob, 'dd/MM/yyyy') : 'Not updated'}">
+                            01/01/2000
+                        </div>
+                    </div>
+
+                    <div class="profile-field">
+                        <label>Gender</label>
+                        <div th:text="${patient != null && patient.gender != null ? (patient.gender ? 'Female' : 'Male') : 'Not updated'}">
+                            Male
+                        </div>
+                    </div>
+
+                    <div class="profile-field">
+                        <label>Blood Group</label>
+                        <div th:text="${patient != null && patient.bloodgroup != null ? patient.bloodgroup : 'Not updated'}">
+                            O+
+                        </div>
+                    </div>
+
+                    <div class="profile-field">
+                        <label>Height</label>
+                        <div>
+                            <span th:text="${patient != null && patient.height != null ? patient.height : 'Not updated'}">170</span>
+                            <span th:if="${patient != null && patient.height != null}"> cm</span>
+                        </div>
+                    </div>
+
+                    <div class="profile-field">
+                        <label>Weight</label>
+                        <div>
+                            <span th:text="${patient != null && patient.weight != null ? patient.weight : 'Not updated'}">70</span>
+                            <span th:if="${patient != null && patient.weight != null}"> kg</span>
+                        </div>
+                    </div>
+
+                    <div class="profile-field full">
+                        <label>Address</label>
+                        <div th:text="${patient != null && patient.address != null ? patient.address : 'Not updated'}">
+                            Hanoi
+                        </div>
+                    </div>
+
+                    <div class="profile-field full">
+                        <label>Permanent Medical History</label>
+                        <div th:text="${patient != null && patient.permanentMedicalHistory != null ? patient.permanentMedicalHistory : 'Not updated'}">
+                            Diabetes Type 2
+                        </div>
+                    </div>
+
+                    <div class="profile-field full">
+                        <label>Allergy Notes</label>
+                        <div th:text="${patient != null && patient.allergyNotes != null ? patient.allergyNotes : 'Not updated'}">
+                            None
+                        </div>
+                    </div>
+
+                    <div class="profile-field">
+                        <label>Supervisor Name</label>
+                        <div th:text="${patient != null && patient.supervisorName != null ? patient.supervisorName : 'Not updated'}">
+                            Supervisor
+                        </div>
+                    </div>
+
+                    <div class="profile-field">
+                        <label>Supervisor Phone</label>
+                        <div th:text="${patient != null && patient.supervisorPhone != null ? patient.supervisorPhone : 'Not updated'}">
+                            0900000000
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DAILY ROUTINE DISPLAY -->
+            <div class="patient-card profile-display-card" style="margin-top: 22px;">
+                <div class="card-header-between">
+                    <div class="card-header no-margin">
+                        <i class="fas fa-clock" style="color: var(--green-600);"></i>
+                        <h3>Daily Routine</h3>
+                    </div>
+
+                    <button type="button" class="primary-btn" onclick="openPatientModal('routineModal')">
+                        <i class="fas fa-pen"></i>
+                        Update Routine
+                    </button>
+                </div>
+
+                <div class="routine-grid">
+                    <div class="routine-item">
+                        <div class="routine-icon">
+                            <i class="fas fa-sun"></i>
+                        </div>
+                        <div>
+                            <label>Wake Up</label>
+                            <strong th:text="${routine != null && routine.wakeUpTime != null ? routine.wakeUpTime : 'Not updated'}">
+                                06:00
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div class="routine-item">
+                        <div class="routine-icon">
+                            <i class="fas fa-mug-hot"></i>
+                        </div>
+                        <div>
+                            <label>Breakfast</label>
+                            <strong th:text="${routine != null && routine.breakfastTime != null ? routine.breakfastTime : 'Not updated'}">
+                                07:00
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div class="routine-item">
+                        <div class="routine-icon">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <div>
+                            <label>Lunch</label>
+                            <strong th:text="${routine != null && routine.lunchTime != null ? routine.lunchTime : 'Not updated'}">
+                                12:00
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div class="routine-item">
+                        <div class="routine-icon">
+                            <i class="fas fa-bowl-food"></i>
+                        </div>
+                        <div>
+                            <label>Dinner</label>
+                            <strong th:text="${routine != null && routine.dinnerTime != null ? routine.dinnerTime : 'Not updated'}">
+                                18:00
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div class="routine-item">
+                        <div class="routine-icon">
+                            <i class="fas fa-moon"></i>
+                        </div>
+                        <div>
+                            <label>Sleep</label>
+                            <strong th:text="${routine != null && routine.sleepTime != null ? routine.sleepTime : 'Not updated'}">
+                                22:00
+                            </strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <div th:replace="~{layout/footer :: footer}"></div>
+    </div>
+</div>
+
+<!-- UPDATE PROFILE MODAL -->
+<div class="patient-modal-overlay" id="profileModal">
+    <div class="patient-modal large">
+        <div class="patient-modal-header">
+            <h2 th:text="${isCreateMode} ? 'Create Profile' : 'Update Profile'">
+                Update Profile
+            </h2>
+
+            <button type="button" class="modal-close-btn" onclick="closePatientModal('profileModal')">
+                ×
+            </button>
+        </div>
+
+        <form th:action="@{/patient/profile/save}" method="post" id="profileForm" novalidate>
+            <div id="profileValidationMessage" class="client-validation-message"></div>
+            <div class="patient-modal-body">
+                <div class="modal-form-grid">
+                    <div class="modal-form-group">
+                        <label>Patient ID</label>
+                        <input type="text"
+                               readonly
+                               th:value="${currentUser != null ? currentUser.userId : ''}">
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label>Full Name <span>*</span></label>
+                        <input type="text"
+                               name="fullName"
+                               required
+                               maxlength="60"
+                               th:value="${patient != null ? patient.fullName : ''}"
+                               placeholder="Enter full name">
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label>Phone Number <span>*</span></label>
+                        <input type="text"
+                               name="phoneNumber"
+                               required
+                               maxlength="15"
+                               th:value="${patient != null ? patient.phoneNumber : (currentUser != null ? currentUser.phoneNumber : '')}"
+                               placeholder="Enter phone number">
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label>Date of Birth</label>
+                        <input type="date"
+                               name="dob"
+                               th:value="${patient != null && patient.dob != null ? patient.dob : ''}">
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label>Gender</label>
+                        <select name="gender">
+                            <option value="">-- Select Gender --</option>
+                            <option value="false"
+                                    th:selected="${patient != null && patient.gender != null && !patient.gender}">
+                                Male
+                            </option>
+                            <option value="true"
+                                    th:selected="${patient != null && patient.gender != null && patient.gender}">
+                                Female
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label>Blood Group</label>
+                        <select name="bloodgroup">
+                            <option value="">-- Select Blood Group --</option>
+                            <option value="O+" th:selected="${patient != null && patient.bloodgroup == 'O+'}">O+</option>
+                            <option value="O-" th:selected="${patient != null && patient.bloodgroup == 'O-'}">O-</option>
+                            <option value="A+" th:selected="${patient != null && patient.bloodgroup == 'A+'}">A+</option>
+                            <option value="A-" th:selected="${patient != null && patient.bloodgroup == 'A-'}">A-</option>
+                            <option value="B+" th:selected="${patient != null && patient.bloodgroup == 'B+'}">B+</option>
+                            <option value="B-" th:selected="${patient != null && patient.bloodgroup == 'B-'}">B-</option>
+                            <option value="AB+" th:selected="${patient != null && patient.bloodgroup == 'AB+'}">AB+</option>
+                            <option value="AB-" th:selected="${patient != null && patient.bloodgroup == 'AB-'}">AB-</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label>Height</label>
+                        <input type="number"
+                               name="height"
+                               min="50"
+                               max="250"
+                               th:value="${patient != null ? patient.height : ''}"
+                               placeholder="cm">
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label>Weight</label>
+                        <input type="number"
+                               name="weight"
+                               step="0.01"
+                               min="1"
+                               max="300"
+                               th:value="${patient != null ? patient.weight : ''}"
+                               placeholder="kg">
+                    </div>
+
+                    <div class="modal-form-group full">
+                        <label>Address</label>
+                        <input type="text"
+                               name="address"
+                               maxlength="200"
+                               th:value="${patient != null ? patient.address : ''}"
+                               placeholder="Enter address">
+                    </div>
+
+                    <div class="modal-form-group full">
+                        <label>Permanent Medical History</label>
+                        <textarea name="permanentMedicalHistory"
+                                  rows="3"
+                                  placeholder="Enter medical history"
+                                  th:text="${patient != null ? patient.permanentMedicalHistory : ''}"></textarea>
+                    </div>
+
+                    <div class="modal-form-group full">
+                        <label>Allergy Notes</label>
+                        <textarea name="allergyNotes"
+                                  rows="3"
+                                  placeholder="Enter allergy notes"
+                                  th:text="${patient != null ? patient.allergyNotes : ''}"></textarea>
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label>Supervisor Name</label>
+                        <input type="text"
+                               name="supervisorName"
+                               maxlength="90"
+                               th:value="${patient != null ? patient.supervisorName : ''}"
+                               placeholder="Enter supervisor name">
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label>Supervisor Phone</label>
+                        <input type="text"
+                               name="supervisorPhone"
+                               maxlength="15"
+                               th:value="${patient != null ? patient.supervisorPhone : ''}"
+                               placeholder="Enter supervisor phone">
+                    </div>
+                </div>
+            </div>
+
+            <div class="patient-modal-footer">
+                <button type="button" class="modal-cancel-btn" onclick="closePatientModal('profileModal')">
+                    Cancel
+                </button>
+
+                <button type="submit" class="modal-save-btn">
+                    Save Profile
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- UPDATE ROUTINE MODAL -->
+<div class="patient-modal-overlay" id="routineModal">
+    <div class="patient-modal">
+        <div class="patient-modal-header">
+            <h2>Update Daily Routine</h2>
+
+            <button type="button" class="modal-close-btn" onclick="closePatientModal('routineModal')">
+                ×
+            </button>
+        </div>
+
+        <form th:action="@{/patient/profile/routine/save}" method="post" id="routineForm" novalidate>
+            <div id="routineValidationMessage" class="client-validation-message"></div>
+            <div class="patient-modal-body">
+                <div class="modal-form-grid">
+                    <div class="modal-form-group">
+                        <label>Wake Up Time</label>
+                        <input type="time"
+                               name="wakeUpTime"
+                               th:value="${routine != null && routine.wakeUpTime != null ? routine.wakeUpTime : '06:00'}">
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label>Breakfast Time</label>
+                        <input type="time"
+                               name="breakfastTime"
+                               th:value="${routine != null && routine.breakfastTime != null ? routine.breakfastTime : '07:00'}">
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label>Lunch Time</label>
+                        <input type="time"
+                               name="lunchTime"
+                               th:value="${routine != null && routine.lunchTime != null ? routine.lunchTime : '12:00'}">
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label>Dinner Time</label>
+                        <input type="time"
+                               name="dinnerTime"
+                               th:value="${routine != null && routine.dinnerTime != null ? routine.dinnerTime : '18:00'}">
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label>Sleep Time</label>
+                        <input type="time"
+                               name="sleepTime"
+                               th:value="${routine != null && routine.sleepTime != null ? routine.sleepTime : '22:00'}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="patient-modal-footer">
+                <button type="button" class="modal-cancel-btn" onclick="closePatientModal('routineModal')">
+                    Cancel
+                </button>
+
+                <button type="submit" class="modal-save-btn">
+                    Save Routine
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script th:src="@{/js/patient/patient.js}"></script>
+</body>
+</html>

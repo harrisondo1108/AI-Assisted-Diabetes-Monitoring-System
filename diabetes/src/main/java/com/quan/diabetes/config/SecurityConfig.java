@@ -20,24 +20,30 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Tắt CSRF nếu bạn làm API hoặc tùy theo nhu cầu
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // 1. Cho phép TẤT CẢ mọi người truy cập vào các file giao diện (CSS, JS, Images)
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
-
-                        // 2. Cho phép vào các trang public như Đăng ký, Đăng nhập mà không cần tài khoản
                         .requestMatchers("/login", "/register", "/api/auth/**", "/logout", "/error").permitAll()
 
-                        // 3. Các đường dẫn admin thì bắt buộc phải có quyền ADMIN
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasRole("AD")
+                        .requestMatchers("/patient/**").hasRole("PAT")
+                        .requestMatchers("/doctor/**").hasRole("DO")
 
-                        // 4. Tất cả các request còn lại đều phải đăng nhập
+                        .requestMatchers("/api/admin/**").hasRole("AD")
+                        .requestMatchers("/api/patient/**").hasRole("PAT")
+                        .requestMatchers("/api/doctor/**").hasRole("DO")
+
                         .anyRequest().authenticated()
                 )
-                // KHÔNG dùng formLogin nữa
-                .formLogin(form -> form.disable())   // hoặc .formLogin().disable()
-                // Tùy chọn: tắt luôn httpBasic
-                .httpBasic(httpBasic -> httpBasic.disable());
+                .formLogin(form -> form.disable())
+                .httpBasic(httpBasic -> httpBasic.disable())
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login")
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .permitAll()
+                );
 
         return http.build();
     }

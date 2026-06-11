@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Medication Reminders | Diabetes Care System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/patient/patient.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+<div class="admin-layout">
+    <div th:replace="~{layout/patient-sidebar :: patientSidebar('notifications')}"></div>
+
+    <div class="admin-main">
+        <div th:replace="~{layout/patient-header :: patientHeader('Notifications')}"></div>
+
+        <main class="admin-content">
+            <div class="page-header dashboard-hero">
+                <div>
+                    <h1>
+                        <i class="fas fa-bell"></i>
+                        Medication Reminders
+                    </h1>
+                    <p class="subtitle">
+                        The system reminds you to take diabetes medication 15 minutes and 10 minutes before each scheduled dose.
+                    </p>
+                </div>
+
+                <div class="dashboard-actions">
+                    <a th:href="@{/patient/progress}" class="btn-primary-link">
+                        <i class="fas fa-notes-medical"></i>
+                        View Medical Progress
+                    </a>
+                </div>
+            </div>
+
+            <div class="dashboard-stats diabetes-stats">
+                <div class="stat-card diabetes-stat-card">
+                    <div class="stat-icon warning-icon">
+                        <i class="fas fa-pills"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h4>Today Medication Alerts</h4>
+                        <div class="stat-number" th:text="${medicationReminders != null ? medicationReminders.size() : 0}">
+                            0
+                        </div>
+                        <p>15-minute and 10-minute alerts</p>
+                    </div>
+                </div>
+
+                <div class="stat-card diabetes-stat-card">
+                    <div class="stat-icon danger-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h4>Due Now</h4>
+                        <div class="stat-number" th:text="${dueMedicationReminderCount}">
+                            0
+                        </div>
+                        <p>Reminders currently active</p>
+                    </div>
+                </div>
+
+                <div class="stat-card diabetes-stat-card">
+                    <div class="stat-icon success-icon">
+                        <i class="fas fa-calendar-day"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h4>Upcoming</h4>
+                        <div class="stat-number" th:text="${upcomingMedicationReminderCount}">
+                            0
+                        </div>
+                        <p>Remaining alerts today</p>
+                    </div>
+                </div>
+
+                <div class="stat-card diabetes-stat-card">
+                    <div class="stat-icon info-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h4>AI Notifications</h4>
+                        <div class="stat-number" th:text="${aiReminders != null ? aiReminders.size() : 0}">
+                            0
+                        </div>
+                        <p>Health notifications</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="notification-alert-box">
+                <div>
+                    <h3>
+                        <i class="fas fa-circle-info"></i>
+                        How medication reminders work
+                    </h3>
+                    <p>
+                        Reminder time is calculated from your daily routine and prescription timing.
+                        For example: After breakfast = breakfast time + 15 minutes.
+                        The system then reminds you 15 minutes and 10 minutes before that medication time.
+                    </p>
+                </div>
+
+                <button type="button" class="btn-primary-link notification-enable-btn" onclick="requestBrowserNotificationPermission()">
+                    <i class="fas fa-bell"></i>
+                    Enable Browser Alerts
+                </button>
+            </div>
+
+            <section class="insight-card">
+                <div class="card-header">
+                    <i class="fas fa-pills" style="color: var(--green-600);"></i>
+                    <h3>Today Medication Reminder Schedule</h3>
+                </div>
+
+                <div class="medication-reminder-list"
+                     th:if="${medicationReminders != null && !medicationReminders.isEmpty()}">
+                    <div class="medication-reminder-card"
+                         th:each="reminder : ${medicationReminders}"
+                         th:classappend="${reminder.dueNow} ? ' reminder-due-now' : (${reminder.past} ? ' reminder-past' : '')"
+                         th:attr="data-reminder-time=${#temporals.format(reminder.reminderTime, 'yyyy-MM-dd''T''HH:mm:ss')},
+                                  data-medication-time=${#temporals.format(reminder.medicationTime, 'yyyy-MM-dd''T''HH:mm:ss')},
+                                  data-title=${reminder.title},
+                                  data-message=${reminder.message}">
+
+                        <div class="reminder-time-box">
+                            <strong th:text="${#temporals.format(reminder.reminderTime, 'HH:mm')}">07:00</strong>
+                            <span th:text="${reminder.minutesBefore + ' minutes before'}">15 minutes before</span>
+                        </div>
+
+                        <div class="reminder-main-info">
+                            <div class="reminder-title-row">
+                                <h4 th:text="${reminder.medicationName}">Metformin</h4>
+
+                                <span class="badge badge-danger" th:if="${reminder.dueNow}">
+                                    Due now
+                                </span>
+
+                                <span class="badge badge-success" th:if="${!reminder.dueNow && !reminder.past}">
+                                    Upcoming
+                                </span>
+
+                                <span class="badge badge-info" th:if="${reminder.past}">
+                                    Passed
+                                </span>
+                            </div>
+
+                            <p>
+                                <strong>Dosage:</strong>
+                                <span th:text="${reminder.dosage}">500mg twice daily</span>
+                            </p>
+
+                            <p>
+                                <strong>Timing:</strong>
+                                <span th:text="${reminder.timingName}">After breakfast</span>
+                            </p>
+
+                            <p>
+                                <strong>Medication time:</strong>
+                                <span th:text="${#temporals.format(reminder.medicationTime, 'HH:mm')}">07:15</span>
+                            </p>
+
+                            <p th:if="${reminder.instruction != null && !#strings.isEmpty(reminder.instruction)}">
+                                <strong>Instruction:</strong>
+                                <span th:text="${reminder.instruction}">Take after meals.</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="empty-message" th:if="${medicationReminders == null || medicationReminders.isEmpty()}">
+                    No medication reminders found. Reminders will appear after the doctor creates a prescription and medication timing.
+                </div>
+            </section>
+
+            <section class="insight-card notification-ai-section">
+                <div class="card-header">
+                    <i class="fas fa-robot" style="color: var(--green-600);"></i>
+                    <h3>AI Health Notifications</h3>
+                </div>
+
+                <div class="summary-list" th:if="${aiReminders != null && !aiReminders.isEmpty()}">
+                    <div class="summary-item" th:each="reminder : ${aiReminders}">
+                        <div class="item-label">
+                            <i class="fas fa-bell"></i>
+                            <div>
+                                <strong th:text="${reminder.title}">Reminder title</strong>
+                                <p th:text="${reminder.message}">Reminder message</p>
+                            </div>
+                        </div>
+
+                        <div class="item-value">
+                            <span th:text="${reminder.scheduledTime != null ? #temporals.format(reminder.scheduledTime, 'dd/MM/yyyy HH:mm') : ''}">
+                                08/06/2026 18:00
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="empty-message" th:if="${aiReminders == null || aiReminders.isEmpty()}">
+                    No AI notifications found.
+                </div>
+            </section>
+        </main>
+
+        <div th:replace="~{layout/footer :: footer}"></div>
+    </div>
+</div>
+
+<script th:src="@{/js/patient/patient.js}"></script>
+
+<script>
+    function requestBrowserNotificationPermission() {
+        if (!("Notification" in window)) {
+            alert("This browser does not support desktop notifications.");
+            return;
+        }
+
+        Notification.requestPermission().then(function (permission) {
+            if (permission === "granted") {
+                alert("Browser medication alerts are enabled.");
+            } else {
+                alert("Notification permission was not granted.");
+            }
+        });
+    }
+
+    function showMedicationAlert(title, message) {
+        if ("Notification" in window && Notification.permission === "granted") {
+            new Notification(title, {
+                body: message
+            });
+        } else {
+            alert(title + "\\n" + message);
+        }
+    }
+
+    function scheduleMedicationReminders() {
+        const reminderCards = document.querySelectorAll(".medication-reminder-card");
+        const now = new Date();
+
+        reminderCards.forEach(function (card) {
+            const reminderTimeText = card.dataset.reminderTime;
+            const title = card.dataset.title || "Medication reminder";
+            const message = card.dataset.message || "It is time to prepare your medication.";
+
+            if (!reminderTimeText) {
+                return;
+            }
+
+            const reminderTime = new Date(reminderTimeText);
+            const delay = reminderTime.getTime() - now.getTime();
+
+            if (delay > 0 && delay <= 24 * 60 * 60 * 1000) {
+                setTimeout(function () {
+                    showMedicationAlert(title, message);
+                    card.classList.add("reminder-due-now");
+                }, delay);
+            }
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", scheduleMedicationReminders);
+</script>
+</body>
+</html>
