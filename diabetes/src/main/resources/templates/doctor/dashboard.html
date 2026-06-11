@@ -25,7 +25,7 @@
                         <div class="metric-card-inner">
                             <div class="metric-info">
                                 <span class="metric-label">Waiting Queue</span>
-                                <h3 class="metric-val" id="queueCount">4 Patients</h3>
+                                <h3 class="metric-val" id="queueCount" th:text="${queueCount + ' Patients'}">4 Patients</h3>
                                 <p class="metric-sub">Expected wait: ~30 mins</p>
                             </div>
                             <div class="metric-icon"><i class="fas fa-hospital-user"></i></div>
@@ -35,7 +35,7 @@
                         <div class="metric-card-inner">
                             <div class="metric-info">
                                 <span class="metric-label">Diagnosed Today</span>
-                                <h3 class="metric-val" id="completedCount">8 Cases</h3>
+                                <h3 class="metric-val" id="completedCount" th:text="${completedCount + ' Cases'}">8 Cases</h3>
                                 <p class="metric-sub">Target: 12 daily cases</p>
                             </div>
                             <div class="metric-icon"><i class="fas fa-square-check"></i></div>
@@ -89,7 +89,28 @@
                                     </tr>
                                 </thead>
                                 <tbody id="queueTableBody">
-                                    <!-- Dynamic rows from doctor-dashboard.js -->
+                                    <tr th:each="p : ${todayQueue}" th:data-status="${p.status}">
+                                        <td style="display: none;"><span class="patient-id" th:text="${p.patient.userId}">Patient ID</span></td>
+                                        <td><span class="patient-name" th:text="${p.patient.fullName}">Patient Name</span></td>
+                                        <td th:text="${(p.patient.dob != null ? (T(java.time.Period).between(p.patient.dob, T(java.time.LocalDate).now()).getYears()) + ' yrs' : '') + ' / ' + (p.patient.gender != null ? (p.patient.gender ? 'Female' : 'Male') : '')}">Age/Gender</td>
+                                        <td><span style="font-weight: 500;" th:text="${#temporals.format(p.examDate, 'hh:mm a')}">08:30 AM</span></td>
+                                        <td><span style="color: var(--doctor-text-muted);" th:text="${p.medicalHistory}">Reason</span></td>
+                                        <td>
+                                            <span th:if="${p.status == 'Pending'}" class="badge-status badge-pending"><i class="fa-regular fa-clock"></i> Pending</span>
+                                            <span th:if="${p.status == 'InProgress'}" class="badge-status badge-inprogress"><i class="fa-solid fa-spinner fa-spin"></i> In Progress</span>
+                                            <span th:if="${p.status == 'Completed'}" class="badge-status badge-completed"><i class="fa-solid fa-circle-check"></i> Completed</span>
+                                            <span th:if="${p.status == 'Cancelled'}" class="badge-status" style="background: rgba(220, 38, 38, 0.1); color: var(--doctor-danger); border: 1px solid rgba(220, 38, 38, 0.2);"><i class="fa-solid fa-ban"></i> Cancelled</span>
+                                        </td>
+                                        <td>
+                                            <form th:if="${p.status == 'Pending'}" th:action="@{/doctor/examine/{id}/start(id=${p.patient.userId})}" method="POST" style="display:inline;">
+                                                <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-stethoscope"></i> Start</button>
+                                            </form>
+                                            <form th:if="${p.status == 'InProgress'}" th:action="@{/doctor/examine/{id}/start(id=${p.patient.userId})}" method="POST" style="display:inline;">
+                                                <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-stethoscope"></i> Resume</button>
+                                            </form>
+                                            <button th:if="${p.status == 'Completed' || p.status == 'Cancelled'}" class="btn btn-secondary btn-sm" th:data-exam-id="${p.clinicalExamId}" onclick="viewCompletedExam(this.getAttribute('data-exam-id'))"><i class="fas fa-eye"></i> View</button>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -111,20 +132,21 @@
                 <h2 id="modalExamTitle">Consultation Details</h2>
                 <button type="button" class="modal-close" onclick="closeCompletedExam()"><i class="fas fa-times"></i></button>
             </div>
-            <div class="modal-body" style="max-height: 75vh; overflow-y: auto; display: flex; flex-direction: column; gap: 20px;">
+            <div class="modal-body" th:fragment="examDetail" id="completedExamModalBody" style="max-height: 75vh; overflow-y: auto; display: flex; flex-direction: column; gap: 20px;">
+                <input type="hidden" id="modalPatientId" th:if="${exam != null}" th:value="${exam.patient.userId}">
                 <!-- Basic Meta Info -->
                 <div class="history-specs-row" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
                     <div class="history-spec-col" style="background: var(--doctor-bg); padding: 12px; border-radius: 8px;">
                         <span class="lbl" style="font-size: 0.75rem; color: var(--doctor-text-muted); display: block;">Patient</span>
-                        <strong class="val" id="modalExamPatient" style="font-size: 0.95rem;"></strong>
+                        <strong class="val" id="modalExamPatient" style="font-size: 0.95rem;" th:text="${exam != null ? exam.patient.fullName + ' (' + (exam.patient.dob != null ? (T(java.time.Period).between(exam.patient.dob, T(java.time.LocalDate).now()).getYears() + ' yrs') : '') + ' / ' + (exam.patient.gender != null ? (exam.patient.gender ? 'Female' : 'Male') : '') + ')' : ''}"></strong>
                     </div>
                     <div class="history-spec-col" style="background: var(--doctor-bg); padding: 12px; border-radius: 8px;">
                         <span class="lbl" style="font-size: 0.75rem; color: var(--doctor-text-muted); display: block;">Date</span>
-                        <strong class="val" id="modalExamDate" style="font-size: 0.95rem;"></strong>
+                        <strong class="val" id="modalExamDate" style="font-size: 0.95rem;" th:text="${exam != null && exam.examDate != null ? #temporals.format(exam.examDate, 'MMM dd, yyyy') : ''}"></strong>
                     </div>
                     <div class="history-spec-col" style="background: var(--doctor-bg); padding: 12px; border-radius: 8px;">
                         <span class="lbl" style="font-size: 0.75rem; color: var(--doctor-text-muted); display: block;">Next Appt.</span>
-                        <strong class="val" id="modalExamNextAppt" style="font-size: 0.95rem;"></strong>
+                        <strong class="val" id="modalExamNextAppt" style="font-size: 0.95rem;" th:text="${exam != null && exam.nextAppointment != null ? #temporals.format(exam.nextAppointment, 'MMM dd, yyyy') : 'None scheduled'}"></strong>
                     </div>
                 </div>
 
@@ -132,42 +154,43 @@
                 <div style="background: var(--doctor-bg); border-radius: 8px; padding: 16px;">
                     <span class="lbl" style="font-size: 0.75rem; color: var(--doctor-text-muted); display: block; margin-bottom: 10px;"><i class="fas fa-stethoscope"></i> Symptoms & Clinical Notes</span>
                     <div id="modalExamSymptoms" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
-                        <!-- Symptoms badges will be injected here -->
+                        <span th:each="s : ${symptoms}" th:text="${s.symptom.symptomName}" style="background: #ffffff; border: 1px solid var(--doctor-border); padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; color: var(--doctor-text-main); font-weight: 600;"></span>
+                        <span th:if="${symptoms == null || symptoms.empty}">None</span>
                     </div>
                     <div style="padding-top: 10px; border-top: 1px dashed var(--doctor-border);">
-                        <span class="val" id="modalExamNotes" style="font-size: 0.85rem; line-height: 1.5; color: var(--doctor-text-main); font-style: italic;"></span>
+                        <span class="val" id="modalExamNotes" style="font-size: 0.85rem; line-height: 1.5; color: var(--doctor-text-main); font-style: italic;" th:text="${exam != null ? exam.medicalHistory : ''}"></span>
                     </div>
                 </div>
 
                 <!-- Diagnosis & Plan -->
                 <div style="background: var(--doctor-primary-light); border-radius: 8px; padding: 16px; border: 1px solid rgba(26, 107, 86, 0.2);">
                     <span class="lbl" style="font-size: 0.75rem; color: var(--green-900); font-weight: 600; display: block; margin-bottom: 6px;"><i class="fas fa-file-medical"></i> Final Diagnosis</span>
-                    <strong class="val" id="modalExamDiagnosis" style="font-size: 0.95rem; line-height: 1.5; color: var(--green-900);"></strong>
+                    <strong class="val" id="modalExamDiagnosis" style="font-size: 0.95rem; line-height: 1.5; color: var(--green-900);" th:text="${exam != null ? exam.diagnosisNote : ''}"></strong>
                 </div>
 
                 <!-- Treatment Plan Details -->
-                <div id="modalExamTreatmentPlanContainer" style="background: var(--doctor-bg); border-radius: 8px; padding: 16px; border: 1px solid var(--doctor-border); display: none;">
+                <div id="modalExamTreatmentPlanContainer" th:if="${exam != null && exam.treatmentPlan != null}" style="background: var(--doctor-bg); border-radius: 8px; padding: 16px; border: 1px solid var(--doctor-border);">
                     <span class="lbl" style="font-size: 0.8rem; font-weight: 700; color: var(--doctor-primary); display: block; margin-bottom: 10px;"><i class="fas fa-notes-medical"></i> Clinical Treatment Plan</span>
                     <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.85rem; line-height: 1.5;">
-                        <div id="modalPlanGoalRow" style="display: none;">
+                        <div id="modalPlanGoalRow" th:if="${exam.treatmentPlan.treatmentGoal != null && !exam.treatmentPlan.treatmentGoal.empty}">
                             <strong style="color: var(--doctor-text-main);">Goal: </strong>
-                            <span id="modalPlanGoalVal" style="color: var(--doctor-text-muted);"></span>
+                            <span id="modalPlanGoalVal" style="color: var(--doctor-text-muted);" th:text="${exam.treatmentPlan.treatmentGoal}"></span>
                         </div>
-                        <div id="modalPlanDietRow" style="display: none;">
+                        <div id="modalPlanDietRow" th:if="${exam.treatmentPlan.dietPlan != null && !exam.treatmentPlan.dietPlan.empty}">
                             <strong style="color: var(--doctor-text-main);">Dietary & Nutrition: </strong>
-                            <span id="modalPlanDietVal" style="color: var(--doctor-text-muted);"></span>
+                            <span id="modalPlanDietVal" style="color: var(--doctor-text-muted);" th:text="${exam.treatmentPlan.dietPlan}"></span>
                         </div>
-                        <div id="modalPlanExerciseRow" style="display: none;">
+                        <div id="modalPlanExerciseRow" th:if="${exam.treatmentPlan.exercisePlan != null && !exam.treatmentPlan.exercisePlan.empty}">
                             <strong style="color: var(--doctor-text-main);">Physical Exercise: </strong>
-                            <span id="modalPlanExerciseVal" style="color: var(--doctor-text-muted);"></span>
+                            <span id="modalPlanExerciseVal" style="color: var(--doctor-text-muted);" th:text="${exam.treatmentPlan.exercisePlan}"></span>
                         </div>
-                        <div id="modalPlanGlucoseRow" style="display: none;">
+                        <div id="modalPlanGlucoseRow" th:if="${exam.treatmentPlan.glucoseMonitoringPlan != null && !exam.treatmentPlan.glucoseMonitoringPlan.empty}">
                             <strong style="color: var(--doctor-text-main);">Self Glucose Monitoring: </strong>
-                            <span id="modalPlanGlucoseVal" style="color: var(--doctor-text-muted);"></span>
+                            <span id="modalPlanGlucoseVal" style="color: var(--doctor-text-muted);" th:text="${exam.treatmentPlan.glucoseMonitoringPlan}"></span>
                         </div>
-                        <div id="modalPlanMedicationRow" style="display: none;">
+                        <div id="modalPlanMedicationRow" th:if="${exam.treatmentPlan.medicationPlan != null && !exam.treatmentPlan.medicationPlan.empty}">
                             <strong style="color: var(--doctor-text-main);">Medication Instructions / Summary: </strong>
-                            <span id="modalPlanMedicationVal" style="color: var(--doctor-text-muted);"></span>
+                            <span id="modalPlanMedicationVal" style="color: var(--doctor-text-muted);" th:text="${exam.treatmentPlan.medicationPlan}"></span>
                         </div>
                     </div>
                 </div>
@@ -185,6 +208,16 @@
                                 </tr>
                             </thead>
                             <tbody id="modalExamLabsTableBody">
+                                <tr th:each="l : ${labResults}">
+                                    <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border);" th:text="${l.labTest.testName}"></td>
+                                    <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); font-weight: 600;">
+                                        <span th:text="${l.resultValue}"></span> <span style="font-size: 0.75rem; color: var(--doctor-text-muted); font-weight: normal;" th:text="${l.labTest.unit}"></span>
+                                    </td>
+                                    <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); font-weight: bold;" th:text="${l.flag}" th:styleappend="${l.flag == 'HIGH' ? 'color: var(--doctor-danger)' : 'color: var(--doctor-success)'}"></td>
+                                </tr>
+                                <tr th:if="${labResults == null || labResults.empty}">
+                                    <td colspan="3" style="text-align: center; color: var(--doctor-text-muted); padding: 10px;">No laboratory tests ordered in this session</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -203,6 +236,16 @@
                                 </tr>
                             </thead>
                             <tbody id="modalExamPrescriptionTableBody">
+                                <tr th:each="p : ${prescriptionDetails}">
+                                    <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); font-weight: 600;" th:text="${p.medication.medicationName + ' (' + p.medication.concentration + ')'}"></td>
+                                    <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border);" th:text="${p.dosage + ' (' + p.durationDays + ' days / ' + p.totalQuantity + ' pcs)'}"></td>
+                                    <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); font-style: italic; color: var(--doctor-primary);">
+                                        <span th:each="t, iter : ${p.prescriptionTimings}" th:text="${t.timing.timingName + (iter.last ? '' : ', ')}"></span>
+                                    </td>
+                                </tr>
+                                <tr th:if="${prescriptionDetails == null || prescriptionDetails.empty}">
+                                    <td colspan="3" style="text-align: center; color: var(--doctor-text-muted); padding: 10px;">No medications prescribed</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>

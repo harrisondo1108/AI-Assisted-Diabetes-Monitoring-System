@@ -26,26 +26,26 @@
                 <aside class="patient-medical-card">
                     <div class="patient-card-header">
                         <div class="patient-avatar-large"><i class="fas fa-hospital-user"></i></div>
-                        <h2 class="patient-name-title" id="patName">Nguyen Van A</h2>
-                        <span class="patient-id-badge" id="patId" style="display: none;">P012932</span>
+                        <h2 class="patient-name-title" id="patName" th:text="${patient.fullName}">Nguyen Van A</h2>
+                        <span class="patient-id-badge" id="patId" style="display: none;" th:text="${patient.userId}">P012932</span>
                     </div>
 
                     <div class="patient-specs-grid">
                         <div class="spec-item">
                             <span class="spec-label">Age</span>
-                            <span class="spec-val" id="patAge">45 yrs</span>
+                            <span class="spec-val" id="patAge" th:text="${patient.dob != null ? (T(java.time.Period).between(patient.dob, T(java.time.LocalDate).now()).getYears() + ' yrs') : 'N/A'}">45 yrs</span>
                         </div>
                         <div class="spec-item">
                             <span class="spec-label">Gender</span>
-                            <span class="spec-val" id="patGender">Male</span>
+                            <span class="spec-val" id="patGender" th:text="${patient.gender != null ? (patient.gender ? 'Female' : 'Male') : 'N/A'}">Male</span>
                         </div>
                         <div class="spec-item">
                             <span class="spec-label">Blood Group</span>
-                            <span class="spec-val" id="patBlood">O+</span>
+                            <span class="spec-val" id="patBlood" th:text="${patient.bloodgroup != null ? patient.bloodgroup : 'N/A'}">O+</span>
                         </div>
                         <div class="spec-item">
                             <span class="spec-label">BMI</span>
-                            <span class="spec-val" id="patBmi">24.2 (Normal)</span>
+                            <span class="spec-val" id="patBmi" th:with="h_m=${patient.height != null ? patient.height / 100.0 : 0.0}, bmi=${(patient.weight != null && h_m > 0) ? (patient.weight.doubleValue() / (h_m * h_m)) : 0.0}" th:text="${bmi > 0 ? #numbers.formatDecimal(bmi, 1, 1) + (bmi < 18.5 ? ' (Underweight)' : (bmi < 25.0 ? ' (Normal)' : (bmi < 30.0 ? ' (Overweight)' : ' (Obese)'))) : 'N/A'}">24.2 (Normal)</span>
                         </div>
                     </div>
 
@@ -53,10 +53,10 @@
                     <div class="medical-details-section">
                         <h4 class="section-title"><i class="fas fa-weight-scale"></i> Vital Metrics</h4>
                         <div class="detail-row">
-                            <span>Height:</span> <strong id="patHeight">172 cm</strong>
+                            <span>Height:</span> <strong id="patHeight" th:text="${patient.height != null ? patient.height + ' cm' : 'N/A'}">172 cm</strong>
                         </div>
                         <div class="detail-row">
-                            <span>Weight:</span> <strong id="patWeight">71.5 kg</strong>
+                            <span>Weight:</span> <strong id="patWeight" th:text="${patient.weight != null ? patient.weight + ' kg' : 'N/A'}">71.5 kg</strong>
                         </div>
                     </div>
 
@@ -64,30 +64,27 @@
                         <h4 class="section-title"><i class="fas fa-circle-exclamation"></i> Medical Warnings</h4>
                         <div class="alert-box alert-danger">
                             <strong>Allergies:</strong>
-                            <p id="patAllergy">No known drug allergies</p>
+                            <p id="patAllergy" th:text="${patient.allergyNotes != null && !patient.allergyNotes.empty ? patient.allergyNotes : 'No known drug allergies'}">No known drug allergies</p>
                         </div>
                         <div class="alert-box alert-info">
                             <strong>History:</strong>
-                            <p id="patHistory">Type 2 Diabetes diagnosed 3 years ago. Hypertension.</p>
+                            <p id="patHistory" th:text="${patient.permanentMedicalHistory != null && !patient.permanentMedicalHistory.empty ? patient.permanentMedicalHistory : 'No recorded medical history'}">Type 2 Diabetes diagnosed 3 years ago. Hypertension.</p>
                         </div>
                     </div>
 
                     <div class="medical-details-section">
                         <h4 class="section-title"><i class="fas fa-clock"></i> Daily Routine</h4>
                         <div class="routine-item">
-                            <i class="fas fa-mug-saucer"></i> <span>Breakfast:</span> <strong id="patBreakfast">07:30
-                                AM</strong>
+                            <i class="fas fa-mug-saucer"></i> <span>Breakfast:</span> <strong id="patBreakfast" th:text="${routine != null && routine.breakfastTime != null ? #temporals.format(routine.breakfastTime, 'hh:mm a') : '07:00 AM'}">07:30 AM</strong>
                         </div>
                         <div class="routine-item">
-                            <i class="fas fa-utensils"></i> <span>Lunch:</span> <strong id="patLunch">12:15 PM</strong>
+                            <i class="fas fa-utensils"></i> <span>Lunch:</span> <strong id="patLunch" th:text="${routine != null && routine.lunchTime != null ? #temporals.format(routine.lunchTime, 'hh:mm a') : '12:00 PM'}">12:15 PM</strong>
                         </div>
                         <div class="routine-item">
-                            <i class="fas fa-bowl-food"></i> <span>Dinner:</span> <strong id="patDinner">07:00
-                                PM</strong>
+                            <i class="fas fa-bowl-food"></i> <span>Dinner:</span> <strong id="patDinner" th:text="${routine != null && routine.dinnerTime != null ? #temporals.format(routine.dinnerTime, 'hh:mm a') : '06:00 PM'}">07:00 PM</strong>
                         </div>
                         <div class="routine-item">
-                            <i class="fas fa-bed"></i> <span>Sleep / Wake:</span> <strong id="patSleep">10:00 PM / 06:00
-                                AM</strong>
+                            <i class="fas fa-bed"></i> <span>Sleep / Wake:</span> <strong id="patSleep" th:text="${(routine != null && routine.sleepTime != null ? #temporals.format(routine.sleepTime, 'hh:mm a') : '10:00 PM') + ' / ' + (routine != null && routine.wakeUpTime != null ? #temporals.format(routine.wakeUpTime, 'hh:mm a') : '06:00 AM')}">10:00 PM / 06:00 AM</strong>
                         </div>
                     </div>
 
@@ -98,7 +95,8 @@
                 </aside>
 
                 <!-- Right/Main Workspace Container -->
-                <section class="examination-workspace">
+                <form th:action="@{/doctor/examine/{id}/submit(id=${patient.userId})}" method="POST" id="examineForm" th:object="${examForm}" class="examination-workspace">
+                    <input type="hidden" id="prescriptionJson" name="prescriptionJson" value="">
                     <div class="workspace-header">
                         <!-- Diagnostic Session Status -->
                         <div class="session-info" style="display: none;">
@@ -114,12 +112,11 @@
                     </div>
 
                     <!-- Examination Start Overlay -->
-                    <div id="examStartOverlay" class="exam-start-overlay" style="display: none;">
+                    <div id="examStartOverlay" class="exam-start-overlay" th:style="${activeExam != null && activeExam.status == 'Pending' ? 'display: flex;' : 'display: none;'}">
                         <i class="fas fa-stethoscope"></i>
                         <h3>Begin Clinical Consultation</h3>
-                        <p>You are about to start the examination for <strong id="overlayPatName">this patient</strong></p>
-                        <button type="button" class="btn btn-primary" onclick="startExamination()"
-                            style="font-size: 1.1rem; padding: 12px 24px;">
+                        <p>You are about to start the examination for <strong th:text="${patient.fullName}">this patient</strong></p>
+                        <button type="submit" form="startExamForm" class="btn btn-primary" style="font-size: 1.1rem; padding: 12px 24px;">
                             <i class="fas fa-play"></i> Start Examination
                         </button>
                     </div>
@@ -142,17 +139,17 @@
                             <div class="form-grid-columns-2">
                                 <div class="form-group full-width">
                                     <label>Current Medical Complaints & History</label>
-                                    <textarea id="examHistory" rows="3"
+                                    <textarea id="examHistory" name="medicalHistory" rows="3"
                                         placeholder="Enter patient's description of symptoms, duration, and context..."></textarea>
                                 </div>
                                 <div class="form-group full-width">
                                     <label>Clinical Diagnosis Note</label>
-                                    <textarea id="examDiagnosis" rows="3"
+                                    <textarea id="examDiagnosis" name="diagnosisNote" rows="3"
                                         placeholder="Enter clinical diagnosis and notes..."></textarea>
                                 </div>
                                 <div class="form-group">
                                     <label>Next Appointment Date</label>
-                                    <input type="date" id="examNextDate">
+                                    <input type="date" id="examNextDate" name="nextAppointment">
                                 </div>
                             </div>
                         </div>
@@ -227,27 +224,27 @@
                             <div class="form-grid-columns-2">
                                 <div class="form-group full-width">
                                     <label>Treatment Goal</label>
-                                    <input type="text" id="planGoal"
+                                    <input type="text" id="planGoal" name="treatmentGoal"
                                         placeholder="e.g. Reduce Fasting Blood Glucose to < 5.6 mmol/L and HbA1c to < 6.5%">
                                 </div>
                                 <div class="form-group">
                                     <label>Dietary & Nutrition Plan</label>
-                                    <textarea id="planDiet" rows="3"
+                                    <textarea id="planDiet" name="dietPlan" rows="3"
                                         placeholder="e.g. Limit sugar intake, carbohydrate restriction, eat more high-fiber foods..."></textarea>
                                 </div>
                                 <div class="form-group">
                                     <label>Physical Exercise Plan</label>
-                                    <textarea id="planExercise" rows="3"
+                                    <textarea id="planExercise" name="exercisePlan" rows="3"
                                         placeholder="e.g. Walk or jog for 30 minutes daily, 5 times a week..."></textarea>
                                 </div>
                                 <div class="form-group">
                                     <label>Self Glucose Monitoring Plan</label>
-                                    <textarea id="planGlucose" rows="3"
+                                    <textarea id="planGlucose" name="glucoseMonitoringPlan" rows="3"
                                         placeholder="e.g. Measure fasting blood glucose daily in the morning, and 2 hours after lunch..."></textarea>
                                 </div>
                                 <div class="form-group">
                                     <label>Medication Instructions / Plan Summary</label>
-                                    <textarea id="planMedication" rows="3"
+                                    <textarea id="planMedication" name="medicationPlan" rows="3"
                                         placeholder="e.g. Take Metformin after meals, inject long-acting insulin before bedtime..."></textarea>
                                 </div>
                             </div>
@@ -277,7 +274,9 @@
                         </div>
                     </div>
 
-                </section>
+                </form>
+                <!-- Hidden Start Examination Form to avoid nested form tags -->
+                <form th:action="@{/doctor/examine/{id}/start(id=${patient.userId})}" method="POST" id="startExamForm" style="display: none;"></form>
             </main>
         </div>
     </div>
@@ -338,37 +337,39 @@
     <!-- CANCEL CONFIRMATION MODAL -->
     <div class="modal-overlay" id="cancelConfirmModal">
         <div class="modal" style="max-width: 420px; padding: 20px; border-radius: 12px;">
-            <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
-                <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--doctor-text-main);">Cancel Examination
-                </h3>
-                <button type="button" class="close-btn" onclick="closeCancelModal()" style="font-size: 1.2rem;"><i
-                        class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body" style="text-align: center; padding: 15px 10px 10px 10px;">
-                <i class="fas fa-exclamation-triangle"
-                    style="font-size: 2.8rem; color: var(--doctor-danger); margin-bottom: 15px;"></i>
-                <p
-                    style="font-size: 1.05rem; font-weight: 600; color: var(--doctor-text-main); margin-bottom: 8px; line-height: 1.4;">
-                    Are you sure you want to cancel?</p>
-                <p style="font-size: 0.85rem; color: var(--doctor-text-muted); margin-bottom: 15px; line-height: 1.4;">
-                    All unsaved progress will be permanently lost</p>
-                <div style="margin-top: 12px; text-align: left;">
-                    <label
-                        style="font-weight: 600; font-size: 0.8rem; color: var(--doctor-text-main); display: block; margin-bottom: 5px;">Reason
-                        <span class="required" style="color: var(--doctor-danger);">*</span></label>
-                    <textarea id="cancelReason" rows="2" placeholder="Please specify the reason..."
-                        style="width: 100%; border: 1px solid var(--doctor-border); border-radius: 6px; padding: 8px 10px; font-size: 0.8rem; outline: none; resize: none; box-sizing: border-box; font-family: inherit; line-height: 1.4; transition: border-color 0.2s;"
-                        onfocus="this.style.borderColor='var(--doctor-primary)'"
-                        onblur="this.style.borderColor='var(--doctor-border)'"></textarea>
+            <form th:action="@{/doctor/examine/{id}/cancel(id=${patient.userId})}" method="POST" id="cancelForm">
+                <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
+                    <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--doctor-text-main);">Cancel Examination
+                    </h3>
+                    <button type="button" class="close-btn" onclick="closeCancelModal()" style="font-size: 1.2rem;"><i
+                            class="fas fa-times"></i></button>
                 </div>
-            </div>
-            <div class="modal-footer" style="justify-content: center; gap: 12px; padding-top: 10px; border-top: none;">
-                <button type="button" class="btn btn-secondary" onclick="closeCancelModal()"
-                    style="font-size: 0.9rem; padding: 8px 18px; border-radius: 6px;">No</button>
-                <button type="button" class="btn" onclick="confirmCancelExam()"
-                    style="background: var(--doctor-danger); color: white; font-size: 0.9rem; padding: 8px 18px; border-radius: 6px; font-weight: 600; border: none; cursor: pointer; transition: opacity 0.2s;"
-                    onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">Yes</button>
-            </div>
+                <div class="modal-body" style="text-align: center; padding: 15px 10px 10px 10px;">
+                    <i class="fas fa-exclamation-triangle"
+                        style="font-size: 2.8rem; color: var(--doctor-danger); margin-bottom: 15px;"></i>
+                    <p
+                        style="font-size: 1.05rem; font-weight: 600; color: var(--doctor-text-main); margin-bottom: 8px; line-height: 1.4;">
+                        Are you sure you want to cancel?</p>
+                    <p style="font-size: 0.85rem; color: var(--doctor-text-muted); margin-bottom: 15px; line-height: 1.4;">
+                        All unsaved progress will be permanently lost</p>
+                    <div style="margin-top: 12px; text-align: left;">
+                        <label
+                            style="font-weight: 600; font-size: 0.8rem; color: var(--doctor-text-main); display: block; margin-bottom: 5px;">Reason
+                            <span class="required" style="color: var(--doctor-danger);">*</span></label>
+                        <textarea id="cancelReason" name="reason" rows="2" placeholder="Please specify the reason..." required
+                            style="width: 100%; border: 1px solid var(--doctor-border); border-radius: 6px; padding: 8px 10px; font-size: 0.8rem; outline: none; resize: none; box-sizing: border-box; font-family: inherit; line-height: 1.4; transition: border-color 0.2s;"
+                            onfocus="this.style.borderColor='var(--doctor-primary)'"
+                            onblur="this.style.borderColor='var(--doctor-border)'"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer" style="justify-content: center; gap: 12px; padding-top: 10px; border-top: none;">
+                    <button type="button" class="btn btn-secondary" onclick="closeCancelModal()"
+                        style="font-size: 0.9rem; padding: 8px 18px; border-radius: 6px;">No</button>
+                    <button type="submit" class="btn"
+                        style="background: var(--doctor-danger); color: white; font-size: 0.9rem; padding: 8px 18px; border-radius: 6px; font-weight: 600; border: none; cursor: pointer; transition: opacity 0.2s;"
+                        onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">Yes</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -430,6 +431,22 @@
 
 
     <!-- Script assets -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const thPatient = /*[[${patient}]]*/ null;
+        const thRoutine = /*[[${routine}]]*/ null;
+        const thActiveExam = /*[[${activeExam}]]*/ null;
+        const thViewOnly = /*[[${viewOnly}]]*/ false;
+        const thLastExam = /*[[${lastExam}]]*/ null;
+        const thChosenSymptomIds = /*[[${chosenSymptomIds}]]*/ [];
+        const thLastExamLabResults = /*[[${lastExamLabResults}]]*/ [];
+        const thLastExamPrescriptionDetails = /*[[${lastExamPrescriptionDetails}]]*/ [];
+
+        const rawSymptomsCatalog = /*[[${symptomsCatalog}]]*/ [];
+        const rawLabTestsCatalog = /*[[${labTestsCatalog}]]*/ [];
+        const rawMedicationsCatalog = /*[[${medications}]]*/ [];
+        /*]]>*/
+    </script>
     <script th:src="@{/js/doctor/examine.js}"></script>
 </body>
 

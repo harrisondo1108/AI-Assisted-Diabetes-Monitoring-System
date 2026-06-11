@@ -5,5 +5,6 @@ import com.quan.diabetes.entity.ExamSymptom;
 import com.quan.diabetes.entity.ExamSymptomId;
 
 public interface ExamSymptomRepository extends JpaRepository<ExamSymptom, ExamSymptomId> {
+    void deleteById_ClinicalExamId(String clinicalExamId);
 }
 

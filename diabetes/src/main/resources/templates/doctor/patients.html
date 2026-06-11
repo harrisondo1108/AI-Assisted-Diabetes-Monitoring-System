@@ -27,8 +27,8 @@
                             <div class="profile-header-meta">
                                 <div class="profile-avatar"><i class="fas fa-hospital-user"></i></div>
                                 <div>
-                                    <h2 class="profile-name" id="detName">Nguyen Van A</h2>
-                                    <span class="profile-id" id="detId" style="display: none;">P012932</span>
+                                    <h2 class="profile-name" id="detName" th:text="${patient.fullName}">Nguyen Van A</h2>
+                                    <span class="profile-id" id="detId" style="display: none;" th:text="${patient.userId}">P012932</span>
                                 </div>
                             </div>
                             <div class="profile-header-actions">
@@ -42,19 +42,19 @@
                         <div class="history-specs-row">
                             <div class="history-spec-col">
                                 <span class="lbl">Age / Gender</span>
-                                <strong class="val" id="detAgeGender">45 yrs / Male</strong>
+                                <strong class="val" id="detAgeGender" th:text="${(patient.dob != null ? (T(java.time.Period).between(patient.dob, T(java.time.LocalDate).now()).getYears() + ' yrs') : 'N/A') + ' / ' + (patient.gender != null ? (patient.gender ? 'Female' : 'Male') : 'N/A')}">45 yrs / Male</strong>
                             </div>
                             <div class="history-spec-col">
                                 <span class="lbl">Blood Group</span>
-                                <strong class="val" id="detBlood">O+</strong>
+                                <strong class="val" id="detBlood" th:text="${patient.bloodgroup != null ? patient.bloodgroup : 'N/A'}">O+</strong>
                             </div>
                             <div class="history-spec-col">
                                 <span class="lbl">Supervisor</span>
-                                <strong class="val" id="detSupervisor">Nguyen Van B</strong>
+                                <strong class="val" id="detSupervisor" th:text="${patient.supervisorName != null && !patient.supervisorName.empty ? patient.supervisorName : 'None'}">Nguyen Van B</strong>
                             </div>
                             <div class="history-spec-col">
                                 <span class="lbl">Supervisor Phone</span>
-                                <strong class="val" id="detSupervisorPhone">0912345678</strong>
+                                <strong class="val" id="detSupervisorPhone" th:text="${patient.supervisorPhone != null && !patient.supervisorPhone.empty ? patient.supervisorPhone : 'None'}">0912345678</strong>
                             </div>
                         </div>
 
@@ -81,7 +81,24 @@
                                 </div>
                             </div>
                             <div class="timeline-trail" id="consultationTimeline">
-                                <!-- Timelines items loaded dynamically via JS -->
+                                <div th:each="t, iterStat : ${timeline}" class="timeline-item" th:classappend="${iterStat.first} ? 'active' : ''" th:data-date="${t.examDate != null ? #temporals.format(t.examDate, 'MMMM yyyy') : ''}">
+                                    <div class="timeline-node"></div>
+                                    <div class="timeline-content-card">
+                                        <div class="timeline-header-meta" style="margin-bottom: 6px;">
+                                            <span class="timeline-date" th:text="${t.examDate != null ? #temporals.format(t.examDate, 'MMM dd, yyyy') : ''}">May 12, 2026</span>
+                                            <span class="timeline-doc" th:text="${'Examiner: ' + (t.doctor.profile != null ? t.doctor.profile.fullName : t.doctor.userId)}">Examiner: Dr. Harrison</span>
+                                        </div>
+                                        <div class="timeline-diagnosis" style="margin-bottom: 12px; font-size: 0.85rem;">
+                                            <strong>Diagnosis:</strong> <span th:text="${t.diagnosisNote}">Diagnosis note</span>
+                                        </div>
+                                        <button type="button" class="btn btn-secondary btn-sm" th:data-exam-id="${t.clinicalExamId}" onclick="openTimelineDetail(this.getAttribute('data-exam-id'))" style="font-size: 0.7rem; gap: 4px; padding: 4px 8px;">
+                                            <i class="fas fa-eye"></i> View Detail
+                                        </button>
+                                    </div>
+                                </div>
+                                <div th:if="${timeline == null || timeline.empty}" style="color: var(--doctor-text-muted); font-size: 0.85rem; padding: 20px 0; text-align: center;">
+                                    No consultation history found.
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -97,53 +114,53 @@
                 <h2 id="modalTitle">Consultation Details</h2>
                 <button type="button" class="modal-close" onclick="closeTimelineDetail()"><i class="fas fa-times"></i></button>
             </div>
-            <div class="modal-body" style="max-height: 75vh; overflow-y: auto; display: flex; flex-direction: column; gap: 20px;">
+            <div class="modal-body" th:fragment="timelineDetail" id="timelineDetailModalBody" style="max-height: 75vh; overflow-y: auto; display: flex; flex-direction: column; gap: 20px;">
                 <!-- Basic Meta Info -->
                 <div class="history-specs-row" style="grid-template-columns: repeat(2, 1fr);">
                     <div class="history-spec-col">
                         <span class="lbl">Date of Visit</span>
-                        <strong class="val" id="modalDate">May 12, 2026</strong>
+                        <strong class="val" id="modalDate" th:text="${exam != null && exam.examDate != null ? #temporals.format(exam.examDate, 'MMM dd, yyyy') : ''}">May 12, 2026</strong>
                     </div>
                     <div class="history-spec-col">
                         <span class="lbl">Examiner Doctor</span>
-                        <strong class="val" id="modalDoctor">Dr. Harrison</strong>
+                        <strong class="val" id="modalDoctor" th:text="${exam != null && exam.doctor.profile != null ? exam.doctor.profile.fullName : (exam != null ? exam.doctor.userId : '')}">Dr. Harrison</strong>
                     </div>
                 </div>
 
                 <!-- Diagnosis & Notes -->
                 <div class="history-spec-col" style="gap: 8px; padding: 16px;">
                     <span class="lbl" style="font-size: 0.75rem;">Diagnosis</span>
-                    <strong class="val" id="modalDiagnosis" style="font-size: 0.9rem; line-height: 1.4;">Type 2 Diabetes mellitus under control.</strong>
+                    <strong class="val" id="modalDiagnosis" style="font-size: 0.9rem; line-height: 1.4;" th:text="${exam != null ? exam.diagnosisNote : ''}">Type 2 Diabetes mellitus under control.</strong>
                 </div>
 
                 <div class="history-spec-col" style="gap: 8px; padding: 16px;">
                     <span class="lbl" style="font-size: 0.75rem;">Clinical Notes</span>
-                    <p id="modalNotes" style="font-size: 0.82rem; color: var(--doctor-text-main); line-height: 1.5; margin: 0;"></p>
+                    <p id="modalNotes" style="font-size: 0.82rem; color: var(--doctor-text-main); line-height: 1.5; margin: 0;" th:text="${exam != null ? exam.medicalHistory : ''}"></p>
                 </div>
 
                 <!-- Clinical Treatment Plan -->
-                <div id="modalTreatmentPlanContainer" class="history-spec-col" style="gap: 8px; padding: 16px; display: none;">
+                <div id="modalTreatmentPlanContainer" class="history-spec-col" th:if="${exam != null && exam.treatmentPlan != null}" style="gap: 8px; padding: 16px; display: flex;">
                     <span class="lbl" style="font-size: 0.75rem;">Clinical Treatment Plan</span>
                     <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.82rem; line-height: 1.5;">
-                        <div id="modalPlanGoalRow" style="display: none;">
+                        <div id="modalPlanGoalRow" th:if="${exam.treatmentPlan.treatmentGoal != null && !exam.treatmentPlan.treatmentGoal.empty}">
                             <strong style="color: var(--doctor-text-main);">Goal: </strong>
-                            <span id="modalPlanGoalVal" style="color: var(--doctor-text-muted);"></span>
+                            <span id="modalPlanGoalVal" style="color: var(--doctor-text-muted);" th:text="${exam.treatmentPlan.treatmentGoal}"></span>
                         </div>
-                        <div id="modalPlanDietRow" style="display: none;">
+                        <div id="modalPlanDietRow" th:if="${exam.treatmentPlan.dietPlan != null && !exam.treatmentPlan.dietPlan.empty}">
                             <strong style="color: var(--doctor-text-main);">Dietary & Nutrition: </strong>
-                            <span id="modalPlanDietVal" style="color: var(--doctor-text-muted);"></span>
+                            <span id="modalPlanDietVal" style="color: var(--doctor-text-muted);" th:text="${exam.treatmentPlan.dietPlan}"></span>
                         </div>
-                        <div id="modalPlanExerciseRow" style="display: none;">
+                        <div id="modalPlanExerciseRow" th:if="${exam.treatmentPlan.exercisePlan != null && !exam.treatmentPlan.exercisePlan.empty}">
                             <strong style="color: var(--doctor-text-main);">Physical Exercise: </strong>
-                            <span id="modalPlanExerciseVal" style="color: var(--doctor-text-muted);"></span>
+                            <span id="modalPlanExerciseVal" style="color: var(--doctor-text-muted);" th:text="${exam.treatmentPlan.exercisePlan}"></span>
                         </div>
-                        <div id="modalPlanGlucoseRow" style="display: none;">
+                        <div id="modalPlanGlucoseRow" th:if="${exam.treatmentPlan.glucoseMonitoringPlan != null && !exam.treatmentPlan.glucoseMonitoringPlan.empty}">
                             <strong style="color: var(--doctor-text-main);">Self Glucose Monitoring: </strong>
-                            <span id="modalPlanGlucoseVal" style="color: var(--doctor-text-muted);"></span>
+                            <span id="modalPlanGlucoseVal" style="color: var(--doctor-text-muted);" th:text="${exam.treatmentPlan.glucoseMonitoringPlan}"></span>
                         </div>
-                        <div id="modalPlanMedicationRow" style="display: none;">
+                        <div id="modalPlanMedicationRow" th:if="${exam.treatmentPlan.medicationPlan != null && !exam.treatmentPlan.medicationPlan.empty}">
                             <strong style="color: var(--doctor-text-main);">Medication Instructions / Summary: </strong>
-                            <span id="modalPlanMedicationVal" style="color: var(--doctor-text-muted);"></span>
+                            <span id="modalPlanMedicationVal" style="color: var(--doctor-text-muted);" th:text="${exam.treatmentPlan.medicationPlan}"></span>
                         </div>
                     </div>
                 </div>
@@ -152,7 +169,8 @@
                 <div class="history-spec-col" style="gap: 8px; padding: 16px;">
                     <span class="lbl" style="font-size: 0.75rem;">Symptoms Checked</span>
                     <div class="timeline-badges-wrap" id="modalSymptoms" style="margin-bottom: 0; margin-top: 4px;">
-                        <!-- dynamic badges -->
+                        <span th:each="s : ${symptoms}" class="timeline-symptom-badge" th:text="${s.symptom.symptomName}"></span>
+                        <span th:if="${symptoms == null || symptoms.empty}" style="font-size: 0.8rem; color: var(--doctor-text-muted);">No symptoms logged</span>
                     </div>
                 </div>
 
@@ -170,7 +188,17 @@
                                 </tr>
                             </thead>
                             <tbody id="modalLabsTableBody">
-                                <!-- Dynamic rows -->
+                                <tr th:each="l : ${labResults}">
+                                    <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border);" th:text="${l.labTest.testName}"></td>
+                                    <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); font-weight: 600;">
+                                        <span th:text="${l.resultValue}"></span> <span style="font-size: 0.75rem; color: var(--doctor-text-muted); font-weight: normal;" th:text="${l.labTest.unit}"></span>
+                                    </td>
+                                    <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); color: var(--doctor-text-muted);" th:text="${l.referenceRange}"></td>
+                                    <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); font-weight: bold;" th:text="${l.flag}" th:styleappend="${l.flag == 'HIGH' ? 'color: var(--doctor-danger)' : 'color: var(--doctor-success)'}"></td>
+                                </tr>
+                                <tr th:if="${labResults == null || labResults.empty}">
+                                    <td colspan="4" style="text-align: center; padding: 15px; color: var(--doctor-text-muted); font-size: 0.8rem;">No laboratory tests ordered in this session</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -190,7 +218,17 @@
                                 </tr>
                             </thead>
                             <tbody id="modalPrescriptionTableBody">
-                                <!-- Dynamic rows -->
+                                <tr th:each="p : ${prescriptionDetails}">
+                                    <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); font-weight: 600;" th:text="${p.medication.medicationName + ' (' + p.medication.concentration + ')'}"></td>
+                                    <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border);" th:text="${p.dosage}"></td>
+                                    <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border); font-style: italic; color: var(--doctor-primary); font-weight: 500;">
+                                        <span th:each="t, iter : ${p.prescriptionTimings}" th:text="${t.timing.timingName + (iter.last ? '' : ', ')}"></span>
+                                    </td>
+                                    <td style="padding: 10px 12px; border-bottom: 1px solid var(--doctor-border);" th:text="${p.durationDays + ' days / ' + p.totalQuantity + ' pcs'}"></td>
+                                </tr>
+                                <tr th:if="${prescriptionDetails == null || prescriptionDetails.empty}">
+                                    <td colspan="4" style="text-align: center; padding: 15px; color: var(--doctor-text-muted); font-size: 0.8rem;">No medications prescribed in this session</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -203,6 +241,11 @@
     </div>
 
     <!-- Script assets -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const glucoseTrend = /*[[${glucoseTrend}]]*/ [];
+        /*]]>*/
+    </script>
     <script th:src="@{/js/doctor/patients.js}"></script>
 </body>
 </html>

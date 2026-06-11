@@ -17,4 +17,14 @@ public interface ClinicalExaminationService {
     public void deleteById(String id);
 
     public boolean existsById(String id);
+
+    List<ClinicalExamination> findByDoctorId(String doctorId);
+
+    List<ClinicalExamination> findByPatientId(String patientId);
+
+    void submitExamination(String patientId, com.quan.diabetes.dto.ClinicalExamForm form, String doctorId);
+
+    void cancelExamination(String patientId, String reason, String doctorId);
+
+    void startExamination(String patientId, String doctorId);
 }
