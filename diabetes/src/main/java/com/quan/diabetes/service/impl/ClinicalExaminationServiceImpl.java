@@ -186,6 +186,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
 
         // 2. Lưu Triệu chứng (Clear cũ trước)
         examSymptomRepository.deleteById_ClinicalExamId(examId);
+        examSymptomRepository.flush();
         if (form.getSymptomIds() != null) {
             for (String symId : form.getSymptomIds()) {
                 SymptomsCatalog symptom = symptomsCatalogRepository.findById(symId).orElse(null);
@@ -199,19 +200,22 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
             }
         }
 
-        // 3. Lưu Kế hoạch điều trị (Clear cũ trước)
-        treatmentPlanRepository.findByClinicalExamination_ClinicalExamId(examId)
-                .ifPresent(treatmentPlanRepository::delete);
+        final ClinicalExamination finalExam = exam;
+        // 3. Lưu Kế hoạch điều trị (Cập nhật nếu đã có, hoặc tạo mới nếu chưa để tránh lỗi UNIQUE KEY constraint)
+        TreatmentPlan plan = treatmentPlanRepository.findByClinicalExamination_ClinicalExamId(examId)
+                .orElseGet(() -> {
+                    TreatmentPlan newPlan = new TreatmentPlan();
+                    newPlan.setPlanId("PLN-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000));
+                    newPlan.setClinicalExamination(finalExam);
+                    newPlan.setCreatedAt(LocalDateTime.now());
+                    return newPlan;
+                });
 
-        TreatmentPlan plan = new TreatmentPlan();
-        plan.setPlanId("PLN-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000));
-        plan.setClinicalExamination(exam);
         plan.setTreatmentGoal(form.getTreatmentGoal());
         plan.setDietPlan(form.getDietPlan());
         plan.setExercisePlan(form.getExercisePlan());
         plan.setGlucoseMonitoringPlan(form.getGlucoseMonitoringPlan());
-        plan.setMedicationPlan(form.getMedicationPlan());
-        plan.setCreatedAt(LocalDateTime.now());
+        plan.setMedicationPlan("N/A");
         treatmentPlanRepository.save(plan);
 
         // 4. Lưu Chỉ định & Kết quả xét nghiệm (Clear cũ trước)

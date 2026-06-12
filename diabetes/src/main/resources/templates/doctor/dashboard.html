@@ -45,7 +45,7 @@
                         <div class="metric-card-inner">
                             <div class="metric-info">
                                 <span class="metric-label">Abnormal Glucose Alerts</span>
-                                <h3 class="metric-val text-alert" id="alertCount">2 Alerts</h3>
+                                <h3 class="metric-val text-alert" id="alertCount" th:text="${alertCount + ' Alerts'}">2 Alerts</h3>
                                 <p class="metric-sub">Require urgent reviews</p>
                             </div>
                             <div class="metric-icon"><i class="fas fa-triangle-exclamation"></i></div>
@@ -102,12 +102,9 @@
                                             <span th:if="${p.status == 'Cancelled'}" class="badge-status" style="background: rgba(220, 38, 38, 0.1); color: var(--doctor-danger); border: 1px solid rgba(220, 38, 38, 0.2);"><i class="fa-solid fa-ban"></i> Cancelled</span>
                                         </td>
                                         <td>
-                                            <form th:if="${p.status == 'Pending'}" th:action="@{/doctor/examine/{id}/start(id=${p.patient.userId})}" method="POST" style="display:inline;">
-                                                <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-stethoscope"></i> Start</button>
-                                            </form>
-                                            <form th:if="${p.status == 'InProgress'}" th:action="@{/doctor/examine/{id}/start(id=${p.patient.userId})}" method="POST" style="display:inline;">
-                                                <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-stethoscope"></i> Resume</button>
-                                            </form>
+                                            <a th:if="${p.status == 'Pending' || p.status == 'InProgress'}" th:href="@{/doctor/examine(patientId=${p.patient.userId})}" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-stethoscope"></i> <span th:text="${p.status == 'Pending' ? 'Start' : 'Resume'}">Start</span>
+                                            </a>
                                             <button th:if="${p.status == 'Completed' || p.status == 'Cancelled'}" class="btn btn-secondary btn-sm" th:data-exam-id="${p.clinicalExamId}" onclick="viewCompletedExam(this.getAttribute('data-exam-id'))"><i class="fas fa-eye"></i> View</button>
                                         </td>
                                     </tr>

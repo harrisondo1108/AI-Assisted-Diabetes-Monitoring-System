@@ -27,13 +27,13 @@
             <i class="far fa-calendar-alt"></i> Loading Date...
         </span>
 
-        <div class="doctor-profile-block">
+        <a th:href="@{/doctor/profile}" class="doctor-profile-block" title="Edit Profile" style="text-decoration: none; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
             <div class="doctor-avatar-circle"><i class="fas fa-user-md"></i></div>
             <div class="doctor-info-text">
                 <span class="doctor-name-lbl" th:text="${session.userProfile != null ? session.userProfile.fullName : 'Dr. Harrison'}">Dr. Harrison</span>
                 <span class="doctor-spec-lbl" th:text="${session.userProfile != null ? session.userProfile.specialty : 'Endocrinologist'}">Endocrinologist</span>
             </div>
-        </div>
+        </a>
         <a th:href="@{/login}" class="logout-link-btn" title="Logout Session">
             <i class="fas fa-sign-out-alt"></i>
         </a>

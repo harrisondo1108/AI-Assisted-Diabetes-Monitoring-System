@@ -60,14 +60,19 @@
 
                         <!-- Historical Blood Sugar Trend Chart -->
                         <div class="history-section-card">
-                            <h3 class="section-title-label"><i class="fas fa-chart-line"></i> Fasting Blood Glucose Trend (6 Months)</h3>
-                            <div class="chart-wrapper">
+                            <h3 class="section-title-label"><i class="fas fa-chart-line"></i> Fasting Blood Glucose Trend</h3>
+                            <div class="chart-wrapper" id="chartWrapper">
                                 <!-- Canvas used to draw blood sugar trend graph dynamically without external dependencies -->
                                 <canvas id="glucoseTrendChart" width="800" height="220"></canvas>
                             </div>
-                            <div class="chart-legend">
+                            <div class="chart-legend" id="chartLegend">
                                 <span class="legend-item"><span class="legend-color normal"></span> Target Normal (3.9 - 5.6 mmol/L)</span>
                                 <span class="legend-item"><span class="legend-color patient-line"></span> Patient Readings (mmol/L)</span>
+                            </div>
+                            <div id="noChartDataMessage" style="display: none; padding: 30px 20px; text-align: center; color: var(--doctor-text-muted); background: var(--doctor-bg); border-radius: var(--radius-sm); border: 1px dashed var(--doctor-border); margin-top: 10px;">
+                                <i class="fas fa-chart-area fa-3x" style="margin-bottom: 12px; color: var(--doctor-text-muted); opacity: 0.6;"></i>
+                                <h4 style="margin: 0 0 6px 0; color: var(--doctor-text-main); font-size: 0.9rem;">No Glucose Trend Available</h4>
+                                <p style="margin: 0; font-size: 0.8rem; line-height: 1.4;">At least 4 clinical examinations with Fasting Blood Glucose test results are required to display the trend chart.</p>
                             </div>
                         </div>
 
@@ -240,10 +245,38 @@
         </div>
     </div>
 
+    <!-- NAVIGATION BLOCKED MODAL -->
+    <div class="modal-overlay" id="navigationBlockedModal">
+        <div class="modal" style="max-width: 500px; padding: 25px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.2); box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.1), 0 8px 10px -6px rgba(239, 68, 68, 0.1);">
+            <div class="modal-header" style="border-bottom: none; padding-bottom: 0; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="font-size: 1.3rem; color: var(--doctor-danger); display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-hand-paper"></i> Action Blocked
+                </h3>
+                <button type="button" class="close-btn" onclick="closeNavigationBlockedModal()" style="background: none; border: none; font-size: 1.3rem; color: var(--doctor-text-muted); cursor: pointer;"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" style="text-align: center; padding: 20px 10px;">
+                <div style="background: rgba(239, 68, 68, 0.05); color: var(--doctor-danger); width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2.5rem; box-shadow: 0 0 15px rgba(239, 68, 68, 0.1);">
+                    <i class="fas fa-user-lock"></i>
+                </div>
+                <p style="font-size: 1.15rem; font-weight: 700; color: var(--doctor-text-main); margin-bottom: 10px;">
+                    Active Session in Progress
+                </p>
+                <p style="font-size: 0.88rem; color: var(--doctor-text-muted); line-height: 1.5; margin: 0;">
+                    You are currently examining a patient. You must either complete or cancel this checkup session before leaving the examination room.
+                </p>
+            </div>
+            <div class="modal-footer" style="justify-content: center; gap: 12px; padding-top: 15px; border-top: none;">
+                <button type="button" class="btn btn-primary" onclick="closeNavigationBlockedModal()"
+                    style="background: var(--doctor-primary); border: none; color: white; font-size: 0.85rem; padding: 8px 20px; border-radius: 6px; font-weight: 600; cursor: pointer;">Acknowledge</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Script assets -->
     <script th:inline="javascript">
         /*<![CDATA[*/
         const glucoseTrend = /*[[${glucoseTrend}]]*/ [];
+        const hasActiveExam = /*[[${hasActiveExam}]]*/ false;
         /*]]>*/
     </script>
     <script th:src="@{/js/doctor/patients.js}"></script>

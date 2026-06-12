@@ -54,6 +54,28 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // Intercept navigation if checkup is InProgress
+    const isInProgress = thActiveExam && thActiveExam.status === 'InProgress';
+    if (isInProgress) {
+        const navLinks = document.querySelectorAll('.header-nav-item, .logout-link-btn, .doctor-profile-block');
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                const href = link.getAttribute('href');
+                if (href && (href.includes('dashboard') || href.includes('login') || href.includes('profile') || href === '/')) {
+                    e.preventDefault();
+                    showNavigationBlockedModal();
+                }
+            });
+        });
+
+        const cancelForm = document.getElementById('cancelForm');
+        if (cancelForm) {
+            cancelForm.addEventListener('submit', () => {
+                isSubmitting = true;
+            });
+        }
+    }
 });
 
 function formatLocalTime(timeStr) {
@@ -160,7 +182,7 @@ function loadSessionPatient() {
                     dosage: p.dosage,
                     duration: p.durationDays,
                     quantity: p.totalQuantity,
-                    timing: '07:30:00', // standard timing fallback
+                    timing: tName, // standard timing mapped to options
                     timingText: tName
                 };
             });
@@ -874,6 +896,16 @@ function goToHistory() {
     }
 }
 
+function showNavigationBlockedModal() {
+    const modal = document.getElementById('navigationBlockedModal');
+    if (modal) modal.classList.add('open');
+}
+
+function closeNavigationBlockedModal() {
+    const modal = document.getElementById('navigationBlockedModal');
+    if (modal) modal.classList.remove('open');
+}
+
 // Warn when leaving page with unsaved changes
 window.addEventListener('beforeunload', (e) => {
     if (!viewOnlyMode && !isSubmitting) {
@@ -881,7 +913,7 @@ window.addEventListener('beforeunload', (e) => {
         const isExamActive = overlay && overlay.style.display === 'none';
         if (isExamActive) {
             e.preventDefault();
-            e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+            e.returnValue = 'You have an active examination in progress. Are you sure you want to leave?';
             return e.returnValue;
         }
     }

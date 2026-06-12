@@ -1,10 +1,7 @@
 package com.quan.diabetes.controller.doctor;
 
 import com.quan.diabetes.entity.*;
-import com.quan.diabetes.repository.ExamSymptomRepository;
-import com.quan.diabetes.repository.LabResultRepository;
-import com.quan.diabetes.repository.PrescriptionDetailRepository;
-import com.quan.diabetes.repository.PrescriptionRepository;
+import com.quan.diabetes.repository.*;
 import com.quan.diabetes.service.ClinicalExaminationService;
 import com.quan.diabetes.service.PatientService;
 import com.quan.diabetes.service.ProfileService;
@@ -28,6 +25,7 @@ public class DoctorPatientController {
     private final PrescriptionRepository prescriptionRepository;
     private final PrescriptionDetailRepository prescriptionDetailRepository;
     private final ExamSymptomRepository examSymptomRepository;
+    private final ClinicalExaminationRepository clinicalExaminationRepository;
 
     public DoctorPatientController(
             ClinicalExaminationService clinicalExaminationService,
@@ -36,7 +34,8 @@ public class DoctorPatientController {
             LabResultRepository labResultRepository,
             PrescriptionRepository prescriptionRepository,
             PrescriptionDetailRepository prescriptionDetailRepository,
-            ExamSymptomRepository examSymptomRepository) {
+            ExamSymptomRepository examSymptomRepository,
+            ClinicalExaminationRepository clinicalExaminationRepository) {
         this.clinicalExaminationService = clinicalExaminationService;
         this.patientService = patientService;
         this.profileService = profileService;
@@ -44,6 +43,7 @@ public class DoctorPatientController {
         this.prescriptionRepository = prescriptionRepository;
         this.prescriptionDetailRepository = prescriptionDetailRepository;
         this.examSymptomRepository = examSymptomRepository;
+        this.clinicalExaminationRepository = clinicalExaminationRepository;
     }
 
     @GetMapping("/examine/patients")
@@ -60,8 +60,18 @@ public class DoctorPatientController {
         Profile profile = profileService.findById(doctorId).orElse(null);
         model.addAttribute("doctorProfile", profile);
 
-        if (patientId != null) {
+        // Check if there is an in-progress exam for this doctor in the database
+        Optional<ClinicalExamination> activeExam = clinicalExaminationRepository
+                .findFirstByDoctor_UserIdAndStatus(doctorId, "InProgress");
+        model.addAttribute("hasActiveExam", activeExam.isPresent());
+
+        if (activeExam.isPresent()) {
+            patientId = activeExam.get().getPatient().getUserId();
             session.setAttribute("selectedPatientId", patientId);
+        } else {
+            if (patientId != null) {
+                session.setAttribute("selectedPatientId", patientId);
+            }
         }
 
         String selectedPatientId = (String) session.getAttribute("selectedPatientId");
@@ -75,25 +85,30 @@ public class DoctorPatientController {
         }
         model.addAttribute("patient", patient);
 
-        // Nạp lịch sử các ca khám (Timeline) của bệnh nhân này
-        List<ClinicalExamination> timeline = clinicalExaminationService.findByPatientId(selectedPatientId);
+        // Nạp lịch sử các ca khám (Timeline) của bệnh nhân này (Chỉ lấy Completed hoặc Cancelled)
+        List<ClinicalExamination> timeline = clinicalExaminationService.findByPatientId(selectedPatientId).stream()
+                .filter(e -> "Completed".equalsIgnoreCase(e.getStatus()) || "Cancelled".equalsIgnoreCase(e.getStatus()))
+                .collect(Collectors.toList());
         model.addAttribute("timeline", timeline);
 
-        // Nạp chỉ số glucose 6 tháng gần nhất để vẽ biểu đồ Canvas
+        // Nạp chỉ số glucose các ca khám để vẽ biểu đồ Canvas
         List<LabResult> glucoseResults = labResultRepository
                 .findByLabOrder_ClinicalExamination_Patient_UserIdAndLabTest_TestNameContainingIgnoreCaseOrderByLabOrder_ClinicalExamination_ExamDateAsc(
                         selectedPatientId, "Fasting Blood Glucose");
 
-        List<BigDecimal> glucoseTrend = glucoseResults.stream()
-                .map(LabResult::getResultValue)
-                .collect(Collectors.toList());
-
-        // Nếu chưa có xét nghiệm thực tế trong DB, nạp dữ liệu mặc định để vẽ biểu đồ
-        if (glucoseTrend.isEmpty()) {
-            glucoseTrend = Arrays.asList(
-                    BigDecimal.valueOf(6.8), BigDecimal.valueOf(7.2), BigDecimal.valueOf(6.5),
-                    BigDecimal.valueOf(7.0), BigDecimal.valueOf(6.2), BigDecimal.valueOf(5.8)
-            );
+        // Lấy tối đa 4 kết quả gần nhất, nếu không đủ 4 kết quả thì truyền danh sách rỗng (không vẽ biểu đồ)
+        List<Map<String, Object>> glucoseTrend = new ArrayList<>();
+        if (glucoseResults.size() >= 4) {
+            List<LabResult> recentResults = glucoseResults.subList(glucoseResults.size() - 4, glucoseResults.size());
+            for (LabResult res : recentResults) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("val", res.getResultValue());
+                String dateStr = res.getLabOrder().getClinicalExamination().getExamDate() != null
+                        ? res.getLabOrder().getClinicalExamination().getExamDate().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM"))
+                        : "";
+                map.put("date", dateStr);
+                glucoseTrend.add(map);
+            }
         }
         model.addAttribute("glucoseTrend", glucoseTrend);
 

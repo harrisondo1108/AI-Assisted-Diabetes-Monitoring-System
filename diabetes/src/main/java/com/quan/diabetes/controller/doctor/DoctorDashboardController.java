@@ -22,6 +22,7 @@ public class DoctorDashboardController {
     private final PrescriptionRepository prescriptionRepository;
     private final PrescriptionDetailRepository prescriptionDetailRepository;
     private final ExamSymptomRepository examSymptomRepository;
+    private final ClinicalExaminationRepository clinicalExaminationRepository;
 
     public DoctorDashboardController(
             ClinicalExaminationService clinicalExaminationService,
@@ -29,13 +30,15 @@ public class DoctorDashboardController {
             LabResultRepository labResultRepository,
             PrescriptionRepository prescriptionRepository,
             PrescriptionDetailRepository prescriptionDetailRepository,
-            ExamSymptomRepository examSymptomRepository) {
+            ExamSymptomRepository examSymptomRepository,
+            ClinicalExaminationRepository clinicalExaminationRepository) {
         this.clinicalExaminationService = clinicalExaminationService;
         this.profileService = profileService;
         this.labResultRepository = labResultRepository;
         this.prescriptionRepository = prescriptionRepository;
         this.prescriptionDetailRepository = prescriptionDetailRepository;
         this.examSymptomRepository = examSymptomRepository;
+        this.clinicalExaminationRepository = clinicalExaminationRepository;
     }
 
     @GetMapping("/dashboard")
@@ -50,6 +53,13 @@ public class DoctorDashboardController {
         if (profile != null) {
             model.addAttribute("doctorProfile", profile);
             session.setAttribute("userProfile", profile);
+        }
+
+        // Check if there is an in-progress exam for this doctor in the database
+        Optional<ClinicalExamination> activeExam = clinicalExaminationRepository
+                .findFirstByDoctor_UserIdAndStatus(doctorId, "InProgress");
+        if (activeExam.isPresent()) {
+            return "redirect:/doctor/examine?patientId=" + activeExam.get().getPatient().getUserId() + "&warning=in-progress";
         }
 
         // Lấy tất cả ca khám của bác sĩ
@@ -69,7 +79,8 @@ public class DoctorDashboardController {
         model.addAttribute("todayQueue", todayQueue);
         model.addAttribute("queueCount", pending + inProgress);
         model.addAttribute("completedCount", completed);
-        model.addAttribute("alertCount", 2); // Cố định alertCount giả định 2 như UI cũ
+        long alertCount = labResultRepository.countByLabOrder_ClinicalExamination_Doctor_UserIdAndFlag(doctorId, "HIGH");
+        model.addAttribute("alertCount", alertCount);
 
         return "doctor/dashboard";
     }

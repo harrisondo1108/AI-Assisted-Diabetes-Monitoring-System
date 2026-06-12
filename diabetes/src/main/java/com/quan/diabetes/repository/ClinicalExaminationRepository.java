@@ -10,5 +10,6 @@ public interface ClinicalExaminationRepository extends JpaRepository<ClinicalExa
     List<ClinicalExamination> findByDoctor_UserIdOrderByExamDateAsc(String doctorId);
     List<ClinicalExamination> findByPatient_UserIdOrderByExamDateDesc(String patientId);
     Optional<ClinicalExamination> findFirstByPatient_UserIdAndDoctor_UserIdAndStatusIn(String patientId, String doctorId, List<String> statuses);
+    Optional<ClinicalExamination> findFirstByDoctor_UserIdAndStatus(String doctorId, String status);
 }
 

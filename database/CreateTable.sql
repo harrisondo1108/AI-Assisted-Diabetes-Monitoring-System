@@ -1,4 +1,4 @@
---DROP trước
+﻿--DROP trước
 --IF DB_ID('Diabetes') IS NOT NULL
 --   DROP DATABASE Diabetes;
 --GO
@@ -182,13 +182,12 @@ CREATE TABLE [Prescription] (
 
 -- 11.5. TreatmentPlan
 CREATE TABLE [TreatmentPlan] (
-    [PlanID] VARCHAR(50) PRIMARY KEY,
+    [PlanID] INT PRIMARY KEY,
     [ClinicalExamID] VARCHAR(50) NOT NULL,
     [TreatmentGoal] NVARCHAR(500),
     [DietPlan] NVARCHAR(MAX),
     [ExercisePlan] NVARCHAR(MAX),
     [GlucoseMonitoringPlan] NVARCHAR(MAX),
-    [MedicationPlan] NVARCHAR(MAX),
     [CreatedAt] DATETIME DEFAULT GETDATE(),
     FOREIGN KEY (ClinicalExamID) REFERENCES ClinicalExamination(ClinicalExamID) ON DELETE CASCADE
 );
@@ -212,6 +211,7 @@ CREATE TABLE [PrescriptionDetail] (
     Dosage NVARCHAR(50), -- liều lượng (mỗi lần dùng bn)
     TotalQuantity INT, -- tổng số thuốc cung cấp
     DurationDays INT, -- tổng số ngày sử dụng
+    MedicationPlan NVARCHAR(MAX),
     FOREIGN KEY (PrescriptionID) REFERENCES Prescription(PrescriptionID) ON DELETE CASCADE,
     FOREIGN KEY (MedicationID) REFERENCES Medication(MedicationID)
 );

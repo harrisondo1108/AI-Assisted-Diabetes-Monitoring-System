@@ -3,24 +3,64 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Draw canvas line chart using dynamic trend from Thymeleaf
-    if (typeof glucoseTrend !== 'undefined' && glucoseTrend && glucoseTrend.length > 0) {
+    const chartWrapper = document.getElementById('chartWrapper');
+    const chartLegend = document.getElementById('chartLegend');
+    const noChartDataMessage = document.getElementById('noChartDataMessage');
+
+    // Draw canvas line chart using dynamic trend from Thymeleaf if >= 4 entries
+    if (typeof glucoseTrend !== 'undefined' && glucoseTrend && glucoseTrend.length >= 4) {
+        if (chartWrapper) chartWrapper.style.display = 'block';
+        if (chartLegend) chartLegend.style.display = 'flex';
+        if (noChartDataMessage) noChartDataMessage.style.display = 'none';
         drawGlucoseChart(glucoseTrend);
     } else {
-        // Fallback default trend if empty
-        drawGlucoseChart([6.8, 7.2, 6.5, 7.0, 6.2, 5.8]);
+        if (chartWrapper) chartWrapper.style.display = 'none';
+        if (chartLegend) chartLegend.style.display = 'none';
+        if (noChartDataMessage) noChartDataMessage.style.display = 'block';
     }
 
-    // Adjust Back Button dynamically based on origin
+    // Adjust Back Button dynamically based on origin and handle active checkup lock
     const backBtn = document.getElementById('backBtn');
-    if (backBtn) {
-        const fromExamineRoom = sessionStorage.getItem('fromExamineRoom') === 'true';
-        if (fromExamineRoom) {
+    const hasActive = typeof hasActiveExam !== 'undefined' && hasActiveExam;
+    let isLeavingToExamine = false;
+
+    if (hasActive) {
+        if (backBtn) {
             backBtn.href = '/doctor/examine';
             backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back to Checkup';
-        } else {
-            backBtn.href = '/doctor/dashboard';
-            backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back to Dashboard';
+            backBtn.addEventListener('click', () => {
+                isLeavingToExamine = true;
+            });
+        }
+
+        const navLinks = document.querySelectorAll('.header-nav-item, .logout-link-btn, .doctor-profile-block');
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                const href = link.getAttribute('href');
+                if (href && (href.includes('dashboard') || href.includes('login') || href.includes('profile') || href === '/')) {
+                    e.preventDefault();
+                    showNavigationBlockedModal();
+                }
+            });
+        });
+
+        window.addEventListener('beforeunload', (e) => {
+            if (!isLeavingToExamine) {
+                e.preventDefault();
+                e.returnValue = 'You have an active examination in progress. Are you sure you want to leave?';
+                return e.returnValue;
+            }
+        });
+    } else {
+        if (backBtn) {
+            const fromExamineRoom = sessionStorage.getItem('fromExamineRoom') === 'true';
+            if (fromExamineRoom) {
+                backBtn.href = '/doctor/examine';
+                backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back to Checkup';
+            } else {
+                backBtn.href = '/doctor/dashboard';
+                backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back to Dashboard';
+            }
         }
     }
 });
@@ -42,10 +82,15 @@ function drawGlucoseChart(data) {
     const chartWidth = width - padding.left - padding.right;
     const chartHeight = height - padding.top - padding.bottom;
 
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-
-    // Y-Axis limits (0 to 12 mmol/L)
-    const yMax = 12;
+    // Y-Axis limits (0 to at least 12 mmol/L, or max value in data + 1)
+    let maxVal = 12;
+    data.forEach(item => {
+        const val = Number(item.val);
+        if (val > maxVal) {
+            maxVal = Math.ceil(val + 1);
+        }
+    });
+    const yMax = maxVal;
 
     // Draw grid lines and Y-axis scale
     ctx.strokeStyle = '#e2e8f0';
@@ -90,27 +135,20 @@ function drawGlucoseChart(data) {
     ctx.textAlign = 'center';
     ctx.fillStyle = '#64748b';
     const xPoints = [];
+    const numPoints = data.length;
 
-    for (let i = 0; i < months.length; i++) {
-        const x = padding.left + (chartWidth / (months.length - 1)) * i;
+    for (let i = 0; i < numPoints; i++) {
+        const divisor = numPoints > 1 ? (numPoints - 1) : 1;
+        const x = padding.left + (chartWidth / divisor) * i;
         xPoints.push(x);
 
-        // X label
-        ctx.fillText(months[i], x, height - 10);
+        // X label (from data[i].date)
+        const label = data[i].date || '';
+        ctx.fillText(label, x, height - 10);
     }
 
-    // Plot glucose trend lines (mapping the last 6 months)
-    // Trim or pad data to exactly 6 entries
-    let plottedData = [...data];
-    if (plottedData.length > 6) {
-        plottedData = plottedData.slice(-6);
-    } else {
-        while (plottedData.length < 6) {
-            plottedData.unshift(5.5); // Pad with default normal value
-        }
-    }
-
-    const dataPoints = plottedData.map((val, idx) => {
+    const dataPoints = data.map((item, idx) => {
+        const val = Number(item.val);
         const x = xPoints[idx];
         const y = padding.top + chartHeight - (chartHeight * (val / yMax));
         return { x, y, val };
@@ -190,5 +228,15 @@ function openTimelineDetail(examId) {
 // Close timeline detail modal
 function closeTimelineDetail() {
     const modal = document.getElementById('timelineDetailModal');
+    if (modal) modal.classList.remove('open');
+}
+
+function showNavigationBlockedModal() {
+    const modal = document.getElementById('navigationBlockedModal');
+    if (modal) modal.classList.add('open');
+}
+
+function closeNavigationBlockedModal() {
+    const modal = document.getElementById('navigationBlockedModal');
     if (modal) modal.classList.remove('open');
 }

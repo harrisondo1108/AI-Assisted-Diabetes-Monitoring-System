@@ -26,7 +26,7 @@
                 <aside class="patient-medical-card">
                     <div class="patient-card-header">
                         <div class="patient-avatar-large"><i class="fas fa-hospital-user"></i></div>
-                        <h2 class="patient-name-title" id="patName" th:text="${patient.fullName}">Nguyen Van A</h2>
+                        <h2 class="patient-name-title" id="patName" th:text="${patient.fullName}">Nguyen Va</h2>
                         <span class="patient-id-badge" id="patId" style="display: none;" th:text="${patient.userId}">P012932</span>
                     </div>
 
@@ -75,7 +75,7 @@
                     <div class="medical-details-section">
                         <h4 class="section-title"><i class="fas fa-clock"></i> Daily Routine</h4>
                         <div class="routine-item">
-                            <i class="fas fa-mug-saucer"></i> <span>Breakfast:</span> <strong id="patBreakfast" th:text="${routine != null && routine.breakfastTime != null ? #temporals.format(routine.breakfastTime, 'hh:mm a') : '07:00 AM'}">07:30 AM</strong>
+                            <i class="fas fa-mug-saucer"></i> <span>Breakfast:</span> <strong id="patBreakfast" th:text="${routine != null && routine.breakfastTime != null ? #temporals.format(routine.breakfastTime, 'hh:mm a') : '07:30 AM'}">07:30 AM</strong>
                         </div>
                         <div class="routine-item">
                             <i class="fas fa-utensils"></i> <span>Lunch:</span> <strong id="patLunch" th:text="${routine != null && routine.lunchTime != null ? #temporals.format(routine.lunchTime, 'hh:mm a') : '12:00 PM'}">12:15 PM</strong>
@@ -123,11 +123,11 @@
 
                     <!-- Horizontal Diagnostic Tabs -->
                     <div class="diagnostic-tabs">
-                        <button class="tab-btn active" onclick="switchTab(event, 'symptoms-tab')"><i
+                        <button type="button" class="tab-btn active" onclick="switchTab(event, 'symptoms-tab')"><i
                                 class="fas fa-notes-medical"></i> Symptoms </button>
-                        <button class="tab-btn" onclick="switchTab(event, 'labs-tab')"><i class="fas fa-flask"></i>
+                        <button type="button" class="tab-btn" onclick="switchTab(event, 'labs-tab')"><i class="fas fa-flask"></i>
                             Laboratory Orders </button>
-                        <button class="tab-btn" onclick="switchTab(event, 'prescription-tab')"><i
+                        <button type="button" class="tab-btn" onclick="switchTab(event, 'prescription-tab')"><i
                                 class="fas fa-pills"></i> Treatment & Prescription</button>
                     </div>
 
@@ -243,9 +243,9 @@
                                         placeholder="e.g. Measure fasting blood glucose daily in the morning, and 2 hours after lunch..."></textarea>
                                 </div>
                                 <div class="form-group">
-                                    <label>Medication Instructions / Plan Summary</label>
-                                    <textarea id="planMedication" name="medicationPlan" rows="3"
-                                        placeholder="e.g. Take Metformin after meals, inject long-acting insulin before bedtime..."></textarea>
+                                    <label>Self Glucose Monitoring Plan</label>
+                                    <textarea id="planMedication" name="glucoseMonitoringPlan" rows="3"
+                                              placeholder="e.g. Measure fasting blood glucose daily in the morning, and 2 hours after lunch..."></textarea>
                                 </div>
                             </div>
                         </div>
@@ -317,11 +317,11 @@
                     <div class="form-group">
                         <label>Daily Intake Hour <span class="required">*</span></label>
                         <select id="medTiming">
-                            <option value="07:30:00">Breakfast Time (07:30 AM)</option>
-                            <option value="12:15:00">Lunch Time (12:15 PM)</option>
-                            <option value="19:00:00">Dinner Time (07:00 PM)</option>
-                            <option value="06:00:00">Wake Up Time (06:00 AM)</option>
-                            <option value="22:00:00">Sleep Time (10:00 PM)</option>
+                            <option th:each="t : ${medicationTimings}" th:value="${t.timingName}" th:text="${t.timingName}"></option>
+                            <!-- Fallback if empty -->
+                            <option th:if="${medicationTimings == null || medicationTimings.empty}" value="Breakfast Time (07:30 AM)">Breakfast Time (07:30 AM)</option>
+                            <option th:if="${medicationTimings == null || medicationTimings.empty}" value="Lunch Time (12:15 PM)">Lunch Time (12:15 PM)</option>
+                            <option th:if="${medicationTimings == null || medicationTimings.empty}" value="Dinner Time (07:00 PM)">Dinner Time (07:00 PM)</option>
                         </select>
                     </div>
                 </div>
@@ -375,25 +375,56 @@
 
     <!-- SKIP LAB CONFIRMATION MODAL -->
     <div class="modal-overlay" id="skipLabConfirmModal">
-        <div class="modal" style="max-width: 550px; padding: 25px;">
-            <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
-                <h3 style="font-size: 1.4rem;">Skip Laboratory Tests</h3>
-                <button type="button" class="close-btn" onclick="closeSkipLabModal()" style="font-size: 1.5rem;"><i
-                        class="fas fa-times"></i></button>
+        <div class="modal" style="max-width: 500px; padding: 25px; border-radius: 12px; border: 1px solid rgba(217, 119, 6, 0.2); box-shadow: 0 10px 25px -5px rgba(217, 119, 6, 0.1), 0 8px 10px -6px rgba(217, 119, 6, 0.1);">
+            <div class="modal-header" style="border-bottom: none; padding-bottom: 0; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="font-size: 1.3rem; color: #d97706; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-exclamation-triangle"></i> Attention Required
+                </h3>
+                <button type="button" class="close-btn" onclick="closeSkipLabModal()" style="background: none; border: none; font-size: 1.3rem; color: var(--doctor-text-muted); cursor: pointer;"><i class="fas fa-times"></i></button>
             </div>
-            <div class="modal-body" style="text-align: center; padding: 25px 20px;">
-                <i class="fas fa-exclamation-circle"
-                    style="font-size: 4.5rem; color: #d97706; margin-bottom: 25px;"></i>
-                <p style="font-size: 1.35rem; font-weight: 600; color: var(--doctor-text-main); margin-bottom: 15px;">
-                    Skip Laboratory Testing?</p>
-                <p style="font-size: 1.1rem; color: var(--doctor-text-muted);">Are you sure you want to proceed to
-                    prescription without tests?</p>
+            <div class="modal-body" style="text-align: center; padding: 20px 10px;">
+                <div style="background: rgba(217, 119, 6, 0.05); color: #d97706; width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2.5rem; box-shadow: 0 0 15px rgba(217, 119, 6, 0.15);">
+                    <i class="fas fa-microscope"></i>
+                </div>
+                <p style="font-size: 1.15rem; font-weight: 700; color: var(--doctor-text-main); margin-bottom: 10px;">
+                    Skip Laboratory Testing?
+                </p>
+                <p style="font-size: 0.88rem; color: var(--doctor-text-muted); line-height: 1.5; margin: 0;">
+                    Are you sure you want to bypass the lab examination phase?
+                </p>
             </div>
-            <div class="modal-footer" style="justify-content: center; gap: 20px; padding-top: 15px; border-top: none;">
+            <div class="modal-footer" style="justify-content: center; gap: 12px; padding-top: 15px; border-top: none;">
                 <button type="button" class="btn btn-secondary" onclick="closeSkipLabModal()"
-                    style="font-size: 1.1rem; padding: 12px 24px;">No</button>
+                    style="font-size: 0.85rem; padding: 8px 20px; border-radius: 6px; border: 1px solid var(--doctor-border); cursor: pointer;">Go Back</button>
                 <button type="button" class="btn btn-primary" onclick="confirmSkipLab()"
-                    style="background: #d97706; border-color: #d97706; color: white; font-size: 1.1rem; padding: 12px 24px;">Yes</button>
+                    style="background: #d97706; border: none; color: white; font-size: 0.85rem; padding: 8px 20px; border-radius: 6px; font-weight: 600; cursor: pointer;">Skip and Proceed</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NAVIGATION BLOCKED MODAL -->
+    <div class="modal-overlay" id="navigationBlockedModal">
+        <div class="modal" style="max-width: 500px; padding: 25px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.2); box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.1), 0 8px 10px -6px rgba(239, 68, 68, 0.1);">
+            <div class="modal-header" style="border-bottom: none; padding-bottom: 0; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="font-size: 1.3rem; color: var(--doctor-danger); display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-hand-paper"></i> Action Blocked
+                </h3>
+                <button type="button" class="close-btn" onclick="closeNavigationBlockedModal()" style="background: none; border: none; font-size: 1.3rem; color: var(--doctor-text-muted); cursor: pointer;"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" style="text-align: center; padding: 20px 10px;">
+                <div style="background: rgba(239, 68, 68, 0.05); color: var(--doctor-danger); width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2.5rem; box-shadow: 0 0 15px rgba(239, 68, 68, 0.1);">
+                    <i class="fas fa-user-lock"></i>
+                </div>
+                <p style="font-size: 1.15rem; font-weight: 700; color: var(--doctor-text-main); margin-bottom: 10px;">
+                    Active Session in Progress
+                </p>
+                <p style="font-size: 0.88rem; color: var(--doctor-text-muted); line-height: 1.5; margin: 0;">
+                    You must either complete or cancel this checkup session before leaving the examination room.
+                </p>
+            </div>
+            <div class="modal-footer" style="justify-content: center; gap: 12px; padding-top: 15px; border-top: none;">
+                <button type="button" class="btn btn-primary" onclick="closeNavigationBlockedModal()"
+                    style="background: var(--doctor-primary); border: none; color: white; font-size: 0.85rem; padding: 8px 20px; border-radius: 6px; font-weight: 600; cursor: pointer;">Acknowledge</button>
             </div>
         </div>
     </div>
@@ -433,17 +464,16 @@
     <!-- Script assets -->
     <script th:inline="javascript">
         /*<![CDATA[*/
-        const thPatient = /*[[${patient}]]*/ null;
+        const thPatient = /*[[${patientData}]]*/ null;
         const thRoutine = /*[[${routine}]]*/ null;
-        const thActiveExam = /*[[${activeExam}]]*/ null;
+        const thActiveExam = /*[[${activeExamData}]]*/ null;
         const thViewOnly = /*[[${viewOnly}]]*/ false;
-        const thLastExam = /*[[${lastExam}]]*/ null;
+        const thLastExam = /*[[${lastExamData}]]*/ null;
         const thChosenSymptomIds = /*[[${chosenSymptomIds}]]*/ [];
-        const thLastExamLabResults = /*[[${lastExamLabResults}]]*/ [];
-        const thLastExamPrescriptionDetails = /*[[${lastExamPrescriptionDetails}]]*/ [];
-
+        const thLastExamLabResults = /*[[${lastExamLabResultsData}]]*/ [];
+        const thLastExamPrescriptionDetails = /*[[${lastExamPrescriptionDetailsData}]]*/ [];
         const rawSymptomsCatalog = /*[[${symptomsCatalog}]]*/ [];
-        const rawLabTestsCatalog = /*[[${labTestsCatalog}]]*/ [];
+        const rawLabTestsCatalog = /*[[${labTestsCatalogData}]]*/ [];
         const rawMedicationsCatalog = /*[[${medications}]]*/ [];
         /*]]>*/
     </script>
