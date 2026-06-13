@@ -13,10 +13,19 @@ public class LabTestCatalog {
     @Column(name = "LabTestID", length = 50)
     private String labTestId;
 
-    @Column(name = "TestName", length = 100, unique = true, columnDefinition = "NVARCHAR(100)")
+    @Column(
+            name = "TestName",
+            length = 100,
+            unique = true,
+            columnDefinition = "NVARCHAR(100)"
+    )
     private String testName;
 
-    @Column(name = "Unit", length = 20, columnDefinition = "NVARCHAR(20)")
+    @Column(
+            name = "Unit",
+            length = 20,
+            columnDefinition = "NVARCHAR(20)"
+    )
     private String unit;
 
     @Column(name = "MinValue")
@@ -25,8 +34,17 @@ public class LabTestCatalog {
     @Column(name = "MaxValue")
     private int maxValue;
 
-    @Column(name = "Description", columnDefinition = "NVARCHAR(MAX)")
+    @Column(
+            name = "Description",
+            columnDefinition = "NVARCHAR(MAX)"
+    )
     private String description;
+
+    @Column(name = "RoomID")
+    private Integer roomId;
+
+    @Column(name = "Status")
+    private Boolean status;
 
     public LabTestCatalog() {
     }
@@ -78,6 +96,20 @@ public class LabTestCatalog {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    public Integer getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(Integer roomId) {
+        this.roomId = roomId;
+    }
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
+    }
 }
-
-
