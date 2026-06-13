@@ -184,7 +184,7 @@ CREATE TABLE [Prescription] (
 CREATE TABLE [TreatmentPlan] (
     [PlanID] INT PRIMARY KEY,
     [ClinicalExamID] VARCHAR(50) NOT NULL,
-    [TreatmentGoal] NVARCHAR(500),
+    [TreatmentGoal] NVARCHAR(MAX),
     [DietPlan] NVARCHAR(MAX),
     [ExercisePlan] NVARCHAR(MAX),
     [GlucoseMonitoringPlan] NVARCHAR(MAX),
