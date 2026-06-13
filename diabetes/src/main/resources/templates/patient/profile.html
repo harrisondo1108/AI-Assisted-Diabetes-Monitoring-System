@@ -45,10 +45,16 @@
                         <h3>Current Profile</h3>
                     </div>
 
-                    <button type="button" class="primary-btn" onclick="openPatientModal('profileModal')">
-                        <i class="fas fa-pen"></i>
-                        Update Profile
-                    </button>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button type="button" class="secondary-btn" onclick="openPatientModal('changePasswordModal')">
+                            <i class="fas fa-key"></i>
+                            Change Password
+                        </button>
+                        <button type="button" class="primary-btn" onclick="openPatientModal('profileModal')">
+                            <i class="fas fa-pen"></i>
+                            Update Profile
+                        </button>
+                    </div>
                 </div>
 
                 <div class="profile-summary">
@@ -454,6 +460,60 @@
 
                 <button type="submit" class="modal-save-btn">
                     Save Routine
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- CHANGE PASSWORD MODAL -->
+<div class="patient-modal-overlay" id="changePasswordModal">
+    <div class="patient-modal">
+        <div class="patient-modal-header">
+            <h2>Change Password</h2>
+
+            <button type="button" class="modal-close-btn" onclick="closePatientModal('changePasswordModal')">
+                ×
+            </button>
+        </div>
+
+        <form th:action="@{/patient/profile/change-password}" method="post" id="changePasswordForm" novalidate>
+            <div id="changePasswordValidationMessage" class="client-validation-message"></div>
+            <div class="patient-modal-body">
+                <div class="modal-form-grid">
+                    <div class="modal-form-group full">
+                        <label>Current Password <span>*</span></label>
+                        <input type="password"
+                               name="currentPassword"
+                               required
+                               placeholder="Enter current password">
+                    </div>
+
+                    <div class="modal-form-group full">
+                        <label>New Password <span>*</span></label>
+                        <input type="password"
+                               name="newPassword"
+                               required
+                               placeholder="Enter new password (at least 6 characters)">
+                    </div>
+
+                    <div class="modal-form-group full">
+                        <label>Confirm New Password <span>*</span></label>
+                        <input type="password"
+                               name="confirmPassword"
+                               required
+                               placeholder="Confirm new password">
+                    </div>
+                </div>
+            </div>
+
+            <div class="patient-modal-footer">
+                <button type="button" class="modal-cancel-btn" onclick="closePatientModal('changePasswordModal')">
+                    Cancel
+                </button>
+
+                <button type="submit" class="modal-save-btn">
+                    Change Password
                 </button>
             </div>
         </form>

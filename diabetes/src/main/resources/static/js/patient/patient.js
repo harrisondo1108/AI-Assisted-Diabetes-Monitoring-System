@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', function () {
     setupChat();
     setupProfileValidation();
     setupRoutineValidation();
+    setupChangePasswordValidation();
 });
 
 function setupChat() {
@@ -13,20 +14,80 @@ function setupChat() {
         return;
     }
 
-    chatButton.addEventListener('click', function () {
+    // Auto scroll to bottom
+    messageList.scrollTop = messageList.scrollHeight;
+
+    function sendMessage() {
         const value = chatInput.value.trim();
 
         if (!value) {
             return;
         }
 
-        const message = document.createElement('div');
-        message.className = 'message patient';
-        message.textContent = value;
-
-        messageList.appendChild(message);
+        // 1. Append user message
+        const userMessage = document.createElement('div');
+        userMessage.className = 'message patient';
+        userMessage.textContent = value;
+        messageList.appendChild(userMessage);
         chatInput.value = '';
         messageList.scrollTop = messageList.scrollHeight;
+
+        // 2. Append temporary typing indicator
+        const typingMessage = document.createElement('div');
+        typingMessage.className = 'message ai typing-indicator';
+        typingMessage.textContent = 'Typing...';
+        messageList.appendChild(typingMessage);
+        messageList.scrollTop = messageList.scrollHeight;
+
+        // 3. Send via AJAX
+        fetch('/patient/chat/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                'message': value
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network error');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Remove typing indicator
+            typingMessage.remove();
+
+            if (data.success) {
+                const aiMessage = document.createElement('div');
+                aiMessage.className = 'message ai';
+                aiMessage.textContent = data.reply;
+                messageList.appendChild(aiMessage);
+            } else {
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'message ai';
+                errorMessage.textContent = 'Sorry, I encountered an error. Please try again.';
+                messageList.appendChild(errorMessage);
+            }
+            messageList.scrollTop = messageList.scrollHeight;
+        })
+        .catch(err => {
+            typingMessage.remove();
+            const errorMessage = document.createElement('div');
+            errorMessage.className = 'message ai';
+            errorMessage.textContent = 'Connection error. Please try again later.';
+            messageList.appendChild(errorMessage);
+            messageList.scrollTop = messageList.scrollHeight;
+        });
+    }
+
+    chatButton.addEventListener('click', sendMessage);
+    chatInput.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            sendMessage();
+        }
     });
 }
 
@@ -373,3 +434,48 @@ document.addEventListener('keydown', function (event) {
         document.body.style.overflow = '';
     }
 });
+
+function setupChangePasswordValidation() {
+    const form = document.getElementById('changePasswordForm');
+
+    if (!form) {
+        return;
+    }
+
+    form.addEventListener('submit', function (event) {
+        clearValidation(form, 'changePasswordValidationMessage');
+
+        const currentPassword = getValue(form, 'currentPassword');
+        const newPassword = getValue(form, 'newPassword');
+        const confirmPassword = getValue(form, 'confirmPassword');
+
+        const errors = [];
+
+        if (!currentPassword) {
+            errors.push('Current password is required.');
+            markInvalid(form, 'currentPassword');
+        }
+
+        if (!newPassword) {
+            errors.push('New password is required.');
+            markInvalid(form, 'newPassword');
+        } else if (newPassword.length < 6) {
+            errors.push('New password must be at least 6 characters.');
+            markInvalid(form, 'newPassword');
+        }
+
+        if (!confirmPassword) {
+            errors.push('Please confirm your new password.');
+            markInvalid(form, 'confirmPassword');
+        } else if (newPassword !== confirmPassword) {
+            errors.push('New password and confirmation password do not match.');
+            markInvalid(form, 'confirmPassword');
+        }
+
+        if (errors.length > 0) {
+            event.preventDefault();
+            showValidationMessage('changePasswordValidationMessage', errors);
+            scrollToValidationMessage('changePasswordValidationMessage');
+        }
+    });
+}
