@@ -94,6 +94,24 @@ CREATE TABLE [ClinicalExamination] (
     FOREIGN KEY (DoctorID) REFERENCES [Account](UserID)
 );
 
+CREATE TABLE TreatmentPlan (
+    PlanID INT IDENTITY(1,1) PRIMARY KEY,
+
+    CreatedAt DATETIME DEFAULT GETDATE(),
+
+    DietPlan NVARCHAR(MAX),
+
+    ExercisePlan NVARCHAR(MAX),
+
+    GlucoseMonitoringPlan NVARCHAR(MAX),
+
+    ClinicalExamID VARCHAR(50) NOT NULL,
+
+    CONSTRAINT FK_TreatmentPlan_ClinicalExamination
+        FOREIGN KEY (ClinicalExamID)
+        REFERENCES ClinicalExamination(ClinicalExamID)
+);
+
 -- 6. Symptoms Catalog
 CREATE TABLE [Symptoms_Catalog] (
     SymptomID VARCHAR(50) PRIMARY KEY,
@@ -199,8 +217,11 @@ CREATE TABLE [PrescriptionDetail] (
     Dosage NVARCHAR(50), -- liều lượng (mỗi lần dùng bn)
     TotalQuantity INT, -- tổng số thuốc cung cấp
     DurationDays INT, -- tổng số ngày sử dụng
+	StartDate DATE,
+	EndDate DATE,
     FOREIGN KEY (PrescriptionID) REFERENCES Prescription(PrescriptionID) ON DELETE CASCADE,
-    FOREIGN KEY (MedicationID) REFERENCES Medication(MedicationID)
+    FOREIGN KEY (MedicationID) REFERENCES Medication(MedicationID),
+	MedicationPlan NVARCHAR(MAX)
 );
 
 CREATE TABLE MedicationTiming (
@@ -275,8 +296,10 @@ CREATE TABLE [AI_Reminder] (
     IsRead BIT DEFAULT 0,
 	AIAssistantID INT,
     PatientID VARCHAR(50),
+	TimingID INT,
     FOREIGN KEY (PatientID) REFERENCES Patient(UserID) ON DELETE CASCADE,
 	FOREIGN KEY (AIAssistantID) REFERENCES AI_Assistant(AIAssistantID) ON DELETE CASCADE
+	FOREIGN KEY (TimingID) REFERENCES MedicationTiming(TimingID)
 );
 
 ------------------  INSERT  ----------------------------------------

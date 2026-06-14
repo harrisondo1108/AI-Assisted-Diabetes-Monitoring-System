@@ -4,9 +4,11 @@ import com.quan.diabetes.entity.Patient;
 import com.quan.diabetes.entity.PatientRoutine;
 import com.quan.diabetes.repository.PatientRepository;
 import com.quan.diabetes.repository.PatientRoutineRepository;
+import com.quan.diabetes.service.AIService.PatientRoutineReminderRescheduleService;
 import com.quan.diabetes.service.PatientRoutineService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -14,13 +16,20 @@ import java.util.Optional;
 public class PatientRoutineServiceImpl implements PatientRoutineService {
 
 
-    private PatientRoutineRepository patientRoutineRepository;
+    private final PatientRoutineRepository patientRoutineRepository;
 
-    private PatientRepository patientRepository;
+    private final PatientRepository patientRepository;
 
-    public PatientRoutineServiceImpl(PatientRoutineRepository patientRoutineRepository, PatientRepository patientRepository) {
+    private final PatientRoutineReminderRescheduleService reminderRescheduleService;
+
+    public PatientRoutineServiceImpl(
+            PatientRoutineRepository patientRoutineRepository,
+            PatientRepository patientRepository,
+            PatientRoutineReminderRescheduleService reminderRescheduleService
+    ) {
         this.patientRoutineRepository = patientRoutineRepository;
         this.patientRepository = patientRepository;
+        this.reminderRescheduleService = reminderRescheduleService;
     }
 
     @Override
@@ -39,13 +48,20 @@ public class PatientRoutineServiceImpl implements PatientRoutineService {
     }
 
     @Override
+    @Transactional
     public PatientRoutine update(String id, PatientRoutine entity) {
         if (!patientRoutineRepository.existsById(id)) {
             throw new RuntimeException("PatientRoutine not found with id: " + id);
         }
-        Patient patient = patientRepository.findById(id).get();
+        Patient patient = patientRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Patient not found with id: " + id));
+
+        entity.setUserId(id);
         entity.setPatient(patient);
-        return patientRoutineRepository.save(entity);
+        PatientRoutine savedRoutine = patientRoutineRepository.save(entity);
+        reminderRescheduleService.rescheduleFutureMedicationReminders(id, savedRoutine);
+
+        return savedRoutine;
     }
 
     @Override

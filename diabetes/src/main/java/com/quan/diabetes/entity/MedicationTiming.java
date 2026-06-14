@@ -12,7 +12,7 @@ public class MedicationTiming {
     private Integer timingID;
 
     @Column(name = "TimingName", nullable = false, length = 100)
-    private String timingName;
+    private String timingName; // sau ăn sáng, trước ăn trưa, trước khi ngủ,....
 
 //    @OneToMany(mappedBy = "timing")
 //    private List<PrescriptionTiming> prescriptionTimings;
