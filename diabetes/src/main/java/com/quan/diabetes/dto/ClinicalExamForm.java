@@ -110,6 +110,25 @@ public class ClinicalExamForm {
         this.medicationPlan = medicationPlan;
     }
 
+    private String symptomCommentsJson;
+    private String labResultsJson;
+
+    public String getSymptomCommentsJson() {
+        return symptomCommentsJson;
+    }
+
+    public void setSymptomCommentsJson(String symptomCommentsJson) {
+        this.symptomCommentsJson = symptomCommentsJson;
+    }
+
+    public String getLabResultsJson() {
+        return labResultsJson;
+    }
+
+    public void setLabResultsJson(String labResultsJson) {
+        this.labResultsJson = labResultsJson;
+    }
+
     @Override
     public String toString() {
         return "ClinicalExamForm{" +

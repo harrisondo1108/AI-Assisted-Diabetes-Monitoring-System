@@ -27,17 +27,20 @@ public class AuthenticationController {
     private final PatientService patientService;
     private final ProfileService profileService;
     private final PatientRoutineService patientRoutineService;
+    private final ClinicalExaminationService clinicalExaminationService;
 
     public AuthenticationController(UserService userService,
                                     RoleService roleService,
                                     PatientService patientService,
                                     ProfileService profileService,
-                                    PatientRoutineService patientRoutineService) {
+                                    PatientRoutineService patientRoutineService,
+                                    ClinicalExaminationService clinicalExaminationService) {
         this.userService = userService;
         this.roleService = roleService;
         this.patientService = patientService;
         this.profileService = profileService;
         this.patientRoutineService = patientRoutineService;
+        this.clinicalExaminationService = clinicalExaminationService;
     }
 
     // ==================== GET ====================
@@ -175,6 +178,7 @@ public class AuthenticationController {
             PatientRoutine patientRoutine = new PatientRoutine();
             patientRoutine.setPatient(patient);
             patientRoutineService.create(patientRoutine);
+            clinicalExaminationService.createAutoPendingExamination(patient.getUserId());
 
         } else {
             Profile profile = new Profile();

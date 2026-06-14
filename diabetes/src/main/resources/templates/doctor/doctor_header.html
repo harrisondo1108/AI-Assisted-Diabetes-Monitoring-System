@@ -9,14 +9,14 @@
         <div class="clinic-tag">
             <span class="pulse-indicator"></span>
             <i class="fas fa-hospital-user"></i> 
-            <span th:text="${session.userProfile != null && session.userProfile.room != null ? 'Rm ' + session.userProfile.room.roomId + ': ' + session.userProfile.room.roomName : 'Rm 204: Endocrinology Clinic'}">Rm 204: Endocrinology Clinic</span>
+            <span th:text="${session.userProfile != null && session.userProfile.room != null ? 'P. ' + session.userProfile.room.roomId + ': ' + session.userProfile.room.roomName : 'Phòng 204: Phòng khám Nội tiết'}">Phòng 204: Phòng khám Nội tiết</span>
         </div>
     </div>
 
     <!-- Navigation links (previously sidebar) -->
     <nav class="header-nav">
         <a th:href="@{/doctor/dashboard}" class="header-nav-item" th:classappend="${activeMenu == 'dashboard'} ? 'active' : ''">
-            <i class="fas fa-chart-line"></i> Dashboard
+            <i class="fas fa-chart-line"></i> Trang tổng quan
         </a>
     </nav>
 
@@ -24,27 +24,27 @@
     <div class="header-right">
         <!-- Active calendar date -->
         <span class="date-display" id="headerDate">
-            <i class="far fa-calendar-alt"></i> Loading Date...
+            <i class="far fa-calendar-alt"></i> Đang tải ngày...
         </span>
 
-        <a th:href="@{/doctor/profile}" class="doctor-profile-block" title="Edit Profile" style="text-decoration: none; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+        <a th:href="@{/doctor/profile}" class="doctor-profile-block" title="Chỉnh sửa hồ sơ" style="text-decoration: none; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
             <div class="doctor-avatar-circle"><i class="fas fa-user-md"></i></div>
             <div class="doctor-info-text">
-                <span class="doctor-name-lbl" th:text="${session.userProfile != null ? session.userProfile.fullName : 'Dr. Harrison'}">Dr. Harrison</span>
-                <span class="doctor-spec-lbl" th:text="${session.userProfile != null ? session.userProfile.specialty : 'Endocrinologist'}">Endocrinologist</span>
+                <span class="doctor-name-lbl" th:text="${session.userProfile != null ? session.userProfile.fullName : 'BS. Harrison'}">BS. Harrison</span>
+                <span class="doctor-spec-lbl" th:text="${session.userProfile != null ? session.userProfile.specialty : 'Bác sĩ chuyên khoa Nội tiết'}">Bác sĩ chuyên khoa Nội tiết</span>
             </div>
         </a>
-        <a th:href="@{/login}" class="logout-link-btn" title="Logout Session">
+        <a th:href="@{/login}" class="logout-link-btn" title="Đăng xuất">
             <i class="fas fa-sign-out-alt"></i>
         </a>
     </div>
     <script>
         // Set date display in header dynamically
         (function() {
-            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-            const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            const days = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+            const months = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
             const now = new Date();
-            const formattedDate = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+            const formattedDate = `${days[now.getDay()]}, ngày ${now.getDate()} ${months[now.getMonth()]} năm ${now.getFullYear()}`;
             const dateEl = document.getElementById('headerDate');
             if (dateEl) {
                 dateEl.innerHTML = `<i class="far fa-calendar-alt"></i> ${formattedDate}`;

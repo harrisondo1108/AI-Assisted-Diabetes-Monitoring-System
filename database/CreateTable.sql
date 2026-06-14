@@ -182,7 +182,7 @@ CREATE TABLE [Prescription] (
 
 -- 11.5. TreatmentPlan
 CREATE TABLE [TreatmentPlan] (
-    [PlanID] INT PRIMARY KEY,
+    [PlanID] INT IDENTITY(1,1) PRIMARY KEY,
     [ClinicalExamID] VARCHAR(50) NOT NULL,
     [TreatmentGoal] NVARCHAR(MAX),
     [DietPlan] NVARCHAR(MAX),
@@ -310,3 +310,27 @@ INSERT INTO [Room] ([RoomName])
 VALUES
 ('Endocrinology Clinic'),
 ('Laboratory');
+
+INSERT INTO [Symptoms_Catalog] (SymptomID, SymptomName, Status)
+VALUES 
+('SYM001', N'Khát nước quá mức (Polydipsia)', 1),
+('SYM002', N'Đi tiểu nhiều lần (Polyuria)', 1),
+('SYM003', N'Đói dữ dội (Polyphagia)', 1),
+('SYM004', N'Sụt cân không rõ nguyên nhân', 1),
+('SYM005', N'Mệt mỏi, uể oải', 1),
+('SYM006', N'Mờ mắt', 1),
+('SYM007', N'Vết thương lâu lành', 1);
+
+INSERT INTO [Lab_Test_Catalog] (LabTestID, TestName, Unit, Description, RoomID, Status)
+VALUES 
+('LAB001', N'Đường huyết lúc đói (FPG)', 'mg/dL', N'Đo lượng đường trong máu sau khi nhịn ăn 8h', 2, 1),
+('LAB002', N'HbA1c', '%', N'Đo đường huyết trung bình trong 2-3 tháng qua', 2, 1),
+('LAB003', N'Nghiệm pháp dung nạp Glucose (OGTT)', 'mg/dL', N'Đánh giá khả năng chuyển hóa đường của cơ thể', 2, 1),
+('LAB004', N'Đường huyết ngẫu nhiên', 'mg/dL', N'Đo đường huyết tại thời điểm bất kỳ', 2, 1);
+
+INSERT INTO [Medication] (MedicationID, MedicationName, Form, Concentration, AdministrationRoute, UsageInstruction, Status)
+VALUES 
+('MED001', 'Metformin', N'Viên nén', '500mg', N'Đường uống', N'Uống sau khi ăn', 'Active'),
+('MED002', 'Gliclazide', N'Viên nén', '30mg', N'Đường uống', N'Uống trước bữa ăn sáng', 'Active'),
+('MED003', 'Insulin Glargine', N'Bút tiêm', '100IU/ml', N'Tiêm dưới da', N'Tiêm vào cùng một thời điểm mỗi ngày', 'Active'),
+('MED004', 'Sitagliptin', N'Viên nén', '100mg', N'Đường uống', N'Uống một lần mỗi ngày', 'Active');

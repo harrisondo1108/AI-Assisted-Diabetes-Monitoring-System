@@ -584,58 +584,176 @@
 }
 
 .prescription-line {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr 40px;
-    gap: 12px;
-    align-items: center;
-    padding: 10px 16px;
-    background-color: var(--doctor-bg);
+    background: #ffffff;
     border: 1px solid var(--doctor-border);
-    border-radius: var(--radius-sm);
-    font-size: 0.78rem;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    transition: all 0.2s ease;
+}
+
+.prescription-line:hover {
+    border-color: rgba(13, 148, 136, 0.3);
+    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.05);
+}
+
+.presc-card-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.presc-med-info {
+    flex: 1.5;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .presc-med-name {
+    font-size: 0.95rem;
     font-weight: 700;
     color: var(--doctor-text-main);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.presc-med-conc {
+    font-size: 0.85rem;
+    color: var(--doctor-text-muted);
+    font-weight: 500;
+}
+
+.presc-med-form-badge {
+    align-self: flex-start;
+    font-size: 0.68rem;
+    padding: 2px 8px;
+    background: rgba(13, 148, 136, 0.08);
+    color: var(--doctor-primary);
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.presc-card-details {
+    flex: 3;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
 }
 
 .presc-detail-item {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
+    min-width: 80px;
+}
+
+.presc-timing-col {
+    min-width: 150px;
 }
 
 .presc-lbl {
-    font-size: 0.62rem;
+    font-size: 0.65rem;
     color: var(--doctor-text-muted);
     text-transform: uppercase;
     font-weight: 600;
+    letter-spacing: 0.5px;
 }
 
 .presc-val {
+    font-size: 0.85rem;
     font-weight: 600;
     color: var(--doctor-text-main);
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
-.btn-remove-line {
+.presc-val i {
+    color: var(--doctor-primary);
+}
+
+.presc-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-presc-action {
     background: none;
-    border: none;
-    color: var(--doctor-text-muted);
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: color 0.15s;
-    height: 28px;
-    width: 28px;
-    border-radius: 50%;
+    border: 1px solid var(--doctor-border);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
 }
 
-.btn-remove-line:hover {
+.btn-presc-action.edit-btn {
+    color: var(--doctor-primary);
+}
+.btn-presc-action.edit-btn:hover {
+    background: rgba(13, 148, 136, 0.08);
+    border-color: var(--doctor-primary);
+}
+
+.btn-presc-action.delete-btn {
     color: var(--doctor-danger);
-    background-color: #fdeaea;
+}
+.btn-presc-action.delete-btn:hover {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: var(--doctor-danger);
+}
+
+.presc-card-instructions {
+    background: #f8fafc;
+    border-left: 3px solid var(--doctor-primary);
+    padding: 10px 14px;
+    border-radius: 0 8px 8px 0;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 0.82rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.inst-icon {
+    color: var(--doctor-primary);
+    font-size: 0.9rem;
+    margin-top: 1px;
+}
+
+.inst-text {
+    color: var(--doctor-text-main);
+    line-height: 1.4;
+    text-align: left;
+}
+
+.inst-text strong {
+    font-weight: 600;
+    margin-right: 4px;
+}
+
+.inst-text span {
+    color: var(--doctor-text-muted);
+    font-style: italic;
 }
 
 .no-medications-message {

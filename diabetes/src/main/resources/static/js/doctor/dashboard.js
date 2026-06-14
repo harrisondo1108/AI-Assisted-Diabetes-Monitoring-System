@@ -75,7 +75,7 @@ function renderQueue() {
     tableBody.innerHTML = '';
 
     if (totalCount === 0) {
-        tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--doctor-text-muted); padding: 30px;">No patients found in queue</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--doctor-text-muted); padding: 30px;">Không tìm thấy bệnh nhân nào trong hàng đợi</td></tr>`;
         renderPagination(0);
         return;
     }
@@ -145,11 +145,15 @@ function filterQueue(status) {
 
     // Update active UI class
     const pills = document.querySelectorAll('.filter-pills .pill');
+    const statusMap = {
+        'all': 'Tất cả',
+        'Pending': 'Đang chờ',
+        'InProgress': 'Đang khám',
+        'Completed': 'Hoàn thành',
+        'Cancelled': 'Đã hủy'
+    };
     pills.forEach(pill => {
-        const pillText = pill.textContent.replace(/\s+/g, '').toLowerCase();
-        const targetStatus = status.replace(/\s+/g, '').toLowerCase();
-
-        if (pillText === targetStatus) {
+        if (pill.textContent.trim() === statusMap[status]) {
             pill.classList.add('active');
         } else {
             pill.classList.remove('active');
@@ -175,8 +179,8 @@ function updateMetrics() {
     const queueCountEl = document.getElementById('queueCount');
     const completedCountEl = document.getElementById('completedCount');
 
-    if (queueCountEl) queueCountEl.textContent = `${pending + inProgress} Patients`;
-    if (completedCountEl) completedCountEl.textContent = `${completed} Cases`;
+    if (queueCountEl) queueCountEl.textContent = `${pending + inProgress} Bệnh nhân`;
+    if (completedCountEl) completedCountEl.textContent = `${completed} Ca khám`;
 }
 
 // Show completed exam details modal using Thymeleaf Fragment loaded via AJAX
@@ -186,12 +190,12 @@ function viewCompletedExam(examId) {
 
     const modalBody = document.getElementById('completedExamModalBody');
     if (modalBody) {
-        modalBody.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--doctor-text-muted);"><i class="fas fa-spinner fa-spin fa-2x"></i><p style="margin-top: 10px;">Loading exam details...</p></div>';
+        modalBody.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--doctor-text-muted);"><i class="fas fa-spinner fa-spin fa-2x"></i><p style="margin-top: 10px;">Đang tải chi tiết ca khám...</p></div>';
 
         fetch(`/doctor/dashboard/view-exam/${examId}`)
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Failed to load exam details');
+                    throw new Error('Không thể tải chi tiết ca khám');
                 }
                 return response.text();
             })
@@ -200,7 +204,7 @@ function viewCompletedExam(examId) {
             })
             .catch(error => {
                 console.error(error);
-                modalBody.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--doctor-danger);"><i class="fas fa-exclamation-triangle fa-2x"></i><p style="margin-top: 10px;">Error loading exam details.</p></div>';
+                modalBody.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--doctor-danger);"><i class="fas fa-exclamation-triangle fa-2x"></i><p style="margin-top: 10px;">Lỗi khi tải chi tiết ca khám.</p></div>';
             });
     }
 }
@@ -212,6 +216,7 @@ function closeCompletedExam() {
 
 // Navigate to patient medical history timeline page
 function viewPatientHistory(patientId) {
+    sessionStorage.setItem('fromExamineRoom', 'false');
     window.location.href = `/doctor/examine/patients?patientId=${patientId}`;
 }
 

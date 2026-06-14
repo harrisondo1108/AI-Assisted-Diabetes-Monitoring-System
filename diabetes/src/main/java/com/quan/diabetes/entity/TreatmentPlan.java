@@ -3,6 +3,8 @@ package com.quan.diabetes.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -13,14 +15,15 @@ import java.time.LocalDateTime;
 public class TreatmentPlan {
 
     @Id
-    @Column(name = "PlanID", length = 50)
-    private String planId;
+    @Column(name = "PlanID")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer planId;
 
     @OneToOne
     @JoinColumn(name = "ClinicalExamID", nullable = false)
     private ClinicalExamination clinicalExamination;
 
-    @Column(name = "TreatmentGoal", length = 500, columnDefinition = "NVARCHAR(500)")
+    @Column(name = "TreatmentGoal",columnDefinition = "NVARCHAR(MAX)")
     private String treatmentGoal;
 
     @Column(name = "DietPlan", columnDefinition = "NVARCHAR(MAX)")
@@ -32,20 +35,17 @@ public class TreatmentPlan {
     @Column(name = "GlucoseMonitoringPlan", columnDefinition = "NVARCHAR(MAX)")
     private String glucoseMonitoringPlan;
 
-    @Column(name = "MedicationPlan", columnDefinition = "NVARCHAR(MAX)")
-    private String medicationPlan;
-
     @Column(name = "CreatedAt")
     private LocalDateTime createdAt;
 
     public TreatmentPlan() {
     }
 
-    public String getPlanId() {
+    public Integer getPlanId() {
         return planId;
     }
 
-    public void setPlanId(String planId) {
+    public void setPlanId(Integer planId) {
         this.planId = planId;
     }
 
@@ -87,14 +87,6 @@ public class TreatmentPlan {
 
     public void setGlucoseMonitoringPlan(String glucoseMonitoringPlan) {
         this.glucoseMonitoringPlan = glucoseMonitoringPlan;
-    }
-
-    public String getMedicationPlan() {
-        return medicationPlan;
-    }
-
-    public void setMedicationPlan(String medicationPlan) {
-        this.medicationPlan = medicationPlan;
     }
 
     public LocalDateTime getCreatedAt() {

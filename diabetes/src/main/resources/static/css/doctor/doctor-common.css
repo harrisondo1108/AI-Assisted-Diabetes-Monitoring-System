@@ -264,3 +264,203 @@ body {
         box-shadow: 0 0 0 0 rgba(26, 122, 74, 0);
     }
 }
+
+/* Premium History Modal Enhancements */
+.history-detail-card {
+    background: #f8fafc;
+    border: 1px solid var(--doctor-border);
+    border-radius: 12px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.history-section-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--doctor-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 2px solid var(--doctor-border);
+    padding-bottom: 8px;
+    margin-bottom: 4px;
+    margin-top: 0;
+}
+
+.history-section-title i {
+    font-size: 0.95rem;
+}
+
+.history-grid-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+}
+
+.history-info-box {
+    background: #ffffff;
+    border: 1px solid var(--doctor-border);
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.01);
+}
+
+.history-info-box .lbl {
+    font-size: 0.68rem;
+    color: var(--doctor-text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+}
+
+.history-info-box .val {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--doctor-text-main);
+}
+
+/* Notes card styling */
+.notes-card {
+    background: #ffffff;
+    border: 1px solid var(--doctor-border);
+    border-radius: 10px;
+    padding: 16px;
+    position: relative;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.01);
+}
+
+.notes-card.diagnosis {
+    background: rgba(13, 148, 136, 0.03);
+    border-left: 4px solid var(--doctor-primary);
+    border-color: rgba(13, 148, 136, 0.3) rgba(13, 148, 136, 0.1) rgba(13, 148, 136, 0.1) var(--doctor-primary);
+}
+
+.notes-card.clinical {
+    background: #ffffff;
+    border-left: 4px solid var(--doctor-text-muted);
+}
+
+.notes-content {
+    font-size: 0.85rem;
+    color: var(--doctor-text-main);
+    line-height: 1.6;
+    margin: 0;
+    white-space: pre-wrap;
+}
+
+/* Treatment plan list card styling */
+.treatment-plan-card {
+    background: #ffffff;
+    border: 1px solid var(--doctor-border);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.plan-item-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.plan-item-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(13, 148, 136, 0.08);
+    color: var(--doctor-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.plan-item-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.plan-item-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--doctor-text-main);
+    text-transform: uppercase;
+}
+
+.plan-item-text {
+    font-size: 0.85rem;
+    color: var(--doctor-text-muted);
+    line-height: 1.5;
+    margin: 0;
+    white-space: pre-wrap;
+}
+
+/* Modernized Tables inside history detail */
+.modal-body .clinical-table {
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--doctor-border) !important;
+    text-align: left;
+}
+
+.modal-body .clinical-table th {
+    background: #fafcfb;
+    color: var(--doctor-text-muted);
+    font-weight: 700;
+    font-size: 0.72rem;
+    padding: 12px 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: left;
+    border-bottom: 1px solid var(--doctor-border);
+}
+
+.modal-body .clinical-table td {
+    padding: 12px 14px;
+    font-size: 0.82rem;
+    text-align: left;
+    border-bottom: 1px solid var(--doctor-border);
+}
+
+.med-history-item-desc {
+    font-size: 0.75rem;
+    color: var(--doctor-text-muted);
+    font-style: italic;
+    background: #f8fafc;
+    border-left: 2px solid var(--doctor-primary);
+    padding: 4px 8px;
+    margin-top: 4px;
+    border-radius: 0 4px 4px 0;
+    display: inline-block;
+}
+
+/* Scrollbar customization for modal-body */
+.modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+.modal-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+.modal-body::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Modal history size consistency */
+.modal-history {
+    max-width: 850px !important;
+    width: 90% !important;
+}

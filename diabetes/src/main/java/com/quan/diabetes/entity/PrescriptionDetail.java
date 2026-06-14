@@ -36,6 +36,9 @@ public class PrescriptionDetail {
     @Column(name = "DurationDays")
     private int durationDays;
 
+    @Column(name = "MedicationPlan", columnDefinition = "NVARCHAR(MAX)")
+    private String medicationPlan;
+
     public PrescriptionDetail() {
     }
     public void addTiming(PrescriptionTiming timing){
@@ -61,6 +64,14 @@ public class PrescriptionDetail {
 
     public void setPrescriptionTimings(List<PrescriptionTiming> prescriptionTimings) {
         this.prescriptionTimings = prescriptionTimings;
+    }
+
+    public String getMedicationPlan() {
+        return medicationPlan;
+    }
+
+    public void setMedicationPlan(String medicationPlan) {
+        this.medicationPlan = medicationPlan;
     }
 
     public Prescription getPrescription() {

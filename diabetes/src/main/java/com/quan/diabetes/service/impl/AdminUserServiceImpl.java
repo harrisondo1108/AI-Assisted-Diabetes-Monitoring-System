@@ -6,11 +6,13 @@ import com.quan.diabetes.entity.Profile;
 import com.quan.diabetes.entity.Role;
 import com.quan.diabetes.entity.Room;
 import com.quan.diabetes.entity.User;
+import com.quan.diabetes.entity.ClinicalExamination;
 import com.quan.diabetes.repository.PatientRepository;
 import com.quan.diabetes.repository.ProfileRepository;
 import com.quan.diabetes.repository.RoleRepository;
 import com.quan.diabetes.repository.RoomRepository;
 import com.quan.diabetes.repository.UserRepository;
+import com.quan.diabetes.repository.ClinicalExaminationRepository;
 import com.quan.diabetes.service.AdminUserService;
 import com.quan.diabetes.service.PatientService;
 import com.quan.diabetes.service.UserService;
@@ -44,13 +46,17 @@ public class AdminUserServiceImpl implements AdminUserService {
     private final UserService userService;
     private final PatientService patientService;
     private final PasswordEncoder passwordEncoder;
+    private final ClinicalExaminationRepository clinicalExaminationRepository;
+
     public AdminUserServiceImpl(UserRepository userRepository,
                                 PatientRepository patientRepository,
                                 ProfileRepository profileRepository,
                                 RoleRepository roleRepository,
                                 RoomRepository roomRepository,
                                 UserService userService,
-                                PatientService patientService, PasswordEncoder passwordEncoder) {
+                                PatientService patientService,
+                                PasswordEncoder passwordEncoder,
+                                ClinicalExaminationRepository clinicalExaminationRepository) {
         this.userRepository = userRepository;
         this.patientRepository = patientRepository;
         this.profileRepository = profileRepository;
@@ -59,6 +65,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         this.userService = userService;
         this.patientService = patientService;
         this.passwordEncoder = passwordEncoder;
+        this.clinicalExaminationRepository = clinicalExaminationRepository;
     }
 
     @Override
@@ -187,6 +194,24 @@ public class AdminUserServiceImpl implements AdminUserService {
             p.setSupervisorPhone(ParseUtil.parseString(dto.getSupervisorPhone()));
 
             p = patientService.create(p);
+
+            // Tự động tạo ca khám Pending với bác sĩ DOC đầu tiên
+            User doctor = userRepository.findFirstByRole_RoleId("DOC").orElse(null);
+            if (doctor != null) {
+                boolean hasActive = clinicalExaminationRepository
+                        .findFirstByPatient_UserIdAndDoctor_UserIdAndStatusIn(
+                                p.getUserId(), doctor.getUserId(), java.util.List.of("Pending", "InProgress"))
+                        .isPresent();
+                if (!hasActive) {
+                    ClinicalExamination exam = new ClinicalExamination();
+                    exam.setClinicalExamId("EXM-" + System.currentTimeMillis() + "-" + new java.util.Random().nextInt(1000));
+                    exam.setPatient(p);
+                    exam.setDoctor(doctor);
+                    exam.setExamDate(java.time.LocalDateTime.now());
+                    exam.setStatus("Pending");
+                    clinicalExaminationRepository.save(exam);
+                }
+            }
 
         } else {
             Profile p = new Profile();

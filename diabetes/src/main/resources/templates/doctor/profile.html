@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doctor Profile | Diabetes Care System</title>
+    <title>Hồ sơ bác sĩ | Hệ thống chăm sóc tiểu đường</title>
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -15,7 +15,7 @@
     <div class="doctor-layout">
         <div class="doctor-main">
             <!-- Header -->
-            <div th:replace="~{doctor/doctor_header :: header('My Clinical Profile', 'profile')}"></div>
+            <div th:replace="~{doctor/doctor_header :: header('Hồ sơ lâm sàng của tôi', 'profile')}"></div>
 
             <main class="doctor-content profile-layout">
                 <div class="profile-card">
@@ -24,64 +24,64 @@
                             <div class="avatar-large"><i class="fas fa-user-md"></i></div>
                         </div>
                         <div class="header-meta">
-                            <h2 th:text="${doctorProfile.fullName}">Dr. Harrison</h2>
-                            <span class="role-badge"><i class="fas fa-id-card-clip"></i> Medical Doctor</span>
+                            <h2 th:text="${doctorProfile.fullName}">BS. Harrison</h2>
+                            <span class="role-badge"><i class="fas fa-id-card-clip"></i> Bác sĩ điều trị</span>
                         </div>
                     </div>
 
                     <!-- Flash messages -->
                     <div th:if="${successMsg != null}" class="alert-msg success">
                         <i class="fas fa-circle-check"></i>
-                        <span th:text="${successMsg}">Profile updated successfully!</span>
+                        <span th:text="${successMsg}">Cập nhật hồ sơ thành công!</span>
                     </div>
                     <div th:if="${errorMsg != null}" class="alert-msg error">
                         <i class="fas fa-circle-xmark"></i>
-                        <span th:text="${errorMsg}">Error message</span>
+                        <span th:text="${errorMsg}">Đã xảy ra lỗi</span>
                     </div>
 
                     <form th:action="@{/doctor/profile/update}" method="POST" class="profile-form">
                         <div class="form-section-title">
-                            <i class="fas fa-user-gear"></i> Personal & Professional Details
+                            <i class="fas fa-user-gear"></i> Chi tiết Cá nhân & Chuyên môn
                         </div>
                         
                         <div class="form-grid">
                             <div class="form-group">
-                                <label for="fullName">Full Name <span class="required">*</span></label>
+                                <label for="fullName">Họ và tên <span class="required">*</span></label>
                                 <div class="input-with-icon">
                                     <i class="fas fa-user"></i>
-                                    <input type="text" id="fullName" name="fullName" th:value="${doctorProfile.fullName}" required placeholder="e.g. Dr. John Doe">
+                                    <input type="text" id="fullName" name="fullName" th:value="${doctorProfile.fullName}" required placeholder="VD: Bác sĩ Nguyễn Văn A">
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label for="phoneNumber">Phone Number (Account Identity)</label>
+                                <label for="phoneNumber">Số điện thoại (Tên tài khoản)</label>
                                 <div class="input-with-icon disabled-field">
                                     <i class="fas fa-phone"></i>
                                     <input type="text" id="phoneNumber" name="phoneNumber" th:value="${doctorProfile.phoneNumber}" disabled>
                                 </div>
-                                <span class="field-hint">Phone number is used for login verification and cannot be changed.</span>
+                                <span class="field-hint">Số điện thoại được sử dụng để đăng nhập và chỉ được thay đổi trực tiếp qua quản trị viên.</span>
                             </div>
 
                             <div class="form-group">
-                                <label for="specialty">Specialty <span class="required">*</span></label>
+                                <label for="specialty">Chuyên khoa <span class="required">*</span></label>
                                 <div class="input-with-icon">
                                     <i class="fas fa-stethoscope"></i>
-                                    <input type="text" id="specialty" name="specialty" th:value="${doctorProfile.specialty}" required placeholder="e.g. Endocrinologist">
+                                    <input type="text" id="specialty" name="specialty" th:value="${doctorProfile.specialty}" required placeholder="VD: Bác sĩ Nội tiết">
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label for="roomId">Assigned Clinic Room <span class="required">*</span></label>
+                                <label for="roomId">Phòng khám phân công <span class="required">*</span></label>
                                 <div class="input-with-icon">
                                     <i class="fas fa-door-open"></i>
                                     <select id="roomId" name="roomId" required>
-                                        <option th:each="r : ${rooms}" th:value="${r.roomId}" th:text="${r.roomName}" th:selected="${doctorProfile.room != null && doctorProfile.room.roomId == r.roomId}">Room 204: Endocrinology Clinic</option>
+                                        <option th:each="r : ${rooms}" th:value="${r.roomId}" th:text="${r.roomName}" th:selected="${doctorProfile.room != null && doctorProfile.room.roomId == r.roomId}">Phòng 204: Phòng khám Nội tiết</option>
                                     </select>
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label for="dob">Date of Birth</label>
+                                <label for="dob">Ngày sinh</label>
                                 <div class="input-with-icon">
                                     <i class="fas fa-calendar-day"></i>
                                     <input type="date" id="dob" name="dob" th:value="${doctorProfile.dob}" max="">
@@ -89,34 +89,34 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Gender</label>
+                                <label>Giới tính</label>
                                 <div class="gender-radio-group">
                                     <label class="radio-label">
                                         <input type="radio" name="gender" value="false" th:checked="${doctorProfile.gender == null || !doctorProfile.gender}">
-                                        <span>Male</span>
+                                        <span>Nam</span>
                                     </label>
                                     <label class="radio-label">
                                         <input type="radio" name="gender" value="true" th:checked="${doctorProfile.gender != null && doctorProfile.gender}">
-                                        <span>Female</span>
+                                        <span>Nữ</span>
                                     </label>
                                 </div>
                             </div>
 
                             <div class="form-group full-width">
-                                <label for="address">Clinic Address / Office Location</label>
+                                <label for="address">Địa chỉ phòng khám / Văn phòng làm việc</label>
                                 <div class="input-with-icon">
                                     <i class="fas fa-location-dot" style="margin-top: 10px;"></i>
-                                    <textarea id="address" name="address" rows="3" placeholder="e.g. Endocrinology Department, Floor 3, Block B..." th:text="${doctorProfile.address}"></textarea>
+                                    <textarea id="address" name="address" rows="3" placeholder="VD: Khoa Nội tiết, Tầng 3, Tòa nhà B..." th:text="${doctorProfile.address}"></textarea>
                                 </div>
                             </div>
                         </div>
 
                         <div class="form-actions">
                             <a th:href="@{/doctor/dashboard}" class="btn btn-secondary">
-                                <i class="fas fa-xmark"></i> Cancel
+                                <i class="fas fa-xmark"></i> Hủy
                             </a>
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-check"></i> Save Changes
+                                <i class="fas fa-check"></i> Lưu thay đổi
                             </button>
                         </div>
                     </form>

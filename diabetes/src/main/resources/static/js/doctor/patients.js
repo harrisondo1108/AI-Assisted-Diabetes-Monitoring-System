@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (hasActive) {
         if (backBtn) {
             backBtn.href = '/doctor/examine';
-            backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back to Checkup';
+            backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Quay lại ca khám';
             backBtn.addEventListener('click', () => {
                 isLeavingToExamine = true;
             });
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.addEventListener('beforeunload', (e) => {
             if (!isLeavingToExamine) {
                 e.preventDefault();
-                e.returnValue = 'You have an active examination in progress. Are you sure you want to leave?';
+                e.returnValue = 'Bạn đang thực hiện khám bệnh dở dang. Bạn có chắc chắn muốn rời đi?';
                 return e.returnValue;
             }
         });
@@ -56,10 +56,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const fromExamineRoom = sessionStorage.getItem('fromExamineRoom') === 'true';
             if (fromExamineRoom) {
                 backBtn.href = '/doctor/examine';
-                backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back to Checkup';
+                backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Quay lại ca khám';
             } else {
                 backBtn.href = '/doctor/dashboard';
-                backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back to Dashboard';
+                backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Quay lại trang tổng quan';
             }
         }
     }
@@ -184,14 +184,34 @@ function drawGlucoseChart(data) {
     });
 }
 
-// Filter timeline list by date input (client-side)
+// Filter timeline list by date range input (client-side)
 function filterTimeline() {
-    const query = document.getElementById('timelineSearchInput').value.toLowerCase().trim();
+    const fromDateVal = document.getElementById('timelineFromDate').value;
+    const toDateVal = document.getElementById('timelineToDate').value;
+
+    if (fromDateVal && toDateVal && toDateVal < fromDateVal) {
+        alert("Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu.");
+        document.getElementById('timelineToDate').value = "";
+        // Re-run filter with empty toDate
+        filterTimeline();
+        return;
+    }
+
     const items = document.querySelectorAll('.timeline-trail .timeline-item');
 
     items.forEach(item => {
-        const dateAttr = item.getAttribute('data-date') ? item.getAttribute('data-date').toLowerCase() : '';
-        if (!query || dateAttr.includes(query)) {
+        const itemDate = item.getAttribute('data-exam-date'); // format: yyyy-MM-dd
+        if (!itemDate) return;
+
+        let visible = true;
+        if (fromDateVal && itemDate < fromDateVal) {
+            visible = false;
+        }
+        if (toDateVal && itemDate > toDateVal) {
+            visible = false;
+        }
+
+        if (visible) {
             item.style.display = '';
         } else {
             item.style.display = 'none';
@@ -206,12 +226,12 @@ function openTimelineDetail(examId) {
 
     const modalBody = document.getElementById('timelineDetailModalBody');
     if (modalBody) {
-        modalBody.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--doctor-text-muted);"><i class="fas fa-spinner fa-spin fa-2x"></i><p style="margin-top: 10px;">Loading visit details...</p></div>';
+        modalBody.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--doctor-text-muted);"><i class="fas fa-spinner fa-spin fa-2x"></i><p style="margin-top: 10px;">Đang tải chi tiết ca khám...</p></div>';
 
         fetch(`/doctor/examine/patients/view-exam/${examId}`)
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Failed to load visit details');
+                    throw new Error('Không thể tải chi tiết ca khám');
                 }
                 return response.text();
             })
@@ -220,7 +240,7 @@ function openTimelineDetail(examId) {
             })
             .catch(error => {
                 console.error(error);
-                modalBody.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--doctor-danger);"><i class="fas fa-exclamation-triangle fa-2x"></i><p style="margin-top: 10px;">Error loading visit details.</p></div>';
+                modalBody.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--doctor-danger);"><i class="fas fa-exclamation-triangle fa-2x"></i><p style="margin-top: 10px;">Có lỗi xảy ra khi tải chi tiết ca khám.</p></div>';
             });
     }
 }

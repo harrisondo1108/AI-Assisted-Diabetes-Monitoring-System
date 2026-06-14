@@ -38,6 +38,8 @@ public class DoctorExamineController {
     private final ExamSymptomRepository examSymptomRepository;
     private final PatientRoutineService patientRoutineService;
     private final MedicationTimingRepository medicationTimingRepository;
+    private final PatientTypeRepository patientTypeRepository;
+    private final IndicatorThresholdRepository indicatorThresholdRepository;
 
     public DoctorExamineController(
             ClinicalExaminationService clinicalExaminationService,
@@ -53,7 +55,9 @@ public class DoctorExamineController {
             TreatmentPlanRepository treatmentPlanRepository,
             ExamSymptomRepository examSymptomRepository,
             PatientRoutineService patientRoutineService,
-            MedicationTimingRepository medicationTimingRepository) {
+            MedicationTimingRepository medicationTimingRepository,
+            PatientTypeRepository patientTypeRepository,
+            IndicatorThresholdRepository indicatorThresholdRepository) {
         this.clinicalExaminationService = clinicalExaminationService;
         this.patientService = patientService;
         this.profileService = profileService;
@@ -68,6 +72,8 @@ public class DoctorExamineController {
         this.examSymptomRepository = examSymptomRepository;
         this.patientRoutineService = patientRoutineService;
         this.medicationTimingRepository = medicationTimingRepository;
+        this.patientTypeRepository = patientTypeRepository;
+        this.indicatorThresholdRepository = indicatorThresholdRepository;
     }
 
     @GetMapping("/examine")
@@ -122,6 +128,7 @@ public class DoctorExamineController {
         model.addAttribute("lastExamLabResultsData", Collections.emptyList());
         model.addAttribute("lastExamPrescriptionDetailsData", Collections.emptyList());
         model.addAttribute("labTestsCatalogData", Collections.emptyList());
+        model.addAttribute("chosenSymptomNotes", Collections.emptyMap());
 
         // Convert patient to map for safe JS serialization without circular reference
         Map<String, Object> patientMap = new HashMap<>();
@@ -151,6 +158,17 @@ public class DoctorExamineController {
                 .collect(Collectors.toList());
         model.addAttribute("labTestsCatalog", labTestsCatalog);
 
+        // Tính tuổi để xác định khoảng tham chiếu/ngưỡng động từ CSDL
+        int age = 0;
+        if (patient.getDob() != null) {
+            age = java.time.Period.between(patient.getDob(), java.time.LocalDate.now()).getYears();
+        }
+        final int finalAge = age;
+        PatientType matchedType = patientTypeRepository.findAll().stream()
+                .filter(t -> (t.getMinAge() == null || finalAge >= t.getMinAge()) && (t.getMaxAge() == null || finalAge <= t.getMaxAge()))
+                .findFirst()
+                .orElse(null);
+
         // Map labTestsCatalog for JS catalog to include referenceRange
         List<Map<String, Object>> labCatalogList = new ArrayList<>();
         if (labTestsCatalog != null) {
@@ -160,17 +178,40 @@ public class DoctorExamineController {
                 lMap.put("testName", l.getTestName());
                 lMap.put("unit", l.getUnit());
                 
-                String testName = l.getTestName().toLowerCase();
-                String refRange = "0 - 5.2";
-                if (testName.contains("glucose")) {
-                    refRange = "3.9 - 5.6";
-                } else if (testName.contains("hba1c")) {
-                    refRange = "4.0 - 5.6";
-                } else if (testName.contains("ogtt")) {
-                    refRange = "3.9 - 7.8";
-                } else if (testName.contains("creatinine")) {
-                    refRange = "62 - 115";
+                Optional<IndicatorThreshold> thresholdOpt = Optional.empty();
+                if (matchedType != null) {
+                    thresholdOpt = indicatorThresholdRepository.findByLabTest_LabTestIdAndPatientType_PatientTypeId(
+                        l.getLabTestId(), matchedType.getPatientTypeId()
+                    );
                 }
+                if (thresholdOpt.isEmpty()) {
+                    List<IndicatorThreshold> thresholds = indicatorThresholdRepository.findByLabTest_LabTestId(l.getLabTestId());
+                    if (!thresholds.isEmpty()) {
+                        thresholdOpt = Optional.of(thresholds.get(0));
+                    }
+                }
+                
+                String refRange = "0 - 5.2";
+                if (thresholdOpt.isPresent()) {
+                    refRange = thresholdOpt.get().getMinValue() + " - " + thresholdOpt.get().getMaxValue();
+                    lMap.put("minValue", thresholdOpt.get().getMinValue());
+                    lMap.put("maxValue", thresholdOpt.get().getMaxValue());
+                } else {
+                    String testName = l.getTestName().toLowerCase();
+                    String tId = l.getLabTestId();
+                    if (tId.equals("LAB003") || testName.contains("ogtt") || testName.contains("dung nạp")) {
+                        refRange = "70 - 140";
+                    } else if (tId.equals("LAB001") || testName.contains("fpg") || testName.contains("lúc đói") || testName.contains("fasting")) {
+                        refRange = "70 - 100";
+                    } else if (tId.equals("LAB002") || testName.contains("hba1c")) {
+                        refRange = "4.0 - 5.6";
+                    } else if (tId.equals("LAB004") || testName.contains("ngẫu nhiên") || testName.contains("random")) {
+                        refRange = "70 - 140";
+                    }
+                    lMap.put("minValue", null);
+                    lMap.put("maxValue", null);
+                }
+                
                 lMap.put("referenceRange", refRange);
                 labCatalogList.add(lMap);
             }
@@ -225,7 +266,7 @@ public class DoctorExamineController {
                     planMap.put("dietPlan", lastExam.getTreatmentPlan().getDietPlan());
                     planMap.put("exercisePlan", lastExam.getTreatmentPlan().getExercisePlan());
                     planMap.put("glucoseMonitoringPlan", lastExam.getTreatmentPlan().getGlucoseMonitoringPlan());
-                    planMap.put("medicationPlan", lastExam.getTreatmentPlan().getMedicationPlan());
+                    planMap.put("medicationPlan", "");
                     lastExamMap.put("treatmentPlan", planMap);
                 }
                 model.addAttribute("lastExamData", lastExamMap);
@@ -238,6 +279,12 @@ public class DoctorExamineController {
                         .map(s -> s.getSymptom().getSymptomId())
                         .collect(Collectors.toList());
                 model.addAttribute("chosenSymptomIds", chosenSymptomIds);
+
+                Map<String, String> chosenSymptomNotes = new HashMap<>();
+                for (ExamSymptom s : chosenSymptoms) {
+                    chosenSymptomNotes.put(s.getSymptom().getSymptomId(), s.getNote() != null ? s.getNote() : "");
+                }
+                model.addAttribute("chosenSymptomNotes", chosenSymptomNotes);
 
                 // Nạp kết quả xét nghiệm liên quan
                 List<LabResult> labResults = labResultRepository.findByLabOrder_ClinicalExamination_ClinicalExamId(lastExam.getClinicalExamId());
@@ -279,6 +326,7 @@ public class DoctorExamineController {
                     pMap.put("dosage", p.getDosage());
                     pMap.put("durationDays", p.getDurationDays());
                     pMap.put("totalQuantity", p.getTotalQuantity());
+                    pMap.put("medicationPlan", p.getMedicationPlan());
                     
                     List<Map<String, Object>> timingsList = new ArrayList<>();
                     if (p.getPrescriptionTimings() != null) {

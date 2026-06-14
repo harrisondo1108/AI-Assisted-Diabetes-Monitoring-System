@@ -27,4 +27,6 @@ public interface ClinicalExaminationService {
     void cancelExamination(String patientId, String reason, String doctorId);
 
     void startExamination(String patientId, String doctorId);
+
+    void createAutoPendingExamination(String patientId);
 }

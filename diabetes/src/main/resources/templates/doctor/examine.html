@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Examine Room | Diabetes Care System</title>
+    <title>Phòng khám | Hệ thống Theo dõi Đường huyết</title>
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
@@ -32,71 +32,73 @@
 
                     <div class="patient-specs-grid">
                         <div class="spec-item">
-                            <span class="spec-label">Age</span>
-                            <span class="spec-val" id="patAge" th:text="${patient.dob != null ? (T(java.time.Period).between(patient.dob, T(java.time.LocalDate).now()).getYears() + ' yrs') : 'N/A'}">45 yrs</span>
+                            <span class="spec-label">Tuổi</span>
+                            <span class="spec-val" id="patAge" th:text="${patient.dob != null ? (T(java.time.Period).between(patient.dob, T(java.time.LocalDate).now()).getYears() + ' tuổi') : 'N/A'}">45 tuổi</span>
                         </div>
                         <div class="spec-item">
-                            <span class="spec-label">Gender</span>
-                            <span class="spec-val" id="patGender" th:text="${patient.gender != null ? (patient.gender ? 'Female' : 'Male') : 'N/A'}">Male</span>
+                            <span class="spec-label">Giới tính</span>
+                            <span class="spec-val" id="patGender" th:text="${patient.gender != null ? (patient.gender ? 'Nữ' : 'Nam') : 'N/A'}">Nam</span>
                         </div>
                         <div class="spec-item">
-                            <span class="spec-label">Blood Group</span>
+                            <span class="spec-label">Nhóm máu</span>
                             <span class="spec-val" id="patBlood" th:text="${patient.bloodgroup != null ? patient.bloodgroup : 'N/A'}">O+</span>
                         </div>
                         <div class="spec-item">
-                            <span class="spec-label">BMI</span>
-                            <span class="spec-val" id="patBmi" th:with="h_m=${patient.height != null ? patient.height / 100.0 : 0.0}, bmi=${(patient.weight != null && h_m > 0) ? (patient.weight.doubleValue() / (h_m * h_m)) : 0.0}" th:text="${bmi > 0 ? #numbers.formatDecimal(bmi, 1, 1) + (bmi < 18.5 ? ' (Underweight)' : (bmi < 25.0 ? ' (Normal)' : (bmi < 30.0 ? ' (Overweight)' : ' (Obese)'))) : 'N/A'}">24.2 (Normal)</span>
+                            <span class="spec-label">Chỉ số BMI</span>
+                            <span class="spec-val" id="patBmi" th:with="h_m=${patient.height != null ? patient.height / 100.0 : 0.0}, bmi=${(patient.weight != null && h_m > 0) ? (patient.weight.doubleValue() / (h_m * h_m)) : 0.0}" th:text="${bmi > 0 ? #numbers.formatDecimal(bmi, 1, 1) + (bmi < 18.5 ? ' (Thiếu cân)' : (bmi < 25.0 ? ' (Bình thường)' : (bmi < 30.0 ? ' (Thừa cân)' : ' (Béo phì)'))) : 'N/A'}">24.2 (Bình thường)</span>
                         </div>
                     </div>
 
 
                     <div class="medical-details-section">
-                        <h4 class="section-title"><i class="fas fa-weight-scale"></i> Vital Metrics</h4>
+                        <h4 class="section-title"><i class="fas fa-weight-scale"></i> Chỉ số cơ thể</h4>
                         <div class="detail-row">
-                            <span>Height:</span> <strong id="patHeight" th:text="${patient.height != null ? patient.height + ' cm' : 'N/A'}">172 cm</strong>
+                            <span>Chiều cao:</span> <strong id="patHeight" th:text="${patient.height != null ? patient.height + ' cm' : 'N/A'}">172 cm</strong>
                         </div>
                         <div class="detail-row">
-                            <span>Weight:</span> <strong id="patWeight" th:text="${patient.weight != null ? patient.weight + ' kg' : 'N/A'}">71.5 kg</strong>
+                            <span>Cân nặng:</span> <strong id="patWeight" th:text="${patient.weight != null ? patient.weight + ' kg' : 'N/A'}">71.5 kg</strong>
                         </div>
                     </div>
 
                     <div class="medical-details-section">
-                        <h4 class="section-title"><i class="fas fa-circle-exclamation"></i> Medical Warnings</h4>
+                        <h4 class="section-title"><i class="fas fa-circle-exclamation"></i> Cảnh báo y tế</h4>
                         <div class="alert-box alert-danger">
-                            <strong>Allergies:</strong>
-                            <p id="patAllergy" th:text="${patient.allergyNotes != null && !patient.allergyNotes.empty ? patient.allergyNotes : 'No known drug allergies'}">No known drug allergies</p>
+                            <strong>Dị ứng:</strong>
+                            <p id="patAllergy" th:text="${patient.allergyNotes != null && !patient.allergyNotes.empty ? patient.allergyNotes : 'Không có dị ứng thuốc nào được ghi nhận'}">Không có dị ứng thuốc nào được ghi nhận</p>
                         </div>
                         <div class="alert-box alert-info">
-                            <strong>History:</strong>
-                            <p id="patHistory" th:text="${patient.permanentMedicalHistory != null && !patient.permanentMedicalHistory.empty ? patient.permanentMedicalHistory : 'No recorded medical history'}">Type 2 Diabetes diagnosed 3 years ago. Hypertension.</p>
+                            <strong>Tiền sử bệnh án:</strong>
+                            <p id="patHistory" th:text="${patient.permanentMedicalHistory != null && !patient.permanentMedicalHistory.empty ? patient.permanentMedicalHistory : 'Không có tiền sử bệnh án được ghi nhận'}">Type 2 Diabetes diagnosed 3 years ago. Hypertension.</p>
                         </div>
                     </div>
 
                     <div class="medical-details-section">
-                        <h4 class="section-title"><i class="fas fa-clock"></i> Daily Routine</h4>
+                        <h4 class="section-title"><i class="fas fa-clock"></i> Sinh hoạt hàng ngày</h4>
                         <div class="routine-item">
-                            <i class="fas fa-mug-saucer"></i> <span>Breakfast:</span> <strong id="patBreakfast" th:text="${routine != null && routine.breakfastTime != null ? #temporals.format(routine.breakfastTime, 'hh:mm a') : '07:30 AM'}">07:30 AM</strong>
+                            <i class="fas fa-mug-saucer"></i> <span>Bữa sáng:</span> <strong id="patBreakfast" th:text="${routine != null && routine.breakfastTime != null ? #temporals.format(routine.breakfastTime, 'hh:mm a') : '07:30 AM'}">07:30 AM</strong>
                         </div>
                         <div class="routine-item">
-                            <i class="fas fa-utensils"></i> <span>Lunch:</span> <strong id="patLunch" th:text="${routine != null && routine.lunchTime != null ? #temporals.format(routine.lunchTime, 'hh:mm a') : '12:00 PM'}">12:15 PM</strong>
+                            <i class="fas fa-utensils"></i> <span>Bữa trưa:</span> <strong id="patLunch" th:text="${routine != null && routine.lunchTime != null ? #temporals.format(routine.lunchTime, 'hh:mm a') : '12:15 PM'}">12:15 PM</strong>
                         </div>
                         <div class="routine-item">
-                            <i class="fas fa-bowl-food"></i> <span>Dinner:</span> <strong id="patDinner" th:text="${routine != null && routine.dinnerTime != null ? #temporals.format(routine.dinnerTime, 'hh:mm a') : '06:00 PM'}">07:00 PM</strong>
+                            <i class="fas fa-bowl-food"></i> <span>Bữa tối:</span> <strong id="patDinner" th:text="${routine != null && routine.dinnerTime != null ? #temporals.format(routine.dinnerTime, 'hh:mm a') : '07:00 PM'}">07:00 PM</strong>
                         </div>
                         <div class="routine-item">
-                            <i class="fas fa-bed"></i> <span>Sleep / Wake:</span> <strong id="patSleep" th:text="${(routine != null && routine.sleepTime != null ? #temporals.format(routine.sleepTime, 'hh:mm a') : '10:00 PM') + ' / ' + (routine != null && routine.wakeUpTime != null ? #temporals.format(routine.wakeUpTime, 'hh:mm a') : '06:00 AM')}">10:00 PM / 06:00 AM</strong>
+                            <i class="fas fa-bed"></i> <span>Ngủ / Thức dậy:</span> <strong id="patSleep" th:text="${(routine != null && routine.sleepTime != null ? #temporals.format(routine.sleepTime, 'hh:mm a') : '10:00 PM') + ' / ' + (routine != null && routine.wakeUpTime != null ? #temporals.format(routine.wakeUpTime, 'hh:mm a') : '06:00 AM')}">10:00 PM / 06:00 AM</strong>
                         </div>
                     </div>
 
                     <button type="button" class="btn btn-secondary btn-sm" id="viewHistoryBtn" onclick="goToHistory()"
                         style="width: 100%; margin: 12px 0 0 0; justify-content: center; gap: 8px;">
-                        <i class="fas fa-clock-rotate-left"></i> View Medical History
+                        <i class="fas fa-clock-rotate-left"></i> Xem lịch sử bệnh án
                     </button>
                 </aside>
 
                 <!-- Right/Main Workspace Container -->
                 <form th:action="@{/doctor/examine/{id}/submit(id=${patient.userId})}" method="POST" id="examineForm" th:object="${examForm}" class="examination-workspace">
                     <input type="hidden" id="prescriptionJson" name="prescriptionJson" value="">
+                    <input type="hidden" id="symptomCommentsJson" name="symptomCommentsJson" value="">
+                    <input type="hidden" id="labResultsJson" name="labResultsJson" value="">
                     <div class="workspace-header">
                         <!-- Diagnostic Session Status -->
                         <div class="session-info" style="display: none;">
@@ -105,57 +107,57 @@
                         </div>
                         <!-- Top actions -->
                         <div class="workspace-actions">
-                            <button type="button" class="btn btn-outline-danger" onclick="cancelExam()">Cancel</button>
+                            <button type="button" class="btn btn-outline-danger" onclick="cancelExam()">Hủy ca khám</button>
                             <button type="button" class="btn btn-primary" onclick="saveExam()"><i
-                                    class="fas fa-floppy-disk"></i> Complete Examination</button>
+                                    class="fas fa-floppy-disk"></i> Hoàn thành khám bệnh</button>
                         </div>
                     </div>
 
                     <!-- Examination Start Overlay -->
                     <div id="examStartOverlay" class="exam-start-overlay" th:style="${activeExam != null && activeExam.status == 'Pending' ? 'display: flex;' : 'display: none;'}">
                         <i class="fas fa-stethoscope"></i>
-                        <h3>Begin Clinical Consultation</h3>
-                        <p>You are about to start the examination for <strong th:text="${patient.fullName}">this patient</strong></p>
+                        <h3>Bắt đầu khám lâm sàng</h3>
+                        <p>Bạn chuẩn bị bắt đầu ca khám cho bệnh nhân <strong th:text="${patient.fullName}">this patient</strong></p>
                         <button type="submit" form="startExamForm" class="btn btn-primary" style="font-size: 1.1rem; padding: 12px 24px;">
-                            <i class="fas fa-play"></i> Start Examination
+                            <i class="fas fa-play"></i> Bắt đầu khám
                         </button>
                     </div>
 
                     <!-- Horizontal Diagnostic Tabs -->
                     <div class="diagnostic-tabs">
                         <button type="button" class="tab-btn active" onclick="switchTab(event, 'symptoms-tab')"><i
-                                class="fas fa-notes-medical"></i> Symptoms </button>
+                                class="fas fa-notes-medical"></i> Triệu chứng & Bệnh sử </button>
                         <button type="button" class="tab-btn" onclick="switchTab(event, 'labs-tab')"><i class="fas fa-flask"></i>
-                            Laboratory Orders </button>
+                            Chỉ định xét nghiệm </button>
                         <button type="button" class="tab-btn" onclick="switchTab(event, 'prescription-tab')"><i
-                                class="fas fa-pills"></i> Treatment & Prescription</button>
+                                class="fas fa-pills"></i> Phác đồ & Kê đơn</button>
                     </div>
 
                     <!-- TAB CONTENT 1: Symptoms Checklist -->
                     <div class="tab-content active" id="symptoms-tab">
                         <div class="form-section">
-                            <p class="section-description">Select patient symptoms and record medical history notes</p>
+                            <p class="section-description">Chọn triệu chứng của bệnh nhân và ghi chú tiền sử/bệnh sử lâm sàng</p>
 
                             <div class="form-grid-columns-2">
                                 <div class="form-group full-width">
-                                    <label>Current Medical Complaints & History</label>
+                                    <label>Lý do khám & Bệnh sử hiện tại</label>
                                     <textarea id="examHistory" name="medicalHistory" rows="3"
-                                        placeholder="Enter patient's description of symptoms, duration, and context..."></textarea>
+                                        placeholder="Nhập mô tả của bệnh nhân về triệu chứng, thời gian và hoàn cảnh xuất hiện..."></textarea>
                                 </div>
                                 <div class="form-group full-width">
-                                    <label>Clinical Diagnosis Note</label>
+                                    <label>Ghi chú chẩn đoán lâm sàng</label>
                                     <textarea id="examDiagnosis" name="diagnosisNote" rows="3"
-                                        placeholder="Enter clinical diagnosis and notes..."></textarea>
+                                        placeholder="Nhập chẩn đoán lâm sàng và ghi chú..."></textarea>
                                 </div>
                                 <div class="form-group">
-                                    <label>Next Appointment Date</label>
+                                    <label>Hẹn ngày tái khám</label>
                                     <input type="date" id="examNextDate" name="nextAppointment">
                                 </div>
                             </div>
                         </div>
 
                         <div class="form-section" style="margin-top: 20px;">
-                            <h3 class="section-header-title">Symptoms Checkbox Catalog</h3>
+                            <h3 class="section-header-title">Danh mục phân loại triệu chứng</h3>
                             <div class="symptoms-selection-grid" id="symptomsGrid">
                             </div>
                         </div>
@@ -166,17 +168,16 @@
                         <div class="form-section">
                             <div class="prescription-header">
                                 <div class="prescription-titles">
-                                    <p class="section-description">Order diagnostic laboratory examinations for the
-                                        patient</p>
+                                    <p class="section-description">Chỉ định các xét nghiệm cận lâm sàng cho bệnh nhân</p>
                                 </div>
                                 <button type="button" class="btn btn-secondary btn-sm" onclick="showLabTestModal()"><i
-                                        class="fas fa-plus"></i> Order Laboratory Tests</button>
+                                        class="fas fa-plus"></i> Yêu cầu chỉ định xét nghiệm</button>
                             </div>
 
                             <div class="ordered-labs-summary" id="orderedLabsSummary">
                                 <div class="no-medications-message" id="emptyLabs">
                                     <i class="fas fa-vial-circle-check"></i>
-                                    <p>No laboratory tests ordered yet</p>
+                                    <p>Chưa có chỉ định xét nghiệm nào</p>
                                 </div>
                             </div>
                         </div>
@@ -184,25 +185,23 @@
                         <div class="form-section" style="margin-top: 20px;">
                             <div class="card">
                                 <div class="card-header">
-                                    <span class="badge-status badge-completed"><i class="fas fa-vial"></i> Laboratory
-                                        Test Results </span>
+                                    <span class="badge-status badge-completed"><i class="fas fa-vial"></i> Kết quả xét nghiệm cận lâm sàng </span>
                                 </div>
                                 <div class="table-container">
                                     <table class="clinical-table">
                                         <thead>
                                             <tr>
-                                                <th>Laboratory Test Name</th>
-                                                <th>Reference Threshold Range</th>
-                                                <th>Result Value</th>
-                                                <th>Flag Status</th>
+                                                <th>Tên xét nghiệm cận lâm sàng</th>
+                                                <th>Khoảng ngưỡng tham chiếu</th>
+                                                <th>Kết quả</th>
+                                                <th>Trạng thái cờ</th>
                                             </tr>
                                         </thead>
                                         <tbody id="labResultsTableBody">
                                             <tr>
                                                 <td colspan="4"
                                                     style="text-align: center; color: var(--doctor-text-muted); padding: 30px;">
-                                                    Please select one or more tests from the catalog above to view
-                                                    results
+                                                    Vui lòng chỉ định một hoặc nhiều xét nghiệm từ danh mục phía trên để xem kết quả
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -217,58 +216,52 @@
                         <!-- Treatment Plan Form Section -->
                         <div class="form-section" style="margin-bottom: 20px;">
                             <h3 class="section-header-title"><i class="fas fa-notes-medical"
-                                    style="color: var(--doctor-primary);"></i> Clinical Treatment Plan</h3>
-                            <p class="section-description" style="margin-bottom: 15px;">Treatment plan including goals, diet, exercise, self-monitoring, and medication summary
-                                instructions (at least 1 field required)</p>
+                                    style="color: var(--doctor-primary);"></i> Kế hoạch & Phác đồ điều trị</h3>
+                            <p class="section-description" style="margin-bottom: 15px;">Kế hoạch điều trị bao gồm mục tiêu, dinh dưỡng, vận động, tự theo dõi và hướng dẫn sử dụng thuốc (yêu cầu ít nhất 1 trường)</p>
 
                             <div class="form-grid-columns-2">
                                 <div class="form-group full-width">
-                                    <label>Treatment Goal</label>
+                                    <label>Mục tiêu điều trị</label>
                                     <input type="text" id="planGoal" name="treatmentGoal"
-                                        placeholder="e.g. Reduce Fasting Blood Glucose to < 5.6 mmol/L and HbA1c to < 6.5%">
+                                        placeholder="Ví dụ: Giảm đường huyết lúc đói < 5.6 mmol/L và HbA1c < 6.5%">
                                 </div>
                                 <div class="form-group">
-                                    <label>Dietary & Nutrition Plan</label>
+                                    <label>Chế độ dinh dưỡng</label>
                                     <textarea id="planDiet" name="dietPlan" rows="3"
-                                        placeholder="e.g. Limit sugar intake, carbohydrate restriction, eat more high-fiber foods..."></textarea>
+                                        placeholder="Ví dụ: Hạn chế đường, tinh bột, ăn nhiều thực phẩm giàu chất xơ..."></textarea>
                                 </div>
                                 <div class="form-group">
-                                    <label>Physical Exercise Plan</label>
+                                    <label>Chế độ vận động & Tập luyện</label>
                                     <textarea id="planExercise" name="exercisePlan" rows="3"
-                                        placeholder="e.g. Walk or jog for 30 minutes daily, 5 times a week..."></textarea>
+                                        placeholder="Ví dụ: Đi bộ hoặc chạy bộ 30 phút mỗi ngày, 5 lần một tuần..."></textarea>
                                 </div>
                                 <div class="form-group">
-                                    <label>Self Glucose Monitoring Plan</label>
+                                    <label>Tần suất tự theo dõi đường huyết</label>
                                     <textarea id="planGlucose" name="glucoseMonitoringPlan" rows="3"
-                                        placeholder="e.g. Measure fasting blood glucose daily in the morning, and 2 hours after lunch..."></textarea>
+                                        placeholder="Ví dụ: Đo đường huyết lúc đói vào buổi sáng và 2 giờ sau khi ăn trưa..."></textarea>
                                 </div>
-                                <div class="form-group">
-                                    <label>Self Glucose Monitoring Plan</label>
-                                    <textarea id="planMedication" name="glucoseMonitoringPlan" rows="3"
-                                              placeholder="e.g. Measure fasting blood glucose daily in the morning, and 2 hours after lunch..."></textarea>
-                                </div>
+
                             </div>
                         </div>
 
                         <!-- Medication Prescription Section -->
                         <div class="form-section">
                             <h3 class="section-header-title"><i class="fas fa-prescription-bottle-medical"
-                                    style="color: var(--doctor-primary);"></i> Medication Prescription</h3>
+                                    style="color: var(--doctor-primary);"></i> Đơn thuốc điều trị</h3>
                             <div class="prescription-header"
                                 style="border-bottom: none; margin-bottom: 0; padding-bottom: 0; margin-top: 10px;">
                                 <div class="prescription-titles">
-                                    <p class="section-description">Add exact medical compounds, strengths, supply
-                                        quantities, and routine timing for the pharmacy</p>
+                                    <p class="section-description">Thêm các loại thuốc điều trị, nồng độ/hàm lượng, số lượng cung cấp và thời điểm sử dụng</p>
                                 </div>
                                 <button type="button" class="btn btn-secondary btn-sm"
-                                    onclick="showMedicationModal()"><i class="fas fa-plus"></i> Add Medication</button>
+                                    onclick="showMedicationModal()"><i class="fas fa-plus"></i> Kê đơn thuốc</button>
                             </div>
 
                             <div class="prescription-items-list" id="prescriptionLines" style="margin-top: 15px;">
                                 <!-- Dynamic prescription detail rows loaded via JS -->
                                 <div class="no-medications-message" id="emptyPrescription">
                                     <i class="fas fa-prescription-bottle-medical"></i>
-                                    <p>No medications added to this prescription yet.</p>
+                                    <p>Chưa có thuốc nào được kê trong đơn thuốc này.</p>
                                 </div>
                             </div>
                         </div>
@@ -285,15 +278,15 @@
     <div class="modal-overlay" id="medicationModal">
         <div class="modal modal-prescription">
             <div class="modal-header">
-                <h2>Add Medication Line</h2>
+                <h2>Kê đơn thuốc</h2>
                 <button type="button" class="modal-close" onclick="closeMedicationModal()"><i
                         class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label>Select Medication <span class="required">*</span></label>
+                    <label>Chọn thuốc <span class="required">*</span></label>
                     <div class="custom-select-autocomplete">
-                        <input type="text" id="medSearch" placeholder="Type to search medicine..."
+                        <input type="text" id="medSearch" placeholder="Nhập để tìm kiếm thuốc..."
                             onkeyup="filterMedications()">
                         <div class="autocomplete-list" id="medAutocompleteList">
                             <!-- Populated dynamically -->
@@ -302,34 +295,40 @@
                 </div>
 
                 <div class="form-grid-columns-2" id="medDetailFields" style="margin-top: 15px; display: none;">
-                    <div class="form-group">
-                        <label>Dosage Rate <span class="required">*</span></label>
-                        <input type="text" id="medDosage" placeholder="e.g. 1 Tablet (500mg)">
+                    <div class="form-group" style="display: none;">
+                        <label>Liều dùng <span class="required">*</span></label>
+                        <input type="text" id="medDosage" placeholder="Ví dụ: 1 Viên (500mg)" value="Auto">
+                        <span class="error-msg" id="error-medDosage" style="color: var(--doctor-danger); font-size: 0.72rem; display: none; margin-top: 2px; font-weight: 500;"></span>
                     </div>
                     <div class="form-group">
-                        <label>Duration Days <span class="required">*</span></label>
+                        <label>Số ngày sử dụng <span class="required">*</span></label>
                         <input type="number" id="medDuration" min="1" max="180" value="30">
+                        <span class="error-msg" id="error-medDuration" style="color: var(--doctor-danger); font-size: 0.72rem; display: none; margin-top: 2px; font-weight: 500;"></span>
                     </div>
                     <div class="form-group">
-                        <label>Total Supply Quantity <span class="required">*</span></label>
+                        <label>Tổng số lượng cấp <span class="required">*</span></label>
                         <input type="number" id="medQuantity" min="1" max="500" value="30">
+                        <span class="error-msg" id="error-medQuantity" style="color: var(--doctor-danger); font-size: 0.72rem; display: none; margin-top: 2px; font-weight: 500;"></span>
                     </div>
                     <div class="form-group">
-                        <label>Daily Intake Hour <span class="required">*</span></label>
+                        <label>Thời điểm sử dụng <span class="required">*</span></label>
                         <select id="medTiming">
                             <option th:each="t : ${medicationTimings}" th:value="${t.timingName}" th:text="${t.timingName}"></option>
                             <!-- Fallback if empty -->
-                            <option th:if="${medicationTimings == null || medicationTimings.empty}" value="Breakfast Time (07:30 AM)">Breakfast Time (07:30 AM)</option>
-                            <option th:if="${medicationTimings == null || medicationTimings.empty}" value="Lunch Time (12:15 PM)">Lunch Time (12:15 PM)</option>
-                            <option th:if="${medicationTimings == null || medicationTimings.empty}" value="Dinner Time (07:00 PM)">Dinner Time (07:00 PM)</option>
+                            <option th:if="${medicationTimings == null || medicationTimings.empty}" value="Breakfast Time (07:30 AM)">Thời điểm ăn sáng (07:30 AM)</option>
+                            <option th:if="${medicationTimings == null || medicationTimings.empty}" value="Lunch Time (12:15 PM)">Thời điểm ăn trưa (12:15 PM)</option>
+                            <option th:if="${medicationTimings == null || medicationTimings.empty}" value="Dinner Time (07:00 PM)">Thời điểm ăn tối (07:00 PM)</option>
                         </select>
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>Hướng dẫn sử dụng / Kế hoạch thuốc</label>
+                        <textarea id="medPlan" rows="2" placeholder="Ví dụ: Uống sau khi ăn sáng, uống nhiều nước..."></textarea>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeMedicationModal()">Cancel</button>
-                <button type="button" class="btn btn-primary" id="addMedBtn" onclick="addMedicationLine()">Add to
-                    Prescription</button>
+                <button type="button" class="btn btn-secondary" onclick="closeMedicationModal()">Hủy</button>
+                <button type="button" class="btn btn-primary" id="addMedBtn" onclick="addMedicationLine()">Thêm vào đơn thuốc</button>
             </div>
         </div>
     </div>
@@ -339,8 +338,7 @@
         <div class="modal" style="max-width: 420px; padding: 20px; border-radius: 12px;">
             <form th:action="@{/doctor/examine/{id}/cancel(id=${patient.userId})}" method="POST" id="cancelForm">
                 <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
-                    <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--doctor-text-main);">Cancel Examination
-                    </h3>
+                    <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--doctor-text-main);">Hủy ca khám</h3>
                     <button type="button" class="close-btn" onclick="closeCancelModal()" style="font-size: 1.2rem;"><i
                             class="fas fa-times"></i></button>
                 </div>
@@ -349,14 +347,14 @@
                         style="font-size: 2.8rem; color: var(--doctor-danger); margin-bottom: 15px;"></i>
                     <p
                         style="font-size: 1.05rem; font-weight: 600; color: var(--doctor-text-main); margin-bottom: 8px; line-height: 1.4;">
-                        Are you sure you want to cancel?</p>
+                        Bạn có chắc chắn muốn hủy ca khám này?</p>
                     <p style="font-size: 0.85rem; color: var(--doctor-text-muted); margin-bottom: 15px; line-height: 1.4;">
-                        All unsaved progress will be permanently lost</p>
+                        Tất cả tiến trình chưa lưu sẽ bị mất vĩnh viễn</p>
                     <div style="margin-top: 12px; text-align: left;">
                         <label
-                            style="font-weight: 600; font-size: 0.8rem; color: var(--doctor-text-main); display: block; margin-bottom: 5px;">Reason
+                            style="font-weight: 600; font-size: 0.8rem; color: var(--doctor-text-main); display: block; margin-bottom: 5px;">Lý do hủy
                             <span class="required" style="color: var(--doctor-danger);">*</span></label>
-                        <textarea id="cancelReason" name="reason" rows="2" placeholder="Please specify the reason..." required
+                        <textarea id="cancelReason" name="reason" rows="2" placeholder="Vui lòng nêu rõ lý do hủy..." required
                             style="width: 100%; border: 1px solid var(--doctor-border); border-radius: 6px; padding: 8px 10px; font-size: 0.8rem; outline: none; resize: none; box-sizing: border-box; font-family: inherit; line-height: 1.4; transition: border-color 0.2s;"
                             onfocus="this.style.borderColor='var(--doctor-primary)'"
                             onblur="this.style.borderColor='var(--doctor-border)'"></textarea>
@@ -364,10 +362,10 @@
                 </div>
                 <div class="modal-footer" style="justify-content: center; gap: 12px; padding-top: 10px; border-top: none;">
                     <button type="button" class="btn btn-secondary" onclick="closeCancelModal()"
-                        style="font-size: 0.9rem; padding: 8px 18px; border-radius: 6px;">No</button>
+                        style="font-size: 0.9rem; padding: 8px 18px; border-radius: 6px;">Không</button>
                     <button type="submit" class="btn"
                         style="background: var(--doctor-danger); color: white; font-size: 0.9rem; padding: 8px 18px; border-radius: 6px; font-weight: 600; border: none; cursor: pointer; transition: opacity 0.2s;"
-                        onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">Yes</button>
+                        onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">Có, hủy khám</button>
                 </div>
             </form>
         </div>
@@ -378,7 +376,7 @@
         <div class="modal" style="max-width: 500px; padding: 25px; border-radius: 12px; border: 1px solid rgba(217, 119, 6, 0.2); box-shadow: 0 10px 25px -5px rgba(217, 119, 6, 0.1), 0 8px 10px -6px rgba(217, 119, 6, 0.1);">
             <div class="modal-header" style="border-bottom: none; padding-bottom: 0; display: flex; justify-content: space-between; align-items: center;">
                 <h3 style="font-size: 1.3rem; color: #d97706; display: flex; align-items: center; gap: 8px;">
-                    <i class="fas fa-exclamation-triangle"></i> Attention Required
+                    <i class="fas fa-exclamation-triangle"></i> Chú ý
                 </h3>
                 <button type="button" class="close-btn" onclick="closeSkipLabModal()" style="background: none; border: none; font-size: 1.3rem; color: var(--doctor-text-muted); cursor: pointer;"><i class="fas fa-times"></i></button>
             </div>
@@ -387,17 +385,17 @@
                     <i class="fas fa-microscope"></i>
                 </div>
                 <p style="font-size: 1.15rem; font-weight: 700; color: var(--doctor-text-main); margin-bottom: 10px;">
-                    Skip Laboratory Testing?
+                    Bỏ qua chỉ định xét nghiệm?
                 </p>
                 <p style="font-size: 0.88rem; color: var(--doctor-text-muted); line-height: 1.5; margin: 0;">
-                    Are you sure you want to bypass the lab examination phase?
+                    Bạn có chắc chắn muốn bỏ qua giai đoạn chỉ định xét nghiệm cận lâm sàng không?
                 </p>
             </div>
             <div class="modal-footer" style="justify-content: center; gap: 12px; padding-top: 15px; border-top: none;">
                 <button type="button" class="btn btn-secondary" onclick="closeSkipLabModal()"
-                    style="font-size: 0.85rem; padding: 8px 20px; border-radius: 6px; border: 1px solid var(--doctor-border); cursor: pointer;">Go Back</button>
+                    style="font-size: 0.85rem; padding: 8px 20px; border-radius: 6px; border: 1px solid var(--doctor-border); cursor: pointer;">Quay lại</button>
                 <button type="button" class="btn btn-primary" onclick="confirmSkipLab()"
-                    style="background: #d97706; border: none; color: white; font-size: 0.85rem; padding: 8px 20px; border-radius: 6px; font-weight: 600; cursor: pointer;">Skip and Proceed</button>
+                    style="background: #d97706; border: none; color: white; font-size: 0.85rem; padding: 8px 20px; border-radius: 6px; font-weight: 600; cursor: pointer;">Bỏ qua và tiếp tục</button>
             </div>
         </div>
     </div>
@@ -407,7 +405,7 @@
         <div class="modal" style="max-width: 500px; padding: 25px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.2); box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.1), 0 8px 10px -6px rgba(239, 68, 68, 0.1);">
             <div class="modal-header" style="border-bottom: none; padding-bottom: 0; display: flex; justify-content: space-between; align-items: center;">
                 <h3 style="font-size: 1.3rem; color: var(--doctor-danger); display: flex; align-items: center; gap: 8px;">
-                    <i class="fas fa-hand-paper"></i> Action Blocked
+                    <i class="fas fa-hand-paper"></i> Hành động bị chặn
                 </h3>
                 <button type="button" class="close-btn" onclick="closeNavigationBlockedModal()" style="background: none; border: none; font-size: 1.3rem; color: var(--doctor-text-muted); cursor: pointer;"><i class="fas fa-times"></i></button>
             </div>
@@ -416,15 +414,15 @@
                     <i class="fas fa-user-lock"></i>
                 </div>
                 <p style="font-size: 1.15rem; font-weight: 700; color: var(--doctor-text-main); margin-bottom: 10px;">
-                    Active Session in Progress
+                    Ca khám đang được thực hiện
                 </p>
                 <p style="font-size: 0.88rem; color: var(--doctor-text-muted); line-height: 1.5; margin: 0;">
-                    You must either complete or cancel this checkup session before leaving the examination room.
+                    Bạn phải hoàn thành hoặc hủy ca khám này trước khi rời khỏi phòng khám.
                 </p>
             </div>
             <div class="modal-footer" style="justify-content: center; gap: 12px; padding-top: 15px; border-top: none;">
                 <button type="button" class="btn btn-primary" onclick="closeNavigationBlockedModal()"
-                    style="background: var(--doctor-primary); border: none; color: white; font-size: 0.85rem; padding: 8px 20px; border-radius: 6px; font-weight: 600; cursor: pointer;">Acknowledge</button>
+                    style="background: var(--doctor-primary); border: none; color: white; font-size: 0.85rem; padding: 8px 20px; border-radius: 6px; font-weight: 600; cursor: pointer;">Đã hiểu</button>
             </div>
         </div>
     </div>
@@ -433,17 +431,17 @@
     <div class="modal-overlay" id="labTestModal">
         <div class="modal modal-prescription">
             <div class="modal-header">
-                <h2>Order Laboratory Examinations</h2>
+                <h2>Chỉ định xét nghiệm cận lâm sàng</h2>
                 <button type="button" class="modal-close" onclick="closeLabTestModal()"><i
                         class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
                 <div class="form-group" style="margin-bottom: 15px; position: relative;">
-                    <label>Search Laboratory Tests</label>
+                    <label>Tìm kiếm xét nghiệm cận lâm sàng</label>
                     <div class="custom-select-autocomplete">
                         <i class="fas fa-search"
                             style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--doctor-text-muted); font-size: 0.8rem;"></i>
-                        <input type="text" id="labSearch" placeholder="Type to filter laboratory tests..."
+                        <input type="text" id="labSearch" placeholder="Nhập để tìm kiếm xét nghiệm..."
                             onkeyup="filterLabTestsInModal()" style="padding-left: 32px; width: 100%;">
                     </div>
                 </div>
@@ -453,8 +451,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeLabTestModal()">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="confirmLabOrders()">Assign</button>
+                <button type="button" class="btn btn-secondary" onclick="closeLabTestModal()">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="confirmLabOrders()">Chỉ định</button>
             </div>
         </div>
     </div>
@@ -470,6 +468,7 @@
         const thViewOnly = /*[[${viewOnly}]]*/ false;
         const thLastExam = /*[[${lastExamData}]]*/ null;
         const thChosenSymptomIds = /*[[${chosenSymptomIds}]]*/ [];
+        const thChosenSymptomNotes = /*[[${chosenSymptomNotes}]]*/ {};
         const thLastExamLabResults = /*[[${lastExamLabResultsData}]]*/ [];
         const thLastExamPrescriptionDetails = /*[[${lastExamPrescriptionDetailsData}]]*/ [];
         const rawSymptomsCatalog = /*[[${symptomsCatalog}]]*/ [];

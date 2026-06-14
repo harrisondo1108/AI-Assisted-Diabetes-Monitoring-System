@@ -13,7 +13,9 @@ const labTestsCatalog = (typeof rawLabTestsCatalog !== 'undefined' ? rawLabTests
     name: l.testName,
     unit: l.unit,
     range: l.referenceRange,
-    room: 'Laboratory'
+    room: 'Phòng xét nghiệm',
+    minValue: l.minValue,
+    maxValue: l.maxValue
 }));
 
 const medicationsCatalog = (typeof rawMedicationsCatalog !== 'undefined' ? rawMedicationsCatalog : []).map(m => ({
@@ -31,6 +33,7 @@ let selectedSymptoms = {};
 let orderedLabs = {};
 let prescriptionLines = [];
 let isSubmitting = false;
+let simulatedResults = {};
 
 document.addEventListener('DOMContentLoaded', () => {
     loadSessionPatient();
@@ -38,6 +41,39 @@ document.addEventListener('DOMContentLoaded', () => {
     initLabTestChecklist();
     renderOrderedLabsList();
     setupNextAppointmentMinDate();
+
+    // Setup keypress block and paste block for medDuration & medQuantity
+    const numericInputs = ['medDuration', 'medQuantity'];
+    numericInputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('keypress', (e) => {
+                if (e.key.length > 1 || e.ctrlKey || e.metaKey) {
+                    return;
+                }
+                if (!/[0-9]/.test(e.key)) {
+                    e.preventDefault();
+                }
+            });
+            el.addEventListener('paste', (e) => {
+                const pasteData = e.clipboardData.getData('text');
+                if (!/^\d+$/.test(pasteData)) {
+                    e.preventDefault();
+                }
+            });
+        }
+    });
+
+    // Real-time validation mapping on input events
+    const medInputs = ['medDosage', 'medDuration', 'medQuantity'];
+    medInputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', () => {
+                validateMedicationFields();
+            });
+        }
+    });
     
     if (viewOnlyMode) {
         simulateLabResults();
@@ -111,10 +147,10 @@ function loadSessionPatient() {
         if (thPatient.weight && thPatient.height) {
             const h_m = thPatient.height / 100.0;
             const bmi = thPatient.weight / (h_m * h_m);
-            let bmiCategory = 'Normal';
-            if (bmi >= 25 && bmi < 30) bmiCategory = 'Overweight';
-            else if (bmi >= 30) bmiCategory = 'Obese';
-            else if (bmi < 18.5) bmiCategory = 'Underweight';
+            let bmiCategory = 'Bình thường';
+            if (bmi >= 25 && bmi < 30) bmiCategory = 'Thừa cân';
+            else if (bmi >= 30) bmiCategory = 'Béo phì';
+            else if (bmi < 18.5) bmiCategory = 'Thiếu cân';
             bmiVal = `${bmi.toFixed(1)} (${bmiCategory})`;
         }
 
@@ -122,13 +158,13 @@ function loadSessionPatient() {
             id: thPatient.userId,
             name: thPatient.fullName,
             age: ageStr,
-            gender: thPatient.gender !== null ? (thPatient.gender ? 'Female' : 'Male') : 'N/A',
+            gender: thPatient.gender !== null ? (thPatient.gender ? 'Nữ' : 'Nam') : 'N/A',
             bloodGroup: thPatient.bloodgroup || 'N/A',
             height: thPatient.height || 0,
             weight: thPatient.weight || 0,
             bmi: bmiVal,
-            allergies: thPatient.allergyNotes || 'No known drug allergies',
-            history: thPatient.permanentMedicalHistory || 'No recorded medical history',
+            allergies: thPatient.allergyNotes || 'Không có dị ứng thuốc nào được ghi nhận',
+            history: thPatient.permanentMedicalHistory || 'Không có tiền sử bệnh án được ghi nhận',
             routine: {
                 breakfast: thRoutine && thRoutine.breakfastTime ? formatLocalTime(thRoutine.breakfastTime) : '07:00 AM',
                 lunch: thRoutine && thRoutine.lunchTime ? formatLocalTime(thRoutine.lunchTime) : '11:00 AM',
@@ -150,13 +186,12 @@ function loadSessionPatient() {
             document.getElementById('planDiet').value = thLastExam.treatmentPlan.dietPlan || '';
             document.getElementById('planExercise').value = thLastExam.treatmentPlan.exercisePlan || '';
             document.getElementById('planGlucose').value = thLastExam.treatmentPlan.glucoseMonitoringPlan || '';
-            document.getElementById('planMedication').value = thLastExam.treatmentPlan.medicationPlan || '';
         }
 
         selectedSymptoms = {};
-        if (typeof thChosenSymptomIds !== 'undefined' && thChosenSymptomIds) {
-            thChosenSymptomIds.forEach(id => {
-                selectedSymptoms[id] = '';
+        if (typeof thChosenSymptomNotes !== 'undefined' && thChosenSymptomNotes) {
+            Object.keys(thChosenSymptomNotes).forEach(id => {
+                selectedSymptoms[id] = thChosenSymptomNotes[id];
             });
         }
 
@@ -183,7 +218,8 @@ function loadSessionPatient() {
                     duration: p.durationDays,
                     quantity: p.totalQuantity,
                     timing: tName, // standard timing mapped to options
-                    timingText: tName
+                    timingText: tName,
+                    medicationPlan: p.medicationPlan || ''
                 };
             });
         }
@@ -211,6 +247,7 @@ function renderSymptomsGrid() {
     grid.innerHTML = '';
     symptomsCatalog.forEach(s => {
         const isChecked = selectedSymptoms[s.id] !== undefined;
+        const noteVal = selectedSymptoms[s.id] || '';
         const div = document.createElement('div');
         div.className = `symptom-card ${isChecked ? 'selected' : ''}`;
         div.setAttribute('data-id', s.id);
@@ -220,11 +257,18 @@ function renderSymptomsGrid() {
                 <label for="chk-${s.id}">${s.name}</label>
             </div>
             <div class="symptom-comment-box">
-                <input type="text" placeholder="Add specific notes (severity, duration)..." id="comment-${s.id}">
+                <input type="text" placeholder="Thêm ghi chú cụ thể (mức độ, thời gian)..." id="comment-${s.id}" value="${noteVal}" oninput="updateSymptomComment('${s.id}')">
             </div>
         `;
         grid.appendChild(div);
     });
+}
+
+function updateSymptomComment(id) {
+    const input = document.getElementById(`comment-${id}`);
+    if (input && selectedSymptoms[id] !== undefined) {
+        selectedSymptoms[id] = input.value;
+    }
 }
 
 function toggleSymptom(id) {
@@ -233,7 +277,8 @@ function toggleSymptom(id) {
 
     if (chk.checked) {
         card.classList.add('selected');
-        selectedSymptoms[id] = '';
+        const input = document.getElementById(`comment-${id}`);
+        selectedSymptoms[id] = input ? input.value : '';
     } else {
         card.classList.remove('selected');
         delete selectedSymptoms[id];
@@ -355,7 +400,7 @@ function renderOrderedLabsList() {
                 <strong>${test.name}</strong>
                 <span class="lab-tag-room">${test.room}</span>
             </div>
-            <button type="button" class="btn-remove-lab" onclick="removeLabOrder('${test.id}')" title="Remove Order"><i class="fas fa-times"></i></button>
+            <button type="button" class="btn-remove-lab" onclick="removeLabOrder('${test.id}')" title="Xóa chỉ định"><i class="fas fa-times"></i></button>
         `;
         container.appendChild(div);
     });
@@ -381,7 +426,7 @@ function simulateLabProcessing() {
 
     const selectedIds = Object.keys(orderedLabs);
     if (selectedIds.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--doctor-text-muted); padding: 30px;">Please select one or more tests from the catalog above to view results</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--doctor-text-muted); padding: 30px;">Vui lòng chỉ định một hoặc nhiều xét nghiệm từ danh mục phía trên để xem kết quả</td></tr>`;
         return;
     }
 
@@ -392,8 +437,8 @@ function simulateLabProcessing() {
             <td colspan="4" style="text-align: center; padding: 40px 20px;">
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px;">
                     <i class="fa-solid fa-spinner fa-spin fa-2x" style="color: var(--doctor-primary);"></i>
-                    <strong style="color: var(--doctor-text-main); font-size: 1.1rem;">Processing samples at the Laboratory...</strong>
-                    <span style="color: var(--doctor-text-muted); font-size: 0.9rem;">Please wait a moment</span>
+                    <strong style="color: var(--doctor-text-main); font-size: 1.1rem;">Đang xử lý mẫu tại Phòng xét nghiệm...</strong>
+                    <span style="color: var(--doctor-text-muted); font-size: 0.9rem;">Vui lòng đợi trong giây lát</span>
                 </div>
             </td>
         </tr>
@@ -404,7 +449,7 @@ function simulateLabProcessing() {
         if (Object.keys(orderedLabs).length > 0) {
             simulateLabResults();
         } else {
-            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--doctor-text-muted); padding: 30px;">Please select one or more tests from the catalog above to view results</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--doctor-text-muted); padding: 30px;">Vui lòng chỉ định một hoặc nhiều xét nghiệm từ danh mục phía trên để xem kết quả</td></tr>`;
         }
     }, 2000); // reduced processing time to 2s for premium UI responsiveness
 }
@@ -424,19 +469,19 @@ function simulateLabResults() {
                     <td><strong>${l.labTest.testName}</strong></td>
                     <td><span style="font-weight:500; color: var(--doctor-text-muted);">${l.referenceRange} ${l.labTest.unit}</span></td>
                     <td><strong>${l.resultValue} ${l.labTest.unit}</strong></td>
-                    <td><span class="flag-badge ${flagClass}">${l.flag}</span></td>
+                    <td><span class="flag-badge ${flagClass}">${l.flag === 'HIGH' ? 'CAO' : (l.flag === 'NORMAL' ? 'BÌNH THƯỜNG' : l.flag)}</span></td>
                 `;
                 tbody.appendChild(tr);
             });
         } else {
-            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--doctor-text-muted); padding: 30px;">No laboratory tests ordered in this session</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--doctor-text-muted); padding: 30px;">Không có chỉ định xét nghiệm nào trong ca khám này</td></tr>`;
         }
         return;
     }
 
     const selectedIds = Object.keys(orderedLabs);
     if (selectedIds.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--doctor-text-muted); padding: 30px;">Please select one or more tests from the catalog above to view results</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--doctor-text-muted); padding: 30px;">Vui lòng chỉ định một hoặc nhiều xét nghiệm từ danh mục phía trên để xem kết quả</td></tr>`;
         return;
     }
 
@@ -449,30 +494,60 @@ function simulateLabResults() {
         let flag = 'NORMAL';
         let flagClass = 'flag-normal';
 
-        const rand = new RandomVal();
-        if (test.name.toLowerCase().includes("fasting blood glucose")) {
-            val = (4.0 + rand.next() * 5.5).toFixed(1);
-            if (val > 5.6) { flag = 'HIGH'; flagClass = 'flag-high'; }
-        } else if (test.name.toLowerCase().includes("hba1c")) {
-            val = (4.5 + rand.next() * 4.0).toFixed(1);
-            if (val > 5.6) { flag = 'HIGH'; flagClass = 'flag-high'; }
-        } else if (test.name.toLowerCase().includes("ogtt")) {
-            val = (6.5 + rand.next() * 5.0).toFixed(1);
-            if (val >= 7.8) { flag = 'HIGH'; flagClass = 'flag-high'; }
-        } else if (test.name.toLowerCase().includes("creatinine")) {
-            val = Math.round(60 + rand.next() * 75);
-            if (val > 115) { flag = 'HIGH'; flagClass = 'flag-high'; }
-        } else if (test.name.toLowerCase().includes("cholesterol")) {
-            val = (4.0 + rand.next() * 2.5).toFixed(1);
-            if (val >= 5.2) { flag = 'HIGH'; flagClass = 'flag-high'; }
+        if (!simulatedResults[id]) {
+            const rand = new RandomVal();
+            let minVal = parseFloat(test.minValue);
+            let maxVal = parseFloat(test.maxValue);
+            let hasDbThreshold = !isNaN(minVal) && !isNaN(maxVal);
+
+            if (hasDbThreshold) {
+                const isHigh = rand.next() > 0.5;
+                if (isHigh) {
+                    const scale = maxVal > 20 ? (maxVal * 0.4) : 4.0;
+                    val = parseFloat((maxVal + rand.next() * scale).toFixed(1));
+                } else {
+                    val = parseFloat((minVal + rand.next() * (maxVal - minVal)).toFixed(1));
+                }
+                if (val > maxVal) {
+                    flag = 'HIGH';
+                }
+            } else {
+                const testName = test.name.toLowerCase();
+                if (test.id === 'LAB001' || testName.includes("fasting blood glucose") || testName.includes("lúc đói") || testName.includes("fpg")) {
+                    val = parseFloat((70.0 + rand.next() * 80.0).toFixed(1));
+                    if (val > 100.0) { flag = 'HIGH'; }
+                } else if (test.id === 'LAB002' || testName.includes("hba1c")) {
+                    val = parseFloat((4.0 + rand.next() * 4.0).toFixed(1));
+                    if (val > 5.6) { flag = 'HIGH'; }
+                } else if (test.id === 'LAB003' || testName.includes("ogtt") || testName.includes("dung nạp")) {
+                    val = parseFloat((75.0 + rand.next() * 100.0).toFixed(1));
+                    if (val >= 140.0) { flag = 'HIGH'; }
+                } else if (test.id === 'LAB004' || testName.includes("ngẫu nhiên") || testName.includes("random")) {
+                    val = parseFloat((75.0 + rand.next() * 100.0).toFixed(1));
+                    if (val >= 140.0) { flag = 'HIGH'; }
+                } else if (testName.includes("creatinine")) {
+                    val = Math.round(60 + rand.next() * 75);
+                    if (val > 115) { flag = 'HIGH'; }
+                } else if (testName.includes("cholesterol")) {
+                    val = parseFloat((4.0 + rand.next() * 2.5).toFixed(1));
+                    if (val >= 5.2) { flag = 'HIGH'; }
+                }
+            }
+            
+            val = parseFloat(val);
+            simulatedResults[id] = { val, flag };
         }
+
+        val = simulatedResults[id].val;
+        flag = simulatedResults[id].flag;
+        flagClass = flag === 'HIGH' ? 'flag-high' : 'flag-normal';
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td><strong>${test.name}</strong></td>
             <td><span style="font-weight:500; color: var(--doctor-text-muted);">${test.range} ${test.unit}</span></td>
             <td><strong>${val} ${test.unit}</strong></td>
-            <td><span class="flag-badge ${flagClass}">${flag}</span></td>
+            <td><span class="flag-badge ${flagClass}">${flag === 'HIGH' ? 'CAO' : (flag === 'NORMAL' ? 'BÌNH THƯỜNG' : flag)}</span></td>
         `;
         tbody.appendChild(tr);
     });
@@ -498,7 +573,7 @@ function switchTab(evt, tabId) {
             const diagnosis = document.getElementById('examDiagnosis').value.trim();
             const checkedSymptoms = document.querySelectorAll('#symptomsGrid input:checked').length;
             if (!history || !diagnosis || checkedSymptoms === 0) {
-                showToast('Please complete Symptoms, History, and Diagnosis first.', 'warning');
+                showToast('Vui lòng hoàn thành Triệu chứng, Lý do khám & chẩn đoán trước.', 'warning');
                 return;
             }
         }
@@ -517,7 +592,7 @@ function switchTab(evt, tabId) {
                 return;
             }
             if (isLabProcessing) {
-                showToast('Please wait for laboratory tests to finish processing.', 'warning');
+                showToast('Vui lòng đợi kết quả xét nghiệm được xử lý xong.', 'warning');
                 return;
             }
         }
@@ -581,15 +656,21 @@ function showMedicationModal() {
     if (modal) modal.classList.add('open');
     document.getElementById('medSearch').value = '';
 
+    // Clear error spans
+    document.getElementById('error-medDosage').style.display = 'none';
+    document.getElementById('error-medDuration').style.display = 'none';
+    document.getElementById('error-medQuantity').style.display = 'none';
+
     editingMedIndex = -1;
     selectedMed = null;
     document.getElementById('medDetailFields').style.display = 'none';
     const btn = document.getElementById('addMedBtn');
-    if (btn) btn.textContent = 'Add to Prescription';
+    if (btn) btn.textContent = 'Thêm vào đơn thuốc';
 
     document.getElementById('medDosage').value = '';
     document.getElementById('medDuration').value = '30';
     document.getElementById('medQuantity').value = '30';
+    document.getElementById('medPlan').value = '';
 
     document.getElementById('medSearch').focus();
     filterMedications();
@@ -608,7 +689,16 @@ function filterMedications() {
     if (!list) return;
 
     list.innerHTML = '';
-    const filtered = medicationsCatalog.filter(m => m.name.toLowerCase().includes(query) || m.concentration.toLowerCase().includes(query));
+    
+    // Loại bỏ các thuốc đã kê khỏi gợi ý, ngoại trừ thuốc đang sửa
+    const addedMedIds = prescriptionLines
+        .filter((_, idx) => idx !== editingMedIndex)
+        .map(line => line.medId);
+
+    const filtered = medicationsCatalog.filter(m => 
+        !addedMedIds.includes(m.id) &&
+        (m.name.toLowerCase().includes(query) || m.concentration.toLowerCase().includes(query))
+    );
 
     if (filtered.length > 0) {
         list.style.display = 'block';
@@ -635,26 +725,52 @@ function selectMedication(med) {
     const detailFields = document.getElementById('medDetailFields');
     if (detailFields) detailFields.style.display = 'grid';
 
-    document.getElementById('medDosage').focus();
+    document.getElementById('medDuration').focus();
 }
 
 function addMedicationLine() {
     if (!selectedMed) {
-        alert('Please search and select a medication from the dropdown');
+        alert('Vui lòng tìm kiếm và chọn thuốc từ danh mục gợi ý');
         return;
     }
 
-    const dosage = document.getElementById('medDosage').value.trim();
-    const duration = document.getElementById('medDuration').value;
-    const quantity = document.getElementById('medQuantity').value;
+    if (!validateMedicationFields()) {
+        return;
+    }
+
+    const duration = parseInt(document.getElementById('medDuration').value.trim());
+    const quantity = parseInt(document.getElementById('medQuantity').value.trim());
+
+    let dosage = "Auto";
+    if (duration > 0 && quantity > 0) {
+        const rate = (quantity / duration).toFixed(1);
+        const rateClean = parseFloat(rate) === Math.round(rate) ? Math.round(rate) : rate;
+        
+        let unit = "viên";
+        if (selectedMed && selectedMed.form) {
+            const formLower = selectedMed.form.toLowerCase();
+            if (formLower.includes("viên") || formLower.includes("nén") || formLower.includes("nang")) {
+                unit = "viên";
+            } else if (formLower.includes("gói")) {
+                unit = "gói";
+            } else if (formLower.includes("chai")) {
+                unit = "chai";
+            } else if (formLower.includes("ống")) {
+                unit = "ống";
+            } else if (formLower.includes("tablet")) {
+                unit = "tablet";
+            } else if (formLower.includes("capsule")) {
+                unit = "capsule";
+            } else if (formLower.trim().length > 0) {
+                unit = formLower.trim();
+            }
+        }
+        dosage = `${rateClean} ${unit}/ngày`;
+    }
     const timingSelect = document.getElementById('medTiming');
     const timing = timingSelect.value;
     const timingText = timingSelect.options[timingSelect.selectedIndex].text;
-
-    if (!dosage) {
-        alert('Please specify dosage rate');
-        return;
-    }
+    const medPlan = document.getElementById('medPlan').value.trim();
 
     const line = {
         medId: selectedMed.id,
@@ -665,7 +781,8 @@ function addMedicationLine() {
         duration: duration,
         quantity: quantity,
         timing: timing,
-        timingText: timingText
+        timingText: timingText,
+        medicationPlan: medPlan
     };
 
     if (editingMedIndex >= 0) {
@@ -702,12 +819,13 @@ function editPrescriptionLine(index) {
     document.getElementById('medDuration').value = line.duration;
     document.getElementById('medQuantity').value = line.quantity;
     document.getElementById('medTiming').value = line.timing;
+    document.getElementById('medPlan').value = line.medicationPlan || '';
 
     const detailFields = document.getElementById('medDetailFields');
     if (detailFields) detailFields.style.display = 'grid';
 
     const btn = document.getElementById('addMedBtn');
-    if (btn) btn.textContent = 'Update Prescription';
+    if (btn) btn.textContent = 'Cập nhật đơn thuốc';
 }
 
 function renderPrescriptionLines() {
@@ -726,30 +844,64 @@ function renderPrescriptionLines() {
     if (emptyMsg) emptyMsg.style.display = 'none';
 
     prescriptionLines.forEach((line, index) => {
+        let unit = "viên";
+        if (line.form) {
+            const formLower = line.form.toLowerCase();
+            if (formLower.includes("viên") || formLower.includes("nén") || formLower.includes("nang")) {
+                unit = "viên";
+            } else if (formLower.includes("gói")) {
+                unit = "gói";
+            } else if (formLower.includes("chai")) {
+                unit = "chai";
+            } else if (formLower.includes("ống")) {
+                unit = "ống";
+            } else if (formLower.includes("tablet")) {
+                unit = "tablet";
+            } else if (formLower.includes("capsule")) {
+                unit = "capsule";
+            } else if (formLower.trim().length > 0) {
+                unit = formLower.trim();
+            }
+        }
+
         const div = document.createElement('div');
         div.className = 'prescription-line';
         div.innerHTML = `
-            <div class="presc-med-name">${line.name} (${line.concentration})</div>
-            <div class="presc-detail-item">
-                <span class="presc-lbl">Dosage</span>
-                <span class="presc-val">${line.dosage}</span>
+            <div class="presc-card-main">
+                <div class="presc-med-info">
+                    <div class="presc-med-name">${line.name} <span class="presc-med-conc">(${line.concentration})</span></div>
+                    <div class="presc-med-form-badge">${line.form}</div>
+                </div>
+                <div class="presc-card-details">
+                    <div class="presc-detail-item">
+                        <span class="presc-lbl">Liều dùng</span>
+                        <span class="presc-val">${line.dosage}</span>
+                    </div>
+                    <div class="presc-detail-item">
+                        <span class="presc-lbl">Thời gian sử dụng</span>
+                        <span class="presc-val">${line.duration} ngày</span>
+                    </div>
+                    <div class="presc-detail-item">
+                        <span class="presc-lbl">Số lượng</span>
+                        <span class="presc-val">${line.quantity} ${unit}</span>
+                    </div>
+                    <div class="presc-detail-item presc-timing-col">
+                        <span class="presc-lbl">Thời điểm sử dụng</span>
+                        <span class="presc-val"><i class="far fa-clock"></i> ${line.timingText}</span>
+                    </div>
+                </div>
+                <div class="presc-card-actions">
+                    <button type="button" class="btn-presc-action edit-btn" onclick="editPrescriptionLine(${index})" title="Sửa"><i class="fas fa-pen"></i></button>
+                    <button type="button" class="btn-presc-action delete-btn" onclick="removePrescriptionLine(${index})" title="Xóa"><i class="fas fa-trash"></i></button>
+                </div>
             </div>
-            <div class="presc-detail-item">
-                <span class="presc-lbl">Duration</span>
-                <span class="presc-val">${line.duration} Days</span>
-            </div>
-            <div class="presc-detail-item">
-                <span class="presc-lbl">Qty</span>
-                <span class="presc-val">${line.quantity} pcs</span>
-            </div>
-            <div class="presc-detail-item">
-                <span class="presc-lbl">Intake Timing</span>
-                <span class="presc-val" style="font-size: 0.7rem;">${line.timingText}</span>
-            </div>
-            <div style="display: flex; gap: 4px; justify-content: flex-end;">
-                <button type="button" class="btn-remove-line" style="color: var(--doctor-primary);" onclick="editPrescriptionLine(${index})" title="Edit"><i class="fas fa-pen"></i></button>
-                <button type="button" class="btn-remove-line" onclick="removePrescriptionLine(${index})" title="Remove"><i class="fas fa-trash"></i></button>
-            </div>
+            ${line.medicationPlan ? `
+            <div class="presc-card-instructions">
+                <span class="inst-icon"><i class="fas fa-info-circle"></i></span>
+                <div class="inst-text">
+                    <strong>Hướng dẫn:</strong> <span>${line.medicationPlan}</span>
+                </div>
+            </div>` : ''}
         `;
         list.appendChild(div);
     });
@@ -759,14 +911,14 @@ function renderPrescriptionLines() {
 function saveExam() {
     isSubmitting = true;
     if (viewOnlyMode) {
-        showToast('This checkup session is read-only. Returning to dashboard.', 'warning');
+        showToast('Ca khám này ở chế độ chỉ đọc. Đang quay lại trang tổng quan.', 'warning');
         setTimeout(() => window.location.href = '/doctor/dashboard', 1500);
         return;
     }
 
     const diagnosis = document.getElementById('examDiagnosis').value.trim();
     if (!diagnosis) {
-        showToast('Please fill out the Diagnosis Note before completing checkup.', 'error');
+        showToast('Vui lòng điền ghi chú Chẩn đoán trước khi hoàn thành ca khám.', 'error');
         isSubmitting = false;
         return;
     }
@@ -776,10 +928,9 @@ function saveExam() {
     const planDiet = document.getElementById('planDiet').value.trim();
     const planExercise = document.getElementById('planExercise').value.trim();
     const planGlucose = document.getElementById('planGlucose').value.trim();
-    const planMedication = document.getElementById('planMedication').value.trim();
 
-    if (!planGoal && !planDiet && !planExercise && !planGlucose && !planMedication) {
-        showToast('At least 1 field of the Treatment Plan is required to complete.', 'error');
+    if (!planGoal && !planDiet && !planExercise && !planGlucose) {
+        showToast('Yêu cầu điền ít nhất 1 trường của Kế hoạch & Phác đồ điều trị để hoàn thành.', 'error');
         isSubmitting = false;
         if (!document.getElementById('prescription-tab').classList.contains('active')) {
              switchTab({currentTarget: document.querySelectorAll('.tab-btn')[2]}, 'prescription-tab');
@@ -790,7 +941,7 @@ function saveExam() {
     // Validate if Prescription is filled
     const prescribedCount = prescriptionLines.length;
     if (prescribedCount === 0) {
-        showToast('Please prescribe at least 1 medicine before completing.', 'warning');
+        showToast('Vui lòng kê ít nhất 1 loại thuốc trước khi hoàn thành.', 'warning');
         isSubmitting = false;
         if (!document.getElementById('prescription-tab').classList.contains('active')) {
              switchTab({currentTarget: document.querySelectorAll('.tab-btn')[2]}, 'prescription-tab');
@@ -805,11 +956,47 @@ function saveExam() {
             dosage: line.dosage,
             duration: parseInt(line.duration),
             quantity: parseInt(line.quantity),
-            timingText: line.timingText
+            timingText: line.timingText,
+            medicationPlan: line.medicationPlan
         };
     });
     
     document.getElementById('prescriptionJson').value = JSON.stringify(prescriptionList);
+
+    // Serialize symptom comments
+    const symptomComments = {};
+    Object.keys(selectedSymptoms).forEach(id => {
+        const input = document.getElementById(`comment-${id}`);
+        symptomComments[id] = input ? input.value.trim() : (selectedSymptoms[id] || '');
+    });
+    document.getElementById('symptomCommentsJson').value = JSON.stringify(symptomComments);
+
+    // Serialize lab results
+    const labResults = [];
+    const selectedIds = Object.keys(orderedLabs);
+    selectedIds.forEach(id => {
+        if (!simulatedResults[id]) {
+            const test = labTestsCatalog.find(l => l.id === id);
+            if (test) {
+                let val = 4.8;
+                let flag = 'NORMAL';
+                let minVal = parseFloat(test.minValue);
+                let maxVal = parseFloat(test.maxValue);
+                if (!isNaN(minVal) && !isNaN(maxVal)) {
+                    val = minVal;
+                }
+                simulatedResults[id] = { val, flag };
+            }
+        }
+        if (simulatedResults[id]) {
+            labResults.push({
+                testId: id,
+                val: simulatedResults[id].val,
+                flag: simulatedResults[id].flag
+            });
+        }
+    });
+    document.getElementById('labResultsJson').value = JSON.stringify(labResults);
 
     const form = document.getElementById('examineForm');
     
@@ -823,7 +1010,7 @@ function saveExam() {
         form.appendChild(labInput);
     });
 
-    showToast(`Saving Consultation and Clinical Checkup...`, 'success');
+    showToast(`Đang lưu kết quả khám lâm sàng...`, 'success');
     setTimeout(() => {
         form.submit();
     }, 1000);
@@ -892,6 +1079,7 @@ function showToast(message, type = 'success') {
 function goToHistory() {
     isSubmitting = true;
     if (currentPatient) {
+        sessionStorage.setItem('fromExamineRoom', 'true');
         window.location.href = `/doctor/examine/patients?patientId=${currentPatient.id}`;
     }
 }
@@ -913,8 +1101,72 @@ window.addEventListener('beforeunload', (e) => {
         const isExamActive = overlay && overlay.style.display === 'none';
         if (isExamActive) {
             e.preventDefault();
-            e.returnValue = 'You have an active examination in progress. Are you sure you want to leave?';
+            e.returnValue = 'Bạn đang thực hiện khám bệnh dở dang. Bạn có chắc chắn muốn rời đi?';
             return e.returnValue;
         }
     }
 });
+
+function validateMedicationFields() {
+    let isValid = true;
+
+    const dosageInput = document.getElementById('medDosage');
+    const durationInput = document.getElementById('medDuration');
+    const quantityInput = document.getElementById('medQuantity');
+
+    const dosageErr = document.getElementById('error-medDosage');
+    const durationErr = document.getElementById('error-medDuration');
+    const quantityErr = document.getElementById('error-medQuantity');
+
+    // Reset errors
+    if (dosageErr) dosageErr.style.display = 'none';
+    if (durationErr) durationErr.style.display = 'none';
+    if (quantityErr) quantityErr.style.display = 'none';
+
+    // Validate Dosage (Auto-calculated, bypassed)
+
+    // Validate Duration
+    if (durationInput) {
+        const durationVal = durationInput.value;
+        if (!durationVal) {
+            if (durationErr) {
+                durationErr.textContent = 'Vui lòng nhập số ngày sử dụng';
+                durationErr.style.display = 'block';
+            }
+            isValid = false;
+        } else {
+            const num = Number(durationVal);
+            if (isNaN(num) || !Number.isInteger(num) || num <= 0) {
+                if (durationErr) {
+                    durationErr.textContent = 'Số ngày sử dụng phải là số nguyên dương';
+                    durationErr.style.display = 'block';
+                }
+                isValid = false;
+            }
+        }
+    }
+
+    // Validate Quantity
+    if (quantityInput) {
+        const quantityVal = quantityInput.value;
+        if (!quantityVal) {
+            if (quantityErr) {
+                quantityErr.textContent = 'Vui lòng nhập tổng số lượng cấp';
+                quantityErr.style.display = 'block';
+            }
+            isValid = false;
+        } else {
+            const num = Number(quantityVal);
+            if (isNaN(num) || !Number.isInteger(num) || num <= 0) {
+                if (quantityErr) {
+                    quantityErr.textContent = 'Tổng số lượng cấp phải là số nguyên dương';
+                    quantityErr.style.display = 'block';
+                }
+                isValid = false;
+            }
+        }
+    }
+
+    return isValid;
+}
+

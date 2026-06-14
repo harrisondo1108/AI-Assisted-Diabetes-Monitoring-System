@@ -94,7 +94,7 @@ public class DoctorPatientController {
         // Nạp chỉ số glucose các ca khám để vẽ biểu đồ Canvas
         List<LabResult> glucoseResults = labResultRepository
                 .findByLabOrder_ClinicalExamination_Patient_UserIdAndLabTest_TestNameContainingIgnoreCaseOrderByLabOrder_ClinicalExamination_ExamDateAsc(
-                        selectedPatientId, "Fasting Blood Glucose");
+                        selectedPatientId, "Đường huyết lúc đói");
 
         // Lấy tối đa 4 kết quả gần nhất, nếu không đủ 4 kết quả thì truyền danh sách rỗng (không vẽ biểu đồ)
         List<Map<String, Object>> glucoseTrend = new ArrayList<>();

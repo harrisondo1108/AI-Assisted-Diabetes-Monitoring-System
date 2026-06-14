@@ -11,5 +11,6 @@ public interface UserRepository extends JpaRepository<User, String> {
     // add custom query methods if needed
 
     public Optional<User> findByPhoneNumber(String phoneNumber);
+    Optional<User> findFirstByRole_RoleId(String roleId);
 }
 
