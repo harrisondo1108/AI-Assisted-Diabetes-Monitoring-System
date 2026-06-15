@@ -179,30 +179,17 @@ public class PatientController {
         User currentUser = getCurrentUser(session);
 
         if (currentUser == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "You must login first.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Bạn phải đăng nhập trước.");
             return "redirect:/login";
         }
 
         if (fullName == null || fullName.trim().isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Full name is required.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Yêu cầu nhập họ và tên.");
             return "redirect:/patient/profile";
         }
 
-        if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Phone number is required.");
-            return "redirect:/patient/profile";
-        }
-
-        String normalizedPhone = phoneNumber.trim();
-
-        var existingUserByPhone = userService.findByPhoneNumber(normalizedPhone);
-
-        if (existingUserByPhone.isPresent()
-                && !existingUserByPhone.get().getUserId().equals(currentUser.getUserId())) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Phone number already exists.");
-            return "redirect:/patient/profile";
-        }
-
+        // Force the patient's phone number to remain their account phone number
+        String normalizedPhone = currentUser.getPhoneNumber();
         String userId = currentUser.getUserId();
 
         Patient patient = patientService.findById(userId).orElse(new Patient());
@@ -224,10 +211,10 @@ public class PatientController {
 
         if (patientService.existsById(userId)) {
             patientService.update(userId, patient);
-            redirectAttributes.addFlashAttribute("successMessage", "Profile updated successfully.");
+            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật hồ sơ thành công.");
         } else {
             patientService.create(patient);
-            redirectAttributes.addFlashAttribute("successMessage", "Profile created successfully.");
+            redirectAttributes.addFlashAttribute("successMessage", "Tạo hồ sơ thành công.");
         }
 
         currentUser.setPhoneNumber(normalizedPhone);
@@ -256,14 +243,14 @@ public class PatientController {
         User currentUser = getCurrentUser(session);
 
         if (currentUser == null || currentUser.getUserId() == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "You must login first.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Bạn phải đăng nhập trước.");
             return "redirect:/login";
         }
 
         String userId = currentUser.getUserId();
 
         if (!patientService.existsById(userId)) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Please create your profile first.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Vui lòng tạo hồ sơ của bạn trước.");
             return "redirect:/patient/profile";
         }
 
@@ -280,10 +267,10 @@ public class PatientController {
 
         if (patientRoutineService.existsById(userId)) {
             patientRoutineService.update(userId, routine);
-            redirectAttributes.addFlashAttribute("successMessage", "Routine updated successfully.");
+            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật lịch sinh hoạt thành công.");
         } else {
             patientRoutineService.create(routine);
-            redirectAttributes.addFlashAttribute("successMessage", "Routine created successfully.");
+            redirectAttributes.addFlashAttribute("successMessage", "Tạo lịch sinh hoạt thành công.");
         }
 
         return "redirect:/patient/profile";
@@ -295,15 +282,15 @@ public class PatientController {
         Patient patient = getCurrentPatient(session);
 
         if (patient == null || patient.getUserId() == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Patient profile not found.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy hồ sơ bệnh nhân.");
             return "redirect:/patient/profile";
         }
 
         if (patientRoutineService.existsById(patient.getUserId())) {
             patientRoutineService.deleteById(patient.getUserId());
-            redirectAttributes.addFlashAttribute("successMessage", "Routine deleted successfully.");
+            redirectAttributes.addFlashAttribute("successMessage", "Xóa lịch sinh hoạt thành công.");
         } else {
-            redirectAttributes.addFlashAttribute("errorMessage", "Routine does not exist.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Lịch sinh hoạt không tồn tại.");
         }
 
         return "redirect:/patient/profile";
@@ -444,13 +431,13 @@ public class PatientController {
 
         if (currentUser == null || patient == null) {
             response.put("success", false);
-            response.put("error", "Patient session not found.");
+            response.put("error", "Không tìm thấy phiên làm việc của bệnh nhân.");
             return ResponseEntity.ok(response);
         }
 
         if (message == null || message.trim().isEmpty()) {
             response.put("success", false);
-            response.put("error", "Message content cannot be empty.");
+            response.put("error", "Nội dung tin nhắn không được để trống.");
             return ResponseEntity.ok(response);
         }
 
@@ -613,36 +600,36 @@ public class PatientController {
         User currentUser = getCurrentUser(session);
         
         if (currentUser == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "You must login first.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Bạn phải đăng nhập trước.");
             return "redirect:/login";
         }
 
         // Restrict changing password to patients only via this route
         if (!"PAT".equalsIgnoreCase(currentUser.getRole().getRoleId())) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Access denied. Only patients are allowed to change their password here.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Từ chối truy cập. Chỉ bệnh nhân mới được thay đổi mật khẩu ở đây.");
             return "redirect:/patient/profile";
         }
 
         if (currentPassword == null || currentPassword.trim().isEmpty()
                 || newPassword == null || newPassword.trim().isEmpty()
                 || confirmPassword == null || confirmPassword.trim().isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "All password fields are required.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Tất cả các trường mật khẩu đều bắt buộc.");
             return "redirect:/patient/profile";
         }
 
         // Verify old password (stored in plain text in the project)
         if (!currentUser.getPasswordHash().equals(currentPassword.trim())) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Current password is incorrect.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Mật khẩu hiện tại không đúng.");
             return "redirect:/patient/profile";
         }
 
         if (newPassword.trim().length() < 6) {
-            redirectAttributes.addFlashAttribute("errorMessage", "New password must be at least 6 characters.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Mật khẩu mới phải có ít nhất 6 ký tự.");
             return "redirect:/patient/profile";
         }
 
         if (!newPassword.trim().equals(confirmPassword.trim())) {
-            redirectAttributes.addFlashAttribute("errorMessage", "New password and confirmation password do not match.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Mật khẩu mới và xác nhận mật khẩu không khớp.");
             return "redirect:/patient/profile";
         }
 
@@ -651,7 +638,7 @@ public class PatientController {
         userService.update(currentUser.getUserId(), currentUser);
         session.setAttribute("loggedInUser", currentUser);
 
-        redirectAttributes.addFlashAttribute("successMessage", "Password changed successfully.");
+        redirectAttributes.addFlashAttribute("successMessage", "Thay đổi mật khẩu thành công.");
         return "redirect:/patient/profile";
     }
 
@@ -662,7 +649,7 @@ public class PatientController {
         model.addAttribute("activeMenu", activeMenu);
         model.addAttribute("patient", patient);
         model.addAttribute("patientCode", patient != null ? patient.getUserId() : "");
-        model.addAttribute("pageRole", "Patient Portal");
+        model.addAttribute("pageRole", "Cổng thông tin bệnh nhân");
 
         return patient;
     }
@@ -984,36 +971,36 @@ public class PatientController {
         BigDecimal value = findLatestResultNumber(results, "hba1c");
 
         if (value == null) {
-            return "No data";
+            return "Không có dữ liệu";
         }
 
         if (value.compareTo(new BigDecimal("6.5")) >= 0) {
-            return "Diabetes range";
+            return "Ngưỡng tiểu đường";
         }
 
         if (value.compareTo(new BigDecimal("5.7")) >= 0) {
-            return "Prediabetes range";
+            return "Ngưỡng tiền tiểu đường";
         }
 
-        return "Normal range";
+        return "Ngưỡng bình thường";
     }
 
     private String evaluateGlucoseStatus(List<LabResult> results) {
         BigDecimal value = findLatestResultNumber(results, "glucose");
 
         if (value == null) {
-            return "No data";
+            return "Không có dữ liệu";
         }
 
         if (value.compareTo(new BigDecimal("126")) >= 0) {
-            return "High";
+            return "Cao";
         }
 
         if (value.compareTo(new BigDecimal("100")) >= 0) {
-            return "Borderline";
+            return "Cận ranh giới";
         }
 
-        return "Normal";
+        return "Bình thường";
     }
 
     private String evaluateBmiStatus(Patient patient) {
@@ -1021,25 +1008,25 @@ public class PatientController {
                 || patient.getHeight() == null
                 || patient.getWeight() == null
                 || patient.getHeight() == 0) {
-            return "No data";
+            return "Không có dữ liệu";
         }
 
         double heightMeter = patient.getHeight() / 100.0;
         double bmi = patient.getWeight().doubleValue() / (heightMeter * heightMeter);
 
         if (bmi >= 30) {
-            return "Obese";
+            return "Béo phì";
         }
 
         if (bmi >= 25) {
-            return "Overweight";
+            return "Thừa cân";
         }
 
         if (bmi >= 18.5) {
-            return "Normal";
+            return "Bình thường";
         }
 
-        return "Underweight";
+        return "Thiếu cân";
     }
 
     private BigDecimal findLatestResultNumber(List<LabResult> results, String keyword) {
@@ -1055,14 +1042,14 @@ public class PatientController {
 
     private String getRiskLevel(int riskScore) {
         if (riskScore >= 70) {
-            return "High Risk";
+            return "Nguy cơ cao";
         }
 
         if (riskScore >= 40) {
-            return "Medium Risk";
+            return "Nguy cơ trung bình";
         }
 
-        return "Low Risk";
+        return "Nguy cơ thấp";
     }
 
     private String getRiskBadgeClass(int riskScore) {
@@ -1094,26 +1081,26 @@ public class PatientController {
 
     private String getRiskDescription(int riskScore) {
         if (riskScore >= 70) {
-            return "Your current indicators show a high diabetes-related health risk. Please follow your doctor's treatment plan and monitor your glucose closely.";
+            return "Các chỉ số hiện tại của bạn cho thấy nguy cơ sức khỏe liên quan đến tiểu đường cao. Vui lòng tuân thủ phác đồ điều trị của bác sĩ và theo dõi sát sao lượng đường huyết.";
         }
 
         if (riskScore >= 40) {
-            return "Your current indicators show a moderate risk. Continue monitoring HbA1c, fasting glucose, BMI and follow medical guidance.";
+            return "Các chỉ số hiện tại của bạn cho thấy nguy cơ ở mức trung bình. Hãy tiếp tục theo dõi HbA1c, đường huyết đói, BMI và tuân thủ hướng dẫn y tế.";
         }
 
-        return "Your current indicators show a low risk based on available data. Keep maintaining a healthy routine and regular follow-up.";
+        return "Các chỉ số hiện tại của bạn cho thấy nguy cơ thấp dựa trên dữ liệu hiện có. Tiếp tục duy trì thói quen lành mạnh và tái khám định kỳ.";
     }
 
     private String getRiskAdvice(int riskScore) {
         if (riskScore >= 70) {
-            return "Recommended actions: contact your doctor when symptoms worsen, follow prescribed medication, reduce high-sugar foods, and attend your next appointment on time.";
+            return "Hành động khuyến nghị: liên hệ với bác sĩ khi các triệu chứng xấu đi, tuân thủ thuốc được kê đơn, giảm thực phẩm chứa nhiều đường, và đi khám đúng hẹn.";
         }
 
         if (riskScore >= 40) {
-            return "Recommended actions: maintain a balanced diet, exercise regularly, monitor blood glucose, and keep follow-up appointments.";
+            return "Hành động khuyến nghị: duy trì chế độ ăn cân bằng, tập thể dục đều đặn, theo dõi lượng đường huyết, và đi tái khám định kỳ.";
         }
 
-        return "Recommended actions: continue healthy eating, regular activity, periodic testing and routine diabetes prevention habits.";
+        return "Hành động khuyến nghị: tiếp tục ăn uống lành mạnh, hoạt động thể chất đều đặn, xét nghiệm định kỳ và duy trì thói quen phòng ngừa tiểu đường.";
     }
 
     private List<MedicationReminderView> buildTodayMedicationReminders(Patient patient) {
@@ -1203,7 +1190,7 @@ public class PatientController {
                                                                 LocalDateTime now) {
         String medicationName = detail.getMedication() != null
                 ? detail.getMedication().getMedicationName()
-                : "Medication";
+                : "Thuốc";
 
         String dosage = detail.getDosage() != null
                 ? detail.getDosage()
@@ -1216,8 +1203,8 @@ public class PatientController {
         boolean isDueNow = !now.isBefore(reminderTime) && now.isBefore(medicationTime);
         boolean isPast = now.isAfter(medicationTime);
 
-        String title = "Medication reminder";
-        String message = "Take " + medicationName + " - " + dosage + " at "
+        String title = "Nhắc nhở dùng thuốc";
+        String message = "Uống " + medicationName + " - " + dosage + " lúc "
                 + medicationTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm"));
 
         return new MedicationReminderView(

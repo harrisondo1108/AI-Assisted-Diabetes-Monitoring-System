@@ -26,7 +26,7 @@ public class Profile {
     @Column(name = "FullName", nullable = false, length = 60, columnDefinition = "NVARCHAR(60)")
     private String fullName;
 
-    @Column(name = "PhoneNumber", length = 15, unique = true, columnDefinition = "NVARCHAR(15)")
+    @Column(name = "PhoneNumber", length = 15, unique = true)
     private String phoneNumber;
 
     @Column(name = "Address", length = 200, columnDefinition = "NVARCHAR(200)")
@@ -42,7 +42,7 @@ public class Profile {
     @JoinColumn(name = "RoomID")
     private Room room;
 
-    @Column(name = "Specialty", length = 50, columnDefinition = "NVARCHAR(50)")
+    @Column(name = "Specialty", length = 60, columnDefinition = "NVARCHAR(60)")
     private String specialty;
 
     public Profile() {

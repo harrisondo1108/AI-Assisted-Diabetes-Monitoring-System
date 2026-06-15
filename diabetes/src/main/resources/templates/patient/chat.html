@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>AI Chat | Diabetes Care System</title>
+    <title>Hỗ trợ AI | Hệ thống Chăm sóc Tiểu đường</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/patient/patient.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,13 +13,13 @@
     <div th:replace="~{layout/patient-sidebar :: patientSidebar('chat')}"></div>
 
     <div class="admin-main">
-        <div th:replace="~{layout/patient-header :: patientHeader('AI Chat')}"></div>
+        <div th:replace="~{layout/patient-header :: patientHeader('Trò chuyện AI')}"></div>
 
         <main class="admin-content">
             <div class="page-header">
                 <div>
-                    <h1><i class="fas fa-robot"></i> Chat with AI Assistant</h1>
-                    <p class="subtitle">Ask general questions about diabetes care and your routine.</p>
+                    <h1><i class="fas fa-robot"></i> Trò chuyện với Trợ lý AI</h1>
+                    <p class="subtitle">Hỏi các câu hỏi chung về chăm sóc tiểu đường và lịch sinh hoạt của bạn.</p>
                 </div>
             </div>
 
@@ -27,23 +27,23 @@
                 <div class="patient-card">
                     <div class="card-header">
                         <i class="fas fa-comments" style="color: var(--green-600);"></i>
-                        <h3>Conversation</h3>
+                        <h3>Cuộc trò chuyện</h3>
                     </div>
 
                     <div class="message-list">
                         <div th:each="message : ${messages}"
                              th:class="'message ' + (${message.sender != null && message.sender.equalsIgnoreCase('PATIENT')} ? 'patient' : 'ai')"
                              th:text="${message.content}">
-                            Message content
+                            Nội dung tin nhắn
                         </div>
 
                         <div class="message ai" th:if="${messages == null || messages.isEmpty()}">
-                            Hello, I am your diabetes care assistant. How can I help you today?
+                            Xin chào, tôi là trợ lý chăm sóc tiểu đường của bạn. Hôm nay tôi có thể giúp gì cho bạn?
                         </div>
                     </div>
 
                     <div class="chat-input">
-                        <input type="text" placeholder="Type your question...">
+                        <input type="text" placeholder="Nhập câu hỏi của bạn...">
                         <button type="button">
                             <i class="fas fa-paper-plane"></i>
                         </button>
@@ -53,14 +53,14 @@
                 <div class="patient-card">
                     <div class="card-header">
                         <i class="fas fa-clock-rotate-left" style="color: var(--green-600);"></i>
-                        <h3>Chat History</h3>
+                        <h3>Lịch sử trò chuyện</h3>
                     </div>
 
                     <div class="summary-list" th:if="${conversations != null && !conversations.isEmpty()}">
                         <div class="summary-item" th:each="conversation : ${conversations}">
                             <div class="item-label">
                                 <i class="fas fa-message"></i>
-                                <span th:text="${conversation.topic}">Topic</span>
+                                <span th:text="${conversation.topic}">Chủ đề</span>
                             </div>
                             <div class="item-value"
                                  th:text="${conversation.createdAt != null ? #temporals.format(conversation.createdAt, 'dd/MM/yyyy') : ''}">
@@ -70,7 +70,7 @@
                     </div>
 
                     <div class="empty-message" th:if="${conversations == null || conversations.isEmpty()}">
-                        No conversation history found.
+                        Không tìm thấy lịch sử trò chuyện nào.
                     </div>
                 </div>
             </div>

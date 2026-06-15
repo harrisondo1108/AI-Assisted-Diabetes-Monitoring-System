@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Patient Profile | Diabetes Care System</title>
+    <title>Hồ sơ Bệnh nhân | Hệ thống Chăm sóc Tiểu đường</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/patient/patient.css}">
@@ -14,27 +14,27 @@
     <div th:replace="~{layout/patient-sidebar :: patientSidebar('profile')}"></div>
 
     <div class="admin-main">
-        <div th:replace="~{layout/patient-header :: patientHeader('Patient Profile')}"></div>
+        <div th:replace="~{layout/patient-header :: patientHeader('Hồ sơ Bệnh nhân')}"></div>
 
         <main class="admin-content">
             <div class="page-header">
                 <div>
                     <h1>
                         <i class="fas fa-user"></i>
-                        Patient Profile
+                        Hồ sơ Bệnh nhân
                     </h1>
                     <p class="subtitle">
-                        View and update your personal information and daily routine.
+                        Xem và cập nhật thông tin cá nhân và lịch sinh hoạt hàng ngày của bạn.
                     </p>
                 </div>
             </div>
 
             <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}">
-                Success message
+                Thông báo thành công
             </div>
 
             <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}">
-                Error message
+                Thông báo lỗi
             </div>
 
             <!-- CURRENT PROFILE DISPLAY -->
@@ -42,17 +42,17 @@
                 <div class="card-header-between">
                     <div class="card-header no-margin">
                         <i class="fas fa-id-card" style="color: var(--green-600);"></i>
-                        <h3>Current Profile</h3>
+                        <h3>Hồ sơ Hiện tại</h3>
                     </div>
 
                     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                         <button type="button" class="secondary-btn" onclick="openPatientModal('changePasswordModal')">
                             <i class="fas fa-key"></i>
-                            Change Password
+                            Đổi mật khẩu
                         </button>
                         <button type="button" class="primary-btn" onclick="openPatientModal('profileModal')">
                             <i class="fas fa-pen"></i>
-                            Update Profile
+                            Cập nhật hồ sơ
                         </button>
                     </div>
                 </div>
@@ -65,11 +65,11 @@
                     </div>
 
                     <div>
-                        <h2 th:text="${patient != null ? patient.fullName : 'No profile yet'}">
+                        <h2 th:text="${patient != null ? patient.fullName : 'Chưa có hồ sơ'}">
                             Nguyen Van An
                         </h2>
                         <p>
-                            Patient ID:
+                            Mã bệnh nhân:
                             <strong th:text="${patient != null ? patient.userId : (currentUser != null ? currentUser.userId : '')}">
                                 PAT001
                             </strong>
@@ -79,80 +79,80 @@
 
                 <div class="profile-grid profile-view-grid">
                     <div class="profile-field">
-                        <label>Phone Number</label>
+                        <label>Số điện thoại</label>
                         <div th:text="${patient != null ? patient.phoneNumber : (currentUser != null ? currentUser.phoneNumber : '')}">
                             0900000000
                         </div>
                     </div>
 
                     <div class="profile-field">
-                        <label>Date of Birth</label>
-                        <div th:text="${patient != null && patient.dob != null ? #temporals.format(patient.dob, 'dd/MM/yyyy') : 'Not updated'}">
+                        <label>Ngày sinh</label>
+                        <div th:text="${patient != null && patient.dob != null ? #temporals.format(patient.dob, 'dd/MM/yyyy') : 'Chưa cập nhật'}">
                             01/01/2000
                         </div>
                     </div>
 
                     <div class="profile-field">
-                        <label>Gender</label>
-                        <div th:text="${patient != null && patient.gender != null ? (patient.gender ? 'Female' : 'Male') : 'Not updated'}">
-                            Male
+                        <label>Giới tính</label>
+                        <div th:text="${patient != null && patient.gender != null ? (patient.gender ? 'Nữ' : 'Nam') : 'Chưa cập nhật'}">
+                            Nam
                         </div>
                     </div>
 
                     <div class="profile-field">
-                        <label>Blood Group</label>
-                        <div th:text="${patient != null && patient.bloodgroup != null ? patient.bloodgroup : 'Not updated'}">
+                        <label>Nhóm máu</label>
+                        <div th:text="${patient != null && patient.bloodgroup != null ? patient.bloodgroup : 'Chưa cập nhật'}">
                             O+
                         </div>
                     </div>
 
                     <div class="profile-field">
-                        <label>Height</label>
+                        <label>Chiều cao</label>
                         <div>
-                            <span th:text="${patient != null && patient.height != null ? patient.height : 'Not updated'}">170</span>
+                            <span th:text="${patient != null && patient.height != null ? patient.height : 'Chưa cập nhật'}">170</span>
                             <span th:if="${patient != null && patient.height != null}"> cm</span>
                         </div>
                     </div>
 
                     <div class="profile-field">
-                        <label>Weight</label>
+                        <label>Cân nặng</label>
                         <div>
-                            <span th:text="${patient != null && patient.weight != null ? patient.weight : 'Not updated'}">70</span>
+                            <span th:text="${patient != null && patient.weight != null ? patient.weight : 'Chưa cập nhật'}">70</span>
                             <span th:if="${patient != null && patient.weight != null}"> kg</span>
                         </div>
                     </div>
 
                     <div class="profile-field full">
-                        <label>Address</label>
-                        <div th:text="${patient != null && patient.address != null ? patient.address : 'Not updated'}">
+                        <label>Địa chỉ</label>
+                        <div th:text="${patient != null && patient.address != null ? patient.address : 'Chưa cập nhật'}">
                             Hanoi
                         </div>
                     </div>
 
                     <div class="profile-field full">
-                        <label>Permanent Medical History</label>
-                        <div th:text="${patient != null && patient.permanentMedicalHistory != null ? patient.permanentMedicalHistory : 'Not updated'}">
-                            Diabetes Type 2
+                        <label>Tiền sử bệnh án</label>
+                        <div th:text="${patient != null && patient.permanentMedicalHistory != null ? patient.permanentMedicalHistory : 'Chưa cập nhật'}">
+                            Đái tháo đường Type 2
                         </div>
                     </div>
 
                     <div class="profile-field full">
-                        <label>Allergy Notes</label>
-                        <div th:text="${patient != null && patient.allergyNotes != null ? patient.allergyNotes : 'Not updated'}">
-                            None
+                        <label>Lưu ý dị ứng</label>
+                        <div th:text="${patient != null && patient.allergyNotes != null ? patient.allergyNotes : 'Chưa cập nhật'}">
+                            Không
                         </div>
                     </div>
 
                     <div class="profile-field">
-                        <label>Supervisor Name</label>
-                        <div th:text="${patient != null && patient.supervisorName != null ? patient.supervisorName : 'Not updated'}">
-                            Supervisor
+                        <label>Tên người giám hộ</label>
+                        <div th:text="${patient != null && patient.supervisorName != null ? patient.supervisorName : 'Chưa cập nhật'}">
+                            Người giám hộ
                         </div>
                     </div>
 
                     <div class="profile-field">
-                        <label>Supervisor Phone</label>
-                        <div th:text="${patient != null && patient.supervisorPhone != null ? patient.supervisorPhone : 'Not updated'}">
+                        <label>SĐT người giám hộ</label>
+                        <div th:text="${patient != null && patient.supervisorPhone != null ? patient.supervisorPhone : 'Chưa cập nhật'}">
                             0900000000
                         </div>
                     </div>
@@ -164,12 +164,12 @@
                 <div class="card-header-between">
                     <div class="card-header no-margin">
                         <i class="fas fa-clock" style="color: var(--green-600);"></i>
-                        <h3>Daily Routine</h3>
+                        <h3>Lịch sinh hoạt hàng ngày</h3>
                     </div>
 
                     <button type="button" class="primary-btn" onclick="openPatientModal('routineModal')">
                         <i class="fas fa-pen"></i>
-                        Update Routine
+                        Cập nhật lịch sinh hoạt
                     </button>
                 </div>
 
@@ -179,8 +179,8 @@
                             <i class="fas fa-sun"></i>
                         </div>
                         <div>
-                            <label>Wake Up</label>
-                            <strong th:text="${routine != null && routine.wakeUpTime != null ? routine.wakeUpTime : 'Not updated'}">
+                            <label>Thức dậy</label>
+                            <strong th:text="${routine != null && routine.wakeUpTime != null ? routine.wakeUpTime : 'Chưa cập nhật'}">
                                 06:00
                             </strong>
                         </div>
@@ -191,8 +191,8 @@
                             <i class="fas fa-mug-hot"></i>
                         </div>
                         <div>
-                            <label>Breakfast</label>
-                            <strong th:text="${routine != null && routine.breakfastTime != null ? routine.breakfastTime : 'Not updated'}">
+                            <label>Ăn sáng</label>
+                            <strong th:text="${routine != null && routine.breakfastTime != null ? routine.breakfastTime : 'Chưa cập nhật'}">
                                 07:00
                             </strong>
                         </div>
@@ -203,8 +203,8 @@
                             <i class="fas fa-utensils"></i>
                         </div>
                         <div>
-                            <label>Lunch</label>
-                            <strong th:text="${routine != null && routine.lunchTime != null ? routine.lunchTime : 'Not updated'}">
+                            <label>Ăn trưa</label>
+                            <strong th:text="${routine != null && routine.lunchTime != null ? routine.lunchTime : 'Chưa cập nhật'}">
                                 12:00
                             </strong>
                         </div>
@@ -215,8 +215,8 @@
                             <i class="fas fa-bowl-food"></i>
                         </div>
                         <div>
-                            <label>Dinner</label>
-                            <strong th:text="${routine != null && routine.dinnerTime != null ? routine.dinnerTime : 'Not updated'}">
+                            <label>Ăn tối</label>
+                            <strong th:text="${routine != null && routine.dinnerTime != null ? routine.dinnerTime : 'Chưa cập nhật'}">
                                 18:00
                             </strong>
                         </div>
@@ -227,8 +227,8 @@
                             <i class="fas fa-moon"></i>
                         </div>
                         <div>
-                            <label>Sleep</label>
-                            <strong th:text="${routine != null && routine.sleepTime != null ? routine.sleepTime : 'Not updated'}">
+                            <label>Đi ngủ</label>
+                            <strong th:text="${routine != null && routine.sleepTime != null ? routine.sleepTime : 'Chưa cập nhật'}">
                                 22:00
                             </strong>
                         </div>
@@ -245,8 +245,8 @@
 <div class="patient-modal-overlay" id="profileModal">
     <div class="patient-modal large">
         <div class="patient-modal-header">
-            <h2 th:text="${isCreateMode} ? 'Create Profile' : 'Update Profile'">
-                Update Profile
+            <h2 th:text="${isCreateMode} ? 'Tạo hồ sơ' : 'Cập nhật hồ sơ'">
+                Cập nhật hồ sơ
             </h2>
 
             <button type="button" class="modal-close-btn" onclick="closePatientModal('profileModal')">
@@ -259,58 +259,56 @@
             <div class="patient-modal-body">
                 <div class="modal-form-grid">
                     <div class="modal-form-group">
-                        <label>Patient ID</label>
+                        <label>Mã bệnh nhân</label>
                         <input type="text"
                                readonly
                                th:value="${currentUser != null ? currentUser.userId : ''}">
                     </div>
 
                     <div class="modal-form-group">
-                        <label>Full Name <span>*</span></label>
+                        <label>Họ và tên <span>*</span></label>
                         <input type="text"
                                name="fullName"
                                required
                                maxlength="60"
                                th:value="${patient != null ? patient.fullName : ''}"
-                               placeholder="Enter full name">
+                               placeholder="Nhập họ và tên">
                     </div>
 
                     <div class="modal-form-group">
-                        <label>Phone Number <span>*</span></label>
+                        <label>Số điện thoại <span>*</span></label>
                         <input type="text"
                                name="phoneNumber"
-                               required
-                               maxlength="15"
-                               th:value="${patient != null ? patient.phoneNumber : (currentUser != null ? currentUser.phoneNumber : '')}"
-                               placeholder="Enter phone number">
+                               readonly
+                               th:value="${patient != null ? patient.phoneNumber : (currentUser != null ? currentUser.phoneNumber : '')}">
                     </div>
 
                     <div class="modal-form-group">
-                        <label>Date of Birth</label>
+                        <label>Ngày sinh</label>
                         <input type="date"
                                name="dob"
                                th:value="${patient != null && patient.dob != null ? patient.dob : ''}">
                     </div>
 
                     <div class="modal-form-group">
-                        <label>Gender</label>
+                        <label>Giới tính</label>
                         <select name="gender">
-                            <option value="">-- Select Gender --</option>
+                            <option value="">-- Chọn giới tính --</option>
                             <option value="false"
                                     th:selected="${patient != null && patient.gender != null && !patient.gender}">
-                                Male
+                                Nam
                             </option>
                             <option value="true"
                                     th:selected="${patient != null && patient.gender != null && patient.gender}">
-                                Female
+                                Nữ
                             </option>
                         </select>
                     </div>
 
                     <div class="modal-form-group">
-                        <label>Blood Group</label>
+                        <label>Nhóm máu</label>
                         <select name="bloodgroup">
-                            <option value="">-- Select Blood Group --</option>
+                            <option value="">-- Chọn nhóm máu --</option>
                             <option value="O+" th:selected="${patient != null && patient.bloodgroup == 'O+'}">O+</option>
                             <option value="O-" th:selected="${patient != null && patient.bloodgroup == 'O-'}">O-</option>
                             <option value="A+" th:selected="${patient != null && patient.bloodgroup == 'A+'}">A+</option>
@@ -323,7 +321,7 @@
                     </div>
 
                     <div class="modal-form-group">
-                        <label>Height</label>
+                        <label>Chiều cao</label>
                         <input type="number"
                                name="height"
                                min="50"
@@ -333,7 +331,7 @@
                     </div>
 
                     <div class="modal-form-group">
-                        <label>Weight</label>
+                        <label>Cân nặng</label>
                         <input type="number"
                                name="weight"
                                step="0.01"
@@ -344,57 +342,57 @@
                     </div>
 
                     <div class="modal-form-group full">
-                        <label>Address</label>
+                        <label>Địa chỉ</label>
                         <input type="text"
                                name="address"
                                maxlength="200"
                                th:value="${patient != null ? patient.address : ''}"
-                               placeholder="Enter address">
+                               placeholder="Nhập địa chỉ">
                     </div>
 
                     <div class="modal-form-group full">
-                        <label>Permanent Medical History</label>
+                        <label>Tiền sử bệnh án</label>
                         <textarea name="permanentMedicalHistory"
                                   rows="3"
-                                  placeholder="Enter medical history"
+                                  placeholder="Nhập tiền sử bệnh án"
                                   th:text="${patient != null ? patient.permanentMedicalHistory : ''}"></textarea>
                     </div>
 
                     <div class="modal-form-group full">
-                        <label>Allergy Notes</label>
+                        <label>Lưu ý dị ứng</label>
                         <textarea name="allergyNotes"
                                   rows="3"
-                                  placeholder="Enter allergy notes"
+                                  placeholder="Nhập lưu ý dị ứng"
                                   th:text="${patient != null ? patient.allergyNotes : ''}"></textarea>
                     </div>
 
                     <div class="modal-form-group">
-                        <label>Supervisor Name</label>
+                        <label>Tên người giám hộ</label>
                         <input type="text"
                                name="supervisorName"
                                maxlength="90"
                                th:value="${patient != null ? patient.supervisorName : ''}"
-                               placeholder="Enter supervisor name">
+                               placeholder="Nhập tên người giám hộ">
                     </div>
 
                     <div class="modal-form-group">
-                        <label>Supervisor Phone</label>
+                        <label>SĐT người giám hộ</label>
                         <input type="text"
                                name="supervisorPhone"
                                maxlength="15"
                                th:value="${patient != null ? patient.supervisorPhone : ''}"
-                               placeholder="Enter supervisor phone">
+                               placeholder="Nhập số điện thoại người giám hộ">
                     </div>
                 </div>
             </div>
 
             <div class="patient-modal-footer">
                 <button type="button" class="modal-cancel-btn" onclick="closePatientModal('profileModal')">
-                    Cancel
+                    Hủy
                 </button>
 
                 <button type="submit" class="modal-save-btn">
-                    Save Profile
+                    Lưu hồ sơ
                 </button>
             </div>
         </form>
@@ -405,7 +403,7 @@
 <div class="patient-modal-overlay" id="routineModal">
     <div class="patient-modal">
         <div class="patient-modal-header">
-            <h2>Update Daily Routine</h2>
+            <h2>Cập nhật lịch sinh hoạt hàng ngày</h2>
 
             <button type="button" class="modal-close-btn" onclick="closePatientModal('routineModal')">
                 ×
@@ -417,35 +415,35 @@
             <div class="patient-modal-body">
                 <div class="modal-form-grid">
                     <div class="modal-form-group">
-                        <label>Wake Up Time</label>
+                        <label>Giờ thức dậy</label>
                         <input type="time"
                                name="wakeUpTime"
                                th:value="${routine != null && routine.wakeUpTime != null ? routine.wakeUpTime : '06:00'}">
                     </div>
 
                     <div class="modal-form-group">
-                        <label>Breakfast Time</label>
+                        <label>Giờ ăn sáng</label>
                         <input type="time"
                                name="breakfastTime"
                                th:value="${routine != null && routine.breakfastTime != null ? routine.breakfastTime : '07:00'}">
                     </div>
 
                     <div class="modal-form-group">
-                        <label>Lunch Time</label>
+                        <label>Giờ ăn trưa</label>
                         <input type="time"
                                name="lunchTime"
                                th:value="${routine != null && routine.lunchTime != null ? routine.lunchTime : '12:00'}">
                     </div>
 
                     <div class="modal-form-group">
-                        <label>Dinner Time</label>
+                        <label>Giờ ăn tối</label>
                         <input type="time"
                                name="dinnerTime"
                                th:value="${routine != null && routine.dinnerTime != null ? routine.dinnerTime : '18:00'}">
                     </div>
 
                     <div class="modal-form-group">
-                        <label>Sleep Time</label>
+                        <label>Giờ đi ngủ</label>
                         <input type="time"
                                name="sleepTime"
                                th:value="${routine != null && routine.sleepTime != null ? routine.sleepTime : '22:00'}">
@@ -455,11 +453,11 @@
 
             <div class="patient-modal-footer">
                 <button type="button" class="modal-cancel-btn" onclick="closePatientModal('routineModal')">
-                    Cancel
+                    Hủy
                 </button>
 
                 <button type="submit" class="modal-save-btn">
-                    Save Routine
+                    Lưu lịch sinh hoạt
                 </button>
             </div>
         </form>
@@ -470,7 +468,7 @@
 <div class="patient-modal-overlay" id="changePasswordModal">
     <div class="patient-modal">
         <div class="patient-modal-header">
-            <h2>Change Password</h2>
+            <h2>Đổi mật khẩu</h2>
 
             <button type="button" class="modal-close-btn" onclick="closePatientModal('changePasswordModal')">
                 ×
@@ -482,38 +480,38 @@
             <div class="patient-modal-body">
                 <div class="modal-form-grid">
                     <div class="modal-form-group full">
-                        <label>Current Password <span>*</span></label>
+                        <label>Mật khẩu hiện tại <span>*</span></label>
                         <input type="password"
                                name="currentPassword"
                                required
-                               placeholder="Enter current password">
+                               placeholder="Nhập mật khẩu hiện tại">
                     </div>
 
                     <div class="modal-form-group full">
-                        <label>New Password <span>*</span></label>
+                        <label>Mật khẩu mới <span>*</span></label>
                         <input type="password"
                                name="newPassword"
                                required
-                               placeholder="Enter new password (at least 6 characters)">
+                               placeholder="Nhập mật khẩu mới (ít nhất 6 ký tự)">
                     </div>
 
                     <div class="modal-form-group full">
-                        <label>Confirm New Password <span>*</span></label>
+                        <label>Xác nhận mật khẩu mới <span>*</span></label>
                         <input type="password"
                                name="confirmPassword"
                                required
-                               placeholder="Confirm new password">
+                               placeholder="Xác nhận mật khẩu mới">
                     </div>
                 </div>
             </div>
 
             <div class="patient-modal-footer">
                 <button type="button" class="modal-cancel-btn" onclick="closePatientModal('changePasswordModal')">
-                    Cancel
+                    Hủy
                 </button>
 
                 <button type="submit" class="modal-save-btn">
-                    Change Password
+                    Đổi mật khẩu
                 </button>
             </div>
         </form>

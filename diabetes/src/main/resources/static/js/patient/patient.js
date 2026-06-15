@@ -35,7 +35,7 @@ function setupChat() {
         // 2. Append temporary typing indicator
         const typingMessage = document.createElement('div');
         typingMessage.className = 'message ai typing-indicator';
-        typingMessage.textContent = 'Typing...';
+        typingMessage.textContent = 'Đang trả lời...';
         messageList.appendChild(typingMessage);
         messageList.scrollTop = messageList.scrollHeight;
 
@@ -51,7 +51,7 @@ function setupChat() {
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error('Network error');
+                throw new Error('Lỗi kết nối mạng');
             }
             return response.json();
         })
@@ -67,7 +67,7 @@ function setupChat() {
             } else {
                 const errorMessage = document.createElement('div');
                 errorMessage.className = 'message ai';
-                errorMessage.textContent = 'Sorry, I encountered an error. Please try again.';
+                errorMessage.textContent = 'Xin lỗi, tôi đã gặp lỗi. Vui lòng thử lại.';
                 messageList.appendChild(errorMessage);
             }
             messageList.scrollTop = messageList.scrollHeight;
@@ -76,7 +76,7 @@ function setupChat() {
             typingMessage.remove();
             const errorMessage = document.createElement('div');
             errorMessage.className = 'message ai';
-            errorMessage.textContent = 'Connection error. Please try again later.';
+            errorMessage.textContent = 'Lỗi kết nối. Vui lòng thử lại sau.';
             messageList.appendChild(errorMessage);
             messageList.scrollTop = messageList.scrollHeight;
         });
@@ -116,30 +116,30 @@ function setupProfileValidation() {
         const errors = [];
 
         if (!fullName) {
-            errors.push('Full name is required.');
+            errors.push('Họ và tên là bắt buộc.');
             markInvalid(form, 'fullName');
         } else {
             if (fullName.length < 2 || fullName.length > 60) {
-                errors.push('Full name must be between 2 and 60 characters.');
+                errors.push('Họ và tên phải từ 2 đến 60 ký tự.');
                 markInvalid(form, 'fullName');
             }
 
             if (!isValidName(fullName)) {
-                errors.push('Full name must contain letters and spaces only.');
+                errors.push('Họ và tên chỉ được chứa chữ cái và khoảng trắng.');
                 markInvalid(form, 'fullName');
             }
         }
 
         if (!phoneNumber) {
-            errors.push('Phone number is required.');
+            errors.push('Số điện thoại là bắt buộc.');
             markInvalid(form, 'phoneNumber');
         } else if (!isValidPhone(phoneNumber)) {
-            errors.push('Phone number must contain 10 to 15 digits.');
+            errors.push('Số điện thoại phải gồm 10 chữ số.');
             markInvalid(form, 'phoneNumber');
         }
 
         if (address && address.length > 200) {
-            errors.push('Address must not exceed 200 characters.');
+            errors.push('Địa chỉ không được vượt quá 200 ký tự.');
             markInvalid(form, 'address');
         }
 
@@ -153,12 +153,12 @@ function setupProfileValidation() {
             dobDate.setHours(0, 0, 0, 0);
 
             if (dobDate > today) {
-                errors.push('Date of birth cannot be in the future.');
+                errors.push('Ngày sinh không thể ở tương lai.');
                 markInvalid(form, 'dob');
             }
 
             if (dobDate < minDate) {
-                errors.push('Date of birth is not valid.');
+                errors.push('Ngày sinh không hợp lệ.');
                 markInvalid(form, 'dob');
             }
         }
@@ -167,7 +167,7 @@ function setupProfileValidation() {
             const heightNumber = Number(height);
 
             if (Number.isNaN(heightNumber) || heightNumber < 50 || heightNumber > 250) {
-                errors.push('Height must be between 50 and 250 cm.');
+                errors.push('Chiều cao phải từ 50 đến 250 cm.');
                 markInvalid(form, 'height');
             }
         }
@@ -176,40 +176,40 @@ function setupProfileValidation() {
             const weightNumber = Number(weight);
 
             if (Number.isNaN(weightNumber) || weightNumber < 1 || weightNumber > 300) {
-                errors.push('Weight must be between 1 and 300 kg.');
+                errors.push('Cân nặng phải từ 1 đến 300 kg.');
                 markInvalid(form, 'weight');
             }
         }
 
         if (bloodgroup && !isValidBloodGroup(bloodgroup)) {
-            errors.push('Blood group is not valid.');
+            errors.push('Nhóm máu không hợp lệ.');
             markInvalid(form, 'bloodgroup');
         }
 
         if (permanentMedicalHistory && permanentMedicalHistory.length > 500) {
-            errors.push('Medical history must not exceed 500 characters.');
+            errors.push('Tiền sử bệnh án không được vượt quá 500 ký tự.');
             markInvalid(form, 'permanentMedicalHistory');
         }
 
         if (allergyNotes && allergyNotes.length > 500) {
-            errors.push('Allergy notes must not exceed 500 characters.');
+            errors.push('Lưu ý dị ứng không được vượt quá 500 ký tự.');
             markInvalid(form, 'allergyNotes');
         }
 
         if (supervisorName) {
             if (supervisorName.length > 90) {
-                errors.push('Supervisor name must not exceed 90 characters.');
+                errors.push('Tên người giám hộ không được vượt quá 90 ký tự.');
                 markInvalid(form, 'supervisorName');
             }
 
             if (!isValidName(supervisorName)) {
-                errors.push('Supervisor name must contain letters and spaces only.');
+                errors.push('Tên người giám hộ chỉ được chứa chữ cái và khoảng trắng.');
                 markInvalid(form, 'supervisorName');
             }
         }
 
         if (supervisorPhone && !isValidPhone(supervisorPhone)) {
-            errors.push('Supervisor phone must contain 10 to 15 digits.');
+            errors.push('Số điện thoại người giám hộ phải gồm 10 chữ số.');
             markInvalid(form, 'supervisorPhone');
         }
 
@@ -240,51 +240,51 @@ function setupRoutineValidation() {
         const errors = [];
 
         if (!wakeUpTime) {
-            errors.push('Wake up time is required.');
+            errors.push('Thời gian thức dậy là bắt buộc.');
             markInvalid(form, 'wakeUpTime');
         }
 
         if (!breakfastTime) {
-            errors.push('Breakfast time is required.');
+            errors.push('Thời gian ăn sáng là bắt buộc.');
             markInvalid(form, 'breakfastTime');
         }
 
         if (!lunchTime) {
-            errors.push('Lunch time is required.');
+            errors.push('Thời gian ăn trưa là bắt buộc.');
             markInvalid(form, 'lunchTime');
         }
 
         if (!dinnerTime) {
-            errors.push('Dinner time is required.');
+            errors.push('Thời gian ăn tối là bắt buộc.');
             markInvalid(form, 'dinnerTime');
         }
 
         if (!sleepTime) {
-            errors.push('Sleep time is required.');
+            errors.push('Thời gian đi ngủ là bắt buộc.');
             markInvalid(form, 'sleepTime');
         }
 
         if (errors.length === 0) {
             if (!isTimeBefore(wakeUpTime, breakfastTime)) {
-                errors.push('Breakfast time must be after wake up time.');
+                errors.push('Thời gian ăn sáng phải sau thời gian thức dậy.');
                 markInvalid(form, 'wakeUpTime');
                 markInvalid(form, 'breakfastTime');
             }
 
             if (!isTimeBefore(breakfastTime, lunchTime)) {
-                errors.push('Lunch time must be after breakfast time.');
+                errors.push('Thời gian ăn trưa phải sau thời gian ăn sáng.');
                 markInvalid(form, 'breakfastTime');
                 markInvalid(form, 'lunchTime');
             }
 
             if (!isTimeBefore(lunchTime, dinnerTime)) {
-                errors.push('Dinner time must be after lunch time.');
+                errors.push('Thời gian ăn tối phải sau thời gian ăn trưa.');
                 markInvalid(form, 'lunchTime');
                 markInvalid(form, 'dinnerTime');
             }
 
             if (!isTimeBefore(wakeUpTime, sleepTime)) {
-                errors.push('Sleep time must be after wake up time.');
+                errors.push('Thời gian đi ngủ phải sau thời gian thức dậy.');
                 markInvalid(form, 'wakeUpTime');
                 markInvalid(form, 'sleepTime');
             }
@@ -309,7 +309,7 @@ function getValue(form, fieldName) {
 }
 
 function isValidPhone(value) {
-    return /^[0-9]{10,15}$/.test(value);
+    return /^[0-9]{10}$/.test(value);
 }
 
 function isValidName(value) {
@@ -369,7 +369,7 @@ function showValidationMessage(messageId, errors) {
     const listItems = errors.map(error => `<li>${escapeHtml(error)}</li>`).join('');
 
     message.innerHTML = `
-        <strong>Please check the following information:</strong>
+        <strong>Vui lòng kiểm tra thông tin sau:</strong>
         <ul>${listItems}</ul>
     `;
 
@@ -452,23 +452,23 @@ function setupChangePasswordValidation() {
         const errors = [];
 
         if (!currentPassword) {
-            errors.push('Current password is required.');
+            errors.push('Mật khẩu hiện tại là bắt buộc.');
             markInvalid(form, 'currentPassword');
         }
 
         if (!newPassword) {
-            errors.push('New password is required.');
+            errors.push('Mật khẩu mới là bắt buộc.');
             markInvalid(form, 'newPassword');
         } else if (newPassword.length < 6) {
-            errors.push('New password must be at least 6 characters.');
+            errors.push('Mật khẩu mới phải có ít nhất 6 ký tự.');
             markInvalid(form, 'newPassword');
         }
 
         if (!confirmPassword) {
-            errors.push('Please confirm your new password.');
+            errors.push('Vui lòng xác nhận mật khẩu mới.');
             markInvalid(form, 'confirmPassword');
         } else if (newPassword !== confirmPassword) {
-            errors.push('New password and confirmation password do not match.');
+            errors.push('Mật khẩu mới và xác nhận mật khẩu không khớp.');
             markInvalid(form, 'confirmPassword');
         }
 
@@ -478,4 +478,5 @@ function setupChangePasswordValidation() {
             scrollToValidationMessage('changePasswordValidationMessage');
         }
     });
-}
+}
+

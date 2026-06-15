@@ -26,7 +26,7 @@ public class Patient {
     @Column(name = "FullName", nullable = false, length = 60, columnDefinition = "NVARCHAR(60)")
     private String fullName;
 
-    @Column(name = "PhoneNumber", length = 15, unique = true, columnDefinition = "NVARCHAR(15)")
+    @Column(name = "PhoneNumber", length = 15, unique = true)
     private String phoneNumber;
 
     @Column(name = "Address", length = 200, columnDefinition = "NVARCHAR(200)")
@@ -58,7 +58,7 @@ public class Patient {
     @Column(name = "SupervisorName", length = 90, columnDefinition = "NVARCHAR(90)")
     private String supervisorName;
 
-    @Column(name = "SupervisorPhone", length = 15, columnDefinition = "NVARCHAR(15)")
+    @Column(name = "SupervisorPhone", length = 15)
     private String supervisorPhone;
 
     public Patient() {
@@ -78,6 +78,10 @@ public class Patient {
 
     public void setUser(User user) {
         this.user = user;
+
+        if (user != null) {
+            this.userId = user.getUserId();
+        }
     }
 
     public String getFullName() {
