@@ -338,6 +338,8 @@ public class DoctorExamineController {
                     pMap.put("durationDays", p.getDurationDays());
                     pMap.put("totalQuantity", p.getTotalQuantity());
                     pMap.put("medicationPlan", p.getMedicationPlan());
+                    pMap.put("startDate", p.getStartDate() != null ? p.getStartDate().toString() : null);
+                    pMap.put("endDate", p.getEndDate() != null ? p.getEndDate().toString() : null);
                     
                     List<Map<String, Object>> timingsList = new ArrayList<>();
                     if (p.getPrescriptionTimings() != null) {

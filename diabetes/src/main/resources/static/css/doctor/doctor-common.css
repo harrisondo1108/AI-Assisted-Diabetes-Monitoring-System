@@ -464,3 +464,20 @@ body {
     max-width: 850px !important;
     width: 90% !important;
 }
+
+/* Shared Date Range Badge styles */
+.med-history-date-range,
+.presc-med-dates-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: var(--doctor-accent-light);
+    border: 1px solid var(--mint-300);
+    color: var(--doctor-primary);
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 12px;
+    margin-top: 6px;
+    width: fit-content;
+}

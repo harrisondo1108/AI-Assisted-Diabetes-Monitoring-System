@@ -284,9 +284,12 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label>Chọn thuốc <span class="required">*</span></label>
+                    <label style="font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-prescription-bottle-medical" style="color: var(--doctor-primary);"></i> Chọn thuốc <span class="required">*</span>
+                    </label>
                     <div class="custom-select-autocomplete">
-                        <input type="text" id="medSearch" placeholder="Nhập để tìm kiếm thuốc..."
+                        <i class="fas fa-search autocomplete-search-icon"></i>
+                        <input type="text" id="medSearch" placeholder="Nhập tên thuốc hoặc hàm lượng để tìm kiếm..."
                             onkeyup="filterMedications()">
                         <div class="autocomplete-list" id="medAutocompleteList">
                             <!-- Populated dynamically -->
@@ -294,35 +297,82 @@
                     </div>
                 </div>
 
-                <div class="form-grid-columns-2" id="medDetailFields" style="margin-top: 15px; display: none;">
-                    <div class="form-group" style="display: none;">
-                        <label>Liều dùng <span class="required">*</span></label>
-                        <input type="text" id="medDosage" placeholder="Ví dụ: 1 Viên (500mg)" value="Auto">
-                        <span class="error-msg" id="error-medDosage" style="color: var(--doctor-danger); font-size: 0.72rem; display: none; margin-top: 2px; font-weight: 500;"></span>
+                <!-- Hidden inputs -->
+                <input type="text" id="medDosage" value="Auto" style="display: none;">
+                <span class="error-msg" id="error-medDosage" style="display: none;"></span>
+
+                <div class="med-details-container" id="medDetailFields" style="display: none;">
+                    <!-- Selected Medication Info Banner -->
+                    <div class="selected-med-banner">
+                        <div class="med-banner-icon"><i class="fas fa-pills"></i></div>
+                        <div class="med-banner-details">
+                            <h4 id="medBannerName">Tên thuốc</h4>
+                            <p id="medBannerForm">Dạng bào chế / Đường dùng</p>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Số ngày sử dụng <span class="required">*</span></label>
-                        <input type="number" id="medDuration" min="1" max="180" value="30">
-                        <span class="error-msg" id="error-medDuration" style="color: var(--doctor-danger); font-size: 0.72rem; display: none; margin-top: 2px; font-weight: 500;"></span>
-                    </div>
-                    <div class="form-group">
-                        <label>Tổng số lượng cấp <span class="required">*</span></label>
-                        <input type="number" id="medQuantity" min="1" max="500" value="30">
-                        <span class="error-msg" id="error-medQuantity" style="color: var(--doctor-danger); font-size: 0.72rem; display: none; margin-top: 2px; font-weight: 500;"></span>
-                    </div>
-                    <div class="form-group">
-                        <label>Thời điểm sử dụng <span class="required">*</span></label>
-                        <select id="medTiming">
-                            <option th:each="t : ${medicationTimings}" th:value="${t.timingName}" th:text="${t.timingName}"></option>
-                            <!-- Fallback if empty -->
-                            <option th:if="${medicationTimings == null || medicationTimings.empty}" value="Breakfast Time (07:30 AM)">Thời điểm ăn sáng (07:30 AM)</option>
-                            <option th:if="${medicationTimings == null || medicationTimings.empty}" value="Lunch Time (12:15 PM)">Thời điểm ăn trưa (12:15 PM)</option>
-                            <option th:if="${medicationTimings == null || medicationTimings.empty}" value="Dinner Time (07:00 PM)">Thời điểm ăn tối (07:00 PM)</option>
-                        </select>
-                    </div>
-                    <div class="form-group" style="grid-column: span 2;">
-                        <label>Hướng dẫn sử dụng / Kế hoạch thuốc</label>
-                        <textarea id="medPlan" rows="2" placeholder="Ví dụ: Uống sau khi ăn sáng, uống nhiều nước..."></textarea>
+
+                    <div class="med-details-grid">
+                        <!-- Left Panel: Duration & Dates -->
+                        <div class="med-details-panel">
+                            <div class="panel-title">
+                                <i class="far fa-calendar-alt"></i> Thời gian &amp; Liệu trình
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-calendar-day"></i> Số ngày sử dụng <span class="required">*</span>
+                                </label>
+                                <input type="number" id="medDuration" min="1" max="180" value="30" style="width: 100%; box-sizing: border-box;">
+                                <span class="error-msg" id="error-medDuration"></span>
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-calendar-plus"></i> Ngày bắt đầu <span class="required">*</span>
+                                </label>
+                                <input type="date" id="medStartDate" style="width: 100%; box-sizing: border-box;">
+                                <span class="error-msg" id="error-medStartDate"></span>
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-calendar-check"></i> Ngày kết thúc dự kiến
+                                </label>
+                                <div class="readonly-date-wrapper">
+                                    <input type="date" id="medEndDate" readonly style="width: 100%; box-sizing: border-box;">
+                                    <i class="fas fa-lock lock-icon" title="Ngày kết thúc được tự động tính dựa trên ngày bắt đầu và số ngày sử dụng"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Panel: Quantity, Timing & Advice -->
+                        <div class="med-details-panel">
+                            <div class="panel-title">
+                                <i class="fas fa-hand-holding-medical"></i> Liều lượng &amp; Chỉ dẫn
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-clipboard-list"></i> Tổng số lượng cấp <span class="required">*</span>
+                                </label>
+                                <input type="number" id="medQuantity" min="1" max="500" value="30" style="width: 100%; box-sizing: border-box;">
+                                <span class="error-msg" id="error-medQuantity"></span>
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-clock"></i> Thời điểm sử dụng <span class="required">*</span>
+                                </label>
+                                <select id="medTiming" style="width: 100%; box-sizing: border-box; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--doctor-border); outline: none;">
+                                    <option th:each="t : ${medicationTimings}" th:value="${t.timingName}" th:text="${t.timingName}"></option>
+                                    <!-- Fallback if empty -->
+                                    <option th:if="${medicationTimings == null || medicationTimings.empty}" value="Breakfast Time (07:30 AM)">Thời điểm ăn sáng (07:30 AM)</option>
+                                    <option th:if="${medicationTimings == null || medicationTimings.empty}" value="Lunch Time (12:15 PM)">Thời điểm ăn trưa (12:15 PM)</option>
+                                    <option th:if="${medicationTimings == null || medicationTimings.empty}" value="Dinner Time (07:00 PM)">Thời điểm ăn tối (07:00 PM)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-file-medical"></i> Hướng dẫn bổ sung
+                                </label>
+                                <textarea id="medPlan" rows="2" placeholder="Ví dụ: Uống sau khi ăn 30 phút, uống với nhiều nước..." style="width: 100%; box-sizing: border-box;"></textarea>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

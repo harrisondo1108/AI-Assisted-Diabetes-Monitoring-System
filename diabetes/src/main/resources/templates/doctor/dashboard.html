@@ -303,18 +303,20 @@
                             <tbody id="modalExamPrescriptionTableBody">
                                 <tr th:each="p : ${prescriptionDetails}">
                                     <td>
-                                        <strong
-                                            th:text="${p.medication.medicationName + ' (' + p.medication.concentration + ')'}"></strong>
-                                        <div th:if="${p.medicationPlan != null && !p.medicationPlan.empty}"
-                                            class="med-history-item-desc">
-                                            <i class="fas fa-info-circle"></i> <span
-                                                th:text="${p.medicationPlan}"></span>
+                                        <strong th:text="${p.medication.medicationName + ' (' + p.medication.concentration + ')'}"></strong>
+                                        
+                                        <!-- Liệu trình ngày sử dụng (đặt dưới tên thuốc cho thoáng và đẹp) -->
+                                        <div th:if="${p.startDate != null && p.endDate != null}" class="med-history-date-range">
+                                            <i class="far fa-calendar-alt"></i> Liệu trình: Từ <span th:text="${#temporals.format(p.startDate, 'dd/MM/yyyy')}"></span> đến <span th:text="${#temporals.format(p.endDate, 'dd/MM/yyyy')}"></span>
+                                        </div>
+                                        
+                                        <div th:if="${p.medicationPlan != null && !p.medicationPlan.empty}" class="med-history-item-desc">
+                                            <i class="fas fa-info-circle"></i> <span th:text="${p.medicationPlan}"></span>
                                         </div>
                                     </td>
                                     <td th:text="${p.dosage}"></td>
                                     <td style="font-style: italic; color: var(--doctor-primary); font-weight: 500;">
-                                        <span th:each="t, iter : ${p.prescriptionTimings}"
-                                            th:text="${t.timing.timingName + (iter.last ? '' : ', ')}"></span>
+                                        <span th:each="t, iter : ${p.prescriptionTimings}" th:text="${t.timing.timingName + (iter.last ? '' : ', ')}"></span>
                                     </td>
                                     <td th:text="${p.durationDays + ' ngày / ' + p.totalQuantity + ' viên'}"></td>
                                 </tr>

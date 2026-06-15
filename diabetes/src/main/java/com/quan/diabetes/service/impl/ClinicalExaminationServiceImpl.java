@@ -413,6 +413,15 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                             Object medPlanObj = line.get("medicationPlan");
                             detail.setMedicationPlan(medPlanObj != null ? medPlanObj.toString() : "");
                             
+                            Object startDateObj = line.get("startDate");
+                            if (startDateObj != null && !startDateObj.toString().trim().isEmpty()) {
+                                detail.setStartDate(LocalDate.parse(startDateObj.toString()));
+                            }
+                            Object endDateObj = line.get("endDate");
+                            if (endDateObj != null && !endDateObj.toString().trim().isEmpty()) {
+                                detail.setEndDate(LocalDate.parse(endDateObj.toString()));
+                            }
+                            
                             detail.setPrescriptionTimings(new ArrayList<>());
                             detail = prescriptionDetailRepository.save(detail);
 

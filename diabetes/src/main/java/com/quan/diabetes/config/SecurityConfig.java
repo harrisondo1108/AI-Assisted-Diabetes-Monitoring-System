@@ -27,7 +27,7 @@ public class SecurityConfig {
 
                         // 2. Cho phép vào các trang public như Đăng ký, Đăng nhập mà không cần tài khoản
                         .requestMatchers("/login", "/register", "/api/auth/**", "/logout", "/error", "/register/otp",
-                                "/register/verify-otp", "/register/resend-otp").permitAll()
+                                "/register/verify-otp", "/register/resend-otp", "/").permitAll()
 
                         // 3. Các đường dẫn admin thì bắt buộc phải có quyền ADMIN
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")

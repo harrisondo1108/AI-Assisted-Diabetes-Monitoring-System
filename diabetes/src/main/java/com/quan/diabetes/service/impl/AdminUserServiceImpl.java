@@ -195,24 +195,6 @@ public class AdminUserServiceImpl implements AdminUserService {
 
             p = patientService.create(p);
 
-            // Tự động tạo ca khám Pending với bác sĩ DOC đầu tiên
-            User doctor = userRepository.findFirstByRole_RoleId("DOC").orElse(null);
-            if (doctor != null) {
-                boolean hasActive = clinicalExaminationRepository
-                        .findFirstByPatient_UserIdAndDoctor_UserIdAndStatusIn(
-                                p.getUserId(), doctor.getUserId(), java.util.List.of("Pending", "InProgress"))
-                        .isPresent();
-                if (!hasActive) {
-                    ClinicalExamination exam = new ClinicalExamination();
-                    exam.setClinicalExamId("EXM-" + System.currentTimeMillis() + "-" + new java.util.Random().nextInt(1000));
-                    exam.setPatient(p);
-                    exam.setDoctor(doctor);
-                    exam.setExamDate(java.time.LocalDateTime.now());
-                    exam.setStatus("Pending");
-                    clinicalExaminationRepository.save(exam);
-                }
-            }
-
         } else {
             Profile p = new Profile();
 //            p.setUserId(user.getUserId());

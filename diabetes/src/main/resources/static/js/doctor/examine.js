@@ -65,15 +65,31 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Real-time validation mapping on input events
-    const medInputs = ['medDosage', 'medDuration', 'medQuantity'];
+    const medInputs = ['medDosage', 'medDuration', 'medQuantity', 'medStartDate'];
     medInputs.forEach(id => {
         const el = document.getElementById(id);
         if (el) {
             el.addEventListener('input', () => {
                 validateMedicationFields();
             });
+            if (id === 'medStartDate') {
+                el.addEventListener('change', () => {
+                    validateMedicationFields();
+                });
+            }
         }
     });
+
+    // Update End Date when Start Date or Duration changes
+    const startDateInput = document.getElementById('medStartDate');
+    const durationInput = document.getElementById('medDuration');
+    if (startDateInput) {
+        startDateInput.addEventListener('change', updateEndDate);
+    }
+    if (durationInput) {
+        durationInput.addEventListener('input', updateEndDate);
+        durationInput.addEventListener('change', updateEndDate);
+    }
     
     if (viewOnlyMode) {
         simulateLabResults();
@@ -219,7 +235,9 @@ function loadSessionPatient() {
                     quantity: p.totalQuantity,
                     timing: tName, // standard timing mapped to options
                     timingText: tName,
-                    medicationPlan: p.medicationPlan || ''
+                    medicationPlan: p.medicationPlan || '',
+                    startDate: p.startDate || '',
+                    endDate: p.endDate || ''
                 };
             });
         }
@@ -660,6 +678,8 @@ function showMedicationModal() {
     document.getElementById('error-medDosage').style.display = 'none';
     document.getElementById('error-medDuration').style.display = 'none';
     document.getElementById('error-medQuantity').style.display = 'none';
+    const startDateErr = document.getElementById('error-medStartDate');
+    if (startDateErr) startDateErr.style.display = 'none';
 
     editingMedIndex = -1;
     selectedMed = null;
@@ -667,10 +687,19 @@ function showMedicationModal() {
     const btn = document.getElementById('addMedBtn');
     if (btn) btn.textContent = 'Thêm vào đơn thuốc';
 
-    document.getElementById('medDosage').value = '';
+    document.getElementById('medDosage').value = 'Auto';
     document.getElementById('medDuration').value = '30';
     document.getElementById('medQuantity').value = '30';
     document.getElementById('medPlan').value = '';
+
+    // Mặc định ngày bắt đầu khi mở modal là ngày hiện tại
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const todayStr = `${yyyy}-${mm}-${dd}`;
+    document.getElementById('medStartDate').value = todayStr;
+    updateEndDate();
 
     document.getElementById('medSearch').focus();
     filterMedications();
@@ -723,9 +752,14 @@ function selectMedication(med) {
     document.getElementById('medAutocompleteList').style.display = 'none';
 
     const detailFields = document.getElementById('medDetailFields');
-    if (detailFields) detailFields.style.display = 'grid';
+    if (detailFields) detailFields.style.display = 'block';
+
+    // Update banner details
+    document.getElementById('medBannerName').textContent = `${med.name} (${med.concentration})`;
+    document.getElementById('medBannerForm').textContent = `${med.form} / ${med.route || 'Đường dùng'}`;
 
     document.getElementById('medDuration').focus();
+    updateEndDate();
 }
 
 function addMedicationLine() {
@@ -740,6 +774,8 @@ function addMedicationLine() {
 
     const duration = parseInt(document.getElementById('medDuration').value.trim());
     const quantity = parseInt(document.getElementById('medQuantity').value.trim());
+    const startDate = document.getElementById('medStartDate').value;
+    const endDate = document.getElementById('medEndDate').value;
 
     let dosage = "Auto";
     if (duration > 0 && quantity > 0) {
@@ -782,7 +818,9 @@ function addMedicationLine() {
         quantity: quantity,
         timing: timing,
         timingText: timingText,
-        medicationPlan: medPlan
+        medicationPlan: medPlan,
+        startDate: startDate,
+        endDate: endDate
     };
 
     if (editingMedIndex >= 0) {
@@ -820,9 +858,19 @@ function editPrescriptionLine(index) {
     document.getElementById('medQuantity').value = line.quantity;
     document.getElementById('medTiming').value = line.timing;
     document.getElementById('medPlan').value = line.medicationPlan || '';
+    document.getElementById('medStartDate').value = line.startDate || '';
+    document.getElementById('medEndDate').value = line.endDate || '';
 
     const detailFields = document.getElementById('medDetailFields');
-    if (detailFields) detailFields.style.display = 'grid';
+    if (detailFields) detailFields.style.display = 'block';
+
+    if (selectedMed) {
+        document.getElementById('medBannerName').textContent = `${selectedMed.name} (${selectedMed.concentration})`;
+        document.getElementById('medBannerForm').textContent = `${selectedMed.form} / ${selectedMed.route || 'Đường dùng'}`;
+    } else {
+        document.getElementById('medBannerName').textContent = line.name || '';
+        document.getElementById('medBannerForm').textContent = `${line.form || ''} (${line.concentration || ''})`;
+    }
 
     const btn = document.getElementById('addMedBtn');
     if (btn) btn.textContent = 'Cập nhật đơn thuốc';
@@ -866,11 +914,15 @@ function renderPrescriptionLines() {
 
         const div = document.createElement('div');
         div.className = 'prescription-line';
+        const dateRangeBadge = line.startDate && line.endDate 
+            ? `<div class="presc-med-dates-badge"><i class="far fa-calendar-alt"></i> Liệu trình: Từ ${formatDateDMY(line.startDate)} đến ${formatDateDMY(line.endDate)}</div>` 
+            : '';
         div.innerHTML = `
             <div class="presc-card-main">
                 <div class="presc-med-info">
                     <div class="presc-med-name">${line.name} <span class="presc-med-conc">(${line.concentration})</span></div>
                     <div class="presc-med-form-badge">${line.form}</div>
+                    ${dateRangeBadge}
                 </div>
                 <div class="presc-card-details">
                     <div class="presc-detail-item">
@@ -957,7 +1009,9 @@ function saveExam() {
             duration: parseInt(line.duration),
             quantity: parseInt(line.quantity),
             timingText: line.timingText,
-            medicationPlan: line.medicationPlan
+            medicationPlan: line.medicationPlan,
+            startDate: line.startDate,
+            endDate: line.endDate
         };
     });
     
@@ -1113,17 +1167,18 @@ function validateMedicationFields() {
     const dosageInput = document.getElementById('medDosage');
     const durationInput = document.getElementById('medDuration');
     const quantityInput = document.getElementById('medQuantity');
+    const startDateInput = document.getElementById('medStartDate');
 
     const dosageErr = document.getElementById('error-medDosage');
     const durationErr = document.getElementById('error-medDuration');
     const quantityErr = document.getElementById('error-medQuantity');
+    const startDateErr = document.getElementById('error-medStartDate');
 
     // Reset errors
     if (dosageErr) dosageErr.style.display = 'none';
     if (durationErr) durationErr.style.display = 'none';
     if (quantityErr) quantityErr.style.display = 'none';
-
-    // Validate Dosage (Auto-calculated, bypassed)
+    if (startDateErr) startDateErr.style.display = 'none';
 
     // Validate Duration
     if (durationInput) {
@@ -1167,6 +1222,64 @@ function validateMedicationFields() {
         }
     }
 
+    // Validate Start Date
+    if (startDateInput) {
+        const startDateVal = startDateInput.value;
+        if (!startDateVal) {
+            if (startDateErr) {
+                startDateErr.textContent = 'Vui lòng chọn ngày bắt đầu sử dụng thuốc';
+                startDateErr.style.display = 'block';
+            }
+            isValid = false;
+        }
+    }
+
     return isValid;
+}
+
+function updateEndDate() {
+    const startDateInput = document.getElementById('medStartDate');
+    const durationInput = document.getElementById('medDuration');
+    const endDateInput = document.getElementById('medEndDate');
+
+    if (!startDateInput || !durationInput || !endDateInput) return;
+
+    const startDateVal = startDateInput.value;
+    const durationVal = durationInput.value.trim();
+
+    if (!startDateVal || !durationVal) {
+        endDateInput.value = '';
+        return;
+    }
+
+    const durationDays = parseInt(durationVal, 10);
+    if (isNaN(durationDays) || durationDays <= 0) {
+        endDateInput.value = '';
+        return;
+    }
+
+    const startDate = new Date(startDateVal);
+    if (isNaN(startDate.getTime())) {
+        endDateInput.value = '';
+        return;
+    }
+
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + durationDays);
+
+    const yyyy = endDate.getFullYear();
+    const mm = String(endDate.getMonth() + 1).padStart(2, '0');
+    const dd = String(endDate.getDate()).padStart(2, '0');
+
+    endDateInput.value = `${yyyy}-${mm}-${dd}`;
+}
+
+function formatDateDMY(dateStr) {
+    if (!dateStr) return 'N/A';
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    return dateStr;
 }
 
