@@ -1,30 +1,19 @@
 package com.quan.diabetes.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "TreatmentPlan")
+@Table(name = "TreatmentPlan", schema = "dbo")
 public class TreatmentPlan {
 
     @Id
     @Column(name = "PlanID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer planId;
+    private int planId;
 
-    @OneToOne
-    @JoinColumn(name = "ClinicalExamID", nullable = false)
-    private ClinicalExamination clinicalExamination;
-
-    @Column(name = "TreatmentGoal",columnDefinition = "NVARCHAR(MAX)")
-    private String treatmentGoal;
+    @Column(name = "CreatedAt", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
     @Column(name = "DietPlan", columnDefinition = "NVARCHAR(MAX)")
     private String dietPlan;
@@ -35,34 +24,40 @@ public class TreatmentPlan {
     @Column(name = "GlucoseMonitoringPlan", columnDefinition = "NVARCHAR(MAX)")
     private String glucoseMonitoringPlan;
 
-    @Column(name = "CreatedAt")
-    private LocalDateTime createdAt;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ClinicalExamID", referencedColumnName = "ClinicalExamID", nullable = false)
+    private ClinicalExamination clinicalExam;
 
+    /**
+     * Hàm này sẽ tự động chạy ngay trước khi đối tượng được lưu vào database lần đầu tiên.
+     */
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
+
+    // --- Constructors ---
     public TreatmentPlan() {
     }
 
-    public Integer getPlanId() {
+    // --- Getters and Setters ---
+
+
+    public int getPlanId() {
         return planId;
     }
 
-    public void setPlanId(Integer planId) {
+    public void setPlanId(int planId) {
         this.planId = planId;
     }
 
-    public ClinicalExamination getClinicalExamination() {
-        return clinicalExamination;
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public void setClinicalExamination(ClinicalExamination clinicalExamination) {
-        this.clinicalExamination = clinicalExamination;
-    }
-
-    public String getTreatmentGoal() {
-        return treatmentGoal;
-    }
-
-    public void setTreatmentGoal(String treatmentGoal) {
-        this.treatmentGoal = treatmentGoal;
+    // Bạn có thể xóa hẳn hàm setCreatedAt nếu không muốn code bên ngoài thay đổi thời gian tạo lịch sử
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public String getDietPlan() {
@@ -89,11 +84,22 @@ public class TreatmentPlan {
         this.glucoseMonitoringPlan = glucoseMonitoringPlan;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public ClinicalExamination getClinicalExam() {
+        return clinicalExam;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setClinicalExam(ClinicalExamination clinicalExam) {
+        this.clinicalExam = clinicalExam;
+    }
+
+    @Override
+    public String toString() {
+        return "TreatmentPlan{" +
+                "planId=" + planId +
+                ", createdAt=" + createdAt +
+                ", dietPlan='" + dietPlan + '\'' +
+                ", exercisePlan='" + exercisePlan + '\'' +
+                ", glucoseMonitoringPlan='" + glucoseMonitoringPlan +
+                '}';
     }
 }
