@@ -212,6 +212,8 @@ CREATE TABLE [PrescriptionDetail] (
     TotalQuantity INT, -- tổng số thuốc cung cấp
     DurationDays INT, -- tổng số ngày sử dụng
     MedicationPlan NVARCHAR(MAX),
+    StartDate DATE,
+    EndDate DATE,
     FOREIGN KEY (PrescriptionID) REFERENCES Prescription(PrescriptionID) ON DELETE CASCADE,
     FOREIGN KEY (MedicationID) REFERENCES Medication(MedicationID)
 );
@@ -286,10 +288,12 @@ CREATE TABLE [AI_Reminder] (
     Message NVARCHAR(MAX),
     ScheduledTime DATETIME,
     IsRead BIT DEFAULT 0,
-	AIAssistantID INT,
+    AIAssistantID INT,
     PatientID VARCHAR(50),
+    TimingID INT,
     FOREIGN KEY (PatientID) REFERENCES Patient(UserID) ON DELETE CASCADE,
-	FOREIGN KEY (AIAssistantID) REFERENCES AI_Assistant(AIAssistantID) ON DELETE CASCADE
+    FOREIGN KEY (AIAssistantID) REFERENCES AI_Assistant(AIAssistantID) ON DELETE CASCADE
+    FOREIGN KEY (TimingID) REFERENCES MedicationTiming(TimingID)
 );
 
 ------------------  INSERT  ----------------------------------------

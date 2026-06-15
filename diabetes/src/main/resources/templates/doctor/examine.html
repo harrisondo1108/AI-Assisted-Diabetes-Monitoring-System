@@ -126,7 +126,7 @@
                     <!-- Horizontal Diagnostic Tabs -->
                     <div class="diagnostic-tabs">
                         <button type="button" class="tab-btn active" onclick="switchTab(event, 'symptoms-tab')"><i
-                                class="fas fa-notes-medical"></i> Triệu chứng & Bệnh sử </button>
+                                class="fas fa-notes-medical"></i> Triệu chứng & Lịch sử bệnh </button>
                         <button type="button" class="tab-btn" onclick="switchTab(event, 'labs-tab')"><i class="fas fa-flask"></i>
                             Chỉ định xét nghiệm </button>
                         <button type="button" class="tab-btn" onclick="switchTab(event, 'prescription-tab')"><i
@@ -191,8 +191,8 @@
                                     <table class="clinical-table">
                                         <thead>
                                             <tr>
-                                                <th>Tên xét nghiệm cận lâm sàng</th>
-                                                <th>Khoảng ngưỡng tham chiếu</th>
+                                                <th>Tên xét nghiệm</th>
+                                                <th>Ngưỡng so sánh</th>
                                                 <th>Kết quả</th>
                                                 <th>Trạng thái cờ</th>
                                             </tr>
@@ -463,7 +463,7 @@
     <script th:inline="javascript">
         /*<![CDATA[*/
         const thPatient = /*[[${patientData}]]*/ null;
-        const thRoutine = /*[[${routine}]]*/ null;
+        const thRoutine = /*[[${routineData}]]*/ null;
         const thActiveExam = /*[[${activeExamData}]]*/ null;
         const thViewOnly = /*[[${viewOnly}]]*/ false;
         const thLastExam = /*[[${lastExamData}]]*/ null;

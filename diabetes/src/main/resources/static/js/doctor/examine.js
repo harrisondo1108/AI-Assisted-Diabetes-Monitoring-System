@@ -3,12 +3,12 @@
  */
 
 // Dynamically populated catalogs from Thymeleaf
-const symptomsCatalog = (typeof rawSymptomsCatalog !== 'undefined' ? rawSymptomsCatalog : []).map(s => ({
+const symptomsCatalog = (typeof rawSymptomsCatalog !== 'undefined' && rawSymptomsCatalog ? rawSymptomsCatalog : []).map(s => ({
     id: s.symptomId,
     name: s.symptomName
 }));
 
-const labTestsCatalog = (typeof rawLabTestsCatalog !== 'undefined' ? rawLabTestsCatalog : []).map(l => ({
+const labTestsCatalog = (typeof rawLabTestsCatalog !== 'undefined' && rawLabTestsCatalog ? rawLabTestsCatalog : []).map(l => ({
     id: l.testId,
     name: l.testName,
     unit: l.unit,
@@ -18,7 +18,7 @@ const labTestsCatalog = (typeof rawLabTestsCatalog !== 'undefined' ? rawLabTests
     maxValue: l.maxValue
 }));
 
-const medicationsCatalog = (typeof rawMedicationsCatalog !== 'undefined' ? rawMedicationsCatalog : []).map(m => ({
+const medicationsCatalog = (typeof rawMedicationsCatalog !== 'undefined' && rawMedicationsCatalog ? rawMedicationsCatalog : []).map(m => ({
     id: m.medicationId,
     name: m.medicationName,
     form: m.form,
@@ -573,7 +573,7 @@ function switchTab(evt, tabId) {
             const diagnosis = document.getElementById('examDiagnosis').value.trim();
             const checkedSymptoms = document.querySelectorAll('#symptomsGrid input:checked').length;
             if (!history || !diagnosis || checkedSymptoms === 0) {
-                showToast('Vui lòng hoàn thành Triệu chứng, Lý do khám & chẩn đoán trước.', 'warning');
+                showToast('Vui lòng không để trống hoặc mỗi phím cách Triệu chứng, Lý do khám & chẩn đoán.', 'warning');
                 return;
             }
         }

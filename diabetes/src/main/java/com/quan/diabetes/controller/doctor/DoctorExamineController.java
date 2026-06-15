@@ -134,7 +134,7 @@ public class DoctorExamineController {
         Map<String, Object> patientMap = new HashMap<>();
         patientMap.put("userId", patient.getUserId());
         patientMap.put("fullName", patient.getFullName());
-        patientMap.put("dob", patient.getDob());
+        patientMap.put("dob", patient.getDob() != null ? patient.getDob().toString() : null);
         patientMap.put("gender", patient.getGender());
         patientMap.put("height", patient.getHeight());
         patientMap.put("weight", patient.getWeight());
@@ -144,7 +144,18 @@ public class DoctorExamineController {
         model.addAttribute("patientData", patientMap);
 
         // Lấy thông tin Routine của bệnh nhân
-        model.addAttribute("routine", patientRoutineService.findById(selectedPatientId).orElse(null));
+        PatientRoutine routine = patientRoutineService.findById(selectedPatientId).orElse(null);
+        model.addAttribute("routine", routine);
+        Map<String, Object> routineMap = null;
+        if (routine != null) {
+            routineMap = new HashMap<>();
+            routineMap.put("breakfastTime", routine.getBreakfastTime() != null ? routine.getBreakfastTime().toString() : null);
+            routineMap.put("lunchTime", routine.getLunchTime() != null ? routine.getLunchTime().toString() : null);
+            routineMap.put("dinnerTime", routine.getDinnerTime() != null ? routine.getDinnerTime().toString() : null);
+            routineMap.put("sleepTime", routine.getSleepTime() != null ? routine.getSleepTime().toString() : null);
+            routineMap.put("wakeUpTime", routine.getWakeUpTime() != null ? routine.getWakeUpTime().toString() : null);
+        }
+        model.addAttribute("routineData", routineMap);
 
         // Lấy danh mục triệu chứng (Active)
         List<SymptomsCatalog> symptomsCatalog = symptomsCatalogRepository.findAll().stream()
@@ -258,7 +269,7 @@ public class DoctorExamineController {
                 lastExamMap.put("clinicalExamId", lastExam.getClinicalExamId());
                 lastExamMap.put("diagnosisNote", lastExam.getDiagnosisNote());
                 lastExamMap.put("medicalHistory", lastExam.getMedicalHistory());
-                lastExamMap.put("nextAppointment", lastExam.getNextAppointment());
+                lastExamMap.put("nextAppointment", lastExam.getNextAppointment() != null ? lastExam.getNextAppointment().toString() : null);
                 
                 if (lastExam.getTreatmentPlan() != null) {
                     Map<String, Object> planMap = new HashMap<>();
