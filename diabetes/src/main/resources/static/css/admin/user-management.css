@@ -1004,7 +1004,7 @@ body.modal-open {
 
 .role-type-selector {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 12px;
     margin-bottom: 8px;
 }
@@ -1304,4 +1304,17 @@ body.modal-open {
 
 .fa-spin {
     animation: spin 1s linear infinite;
+}
+
+.toast-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    border-left: 4px solid #b91c1c;
+}
+
+.toast-danger::before {
+    content: "\f057"; /* FontAwesome times-circle */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    color: white;
+    font-size: 18px;
 }

@@ -64,8 +64,21 @@ public class AdminUserController {
 
         boolean isCreateMode = userDto.getUserId() == null || userDto.getUserId().trim().isEmpty();
         if (isCreateMode) {
+            if (userDto.getRole() == null || (!"DOC".equalsIgnoreCase(userDto.getRole()) && !"doctor".equalsIgnoreCase(userDto.getRole()))) {
+                result.rejectValue("role", "error.role", "Admin chỉ được phép tạo tài khoản Bác sĩ (Doctor)");
+            }
             if (userDto.getPassword() == null || userDto.getPassword().trim().length() < 6) {
                 result.rejectValue("password", "error.password", "Mật khẩu cho tài khoản mới phải có ít nhất 6 ký tự");
+            }
+        } else {
+            try {
+                UserManagementDTO existingUser = adminUserService.getUserManagementDTOById(userDto.getUserId());
+                if ("PAT".equalsIgnoreCase(existingUser.getRole()) || "patient".equalsIgnoreCase(existingUser.getRole())) {
+                    redirectAttributes.addFlashAttribute("errorMessage", "Admin không được phép chỉnh sửa tài khoản Bệnh nhân (Patient)");
+                    return "redirect:/admin/users";
+                }
+            } catch (Exception e) {
+                // Ignore entity not found, saveUser will fail gracefully below
             }
         }
 

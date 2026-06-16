@@ -327,7 +327,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         Optional<User> existing = userRepository.findByPhoneNumber(phone.trim());
         if (existing.isEmpty()) return false;
         if (excludeUserId == null || excludeUserId.trim().isEmpty()) return true;
-        return !existing.get().getUserId().equals(excludeUserId);
+        return !existing.get().getUserId().trim().equalsIgnoreCase(excludeUserId.trim());
     }
 
 

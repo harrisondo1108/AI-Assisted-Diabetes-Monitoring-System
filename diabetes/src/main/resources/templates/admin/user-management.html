@@ -118,7 +118,8 @@
                                                 data-action="view" th:data-id="${user.userId}"><i
                                                     class="fas fa-eye"></i></button>
                                             <button type="button" class="action-btn edit" title="Edit"
-                                                data-action="edit" th:data-id="${user.userId}"><i
+                                                data-action="edit" th:data-id="${user.userId}"
+                                                th:if="${user.role != 'patient' && user.role != 'PAT'}"><i
                                                     class="fas fa-pen"></i></button>
                                             <button type="button" class="action-btn"
                                                 th:classappend="${user.status == 'Active' ? 'lock' : 'unlock'}"
@@ -300,7 +301,7 @@
                                 <span>Doctor</span>
                             </label>
                         </div>
-                        <div class="role-type-option">
+                        <div class="role-type-option" style="display: none;">
                             <input type="radio" name="role" id="rolePatient" value="PAT"
                                 th:checked="*{role == 'PAT' || role == 'patient'}" th:disabled="*{userId != null}">
                             <label for="rolePatient">
@@ -529,6 +530,10 @@
     <div th:if="${successMessage}" id="flashMessage" class="toast toast-success">
         <div class="toast-body" th:text="${successMessage}">Success</div>
         <button type="button" class="toast-close" id="toastClose">×</button>
+    </div>
+    <div th:if="${errorMessage}" id="flashErrorMessage" class="toast toast-danger">
+        <div class="toast-body" th:text="${errorMessage}">Error</div>
+        <button type="button" class="toast-close" id="toastErrorClose">×</button>
     </div>
 </body>
 
