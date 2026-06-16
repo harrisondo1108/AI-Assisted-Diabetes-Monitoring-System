@@ -151,6 +151,17 @@
                                 Chưa có lịch hẹn
                             </span>
                         </p>
+
+                        <div class="latest-treatment-plan" th:if="${latestTreatmentPlan != null}">
+                            <hr style="margin: 12px 0; border: 0; border-top: 1px solid rgba(0, 0, 0, 0.08);">
+                            <h5 style="margin-bottom: 8px; font-weight: 600; color: var(--green-700);">
+                                <i class="fas fa-file-medical-alt"></i> Phác đồ điều trị của bác sĩ
+                            </h5>
+                            <p style="margin-bottom: 4px;"><strong>Mục tiêu:</strong> <span th:text="${latestTreatmentPlan.treatmentGoal}">N/A</span></p>
+                            <p style="margin-bottom: 4px;"><strong>Chế độ ăn:</strong> <span th:text="${latestTreatmentPlan.dietPlan}">N/A</span></p>
+                            <p style="margin-bottom: 4px;"><strong>Tập luyện:</strong> <span th:text="${latestTreatmentPlan.exercisePlan}">N/A</span></p>
+                            <p style="margin-bottom: 0;"><strong>Theo dõi đường huyết:</strong> <span th:text="${latestTreatmentPlan.glucoseMonitoringPlan}">N/A</span></p>
+                        </div>
                     </div>
 
                     <div class="empty-message" th:if="${latestExam == null}">
@@ -192,6 +203,10 @@
                                         <span th:text="${reminder.dosage}">500mg</span>
                                         -
                                         <span th:text="${reminder.timingName}">Sau ăn sáng</span>
+                                        <span th:if="${reminder.medicationPlan != null && !#strings.isEmpty(reminder.medicationPlan)}" 
+                                              th:text="' | KH: ' + ${reminder.medicationPlan}" 
+                                              style="color: var(--green-600); font-weight: 500;">
+                                        </span>
                                     </p>
                                 </div>
                             </div>

@@ -11,6 +11,8 @@ import com.quan.diabetes.entity.PatientRoutine;
 import com.quan.diabetes.entity.Prescription;
 import com.quan.diabetes.entity.PrescriptionDetail;
 import com.quan.diabetes.entity.User;
+import com.quan.diabetes.entity.TreatmentPlan;
+import com.quan.diabetes.service.TreatmentPlanService;
 import com.quan.diabetes.service.AIConversationService;
 import com.quan.diabetes.service.AIMessageService;
 import com.quan.diabetes.service.AIReminderService;
@@ -58,6 +60,7 @@ public class PatientController {
     private final AIConversationService aiConversationService;
     private final AIMessageService aiMessageService;
     private final UserService userService;
+    private final TreatmentPlanService treatmentPlanService;
 
     public PatientController(PatientService patientService,
                              PatientRoutineService patientRoutineService,
@@ -70,7 +73,8 @@ public class PatientController {
                              AIReminderService aiReminderService,
                              AIConversationService aiConversationService,
                              AIMessageService aiMessageService,
-                             UserService userService) {
+                             UserService userService,
+                             TreatmentPlanService treatmentPlanService) {
         this.patientService = patientService;
         this.patientRoutineService = patientRoutineService;
         this.clinicalExaminationService = clinicalExaminationService;
@@ -83,6 +87,7 @@ public class PatientController {
         this.aiConversationService = aiConversationService;
         this.aiMessageService = aiMessageService;
         this.userService = userService;
+        this.treatmentPlanService = treatmentPlanService;
     }
 
     @GetMapping({"/patient", "/patient/dashboard"})
@@ -97,7 +102,13 @@ public class PatientController {
 
         ClinicalExamination latestExam = examinations.isEmpty() ? null : examinations.get(0);
 
+        TreatmentPlan latestTreatmentPlan = null;
+        if (latestExam != null) {
+            latestTreatmentPlan = treatmentPlanService.findByClinicalExamId(latestExam.getClinicalExamId()).orElse(null);
+        }
+
         model.addAttribute("latestExam", latestExam);
+        model.addAttribute("latestTreatmentPlan", latestTreatmentPlan);
         model.addAttribute("examinationCount", examinations.size());
         model.addAttribute("labOrderCount", labOrders.size());
         model.addAttribute("completedOrderCount", countStatus(labOrders, "completed"));
@@ -329,6 +340,8 @@ public class PatientController {
         List<LabResult> labResults = findLabResultsByPatient(patient);
         List<PrescriptionDetail> prescriptionDetails = findPrescriptionDetailsByPatient(patient);
 
+        Map<String, TreatmentPlan> plansMap = groupTreatmentPlansByExam(examinations);
+
         model.addAttribute("examinations", examinations);
         model.addAttribute("labOrders", labOrders);
         model.addAttribute("labResults", labResults);
@@ -336,6 +349,7 @@ public class PatientController {
         model.addAttribute("labOrdersByExam", groupLabOrdersByExam(examinations, labOrders));
         model.addAttribute("labResultsByOrder", groupLabResultsByOrder(labOrders, labResults));
         model.addAttribute("prescriptionDetailsByExam", groupPrescriptionDetailsByExam(examinations, prescriptionDetails));
+        model.addAttribute("treatmentPlansByExam", plansMap);
         model.addAttribute("abnormalResultCount", countAbnormalResults(labResults));
         model.addAttribute("completedOrderCount", countStatus(labOrders, "completed"));
 
@@ -362,6 +376,12 @@ public class PatientController {
 
         int riskScore = calculateRiskScore(labResults, patient);
 
+        ClinicalExamination latestExam = examinations.isEmpty() ? null : examinations.get(0);
+        TreatmentPlan latestTreatmentPlan = null;
+        if (latestExam != null) {
+            latestTreatmentPlan = treatmentPlanService.findByClinicalExamId(latestExam.getClinicalExamId()).orElse(null);
+        }
+
         model.addAttribute("riskScore", riskScore);
         model.addAttribute("riskLevel", getRiskLevel(riskScore));
         model.addAttribute("riskBadgeClass", getRiskBadgeClass(riskScore));
@@ -380,6 +400,7 @@ public class PatientController {
         model.addAttribute("abnormalResultCount", abnormalResults.size());
         model.addAttribute("abnormalResults", abnormalResults);
         model.addAttribute("recentLabResults", labResults.stream().limit(6).collect(Collectors.toList()));
+        model.addAttribute("latestTreatmentPlan", latestTreatmentPlan);
 
         return "patient/risk";
     }
@@ -484,6 +505,37 @@ public class PatientController {
         
         List<LabResult> labResults = findLabResultsByPatient(patient);
         
+        // 0. Check treatment plan query
+        if (msg.contains("phác đồ") || msg.contains("phac do") || msg.contains("kế hoạch điều trị") 
+                || msg.contains("ke hoach dieu tri") || msg.contains("mục tiêu điều trị") 
+                || msg.contains("muc tieu dieu tri") || msg.contains("chế độ ăn") || msg.contains("che do an") 
+                || msg.contains("tập luyện") || msg.contains("tap luyen") || msg.contains("theo dõi đường huyết") 
+                || msg.contains("theo doi duong huyet")) {
+            
+            List<ClinicalExamination> examinations = findExaminationsByPatient(patient);
+            ClinicalExamination latestExam = examinations.isEmpty() ? null : examinations.get(0);
+            TreatmentPlan latestTreatmentPlan = null;
+            if (latestExam != null) {
+                latestTreatmentPlan = treatmentPlanService.findByClinicalExamId(latestExam.getClinicalExamId()).orElse(null);
+            }
+            
+            if (latestTreatmentPlan == null) {
+                return "Hiện tại tôi chưa thấy phác đồ điều trị chi tiết nào được bác sĩ thiết lập cho bạn. Hãy tuân thủ hướng dẫn và trao đổi thêm với bác sĩ điều trị trong lần khám tới nhé.";
+            }
+            
+            StringBuilder sb = new StringBuilder();
+            sb.append("Dưới đây là Phác đồ điều trị gần nhất của bạn (ngày khám ")
+              .append(latestExam.getExamDate() != null ? latestExam.getExamDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "")
+              .append("):\n\n");
+            
+            sb.append("- **Mục tiêu điều trị**: ").append(latestTreatmentPlan.getTreatmentGoal() != null ? latestTreatmentPlan.getTreatmentGoal() : "Chưa cập nhật").append("\n");
+            sb.append("- **Chế độ ăn uống**: ").append(latestTreatmentPlan.getDietPlan() != null ? latestTreatmentPlan.getDietPlan() : "Chưa cập nhật").append("\n");
+            sb.append("- **Chế độ tập luyện**: ").append(latestTreatmentPlan.getExercisePlan() != null ? latestTreatmentPlan.getExercisePlan() : "Chưa cập nhật").append("\n");
+            sb.append("- **Theo dõi đường huyết**: ").append(latestTreatmentPlan.getGlucoseMonitoringPlan() != null ? latestTreatmentPlan.getGlucoseMonitoringPlan() : "Chưa cập nhật").append("\n");
+            
+            return sb.toString();
+        }
+
         // 1. Check indicators query
         if (msg.contains("chỉ số") || msg.contains("chiso") || msg.contains("hba1c") 
                 || msg.contains("glucose") || msg.contains("đường huyết") || msg.contains("duong huyet") 
@@ -540,6 +592,9 @@ public class PatientController {
                 if (reminder.getInstruction() != null && !reminder.getInstruction().isEmpty()) {
                     desc += " - Lưu ý: " + reminder.getInstruction();
                 }
+                if (reminder.getMedicationPlan() != null && !reminder.getMedicationPlan().isEmpty()) {
+                    desc += " (Kế hoạch: " + reminder.getMedicationPlan() + ")";
+                }
                 uniqueReminders.add(desc);
             }
             
@@ -579,7 +634,8 @@ public class PatientController {
         sb.append("Tôi có thể giúp bạn kiểm tra thông tin sức khỏe cá nhân bất cứ lúc nào. Bạn có thể hỏi tôi các câu hỏi như:\n");
         sb.append("- \"Chỉ số sức khỏe của tôi thế nào?\" để kiểm tra BMI, HbA1c, Glucose và đánh giá mức độ nguy cơ tiểu đường.\n");
         sb.append("- \"Lịch uống thuốc hôm nay của tôi\" để xem các loại thuốc cần uống và thời gian uống.\n");
-        sb.append("- \"Lịch sinh hoạt của tôi\" để xem lại các khung giờ ăn ngủ đã thiết lập.\n\n");
+        sb.append("- \"Lịch sinh hoạt của tôi\" để xem lại các khung giờ ăn ngủ đã thiết lập.\n");
+        sb.append("- \"Phác đồ điều trị của tôi như thế nào?\" để xem chi tiết chế độ dinh dưỡng, luyện tập và mục tiêu điều trị của bác sĩ.\n\n");
         sb.append("Ngoài ra, hãy luôn nhớ các nguyên tắc tự chăm sóc tiểu đường cơ bản:\n");
         sb.append("- Hạn chế tinh bột tinh chế, đồ ngọt, nước có ga.\n");
         sb.append("- Ăn nhiều rau xanh, chất xơ và bổ sung protein vừa phải.\n");
@@ -702,6 +758,18 @@ public class PatientController {
                         Comparator.nullsLast(Comparator.reverseOrder())
                 ))
                 .collect(Collectors.toList());
+    }
+
+    private Map<String, TreatmentPlan> groupTreatmentPlansByExam(List<ClinicalExamination> examinations) {
+        Map<String, TreatmentPlan> result = new LinkedHashMap<>();
+
+        for (ClinicalExamination examination : examinations) {
+            String examId = examination.getClinicalExamId();
+            TreatmentPlan plan = treatmentPlanService.findByClinicalExamId(examId).orElse(null);
+            result.put(examId, plan);
+        }
+
+        return result;
     }
 
     private List<LabOrder> findLabOrdersByPatient(Patient patient) {
@@ -1200,6 +1268,8 @@ public class PatientController {
                 ? detail.getMedication().getUsageInstruction()
                 : "";
 
+        String medicationPlan = detail.getMedicationPlan();
+
         boolean isDueNow = !now.isBefore(reminderTime) && now.isBefore(medicationTime);
         boolean isPast = now.isAfter(medicationTime);
 
@@ -1214,6 +1284,7 @@ public class PatientController {
                 dosage,
                 timingName,
                 instruction,
+                medicationPlan,
                 medicationTime,
                 reminderTime,
                 minutesBefore,
@@ -1295,6 +1366,7 @@ public class PatientController {
         private final String dosage;
         private final String timingName;
         private final String instruction;
+        private final String medicationPlan;
         private final LocalDateTime medicationTime;
         private final LocalDateTime reminderTime;
         private final int minutesBefore;
@@ -1307,6 +1379,7 @@ public class PatientController {
                                       String dosage,
                                       String timingName,
                                       String instruction,
+                                      String medicationPlan,
                                       LocalDateTime medicationTime,
                                       LocalDateTime reminderTime,
                                       int minutesBefore,
@@ -1318,6 +1391,7 @@ public class PatientController {
             this.dosage = dosage;
             this.timingName = timingName;
             this.instruction = instruction;
+            this.medicationPlan = medicationPlan;
             this.medicationTime = medicationTime;
             this.reminderTime = reminderTime;
             this.minutesBefore = minutesBefore;
@@ -1347,6 +1421,10 @@ public class PatientController {
 
         public String getInstruction() {
             return instruction;
+        }
+
+        public String getMedicationPlan() {
+            return medicationPlan;
         }
 
         public LocalDateTime getMedicationTime() {

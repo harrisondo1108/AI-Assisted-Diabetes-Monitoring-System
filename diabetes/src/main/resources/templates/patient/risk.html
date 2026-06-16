@@ -182,37 +182,83 @@
                     </div>
 
                     <div class="care-guide-list">
-                        <div class="care-guide-item">
-                            <i class="fas fa-utensils"></i>
-                            <div>
-                                <strong>Dinh dưỡng</strong>
-                                <p>Hạn chế đồ uống có đường, carbohydrate tinh chế và các bữa ăn lớn vào ban đêm.</p>
+                        <!-- Nếu có phác đồ điều trị được thiết lập -->
+                        <th:block th:if="${latestTreatmentPlan != null}">
+                            <div class="care-guide-item" th:if="${latestTreatmentPlan.treatmentGoal != null && !#strings.isEmpty(latestTreatmentPlan.treatmentGoal)}">
+                                <i class="fas fa-bullseye"></i>
+                                <div>
+                                    <strong>Mục tiêu điều trị</strong>
+                                    <p th:text="${latestTreatmentPlan.treatmentGoal}">Mục tiêu</p>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="care-guide-item">
-                            <i class="fas fa-person-walking"></i>
-                            <div>
-                                <strong>Vận động</strong>
-                                <p>Duy trì hoạt động thể chất đều đặn phù hợp với tình trạng sức khỏe của bạn.</p>
+                            <div class="care-guide-item" th:if="${latestTreatmentPlan.dietPlan != null && !#strings.isEmpty(latestTreatmentPlan.dietPlan)}">
+                                <i class="fas fa-utensils"></i>
+                                <div>
+                                    <strong>Dinh dưỡng</strong>
+                                    <p th:text="${latestTreatmentPlan.dietPlan}">Dinh dưỡng</p>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="care-guide-item">
-                            <i class="fas fa-pills"></i>
-                            <div>
-                                <strong>Dùng thuốc</strong>
-                                <p>Uống thuốc đúng theo đơn và không tự ý thay đổi liều lượng nếu không có lời khuyên của bác sĩ.</p>
+                            <div class="care-guide-item" th:if="${latestTreatmentPlan.exercisePlan != null && !#strings.isEmpty(latestTreatmentPlan.exercisePlan)}">
+                                <i class="fas fa-person-walking"></i>
+                                <div>
+                                    <strong>Vận động</strong>
+                                    <p th:text="${latestTreatmentPlan.exercisePlan}">Vận động</p>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="care-guide-item">
-                            <i class="fas fa-calendar-check"></i>
-                            <div>
-                                <strong>Tái khám</strong>
-                                <p>Đi khám đúng lịch hẹn và thực hiện lại các xét nghiệm khi được yêu cầu.</p>
+                            <div class="care-guide-item" th:if="${latestTreatmentPlan.glucoseMonitoringPlan != null && !#strings.isEmpty(latestTreatmentPlan.glucoseMonitoringPlan)}">
+                                <i class="fas fa-droplet"></i>
+                                <div>
+                                    <strong>Theo dõi đường huyết</strong>
+                                    <p th:text="${latestTreatmentPlan.glucoseMonitoringPlan}">Theo dõi đường huyết</p>
+                                </div>
                             </div>
-                        </div>
+                            
+                            <div class="care-guide-item">
+                                <i class="fas fa-pills"></i>
+                                <div>
+                                    <strong>Dùng thuốc</strong>
+                                    <p>Uống thuốc đúng theo đơn và không tự ý thay đổi liều lượng nếu không có lời khuyên của bác sĩ.</p>
+                                </div>
+                            </div>
+                        </th:block>
+
+                        <!-- Nếu không có phác đồ điều trị, hiển thị hướng dẫn mặc định -->
+                        <th:block th:unless="${latestTreatmentPlan != null}">
+                            <div class="care-guide-item">
+                                <i class="fas fa-utensils"></i>
+                                <div>
+                                    <strong>Dinh dưỡng</strong>
+                                    <p>Hạn chế đồ uống có đường, carbohydrate tinh chế và các bữa ăn lớn vào ban đêm.</p>
+                                </div>
+                            </div>
+
+                            <div class="care-guide-item">
+                                <i class="fas fa-person-walking"></i>
+                                <div>
+                                    <strong>Vận động</strong>
+                                    <p>Duy trì hoạt động thể chất đều đặn phù hợp với tình trạng sức khỏe của bạn.</p>
+                                </div>
+                            </div>
+
+                            <div class="care-guide-item">
+                                <i class="fas fa-pills"></i>
+                                <div>
+                                    <strong>Dùng thuốc</strong>
+                                    <p>Uống thuốc đúng theo đơn và không tự ý thay đổi liều lượng nếu không có lời khuyên của bác sĩ.</p>
+                                </div>
+                            </div>
+
+                            <div class="care-guide-item">
+                                <i class="fas fa-calendar-check"></i>
+                                <div>
+                                    <strong>Tái khám</strong>
+                                    <p>Đi khám đúng lịch hẹn và thực hiện lại các xét nghiệm khi được yêu cầu.</p>
+                                </div>
+                            </div>
+                        </th:block>
                     </div>
                 </section>
             </div>

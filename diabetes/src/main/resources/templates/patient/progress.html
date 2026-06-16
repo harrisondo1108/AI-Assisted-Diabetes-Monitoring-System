@@ -117,6 +117,31 @@
                             </div>
                         </div>
 
+                        <div class="progress-subsection" th:if="${treatmentPlansByExam[exam.clinicalExamId] != null}" th:with="plan=${treatmentPlansByExam[exam.clinicalExamId]}">
+                            <div class="card-header">
+                                <i class="fas fa-file-medical-alt" style="color: var(--green-600);"></i>
+                                <h3>Phác đồ & Kế hoạch Điều trị</h3>
+                            </div>
+                            <div class="progress-note-grid" style="margin-top: 12px; margin-bottom: 0;">
+                                <div class="progress-note">
+                                    <h3><i class="fas fa-bullseye" style="color: var(--green-600); margin-right: 6px;"></i>Mục tiêu điều trị</h3>
+                                    <p th:text="${plan.treatmentGoal != null && !#strings.isEmpty(plan.treatmentGoal) ? plan.treatmentGoal : 'Chưa có mục tiêu điều trị cụ thể.'}">Mục tiêu</p>
+                                </div>
+                                <div class="progress-note">
+                                    <h3><i class="fas fa-utensils" style="color: var(--green-600); margin-right: 6px;"></i>Chế độ ăn uống</h3>
+                                    <p th:text="${plan.dietPlan != null && !#strings.isEmpty(plan.dietPlan) ? plan.dietPlan : 'Chưa cập nhật chế độ ăn.'}">Chế độ ăn</p>
+                                </div>
+                                <div class="progress-note">
+                                    <h3><i class="fas fa-person-running" style="color: var(--green-600); margin-right: 6px;"></i>Chế độ tập luyện</h3>
+                                    <p th:text="${plan.exercisePlan != null && !#strings.isEmpty(plan.exercisePlan) ? plan.exercisePlan : 'Chưa cập nhật chế độ tập luyện.'}">Tập luyện</p>
+                                </div>
+                                <div class="progress-note">
+                                    <h3><i class="fas fa-droplet" style="color: var(--green-600); margin-right: 6px;"></i>Theo dõi đường huyết</h3>
+                                    <p th:text="${plan.glucoseMonitoringPlan != null && !#strings.isEmpty(plan.glucoseMonitoringPlan) ? plan.glucoseMonitoringPlan : 'Chưa cập nhật kế hoạch theo dõi.'}">Theo dõi</p>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="progress-subsection">
                             <div class="card-header">
                                 <i class="fas fa-vial" style="color: var(--green-600);"></i>
@@ -194,6 +219,7 @@
                                         <th>Đường dùng</th>
                                         <th>Tổng số lượng</th>
                                         <th>Số ngày dùng</th>
+                                        <th>Kế hoạch dùng thuốc</th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -204,6 +230,7 @@
                                         <td th:text="${detail.medication != null ? detail.medication.administrationRoute : ''}">Uống</td>
                                         <td th:text="${detail.totalQuantity}">30</td>
                                         <td th:text="${detail.durationDays}">15</td>
+                                        <td th:text="${detail.medicationPlan != null && !#strings.isEmpty(detail.medicationPlan) ? detail.medicationPlan : 'N/A'}">Kế hoạch dùng thuốc</td>
                                     </tr>
                                     </tbody>
                                 </table>

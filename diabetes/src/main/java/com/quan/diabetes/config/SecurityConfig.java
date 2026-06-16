@@ -27,11 +27,11 @@ public class SecurityConfig {
 
                         .requestMatchers("/admin/**").hasRole("AD")
                         .requestMatchers("/patient/**").hasRole("PAT")
-                        .requestMatchers("/doctor/**").hasRole("DO")
+                        .requestMatchers("/doctor/**").hasRole("DOC")
 
                         .requestMatchers("/api/admin/**").hasRole("AD")
                         .requestMatchers("/api/patient/**").hasRole("PAT")
-                        .requestMatchers("/api/doctor/**").hasRole("DO")
+                        .requestMatchers("/api/doctor/**").hasRole("DOC")
 
                         .anyRequest().authenticated()
                 )

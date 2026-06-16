@@ -161,6 +161,11 @@
                                 <span th:text="${#temporals.format(reminder.medicationTime, 'HH:mm')}">07:15</span>
                             </p>
 
+                            <p th:if="${reminder.medicationPlan != null && !#strings.isEmpty(reminder.medicationPlan)}">
+                                <strong>Kế hoạch dùng thuốc:</strong>
+                                <span th:text="${reminder.medicationPlan}">Kế hoạch dùng thuốc chi tiết.</span>
+                            </p>
+
                             <p th:if="${reminder.instruction != null && !#strings.isEmpty(reminder.instruction)}">
                                 <strong>Hướng dẫn:</strong>
                                 <span th:text="${reminder.instruction}">Uống sau ăn.</span>
