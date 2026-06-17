@@ -44,7 +44,7 @@
                             <span class="spec-val" id="patBlood" th:text="${patient.bloodgroup != null ? patient.bloodgroup : 'N/A'}">O+</span>
                         </div>
                         <div class="spec-item">
-                            <span class="spec-label">Chỉ số BMI</span>
+                            <span class="spec-label">BMI</span>
                             <span class="spec-val" id="patBmi" th:with="h_m=${patient.height != null ? patient.height / 100.0 : 0.0}, bmi=${(patient.weight != null && h_m > 0) ? (patient.weight.doubleValue() / (h_m * h_m)) : 0.0}" th:text="${bmi > 0 ? #numbers.formatDecimal(bmi, 1, 1) + (bmi < 18.5 ? ' (Thiếu cân)' : (bmi < 25.0 ? ' (Bình thường)' : (bmi < 30.0 ? ' (Thừa cân)' : ' (Béo phì)'))) : 'N/A'}">24.2 (Bình thường)</span>
                         </div>
                     </div>
@@ -194,7 +194,7 @@
                                                 <th>Tên xét nghiệm</th>
                                                 <th>Ngưỡng so sánh</th>
                                                 <th>Kết quả</th>
-                                                <th>Trạng thái cờ</th>
+                                                <th>Trạng thái</th>
                                             </tr>
                                         </thead>
                                         <tbody id="labResultsTableBody">
@@ -355,16 +355,35 @@
                                 <span class="error-msg" id="error-medQuantity"></span>
                             </div>
                             <div class="form-group">
-                                <label style="font-weight: 600; display: flex; align-items: center; gap: 6px;">
-                                    <i class="fas fa-clock"></i> Thời điểm sử dụng <span class="required">*</span>
-                                </label>
-                                <select id="medTiming" style="width: 100%; box-sizing: border-box; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--doctor-border); outline: none;">
-                                    <option th:each="t : ${medicationTimings}" th:value="${t.timingName}" th:text="${t.timingName}"></option>
-                                    <!-- Fallback if empty -->
-                                    <option th:if="${medicationTimings == null || medicationTimings.empty}" value="Breakfast Time (07:30 AM)">Thời điểm ăn sáng (07:30 AM)</option>
-                                    <option th:if="${medicationTimings == null || medicationTimings.empty}" value="Lunch Time (12:15 PM)">Thời điểm ăn trưa (12:15 PM)</option>
-                                    <option th:if="${medicationTimings == null || medicationTimings.empty}" value="Dinner Time (07:00 PM)">Thời điểm ăn tối (07:00 PM)</option>
-                                </select>
+                                 <label style="font-weight: 600; display: flex; align-items: center; justify-content: space-between; gap: 6px; width: 100%;">
+                                     <span><i class="fas fa-clock"></i> Thời điểm sử dụng <span class="required">*</span></span>
+                                 </label>
+                                 <div class="custom-multiselect-container" id="medTimingContainer">
+                                     <div class="custom-multiselect-header" onclick="toggleTimingDropdown(event)">
+                                         <span id="medTimingPlaceholder">Chọn thời điểm...</span>
+                                         <i class="fas fa-chevron-down"></i>
+                                     </div>
+                                     <div class="custom-multiselect-options" id="medTimingOptions">
+                                         <div class="custom-multiselect-option" th:each="t : ${medicationTimings}" th:data-value="${t.timingName}" onclick="selectTimingOption(this, event)">
+                                             <input type="checkbox" th:id="${'timing-' + t.timingID}" th:value="${t.timingName}" onclick="event.stopPropagation(); updateTimingPlaceholder();">
+                                             <label th:for="${'timing-' + t.timingID}" th:text="${t.timingName}" onclick="event.stopPropagation()"></label>
+                                         </div>
+                                         <!-- Fallbacks if empty -->
+                                         <div th:if="${medicationTimings == null || medicationTimings.empty}" class="custom-multiselect-option" data-value="Breakfast Time (07:30 AM)" onclick="selectTimingOption(this, event)">
+                                             <input type="checkbox" id="timing-fb1" value="Breakfast Time (07:30 AM)" onclick="event.stopPropagation(); updateTimingPlaceholder();">
+                                             <label for="timing-fb1" onclick="event.stopPropagation()">Thời điểm ăn sáng (07:30 AM)</label>
+                                         </div>
+                                         <div th:if="${medicationTimings == null || medicationTimings.empty}" class="custom-multiselect-option" data-value="Lunch Time (12:15 PM)" onclick="selectTimingOption(this, event)">
+                                             <input type="checkbox" id="timing-fb2" value="Lunch Time (12:15 PM)" onclick="event.stopPropagation(); updateTimingPlaceholder();">
+                                             <label for="timing-fb2" onclick="event.stopPropagation()">Thời điểm ăn trưa (12:15 PM)</label>
+                                         </div>
+                                         <div th:if="${medicationTimings == null || medicationTimings.empty}" class="custom-multiselect-option" data-value="Dinner Time (07:00 PM)" onclick="selectTimingOption(this, event)">
+                                             <input type="checkbox" id="timing-fb3" value="Dinner Time (07:00 PM)" onclick="event.stopPropagation(); updateTimingPlaceholder();">
+                                             <label for="timing-fb3" onclick="event.stopPropagation()">Thời điểm ăn tối (07:00 PM)</label>
+                                         </div>
+                                     </div>
+                                 </div>
+                                 <span class="error-msg" id="error-medTiming"></span>
                             </div>
                             <div class="form-group">
                                 <label style="font-weight: 600; display: flex; align-items: center; gap: 6px;">

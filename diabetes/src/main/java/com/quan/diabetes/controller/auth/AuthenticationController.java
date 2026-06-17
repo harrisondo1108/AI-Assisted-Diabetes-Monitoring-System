@@ -1,5 +1,6 @@
 package com.quan.diabetes.controller.auth;
 
+import com.quan.diabetes.config.SecurityConfig;
 import com.quan.diabetes.entity.*;
 import com.quan.diabetes.service.*;
 import com.quan.diabetes.util.ParseUtil;
@@ -8,6 +9,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,19 +30,21 @@ public class AuthenticationController {
     private final ProfileService profileService;
     private final PatientRoutineService patientRoutineService;
     private final ClinicalExaminationService clinicalExaminationService;
+    private final PasswordEncoder passwordEncoder;
 
     public AuthenticationController(UserService userService,
                                     RoleService roleService,
                                     PatientService patientService,
                                     ProfileService profileService,
                                     PatientRoutineService patientRoutineService,
-                                    ClinicalExaminationService clinicalExaminationService) {
+                                    ClinicalExaminationService clinicalExaminationService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.roleService = roleService;
         this.patientService = patientService;
         this.profileService = profileService;
         this.patientRoutineService = patientRoutineService;
         this.clinicalExaminationService = clinicalExaminationService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     // ==================== GET ====================

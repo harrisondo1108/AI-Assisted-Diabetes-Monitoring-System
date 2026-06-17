@@ -428,18 +428,24 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                             // Lưu Timing cho đơn thuốc
                             String timingText = (String) line.get("timingText");
                             if (timingText != null && !timingText.trim().isEmpty()) {
-                                final String finalTimingText = timingText;
-                                MedicationTiming timing = medicationTimingRepository.findByTimingName(finalTimingText)
-                                        .orElseGet(() -> {
-                                            MedicationTiming newTiming = new MedicationTiming();
-                                            newTiming.setTimingName(finalTimingText);
-                                            return medicationTimingRepository.save(newTiming);
-                                        });
+                                String[] parts = timingText.split(",\\s*");
+                                for (String part : parts) {
+                                    if (part.trim().isEmpty()) {
+                                        continue;
+                                    }
+                                    final String singleTimingText = part.trim();
+                                    MedicationTiming timing = medicationTimingRepository.findByTimingName(singleTimingText)
+                                            .orElseGet(() -> {
+                                                MedicationTiming newTiming = new MedicationTiming();
+                                                newTiming.setTimingName(singleTimingText);
+                                                return medicationTimingRepository.save(newTiming);
+                                            });
 
-                                PrescriptionTiming pTiming = new PrescriptionTiming();
-                                pTiming.setPrescriptionDetail(detail);
-                                pTiming.setTiming(timing);
-                                prescriptionTimingRepository.save(pTiming);
+                                    PrescriptionTiming pTiming = new PrescriptionTiming();
+                                    pTiming.setPrescriptionDetail(detail);
+                                    pTiming.setTiming(timing);
+                                    prescriptionTimingRepository.save(pTiming);
+                                }
                             }
                         }
                     }

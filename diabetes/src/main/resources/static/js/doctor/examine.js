@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initLabTestChecklist();
     renderOrderedLabsList();
     setupNextAppointmentMinDate();
+    restoreExamineDraft();
 
     // Setup keypress block and paste block for medDuration & medQuantity
     const numericInputs = ['medDuration', 'medQuantity'];
@@ -125,6 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (cancelForm) {
             cancelForm.addEventListener('submit', () => {
                 isSubmitting = true;
+                sessionStorage.removeItem('examineDraft');
             });
         }
     }
@@ -224,7 +226,10 @@ function loadSessionPatient() {
         prescriptionLines = [];
         if (typeof thLastExamPrescriptionDetails !== 'undefined' && thLastExamPrescriptionDetails) {
             prescriptionLines = thLastExamPrescriptionDetails.map(p => {
-                const tName = p.prescriptionTimings && p.prescriptionTimings.length > 0 ? p.prescriptionTimings[0].timing.timingName : 'Breakfast Time (07:30 AM)';
+                const tNames = p.prescriptionTimings && p.prescriptionTimings.length > 0
+                    ? p.prescriptionTimings.map(pt => pt.timing.timingName)
+                    : ['Breakfast Time (07:30 AM)'];
+                const tText = tNames.join(', ');
                 return {
                     medId: p.medication.medicationId,
                     name: p.medication.medicationName,
@@ -233,8 +238,8 @@ function loadSessionPatient() {
                     dosage: p.dosage,
                     duration: p.durationDays,
                     quantity: p.totalQuantity,
-                    timing: tName, // standard timing mapped to options
-                    timingText: tName,
+                    timing: tNames, // standard timing mapped to options
+                    timingText: tText,
                     medicationPlan: p.medicationPlan || '',
                     startDate: p.startDate || '',
                     endDate: p.endDate || ''
@@ -680,6 +685,17 @@ function showMedicationModal() {
     document.getElementById('error-medQuantity').style.display = 'none';
     const startDateErr = document.getElementById('error-medStartDate');
     if (startDateErr) startDateErr.style.display = 'none';
+    const timingErr = document.getElementById('error-medTiming');
+    if (timingErr) timingErr.style.display = 'none';
+
+    // Deselect all timings by default
+    const timingContainer = document.getElementById('medTimingContainer');
+    if (timingContainer) {
+        timingContainer.classList.remove('open');
+        const checkboxes = timingContainer.querySelectorAll('.custom-multiselect-option input[type="checkbox"]');
+        checkboxes.forEach(cb => cb.checked = false);
+        updateTimingPlaceholder();
+    }
 
     editingMedIndex = -1;
     selectedMed = null;
@@ -803,9 +819,17 @@ function addMedicationLine() {
         }
         dosage = `${rateClean} ${unit}/ngày`;
     }
-    const timingSelect = document.getElementById('medTiming');
-    const timing = timingSelect.value;
-    const timingText = timingSelect.options[timingSelect.selectedIndex].text;
+    const timingContainer = document.getElementById('medTimingContainer');
+    let timing = [];
+    let timingText = '';
+    if (timingContainer) {
+        const checkedOptions = Array.from(timingContainer.querySelectorAll('.custom-multiselect-option input[type="checkbox"]')).filter(cb => cb.checked);
+        timing = checkedOptions.map(cb => cb.value);
+        timingText = checkedOptions.map(cb => {
+            const label = cb.parentNode.querySelector('label');
+            return label ? label.textContent.trim() : cb.value;
+        }).join(', ');
+    }
     const medPlan = document.getElementById('medPlan').value.trim();
 
     const line = {
@@ -856,7 +880,27 @@ function editPrescriptionLine(index) {
     document.getElementById('medDosage').value = line.dosage;
     document.getElementById('medDuration').value = line.duration;
     document.getElementById('medQuantity').value = line.quantity;
-    document.getElementById('medTiming').value = line.timing;
+    
+    const timingContainer = document.getElementById('medTimingContainer');
+    if (timingContainer) {
+        timingContainer.classList.remove('open');
+        const checkboxes = timingContainer.querySelectorAll('.custom-multiselect-option input[type="checkbox"]');
+        checkboxes.forEach(cb => cb.checked = false);
+        
+        let selectedValues = [];
+        if (Array.isArray(line.timing)) {
+            selectedValues = line.timing;
+        } else if (typeof line.timing === 'string') {
+            selectedValues = line.timing.split(',').map(s => s.trim());
+        }
+        checkboxes.forEach(cb => {
+            if (selectedValues.includes(cb.value)) {
+                cb.checked = true;
+            }
+        });
+        updateTimingPlaceholder();
+    }
+
     document.getElementById('medPlan').value = line.medicationPlan || '';
     document.getElementById('medStartDate').value = line.startDate || '';
     document.getElementById('medEndDate').value = line.endDate || '';
@@ -1065,6 +1109,7 @@ function saveExam() {
     });
 
     showToast(`Đang lưu kết quả khám lâm sàng...`, 'success');
+    sessionStorage.removeItem('examineDraft');
     setTimeout(() => {
         form.submit();
     }, 1000);
@@ -1133,6 +1178,30 @@ function showToast(message, type = 'success') {
 function goToHistory() {
     isSubmitting = true;
     if (currentPatient) {
+        // Collect current state
+        const draft = {
+            patientId: currentPatient.id,
+            examDiagnosis: document.getElementById('examDiagnosis') ? document.getElementById('examDiagnosis').value : '',
+            examHistory: document.getElementById('examHistory') ? document.getElementById('examHistory').value : '',
+            examNextDate: document.getElementById('examNextDate') ? document.getElementById('examNextDate').value : '',
+            planGoal: document.getElementById('planGoal') ? document.getElementById('planGoal').value : '',
+            planDiet: document.getElementById('planDiet') ? document.getElementById('planDiet').value : '',
+            planExercise: document.getElementById('planExercise') ? document.getElementById('planExercise').value : '',
+            planGlucose: document.getElementById('planGlucose') ? document.getElementById('planGlucose').value : '',
+            prescriptionLines: prescriptionLines,
+            selectedSymptoms: selectedSymptoms,
+            orderedLabs: orderedLabs,
+            simulatedResults: simulatedResults
+        };
+        // Capture symptom comments dynamically
+        Object.keys(selectedSymptoms).forEach(id => {
+            const input = document.getElementById(`comment-${id}`);
+            if (input) {
+                draft.selectedSymptoms[id] = input.value;
+            }
+        });
+
+        sessionStorage.setItem('examineDraft', JSON.stringify(draft));
         sessionStorage.setItem('fromExamineRoom', 'true');
         window.location.href = `/doctor/examine/patients?patientId=${currentPatient.id}`;
     }
@@ -1234,6 +1303,21 @@ function validateMedicationFields() {
         }
     }
 
+    // Validate Medication Timing
+    const timingContainer = document.getElementById('medTimingContainer');
+    const timingErr = document.getElementById('error-medTiming');
+    if (timingErr) timingErr.style.display = 'none';
+    if (timingContainer) {
+        const checkedCount = Array.from(timingContainer.querySelectorAll('.custom-multiselect-option input[type="checkbox"]')).filter(cb => cb.checked).length;
+        if (checkedCount === 0) {
+            if (timingErr) {
+                timingErr.textContent = 'Vui lòng chọn ít nhất một thời điểm sử dụng thuốc';
+                timingErr.style.display = 'block';
+            }
+            isValid = false;
+        }
+    }
+
     return isValid;
 }
 
@@ -1282,4 +1366,119 @@ function formatDateDMY(dateStr) {
     }
     return dateStr;
 }
+
+// Toggle timing dropdown
+function toggleTimingDropdown(event) {
+    if (event) event.stopPropagation();
+    const container = document.getElementById('medTimingContainer');
+    if (container) {
+        container.classList.toggle('open');
+    }
+}
+
+// Select/toggle timing checkbox
+function selectTimingOption(optionDiv, event) {
+    if (event) event.stopPropagation();
+    const checkbox = optionDiv.querySelector('input[type="checkbox"]');
+    if (checkbox) {
+        checkbox.checked = !checkbox.checked;
+        updateTimingPlaceholder();
+    }
+}
+
+// Update select placeholder text
+function updateTimingPlaceholder() {
+    const container = document.getElementById('medTimingContainer');
+    if (!container) return;
+    const checkboxes = container.querySelectorAll('.custom-multiselect-option input[type="checkbox"]');
+    const selectedTexts = [];
+    checkboxes.forEach(cb => {
+        if (cb.checked) {
+            const label = cb.parentNode.querySelector('label');
+            if (label) {
+                selectedTexts.push(label.textContent.trim());
+            }
+        }
+    });
+
+    const placeholder = document.getElementById('medTimingPlaceholder');
+    if (placeholder) {
+        if (selectedTexts.length > 0) {
+            placeholder.innerHTML = selectedTexts.join('<br>');
+            placeholder.style.color = 'var(--doctor-text-main)';
+        } else {
+            placeholder.textContent = 'Chọn thời điểm...';
+            placeholder.style.color = '#888';
+        }
+    }
+}
+
+// Close dropdown on click outside
+document.addEventListener('click', function(event) {
+    const container = document.getElementById('medTimingContainer');
+    if (container && !container.contains(event.target)) {
+        container.classList.remove('open');
+    }
+});
+
+function restoreExamineDraft() {
+    const draftStr = sessionStorage.getItem('examineDraft');
+    if (!draftStr) return;
+
+    try {
+        const draft = JSON.parse(draftStr);
+        if (currentPatient && draft.patientId === currentPatient.id) {
+            if (draft.examDiagnosis) {
+                const el = document.getElementById('examDiagnosis');
+                if (el) el.value = draft.examDiagnosis;
+            }
+            if (draft.examHistory) {
+                const el = document.getElementById('examHistory');
+                if (el) el.value = draft.examHistory;
+            }
+            if (draft.examNextDate) {
+                const el = document.getElementById('examNextDate');
+                if (el) el.value = draft.examNextDate;
+            }
+            if (draft.planGoal) {
+                const el = document.getElementById('planGoal');
+                if (el) el.value = draft.planGoal;
+            }
+            if (draft.planDiet) {
+                const el = document.getElementById('planDiet');
+                if (el) el.value = draft.planDiet;
+            }
+            if (draft.planExercise) {
+                const el = document.getElementById('planExercise');
+                if (el) el.value = draft.planExercise;
+            }
+            if (draft.planGlucose) {
+                const el = document.getElementById('planGlucose');
+                if (el) el.value = draft.planGlucose;
+            }
+
+            if (draft.prescriptionLines) {
+                prescriptionLines = draft.prescriptionLines;
+                renderPrescriptionLines();
+            }
+            if (draft.selectedSymptoms) {
+                selectedSymptoms = draft.selectedSymptoms;
+                renderSymptomsGrid();
+            }
+            if (draft.orderedLabs) {
+                orderedLabs = draft.orderedLabs;
+                initLabTestChecklist();
+                renderOrderedLabsList();
+            }
+            if (draft.simulatedResults) {
+                simulatedResults = draft.simulatedResults;
+            }
+        } else {
+            sessionStorage.removeItem('examineDraft');
+        }
+    } catch (e) {
+        console.error('Error restoring examine draft:', e);
+    }
+}
+
 

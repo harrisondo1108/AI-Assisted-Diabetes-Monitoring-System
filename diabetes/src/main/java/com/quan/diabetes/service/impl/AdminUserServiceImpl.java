@@ -225,7 +225,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
         user.setPhoneNumber(dto.getAccountPhone());
         if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
-            user.setPasswordHash(dto.getPassword());
+            user.setPasswordHash(passwordEncoder.encode(dto.getPassword()));
         }
         userRepository.save(user);
 

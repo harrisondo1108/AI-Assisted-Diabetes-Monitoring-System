@@ -1308,3 +1308,114 @@
     color: var(--doctor-primary);
     margin-right: 2px;
 }
+
+.error-msg {
+    display: none;
+    color: #ef4444;
+    font-size: 0.75rem;
+    margin-top: 4px;
+    font-weight: 500;
+}
+
+/* Custom Multi-select styles */
+.custom-multiselect-container {
+    position: relative;
+    width: 100%;
+}
+
+.custom-multiselect-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm, 6px);
+    border: 1px solid var(--doctor-border, #e5e7eb);
+    background-color: #ffffff;
+    cursor: pointer;
+    font-size: 0.82rem;
+    transition: all 0.2s;
+    user-select: none;
+    box-sizing: border-box;
+    min-height: 38px;
+    height: auto;
+}
+
+#medTimingPlaceholder {
+    line-height: 1.5;
+    text-align: left;
+    white-space: normal;
+    word-break: break-word;
+}
+
+.custom-multiselect-header:hover {
+    border-color: var(--doctor-primary, #1a6b56);
+}
+
+.custom-multiselect-header i {
+    font-size: 0.75rem;
+    color: var(--doctor-text-muted, #6b7280);
+    transition: transform 0.2s;
+}
+
+.custom-multiselect-container.open .custom-multiselect-header i {
+    transform: rotate(180deg);
+}
+
+.custom-multiselect-container.open .custom-multiselect-header {
+    border-color: var(--doctor-primary, #1a6b56);
+    box-shadow: 0 0 0 3px rgba(26, 107, 86, 0.08);
+}
+
+.custom-multiselect-options {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--doctor-border, #e5e7eb);
+    background-color: #ffffff;
+    border-radius: var(--radius-sm, 6px);
+    margin-top: 4px;
+    z-index: 1050;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    box-sizing: border-box;
+}
+
+.custom-multiselect-container.open .custom-multiselect-options {
+    display: block;
+}
+
+.custom-multiselect-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.15s;
+    font-size: 0.82rem;
+    box-sizing: border-box;
+}
+
+.custom-multiselect-option:hover {
+    background-color: #f3f4f6;
+}
+
+.custom-multiselect-option input[type="checkbox"] {
+    cursor: pointer;
+    margin: 0;
+    width: 14px;
+    height: 14px;
+    accent-color: var(--doctor-primary, #1a6b56);
+}
+
+.custom-multiselect-option label {
+    cursor: pointer;
+    margin: 0;
+    font-weight: 500;
+    color: var(--doctor-text-main, #1f2937);
+    flex-grow: 1;
+    user-select: none;
+}
+
