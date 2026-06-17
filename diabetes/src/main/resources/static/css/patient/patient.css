@@ -2398,3 +2398,69 @@ body::before {
         grid-template-columns: 1fr;
     }
 }
+
+/* ==========================================
+   Pagination Styles for Patient Portal
+   ========================================== */
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-top: 1px solid var(--border);
+    background: var(--bg-card);
+    border-bottom-left-radius: var(--radius);
+    border-bottom-right-radius: var(--radius);
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    flex: 1;
+}
+
+.pagination-btn, .page-number {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.pagination-btn:hover, .page-number:hover:not(.active) {
+    background: var(--mint-200);
+    border-color: var(--green-600);
+    color: var(--green-800);
+}
+
+.page-number.active {
+    background: var(--green-700);
+    border-color: var(--green-700);
+    color: white;
+}
+
+.pagination-pages {
+    display: flex;
+    gap: 4px;
+}
+
+@media (max-width: 760px) {
+    .pagination-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

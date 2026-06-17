@@ -242,6 +242,21 @@
                         </div>
                     </div>
                 </section>
+
+                <!-- Pagination Controls -->
+                <div class="pagination-container" th:if="${totalPages > 0}">
+                    <div class="pagination-controls">
+                        <a th:if="${currentPage > 0}" th:href="@{/patient/progress(page=0, size=${pageSize})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> Trang đầu</a>
+                        <a th:if="${currentPage > 0}" th:href="@{/patient/progress(page=${currentPage - 1}, size=${pageSize})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> Trước</a>
+                        <div class="pagination-pages">
+                            <th:block th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}">
+                                <a th:if="${pageNum >= currentPage - 2 and pageNum <= currentPage + 2}" th:href="@{/patient/progress(page=${pageNum}, size=${pageSize})}" class="page-number" th:classappend="${pageNum == currentPage} ? 'active' : ''" th:text="${pageNum + 1}"></a>
+                            </th:block>
+                        </div>
+                        <a th:if="${currentPage < totalPages - 1}" th:href="@{/patient/progress(page=${currentPage + 1}, size=${pageSize})}" class="pagination-btn">Sau <i class="fas fa-chevron-right"></i></a>
+                        <a th:if="${currentPage < totalPages - 1}" th:href="@{/patient/progress(page=${totalPages - 1}, size=${pageSize})}" class="pagination-btn">Trang cuối <i class="fas fa-chevron-right"></i></a>
+                    </div>
+                </div>
             </div>
 
             <div class="patient-card" th:if="${examinations == null || examinations.isEmpty()}">

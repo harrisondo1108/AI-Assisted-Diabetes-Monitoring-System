@@ -308,11 +308,21 @@ public class PatientController {
     }
 
     @GetMapping("/patient/notifications")
-    public String notifications(Model model, HttpSession session) {
+    public String notifications(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "5") int size,
+            Model model, HttpSession session) {
         Patient patient = addCommonData(model, session, "notifications");
 
-        List<AIReminder> aiReminders = findRemindersByPatient(patient);
+        List<AIReminder> allAiReminders = findRemindersByPatient(patient);
         List<MedicationReminderView> medicationReminders = buildTodayMedicationReminders(patient);
+
+        int totalItems = allAiReminders.size();
+        int totalPages = (int) Math.ceil((double) totalItems / size);
+
+        int start = Math.min(page * size, totalItems);
+        int end = Math.min((page + 1) * size, totalItems);
+        List<AIReminder> pagedAiReminders = (start < end) ? allAiReminders.subList(start, end) : List.of();
 
         long dueMedicationReminderCount = medicationReminders.stream()
                 .filter(MedicationReminderView::isDueNow)
@@ -322,36 +332,54 @@ public class PatientController {
                 .filter(reminder -> !reminder.isPast())
                 .count();
 
-        model.addAttribute("aiReminders", aiReminders);
+        model.addAttribute("aiReminders", pagedAiReminders);
         model.addAttribute("medicationReminders", medicationReminders);
         model.addAttribute("dueMedicationReminderCount", dueMedicationReminderCount);
         model.addAttribute("upcomingMedicationReminderCount", upcomingMedicationReminderCount);
         model.addAttribute("currentTime", LocalDateTime.now());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("totalItems", totalItems);
+        model.addAttribute("pageSize", size);
 
         return "patient/notifications";
     }
 
     @GetMapping("/patient/progress")
-    public String progress(Model model, HttpSession session) {
+    public String progress(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "2") int size,
+            Model model, HttpSession session) {
         Patient patient = addCommonData(model, session, "progress");
 
-        List<ClinicalExamination> examinations = findExaminationsByPatient(patient);
-        List<LabOrder> labOrders = findLabOrdersByPatient(patient);
-        List<LabResult> labResults = findLabResultsByPatient(patient);
-        List<PrescriptionDetail> prescriptionDetails = findPrescriptionDetailsByPatient(patient);
+        List<ClinicalExamination> allExams = findExaminationsByPatient(patient);
+        List<LabOrder> allLabOrders = findLabOrdersByPatient(patient);
+        List<LabResult> allLabResults = findLabResultsByPatient(patient);
+        List<PrescriptionDetail> allPrescriptionDetails = findPrescriptionDetailsByPatient(patient);
 
-        Map<String, TreatmentPlan> plansMap = groupTreatmentPlansByExam(examinations);
+        int totalItems = allExams.size();
+        int totalPages = (int) Math.ceil((double) totalItems / size);
 
-        model.addAttribute("examinations", examinations);
-        model.addAttribute("labOrders", labOrders);
-        model.addAttribute("labResults", labResults);
-        model.addAttribute("prescriptionDetails", prescriptionDetails);
-        model.addAttribute("labOrdersByExam", groupLabOrdersByExam(examinations, labOrders));
-        model.addAttribute("labResultsByOrder", groupLabResultsByOrder(labOrders, labResults));
-        model.addAttribute("prescriptionDetailsByExam", groupPrescriptionDetailsByExam(examinations, prescriptionDetails));
+        int start = Math.min(page * size, totalItems);
+        int end = Math.min((page + 1) * size, totalItems);
+        List<ClinicalExamination> pagedExams = (start < end) ? allExams.subList(start, end) : List.of();
+
+        Map<String, TreatmentPlan> plansMap = groupTreatmentPlansByExam(pagedExams);
+
+        model.addAttribute("examinations", pagedExams);
+        model.addAttribute("labOrders", allLabOrders);
+        model.addAttribute("labResults", allLabResults);
+        model.addAttribute("prescriptionDetails", allPrescriptionDetails);
+        model.addAttribute("labOrdersByExam", groupLabOrdersByExam(pagedExams, allLabOrders));
+        model.addAttribute("labResultsByOrder", groupLabResultsByOrder(allLabOrders, allLabResults));
+        model.addAttribute("prescriptionDetailsByExam", groupPrescriptionDetailsByExam(pagedExams, allPrescriptionDetails));
         model.addAttribute("treatmentPlansByExam", plansMap);
-        model.addAttribute("abnormalResultCount", countAbnormalResults(labResults));
-        model.addAttribute("completedOrderCount", countStatus(labOrders, "completed"));
+        model.addAttribute("abnormalResultCount", countAbnormalResults(allLabResults));
+        model.addAttribute("completedOrderCount", countStatus(allLabOrders, "completed"));
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("totalItems", totalItems);
+        model.addAttribute("pageSize", size);
 
         return "patient/progress";
     }
@@ -406,10 +434,25 @@ public class PatientController {
     }
 
     @GetMapping("/patient/history")
-    public String history(Model model, HttpSession session) {
+    public String history(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "5") int size,
+            Model model, HttpSession session) {
         Patient patient = addCommonData(model, session, "history");
 
-        model.addAttribute("examinations", findExaminationsByPatient(patient));
+        List<ClinicalExamination> allExams = findExaminationsByPatient(patient);
+        int totalItems = allExams.size();
+        int totalPages = (int) Math.ceil((double) totalItems / size);
+
+        int start = Math.min(page * size, totalItems);
+        int end = Math.min((page + 1) * size, totalItems);
+        List<ClinicalExamination> pagedExams = (start < end) ? allExams.subList(start, end) : List.of();
+
+        model.addAttribute("examinations", pagedExams);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("totalItems", totalItems);
+        model.addAttribute("pageSize", size);
 
         return "patient/history";
     }
