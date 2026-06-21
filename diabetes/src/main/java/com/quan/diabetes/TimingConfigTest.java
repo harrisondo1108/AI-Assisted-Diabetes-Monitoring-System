@@ -1,12 +1,7 @@
 package com.quan.diabetes;
 
 import com.quan.diabetes.entity.PatientRoutine;
-import com.quan.diabetes.service.AIService.ReminderContentService;
-import com.quan.diabetes.service.AIService.TimingReminderConfig;
-import com.quan.diabetes.util.ReminderTimeCalculator;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ConfigurableApplicationContext;
 
 import java.time.LocalTime;
 

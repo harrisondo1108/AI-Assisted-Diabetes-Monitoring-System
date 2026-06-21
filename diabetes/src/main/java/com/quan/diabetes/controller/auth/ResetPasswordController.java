@@ -1,7 +1,7 @@
 package com.quan.diabetes.controller.auth;
 
 import com.quan.diabetes.entity.User;
-import com.quan.diabetes.service.UserService;
+import com.quan.diabetes.service.user.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

@@ -31,6 +31,9 @@ public class AIReminder {
     @Column(name = "IsRead")
     private Boolean isRead;
 
+    @Column(name = "IsSent")
+    private Boolean isSent = false;
+
     @ManyToOne
     @JoinColumn(name = "AIAssistantID")
     private AIAssistant aiAssistant;
@@ -84,6 +87,14 @@ public class AIReminder {
 
     public void setIsRead(Boolean isRead) {
         this.isRead = isRead;
+    }
+
+    public Boolean getIsSent() {
+        return isSent;
+    }
+
+    public void setIsSent(Boolean isSent) {
+        this.isSent = isSent;
     }
 
     public AIAssistant getAiAssistant() {

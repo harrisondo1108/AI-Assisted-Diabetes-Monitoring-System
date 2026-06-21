@@ -94,12 +94,23 @@ public class TreatmentPlan {
 
     @Override
     public String toString() {
-        return "TreatmentPlan{" +
-                "planId=" + planId +
-                ", createdAt=" + createdAt +
-                ", dietPlan='" + dietPlan + '\'' +
-                ", exercisePlan='" + exercisePlan + '\'' +
-                ", glucoseMonitoringPlan='" + glucoseMonitoringPlan +
-                '}';
+        StringBuilder sb = new StringBuilder();
+
+        // 1. Chế độ ăn uống
+        if (dietPlan != null && !dietPlan.isBlank()) {
+            sb.append("\n       + Chế độ dinh dưỡng: ").append(dietPlan.trim());
+        }
+
+        // 2. Chế độ tập luyện
+        if (exercisePlan != null && !exercisePlan.isBlank()) {
+            sb.append("\n       + Chế độ tập luyện: ").append(exercisePlan.trim());
+        }
+
+        // 3. Kế hoạch theo dõi đường huyết (Cực kỳ quan trọng với bệnh nhân tiểu đường)
+        if (glucoseMonitoringPlan != null && !glucoseMonitoringPlan.isBlank()) {
+            sb.append("\n       + Kế hoạch theo dõi đường huyết: ").append(glucoseMonitoringPlan.trim());
+        }
+
+        return sb.toString();
     }
 }

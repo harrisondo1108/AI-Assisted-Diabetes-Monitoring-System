@@ -1,7 +1,7 @@
 package com.quan.diabetes.controller.admin;
 
-import com.quan.diabetes.service.PatientService;
-import com.quan.diabetes.service.ProfileService;
+import com.quan.diabetes.service.user.PatientService;
+import com.quan.diabetes.service.user.ProfileService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;

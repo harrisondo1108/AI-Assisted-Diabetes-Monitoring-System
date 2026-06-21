@@ -1,6 +1,6 @@
 package com.quan.diabetes;
 
-import com.quan.diabetes.service.AIService.ReminderContentService;
+import com.quan.diabetes.service.reminder.ReminderSchedualeService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -13,8 +13,8 @@ public class ReminderContentTest {
         ConfigurableApplicationContext context =
                 SpringApplication.run(ReminderContentTest.class, args);
 
-        ReminderContentService service =
-                context.getBean(ReminderContentService.class);
+        ReminderSchedualeService service =
+                context.getBean(ReminderSchedualeService.class);
 
         service.generateReminder("CE001");
         System.out.println("============Suscessful==============");

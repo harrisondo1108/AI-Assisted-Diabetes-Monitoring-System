@@ -1,8 +1,8 @@
 package com.quan.diabetes.controller.admin;
 
 import com.quan.diabetes.dto.UserManagementDTO;
-import com.quan.diabetes.service.AdminUserService;
-import com.quan.diabetes.service.RoomService;
+import com.quan.diabetes.service.user.AdminUserService;
+import com.quan.diabetes.service.masterdata.RoomService;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

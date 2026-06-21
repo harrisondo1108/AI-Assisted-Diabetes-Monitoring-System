@@ -88,20 +88,41 @@ public class PrescriptionReminderDto {
 
     @Override
     public String toString() {
-        return "PrescriptionReminderDto{" +
-                "patientId='" + patientId + '\'' +
-                ", clinicalExamId='" + clinicalExamId + '\'' +
-                ", medicationName='" + medicationName + '\'' +
-                ", dosage='" + dosage + '\'' +
-                ", startDate=" + startDate +
-                ", endDate=" + endDate +
-                ", form='" + form + '\'' +
-                ", administrationRoute='" + administrationRoute + '\'' +
-                ", usageInstruction='" + usageInstruction + '\'' +
-                ", timingName='" + timingName + '\'' +
-                ", medicationPlan='" + medicationPlan + '\'' +
-                ", treatmentPlan=" + treatmentPlan +
-                '}';
+        StringBuilder sb = new StringBuilder();
+
+        // 2. Thông tin chính về thuốc
+        sb.append("  + Thuốc: ").append(medicationName != null && !medicationName.isBlank() ? medicationName : "Không rõ tên thuốc");
+        sb.append(" | Liều lượng: ").append(dosage != null && !dosage.isBlank() ? dosage : "Theo chỉ định");
+
+        // 3. Dạng bào chế và Đường dùng
+        boolean hasForm = (form != null && !form.isBlank());
+        boolean hasRoute = (administrationRoute != null && !administrationRoute.isBlank());
+        if (hasForm || hasRoute) {
+            sb.append(" (");
+            if (hasForm) sb.append("Dạng thuốc: ").append(form);
+            if (hasForm && hasRoute) sb.append(" - ");
+            if (hasRoute) sb.append("Cách dùng: ").append(administrationRoute);
+            sb.append(")");
+        }
+
+        // 4. Khung giờ và Lời dặn từ bác sĩ
+        if (timingName != null && !timingName.isBlank()) {
+            sb.append("\n    * Thời điểm dùng thuốc trong ngày: ").append(timingName);
+        }
+        if (usageInstruction != null && !usageInstruction.isBlank()) {
+            sb.append("\n    * Cách sử dụng mặc định của thuốc: ").append(usageInstruction);
+        }
+
+        // 6. Kế hoạch và Phác đồ điều trị tổng thể
+        if (medicationPlan != null && !medicationPlan.isBlank()) {
+            sb.append("\n    * Kế hoạch sử dụng: ").append(medicationPlan);
+        }
+        if (treatmentPlan != null) {
+            // AI sẽ đọc được thông tin tổng thể của phác đồ từ Object này (LangChain4j sẽ gọi toString của TreatmentPlan)
+            sb.append("\n    * Thuộc phác đồ tổng thể: \n").append(treatmentPlan.toString());
+        }
+
+        return sb.toString();
     }
 }
 

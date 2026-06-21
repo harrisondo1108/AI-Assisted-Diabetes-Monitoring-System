@@ -2,6 +2,8 @@ package com.quan.diabetes.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.quan.diabetes.entity.AIReminder;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -21,4 +23,13 @@ public interface AIReminderRepository extends JpaRepository<AIReminder, Long> {
             LocalDateTime scheduledTime,
             String title
     );
+
+    @Query("""
+            SELECT reminder
+            FROM AIReminder reminder
+            WHERE reminder.scheduledTime <= :now
+              AND (reminder.isSent = false OR reminder.isSent IS NULL)
+            ORDER BY reminder.scheduledTime ASC
+            """)
+    List<AIReminder> findDueUnsentReminders(@Param("now") LocalDateTime now);
 }
