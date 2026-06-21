@@ -2,23 +2,13 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Lab Test Management</title>
+    <title>Medical Tests Management – Diabetes Care System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- FONT -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-          rel="stylesheet">
-
-    <!-- ICON -->
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-
-    <!-- CSS -->
-    <link rel="stylesheet" href="/css/pages/lab-test-page.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/pages/lab-test-page.css}">
 </head>
-
 <body>
-
 <div class="page-layout">
 
     <!-- SIDEBAR -->
@@ -28,465 +18,377 @@
                 <h1>Diabetes Care</h1>
                 <p>Admin Console</p>
             </div>
-
             <nav class="nav-menu">
-                <a href="#" class="nav-link">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span>Dashboard</span>
-                </a>
-
-                <a href="#" class="nav-link">
-                    <i class="fa-solid fa-users"></i>
-                    <span>User Management</span>
-                </a>
-
-                <a href="#" class="nav-link">
-                    <i class="fa-solid fa-pills"></i>
-                    <span>Medicine Management</span>
-                </a>
-
-                <a href="/admin/lab-tests" class="nav-link active">
-                    <i class="fa-solid fa-flask"></i>
-                    <span>Lab Tests</span>
-                </a>
-
-                <a href="#" class="nav-link">
-                    <i class="fa-solid fa-sliders"></i>
-                    <span>Threshold Config</span>
-                </a>
-
-                <a href="#" class="nav-link">
-                    <i class="fa-solid fa-desktop"></i>
-                    <span>Monitoring</span>
-                </a>
+                <a href="#" class="nav-link"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a>
+                <a href="#" class="nav-link"><i class="fa-solid fa-users"></i><span>User Management</span></a>
+                <a href="#" class="nav-link"><i class="fa-solid fa-pills"></i><span>Medicine Management</span></a>
+                <a th:href="@{/admin/lab-tests}" class="nav-link active"><i class="fa-solid fa-flask"></i><span>Medical Tests</span></a>
+                <a href="#" class="nav-link"><i class="fa-solid fa-sliders"></i><span>Threshold Config</span></a>
+                <a href="#" class="nav-link"><i class="fa-solid fa-desktop"></i><span>Monitoring</span></a>
             </nav>
         </div>
-
         <div class="sidebar-footer">
-            <button type="button" class="new-report-btn">
-                <i class="fa-solid fa-plus"></i>
-                <span>New Report</span>
-            </button>
-
-            <a href="#" class="footer-link">
-                <i class="fa-solid fa-gear"></i>
-                <span>Settings</span>
-            </a>
-
-            <a href="#" class="footer-link">
-                <i class="fa-regular fa-circle-question"></i>
-                <span>Support</span>
-            </a>
+            <button type="button" class="new-report-btn"><i class="fa-solid fa-plus"></i><span>New Report</span></button>
+            <a href="#" class="footer-link"><i class="fa-solid fa-gear"></i><span>Settings</span></a>
+            <a href="#" class="footer-link"><i class="fa-regular fa-circle-question"></i><span>Support</span></a>
         </div>
     </aside>
 
     <!-- MAIN -->
-    <main class="main-content">
+    <div class="main-content">
 
-        <!-- TOPBAR -->
+        <!-- Top bar -->
         <header class="topbar">
-            <div class="search-box">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text"
-                       id="tableSearch"
-                       placeholder="Tìm theo tên xét nghiệm...">
-            </div>
-
+            <div></div>
             <div class="user-area">
-                <button type="button" class="notification-btn">
+                <button type="button" class="icon-btn" title="Notifications">
                     <i class="fa-solid fa-bell"></i>
-                    <span class="dot"></span>
+                    <span class="notif-dot"></span>
                 </button>
-
-                <button type="button" class="notification-btn">
+                <button type="button" class="icon-btn" title="Help">
                     <i class="fa-solid fa-circle-question"></i>
                 </button>
-
-                <div class="divider"></div>
-
-                <div class="user-info">
-                    <h4>Quản trị viên</h4>
-                    <p>Chief Administrator</p>
+                <div class="topbar-divider"></div>
+                <div class="admin-info">
+                    <span class="admin-name">Quản trị viên</span>
+                    <span class="admin-role">Chief Administrator</span>
                 </div>
-
-                <img src="https://i.pravatar.cc/100?img=12"
-                     alt="avatar"
-                     class="avatar">
+                <img src="https://i.pravatar.cc/100?img=12" alt="Avatar" class="avatar">
             </div>
         </header>
 
-        <!-- CONTENT -->
+        <!-- Content -->
         <section class="content">
 
-            <div class="page-header">
-                <div>
-                    <h2>Lab Test Management</h2>
-                    <p>Configure diagnostic parameters and manage clinical laboratory tests.</p>
-                </div>
+            <div th:if="${errorMessage != null}" class="alert-error" th:text="${errorMessage}">
+                Tên xét nghiệm đã tồn tại.
+            </div>
 
-                <div class="page-actions">
-                    <button type="button"
-                            class="btn btn-primary"
-                            id="btnDefineTest">
-                        <i class="fa-solid fa-plus"></i>
-                        <span>Define New Test</span>
-                    </button>
+            <!-- STAT CARDS -->
+            <div class="stat-row">
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon--teal"><i class="fa-solid fa-flask"></i></div>
+                    <div><p class="stat-label">Total Tests</p><p class="stat-value" id="statTotal">0</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon--green"><i class="fa-solid fa-circle-check"></i></div>
+                    <div><p class="stat-label">Active Tests</p><p class="stat-value" id="statActive">0</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon--gray"><i class="fa-solid fa-circle-xmark"></i></div>
+                    <div><p class="stat-label">Inactive Tests</p><p class="stat-value" id="statInactive">0</p></div>
                 </div>
             </div>
 
-            <div class="tabs">
-                <button type="button" class="tab active">
-                    Test Catalog
+            <!-- ACTION BAR -->
+            <div class="action-bar">
+                <button type="button" class="btn-add" id="btnDefineTest">
+                    <i class="fa-solid fa-plus"></i> Define New Test
                 </button>
             </div>
 
-            <div class="card">
+            <!-- TABLE CARD -->
+            <div class="table-card">
 
-                <div class="card-header">
-                    <h3>Test Definitions</h3>
-
-                    <button type="button" class="filter-btn">
-                        <i class="fa-solid fa-filter"></i>
-                    </button>
+                <!-- Toolbar: tabs + search -->
+                <div class="table-toolbar">
+                    <div class="tab-group">
+                        <button type="button" class="tab active" id="tabAll">Test Catalog</button>
+                        <button type="button" class="tab" id="tabActive">Active</button>
+                        <button type="button" class="tab" id="tabInactive">Inactive</button>
+                    </div>
+                    <div class="table-search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="tableSearch" placeholder="Search by test name, unit or room...">
+                    </div>
                 </div>
 
-                <table class="test-table">
+                <!-- Table -->
+                <table class="data-table">
                     <thead>
                     <tr>
-                        <th>Test Name</th>
-                        <th>Unit</th>
-                        <th>Min Value</th>
-                        <th>Max Value</th>
-                        <th>Status</th>
-                        <th class="actions-column">Actions</th>
+                        <th>TEST NAME</th>
+                        <th>UNIT</th>
+                        <th>ROOM</th>
+                        <th>STATUS</th>
+                        <th class="col-center">ACTIONS</th>
                     </tr>
                     </thead>
-
                     <tbody id="labTestTableBody">
 
-                    <!-- DATA FROM DATABASE -->
-                    <tr th:each="test : ${testList}">
+                    <tr th:each="test : ${testList}" class="data-row">
                         <td>
                             <div class="test-info">
-                                <div class="test-icon">
-                                    <i class="fa-solid fa-vial"></i>
-                                </div>
-
-                                <strong th:text="${test.testName}">
-                                    HbA1c
-                                </strong>
+                                <div class="test-icon"><i class="fa-solid fa-vial"></i></div>
+                                <strong th:text="${test.testName}">HbA1c</strong>
                             </div>
                         </td>
-
                         <td th:text="${test.unit}">%</td>
-
-                        <td th:text="${test.minValue}">4.0</td>
-
-                        <td th:text="${test.maxValue}">5.6</td>
-
+                        <td th:text="${test.roomId}">1</td>
                         <td>
-                            <span class="status-badge active">
-                                Active
-                            </span>
+                            <span th:class="${test.status} ? 'badge badge--active' : 'badge badge--inactive'"
+                                  th:text="${test.status} ? 'Active' : 'Inactive'">Active</span>
                         </td>
-
-                        <td>
+                        <td class="col-center">
                             <div class="row-actions">
-
-                                <!-- VIEW DETAIL -->
-                                <button type="button"
-                                        class="action-btn view-btn"
-                                        th:attr="data-id=${test.labTestId},
-                                                 data-name=${test.testName},
-                                                 data-unit=${test.unit},
-                                                 data-min=${test.minValue},
-                                                 data-max=${test.maxValue},
-                                                 data-description=${test.description}">
+                                <button type="button" class="action-btn btn-view" title="View detail"
+                                        th:attr="data-id=${test.labTestId},data-name=${test.testName},
+                                                 data-unit=${test.unit},data-min=${test.minValue},
+                                                 data-max=${test.maxValue},data-room=${test.roomId},
+                                                 data-status=${test.status},data-description=${test.description}">
                                     <i class="fa-regular fa-eye"></i>
                                 </button>
-
-                                <!-- EDIT -->
-                                <button type="button"
-                                        class="action-btn edit-btn"
-                                        title="Edit">
+                                <button type="button" class="action-btn btn-edit" title="Edit"
+                                        th:attr="data-id=${test.labTestId},data-name=${test.testName},
+                                                 data-unit=${test.unit},data-min=${test.minValue},
+                                                 data-max=${test.maxValue},data-room=${test.roomId},
+                                                 data-description=${test.description}">
                                     <i class="fa-solid fa-pen"></i>
                                 </button>
-
-                                <!-- LOCK / UNLOCK -->
                                 <form th:action="@{/admin/lab-tests/toggle-status/{id}(id=${test.labTestId})}"
-                                      method="post"
-                                      class="lock-form">
-
-                                    <button type="submit"
-                                            class="action-btn lock-btn"
-                                            title="Lock / Unlock">
-                                        <i class="fa-solid fa-lock"></i>
+                                      method="post" class="inline-form">
+                                    <button type="submit" class="action-btn btn-lock"
+                                            th:title="${test.status} ? 'Deactivate' : 'Activate'">
+                                        <i th:class="${test.status} ? 'fa-solid fa-lock-open' : 'fa-solid fa-lock'"></i>
                                     </button>
-
                                 </form>
-
                             </div>
                         </td>
                     </tr>
 
-                    <!-- DEMO DATA -->
                     <tr th:if="${testList == null || testList.isEmpty()}">
-                        <td>
-                            <div class="test-info">
-                                <div class="test-icon">
-                                    <i class="fa-solid fa-droplet"></i>
-                                </div>
-                                <strong>HbA1c</strong>
-                            </div>
-                        </td>
-
-                        <td>%</td>
-                        <td>4.0</td>
-                        <td>5.6</td>
-
-                        <td>
-                            <span class="status-badge active">
-                                Active
-                            </span>
-                        </td>
-
-                        <td>
-                            <div class="row-actions">
-
-                                <button type="button"
-                                        class="action-btn view-btn"
-                                        data-id="LT001"
-                                        data-name="HbA1c"
-                                        data-unit="%"
-                                        data-min="4.0"
-                                        data-max="5.6"
-                                        data-description="Glycated Hemoglobin diagnostic for long-term glucose control.">
-                                    <i class="fa-regular fa-eye"></i>
-                                </button>
-
-                                <button type="button"
-                                        class="action-btn edit-btn">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
-
-                                <button type="button"
-                                        class="action-btn lock-btn">
-                                    <i class="fa-solid fa-lock"></i>
-                                </button>
-
-                            </div>
-                        </td>
+                        <td colspan="5" class="empty-row">Chưa có dữ liệu xét nghiệm.</td>
                     </tr>
 
                     </tbody>
                 </table>
 
-                <!-- PAGINATION -->
-                <div class="pagination-wrapper">
-                    <div class="pagination-info" id="paginationInfo">
-                        Hiển thị 0 - 0 / 0 xét nghiệm
-                    </div>
-
-                    <div class="pagination-buttons">
-                        <button type="button" id="prevPageBtn">
-                            Previous
-                        </button>
-
+                <!-- Pagination -->
+                <div class="pagination-bar">
+                    <span class="pagination-info" id="paginationInfo">Hiển thị 0 – 0 / 0 xét nghiệm</span>
+                    <div class="pagination-btns">
+                        <button type="button" id="prevPageBtn">Previous</button>
                         <div id="pageNumbers"></div>
-
-                        <button type="button" id="nextPageBtn">
-                            Next
-                        </button>
+                        <button type="button" id="nextPageBtn">Next</button>
                     </div>
                 </div>
 
-            </div>
+            </div><!-- /.table-card -->
 
         </section>
 
-    </main>
+        <!-- Footer -->
+        <footer class="site-footer">
+            <span>© 2024 Diabetes Care System</span>
+            <div class="footer-links">
+                <a href="#">Legal</a>
+                <a href="#">Privacy Policy</a>
+            </div>
+        </footer>
 
-</div>
+    </div><!-- /.main-content -->
+</div><!-- /.page-layout -->
 
-<!-- DEFINE NEW TEST MODAL -->
+
+<!-- CREATE MODAL -->
 <div class="modal-overlay" id="defineTestModal">
-    <div class="modal-box">
-
+    <div class="modal-box large-modal-box">
         <div class="modal-header">
             <h2>Define New Test</h2>
-
-            <button type="button"
-                    class="modal-close"
-                    id="btnCloseModal">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
+            <button type="button" class="modal-close" id="btnCloseModal"><i class="fa-solid fa-xmark"></i></button>
         </div>
-
-        <form th:action="@{/admin/lab-tests/create}"
-              action="/admin/lab-tests/create"
-              method="post"
-              class="modal-form">
-
-            <div class="form-group">
-                <label>Lab Test ID</label>
-                <input type="text"
-                       name="labTestId"
-                       placeholder="VD: LT001"
-                       required>
-            </div>
-
+        <form th:action="@{/admin/lab-tests/create}" method="post" class="modal-form" id="createTestForm">
             <div class="form-group">
                 <label>Test Name</label>
-                <input type="text"
-                       name="testName"
-                       placeholder="VD: HbA1c"
-                       required>
+                <input type="text" name="testName" maxlength="100" placeholder="VD: Fasting Blood Sugar" required>
             </div>
-
-            <div class="form-row">
+            <div class="form-row two-col">
                 <div class="form-group">
                     <label>Unit</label>
-                    <input type="text"
-                           name="unit"
-                           placeholder="VD: mg/dL">
+                    <input type="text" name="unit" maxlength="20" placeholder="VD: mg/dL" required>
                 </div>
-
                 <div class="form-group">
-                    <label>Min Value</label>
-                    <input type="number"
-                           step="0.01"
-                           name="minValue"
-                           placeholder="0">
-                </div>
-
-                <div class="form-group">
-                    <label>Max Value</label>
-                    <input type="number"
-                           step="0.01"
-                           name="maxValue"
-                           placeholder="100">
+                    <label>Room</label>
+                    <select name="roomId" required>
+                        <option value="">-- Chọn phòng xét nghiệm --</option>
+                        <option th:each="room : ${roomList}" th:value="${room.roomId}" th:text="${room.roomName}">Room 1</option>
+                    </select>
                 </div>
             </div>
-
+            <div class="threshold-input-section">
+                <label class="section-label">Config Min – Max theo từng nhóm bệnh nhân</label>
+                <div class="threshold-input-grid">
+                    <div class="threshold-input-card">
+                        <h4>Người trẻ</h4>
+                        <div class="form-row two-col">
+                            <div class="form-group"><label>Min</label><input type="number" id="createYoungMin" min="0" required></div>
+                            <div class="form-group"><label>Max</label><input type="number" id="createYoungMax" min="0" required></div>
+                        </div>
+                    </div>
+                    <div class="threshold-input-card">
+                        <h4>Trung niên</h4>
+                        <div class="form-row two-col">
+                            <div class="form-group"><label>Min</label><input type="number" id="createMiddleMin" min="0" required></div>
+                            <div class="form-group"><label>Max</label><input type="number" id="createMiddleMax" min="0" required></div>
+                        </div>
+                    </div>
+                    <div class="threshold-input-card">
+                        <h4>Cao tuổi</h4>
+                        <div class="form-row two-col">
+                            <div class="form-group"><label>Min</label><input type="number" id="createElderMin" min="0" required></div>
+                            <div class="form-group"><label>Max</label><input type="number" id="createElderMax" min="0" required></div>
+                        </div>
+                    </div>
+                    <div class="threshold-input-card">
+                        <h4>Người có bầu</h4>
+                        <div class="form-row two-col">
+                            <div class="form-group"><label>Min</label><input type="number" id="createPregnantMin" min="0" required></div>
+                            <div class="form-group"><label>Max</label><input type="number" id="createPregnantMax" min="0" required></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" name="minValue" id="createMainMinValue">
+            <input type="hidden" name="maxValue" id="createMainMaxValue">
             <div class="form-group">
                 <label>Description</label>
-                <textarea name="description"
-                          rows="4"
-                          placeholder="Enter description..."></textarea>
+                <textarea name="description" rows="4" placeholder="Enter description..."></textarea>
             </div>
-
             <div class="modal-actions">
-                <button type="button"
-                        class="btn-cancel"
-                        id="btnCancelModal">
-                    Cancel
-                </button>
-
-                <button type="submit"
-                        class="btn-save">
-                    Save Test
-                </button>
+                <button type="button" class="btn-cancel" id="btnCancelModal">Cancel</button>
+                <button type="submit" class="btn-save">Save Test</button>
             </div>
-
         </form>
-
     </div>
 </div>
+
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editTestModal">
+    <div class="modal-box large-modal-box">
+        <div class="modal-header">
+            <h2>Edit Medical Test</h2>
+            <button type="button" class="modal-close" id="btnCloseEditModal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="editTestForm" method="post" class="modal-form">
+            <div class="form-group">
+                <label>Lab Test ID</label>
+                <input type="text" id="editLabTestId" disabled>
+            </div>
+            <div class="form-group">
+                <label>Test Name</label>
+                <input type="text" id="editTestName" name="testName" maxlength="100" required>
+            </div>
+            <div class="form-row two-col">
+                <div class="form-group">
+                    <label>Unit</label>
+                    <input type="text" id="editUnit" name="unit" maxlength="20" required>
+                </div>
+                <div class="form-group">
+                    <label>Room</label>
+                    <select id="editRoomId" name="roomId" required>
+                        <option value="">-- Chọn phòng xét nghiệm --</option>
+                        <option th:each="room : ${roomList}" th:value="${room.roomId}" th:text="${room.roomName}">Room 1</option>
+                    </select>
+                </div>
+            </div>
+            <div class="threshold-input-section">
+                <label class="section-label">Config Min – Max theo từng nhóm bệnh nhân</label>
+                <div class="threshold-input-grid">
+                    <div class="threshold-input-card">
+                        <h4>Người trẻ</h4>
+                        <div class="form-row two-col">
+                            <div class="form-group"><label>Min</label><input type="number" id="editYoungMin" min="0" required></div>
+                            <div class="form-group"><label>Max</label><input type="number" id="editYoungMax" min="0" required></div>
+                        </div>
+                    </div>
+                    <div class="threshold-input-card">
+                        <h4>Trung niên</h4>
+                        <div class="form-row two-col">
+                            <div class="form-group"><label>Min</label><input type="number" id="editMiddleMin" min="0" required></div>
+                            <div class="form-group"><label>Max</label><input type="number" id="editMiddleMax" min="0" required></div>
+                        </div>
+                    </div>
+                    <div class="threshold-input-card">
+                        <h4>Cao tuổi</h4>
+                        <div class="form-row two-col">
+                            <div class="form-group"><label>Min</label><input type="number" id="editElderMin" min="0" required></div>
+                            <div class="form-group"><label>Max</label><input type="number" id="editElderMax" min="0" required></div>
+                        </div>
+                    </div>
+                    <div class="threshold-input-card">
+                        <h4>Người có bầu</h4>
+                        <div class="form-row two-col">
+                            <div class="form-group"><label>Min</label><input type="number" id="editPregnantMin" min="0" required></div>
+                            <div class="form-group"><label>Max</label><input type="number" id="editPregnantMax" min="0" required></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" name="minValue" id="editMainMinValue">
+            <input type="hidden" name="maxValue" id="editMainMaxValue">
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="editDescription" name="description" rows="4"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" id="btnCancelEditModal">Cancel</button>
+                <button type="submit" class="btn-save">Update Test</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 
 <!-- VIEW DETAIL MODAL -->
 <div class="modal-overlay" id="viewDetailModal">
-    <div class="modal-box">
-
+    <div class="modal-box detail-modal-box">
         <div class="modal-header">
-            <h2>Lab Test Detail</h2>
-
-            <button type="button"
-                    class="modal-close"
-                    id="btnCloseViewModal">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
+            <h2>Medical Test Detail</h2>
+            <button type="button" class="modal-close" id="btnCloseViewModal"><i class="fa-solid fa-xmark"></i></button>
         </div>
-
         <div class="detail-container">
-
-            <div class="detail-item">
-                <label>Test ID</label>
-                <p id="detailId">---</p>
-            </div>
-
-            <div class="detail-item">
-                <label>Test Name</label>
-                <p id="detailName">---</p>
-            </div>
-
             <div class="detail-row">
-                <div class="detail-item">
-                    <label>Unit</label>
-                    <p id="detailUnit">---</p>
-                </div>
-
-                <div class="detail-item">
-                    <label>Min Value</label>
-                    <p id="detailMin">---</p>
-                </div>
-
-                <div class="detail-item">
-                    <label>Max Value</label>
-                    <p id="detailMax">---</p>
+                <div class="detail-item"><label>Lab Test ID</label><p id="detailId">---</p></div>
+                <div class="detail-item"><label>Test Name</label><p id="detailName">---</p></div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-item"><label>Unit</label><p id="detailUnit">---</p></div>
+                <div class="detail-item"><label>Room ID</label><p id="detailRoom">---</p></div>
+                <div class="detail-item"><label>Status</label><p id="detailStatus">---</p></div>
+            </div>
+            <div class="detail-item">
+                <label>Diabetes Threshold by Group</label>
+                <div class="threshold-grid">
+                    <div class="threshold-card"><h4>Người trẻ</h4><p>Min: <b id="youngMin">---</b></p><p>Max: <b id="youngMax">---</b></p></div>
+                    <div class="threshold-card"><h4>Trung niên</h4><p>Min: <b id="middleMin">---</b></p><p>Max: <b id="middleMax">---</b></p></div>
+                    <div class="threshold-card"><h4>Cao tuổi</h4><p>Min: <b id="elderMin">---</b></p><p>Max: <b id="elderMax">---</b></p></div>
+                    <div class="threshold-card"><h4>Người có bầu</h4><p>Min: <b id="pregnantMin">---</b></p><p>Max: <b id="pregnantMax">---</b></p></div>
                 </div>
             </div>
-
             <div class="detail-item">
                 <label>Description</label>
-                <div class="description-box" id="detailDescription">
-                    ---
-                </div>
+                <div class="description-box" id="detailDescription">---</div>
             </div>
-
         </div>
-
     </div>
 </div>
 
-<!-- LOCK CONFIRM MODAL -->
-<div class="modal-overlay" id="lockConfirmModal">
-    <div class="modal-box lock-modal-box">
 
-        <div class="modal-header">
-            <h2>Xác nhận thay đổi trạng thái</h2>
-
-            <button type="button"
-                    class="modal-close"
-                    id="btnCloseLockModal">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-        </div>
-
-        <div class="modal-form">
-            <p class="lock-message">
-                Bạn có chắc chắn muốn khóa hoặc mở khóa xét nghiệm này không?
-            </p>
-
-            <div class="modal-actions">
-                <button type="button"
-                        class="btn-cancel"
-                        id="btnCancelLock">
-                    Không
-                </button>
-
-                <button type="button"
-                        class="btn-save lock-confirm-btn"
-                        id="btnConfirmLock">
-                    Xác nhận
-                </button>
-            </div>
-        </div>
-
-    </div>
-</div>
-
-<!-- JS -->
-<script src="/js/lab-tests.js"></script>
+<script th:src="@{/js/lab-tests.js}"></script>
+<script>
+    (function () {
+        const rows = document.querySelectorAll('#labTestTableBody tr.data-row');
+        let active = 0, inactive = 0;
+        rows.forEach(function(r) {
+            if (r.querySelector('.badge--active')) active++;
+            else inactive++;
+        });
+        document.getElementById('statTotal').textContent    = rows.length;
+        document.getElementById('statActive').textContent   = active;
+        document.getElementById('statInactive').textContent = inactive;
+    })();
+</script>
 
 </body>
 </html>

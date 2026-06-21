@@ -6,15 +6,21 @@ import java.util.Optional;
 
 public interface LabTestCatalogService {
 
-    public List<LabTestCatalog> findAll();
+    List<LabTestCatalog> findAll();
 
-    public Optional<LabTestCatalog> findById(String id);
+    Optional<LabTestCatalog> findById(String id);
 
-    public LabTestCatalog create(LabTestCatalog entity);
+    LabTestCatalog create(LabTestCatalog entity);
 
-    public LabTestCatalog update(String id, LabTestCatalog entity);
+    LabTestCatalog update(String id, LabTestCatalog entity);
 
-    public void deleteById(String id);
+    void deleteById(String id);
 
-    public boolean existsById(String id);
+    boolean existsById(String id);
+
+    boolean existsByTestName(String testName);
+
+    boolean existsByTestNameAndLabTestIdNot(String testName, String labTestId);
+
+    String generateLabTestId();
 }

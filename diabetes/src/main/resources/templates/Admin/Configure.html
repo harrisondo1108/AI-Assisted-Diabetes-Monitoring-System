@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Configure – Diabetes Care System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/pages/configure-page.css}">
+</head>
+<body>
+<div class="page-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-top">
+            <div class="brand">
+                <span class="brand-name">Diabetes Care</span>
+                <span class="brand-sub">Admin Console</span>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-link"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a>
+                <a href="#" class="nav-link"><i class="fa-solid fa-users"></i><span>User Management</span></a>
+                <a href="#" class="nav-link"><i class="fa-solid fa-pills"></i><span>Medicine Management</span></a>
+                <a th:href="@{/admin/lab-tests}" class="nav-link"><i class="fa-solid fa-flask"></i><span>Medical Tests</span></a>
+                <a href="#" class="nav-link"><i class="fa-solid fa-sliders"></i><span>Threshold Config</span></a>
+                <a href="#" class="nav-link"><i class="fa-solid fa-desktop"></i><span>Monitoring</span></a>
+
+                <div class="nav-section-label">CONFIGURE</div>
+
+                <div class="nav-group">
+                    <div class="nav-group-header active">
+                        <div class="nav-group-left">
+                            <i class="fa-solid fa-gear"></i><span>Configuration</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-up nav-chevron"></i>
+                    </div>
+                    <div class="nav-group-children">
+                        <a th:href="@{/admin/configure(tab=room)}"
+                           th:class="${activeTab == 'room'} ? 'nav-child active' : 'nav-child'">
+                            <i class="fa-solid fa-door-open"></i><span>Room</span>
+                        </a>
+                        <a th:href="@{/admin/configure(tab=timing)}"
+                           th:class="${activeTab == 'timing'} ? 'nav-child active' : 'nav-child'">
+                            <i class="fa-solid fa-clock"></i><span>Timing Medication</span>
+                        </a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+
+        <div class="sidebar-bottom">
+            <button type="button" class="new-report-btn">
+                <i class="fa-solid fa-plus"></i><span>New Report</span>
+            </button>
+            <a href="#" class="footer-link"><i class="fa-solid fa-gear"></i><span>Settings</span></a>
+            <a href="#" class="footer-link"><i class="fa-regular fa-circle-question"></i><span>Support</span></a>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main-content">
+
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Tìm kiếm...">
+            </div>
+            <div class="topbar-right">
+                <div class="avatar-circle">QT</div>
+                <div class="admin-info">
+                    <span class="admin-name">Quản trị viên</span>
+                    <span class="admin-role">Chief Administrator</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <section class="content">
+
+            <!-- Page heading -->
+            <div class="page-heading">
+                <h1 class="page-title">Configure</h1>
+                <p class="page-sub">Quản lý danh mục Room và Timing Medication dùng chung trong hệ thống.</p>
+            </div>
+
+            <!-- Error alert -->
+            <div th:if="${errorMessage != null}" class="alert-error" th:text="${errorMessage}"></div>
+
+            <!-- Main card -->
+            <div class="config-card">
+
+                <!-- Tabs -->
+                <div class="tab-bar">
+                    <button type="button"
+                            th:class="${activeTab == 'room'} ? 'cfg-tab active' : 'cfg-tab'"
+                            id="tabRoom" data-tab="room">Room</button>
+                    <button type="button"
+                            th:class="${activeTab == 'timing'} ? 'cfg-tab active' : 'cfg-tab'"
+                            id="tabTiming" data-tab="timing">Timing Medication</button>
+                </div>
+
+                <!-- ── ROOM TAB ── -->
+                <div id="panelRoom" th:class="${activeTab == 'room'} ? 'tab-panel active' : 'tab-panel'">
+                    <div class="panel-toolbar">
+                        <div class="panel-search">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="roomSearch" placeholder="Search by room name...">
+                        </div>
+                        <button type="button" class="btn-add-room" id="btnAddRoom">
+                            <i class="fa-solid fa-plus"></i> Add Room
+                        </button>
+                    </div>
+
+                    <table class="cfg-table">
+                        <thead>
+                        <tr>
+                            <th>ROOM NAME</th>
+                            <th>DESCRIPTION</th>
+                            <th>ACTIONS</th>
+                        </tr>
+                        </thead>
+                        <tbody id="roomTableBody">
+                        <tr th:each="room : ${roomList}" class="room-row">
+                            <td>
+                                <div class="room-name-cell">
+                                    <div class="room-icon"><i class="fa-solid fa-door-open"></i></div>
+                                    <span th:text="${room.roomName}">Room 1</span>
+                                </div>
+                            </td>
+                            <td th:text="${room.description != null and !room.description.isEmpty()} ? ${room.description} : '—'">—</td>
+                            <td>
+                                <div class="row-actions">
+                                    <button type="button" class="icon-action edit-room-btn"
+                                            th:attr="data-id=${room.roomId}, data-name=${room.roomName}, data-desc=${room.description}">
+                                        <i class="fa-regular fa-pen-to-square"></i>
+                                    </button>
+                                    <form th:action="@{/admin/configure/room/delete/{id}(id=${room.roomId})}"
+                                          method="post" class="inline-form"
+                                          onsubmit="return confirm('Xóa phòng này?')">
+                                        <button type="submit" class="icon-action delete-btn">
+                                            <i class="fa-regular fa-trash-can"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${roomList == null or roomList.isEmpty()}" class="empty-row">
+                            <td colspan="3">Chưa có phòng nào. Nhấn "+ Add Room" để thêm.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- ── TIMING MEDICATION TAB ── -->
+                <div id="panelTiming" th:class="${activeTab == 'timing'} ? 'tab-panel active' : 'tab-panel'">
+                    <div class="panel-toolbar">
+                        <div class="panel-search">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="timingSearch" placeholder="Search by timing name...">
+                        </div>
+                        <button type="button" class="btn-add-room">
+                            <i class="fa-solid fa-plus"></i> Add Timing
+                        </button>
+                    </div>
+                    <div class="coming-soon">
+                        <i class="fa-regular fa-clock"></i>
+                        <p>Chức năng Timing Medication đang được phát triển.</p>
+                    </div>
+                </div>
+
+            </div><!-- /.config-card -->
+        </section>
+    </div><!-- /.main-content -->
+</div><!-- /.page-layout -->
+
+
+<!-- ADD ROOM MODAL -->
+<div class="modal-overlay" id="addRoomModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>Add Room</h3>
+            <button type="button" class="modal-close" id="btnCloseAddRoom">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <form th:action="@{/admin/configure/room/create}" method="post" class="modal-form">
+            <div class="form-group">
+                <label>Room Name <span class="required">*</span></label>
+                <input type="text" name="roomName" placeholder="VD: Phòng Xét Nghiệm 1" maxlength="50" required>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <input type="text" name="description" placeholder="VD: Lab — Floor 1" maxlength="255">
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" id="btnCancelAddRoom">Cancel</button>
+                <button type="submit" class="btn-save">Save Room</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- EDIT ROOM MODAL -->
+<div class="modal-overlay" id="editRoomModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>Edit Room</h3>
+            <button type="button" class="modal-close" id="btnCloseEditRoom">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <form id="editRoomForm" method="post" class="modal-form">
+            <div class="form-group">
+                <label>Room Name <span class="required">*</span></label>
+                <input type="text" id="editRoomName" name="roomName" maxlength="50" required>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <input type="text" id="editRoomDesc" name="description" maxlength="255">
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" id="btnCancelEditRoom">Cancel</button>
+                <button type="submit" class="btn-save">Update Room</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script th:src="@{/js/configure.js}"></script>
+</body>
+</html>

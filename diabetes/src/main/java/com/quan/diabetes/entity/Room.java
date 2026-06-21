@@ -9,7 +9,6 @@ import jakarta.persistence.Table;
 
 /**
  * JPA entity representing a Room.
- * Minimal fields: id, name, capacity, description.
  */
 @Entity
 @Table(name = "Room")
@@ -23,35 +22,26 @@ public class Room {
     @Column(name = "RoomName", nullable = false, unique = true, length = 50, columnDefinition = "VARCHAR(50)")
     private String roomName;
 
-    public Room() {
-    }
+    @Column(name = "Description", length = 255, columnDefinition = "NVARCHAR(255)")
+    private String description;
+
+    public Room() {}
 
     public Room(String roomName) {
         this.roomName = roomName;
     }
 
-    public int getRoomId() {
-        return roomId;
-    }
+    public int getRoomId() { return roomId; }
+    public void setRoomId(int roomId) { this.roomId = roomId; }
 
-    public void setRoomId(int roomId) {
-        this.roomId = roomId;
-    }
+    public String getRoomName() { return roomName; }
+    public void setRoomName(String roomName) { this.roomName = roomName; }
 
-    public String getRoomName() {
-        return roomName;
-    }
-
-    public void setRoomName(String roomName) {
-        this.roomName = roomName;
-    }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
     @Override
     public String toString() {
-        return "Room{" +
-                "roomId=" + roomId +
-                ", roomName='" + roomName + '\'' +
-                '}';
+        return "Room{roomId=" + roomId + ", roomName='" + roomName + "', description='" + description + "'}";
     }
 }
-

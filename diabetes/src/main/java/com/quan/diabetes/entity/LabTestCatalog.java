@@ -20,13 +20,19 @@ public class LabTestCatalog {
     private String unit;
 
     @Column(name = "MinValue")
-    private int minValue;
+    private Integer minValue;
 
     @Column(name = "MaxValue")
-    private int maxValue;
+    private Integer maxValue;
 
     @Column(name = "Description", columnDefinition = "NVARCHAR(MAX)")
     private String description;
+
+    @Column(name = "RoomID")
+    private Integer roomId;
+
+    @Column(name = "Status")
+    private Boolean status;
 
     public LabTestCatalog() {
     }
@@ -55,19 +61,19 @@ public class LabTestCatalog {
         this.unit = unit;
     }
 
-    public int getMinValue() {
+    public Integer getMinValue() {
         return minValue;
     }
 
-    public void setMinValue(int minValue) {
+    public void setMinValue(Integer minValue) {
         this.minValue = minValue;
     }
 
-    public int getMaxValue() {
+    public Integer getMaxValue() {
         return maxValue;
     }
 
-    public void setMaxValue(int maxValue) {
+    public void setMaxValue(Integer maxValue) {
         this.maxValue = maxValue;
     }
 
@@ -77,6 +83,22 @@ public class LabTestCatalog {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Integer getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(Integer roomId) {
+        this.roomId = roomId;
+    }
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
     }
 }
 
