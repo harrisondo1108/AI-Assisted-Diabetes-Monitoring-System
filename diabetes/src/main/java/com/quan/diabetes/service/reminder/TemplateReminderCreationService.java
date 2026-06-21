@@ -18,18 +18,22 @@ public class TemplateReminderCreationService {
     ) {
         StringBuilder content = new StringBuilder();
 
-        content.append("Chào bệnh nhân ")
-                .append(valueOrDefault(patientName, ""))
+        // Thay đổi lời chào thân thiện hơn
+        content.append("Thân chào bệnh nhân ")
+                .append(valueOrDefault(patientName, "nhé"))
                 .append(",\n\n");
 
-        content.append("Đến giờ sử dụng thuốc");
+        // Hành văn nhẹ nhàng hơn cho khung giờ
         if (hasText(timeSlot)) {
-            content.append(" ").append(timeSlot.trim());
+            content.append("Đã đến khung giờ dùng thuốc của bạn (")
+                    .append(timeSlot.trim())
+                    .append(") rồi ạ. Bạn lưu ý sử dụng các thuốc sau nhé:\n");
+        } else {
+            content.append("Đã đến giờ sử dụng thuốc của bạn rồi ạ. Bạn lưu ý dùng các thuốc sau nhé:\n");
         }
-        content.append(":\n");
 
         if (medicines == null || medicines.isEmpty()) {
-            content.append("- Hiện chưa có thông tin thuốc cần nhắc trong khung giờ này.\n");
+            content.append("- Hiện tại chưa có thông tin thuốc cần nhắc trong khung giờ này.\n");
         } else {
             for (PrescriptionReminderDto medicine : medicines) {
                 content.append(formatMedicineLine(medicine)).append("\n");
@@ -37,29 +41,30 @@ public class TemplateReminderCreationService {
 
             String treatmentPlan = formatTreatmentPlan(medicines);
             if (hasText(treatmentPlan)) {
-                content.append("\nKế hoạch phối hợp hôm nay:\n");
+                // Thay đổi tiêu đề kế hoạch phối hợp nghe bớt khô khan
+                content.append("\nMột vài lưu ý nhỏ cho ngày hôm nay để việc điều trị hiệu quả hơn:\n");
                 content.append(treatmentPlan);
             }
         }
 
-        content.append("\nChúc bạn nhiều sức khỏe.");
+        // Lời chúc ấm áp hơn
+        content.append("\nChúc bạn một ngày nhiều niềm vui và luôn khỏe mạnh!");
         return content.toString();
     }
 
     private String formatMedicineLine(PrescriptionReminderDto medicine) {
         if (medicine == null) {
-            return "- Thuốc chưa rõ thông tin.";
+            return "- (Thông tin thuốc chưa rõ)";
         }
 
         StringBuilder line = new StringBuilder();
-        line.append("- ");
+        line.append("📍 "); // Thêm emoji để giao diện tin nhắn trực quan, bớt khô khan
         line.append(valueOrDefault(medicine.getMedicationName(), "Thuốc chưa rõ tên"));
 
         appendSegment(line, medicine.getDosage());
         appendSegment(line, combineFormAndRoute(medicine));
         appendSegment(line, medicine.getUsageInstruction());
         appendSegment(line, medicine.getMedicationPlan());
-
         return line.toString();
     }
 
@@ -88,14 +93,15 @@ public class TemplateReminderCreationService {
             }
 
             TreatmentPlan plan = medicine.getTreatmentPlan();
-            addPlanLine(planLines, "Chế độ dinh dưỡng", plan.getDietPlan());
-            addPlanLine(planLines, "Chế độ tập luyện", plan.getExercisePlan());
-            addPlanLine(planLines, "Theo dõi đường huyết", plan.getGlucoseMonitoringPlan());
+            // Đổi nhãn (Label) cho gần gũi hơn với đời sống hàng ngày
+            addPlanLine(planLines, "🥗 Chế độ dinh dưỡng", plan.getDietPlan());
+            addPlanLine(planLines, "🏃 Chế độ tập luyện", plan.getExercisePlan());
+            addPlanLine(planLines, "🩸 Theo dõi đường huyết", plan.getGlucoseMonitoringPlan());
         }
 
         StringBuilder content = new StringBuilder();
         for (String line : planLines) {
-            content.append("- ").append(line).append("\n");
+            content.append(line).append("\n");
         }
 
         return content.toString();
@@ -109,7 +115,7 @@ public class TemplateReminderCreationService {
 
     private void appendSegment(StringBuilder line, String value) {
         if (hasText(value)) {
-            line.append(" - ").append(value.trim());
+            line.append(" | ").append(value.trim()); // Thay dấu "-" bằng "|" nhìn phân tách thông tin thuốc clear hơn
         }
     }
 

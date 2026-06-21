@@ -1,0 +1,498 @@
+/* Doctor Dashboard - Page Specific Styles */
+
+/* 1. Doctor Content Area Layout */
+.doctor-content {
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    height: calc(100vh - var(--header-height));
+    overflow-y: auto;
+}
+
+/* 2. Metrics Grid */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    justify-content: center;
+}
+
+.metric-card {
+    border-radius: var(--radius);
+    padding: 20px;
+    color: #ffffff;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.metric-card-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 10;
+}
+
+.metric-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.metric-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.85;
+}
+
+.metric-val {
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+.metric-sub {
+    font-size: 0.72rem;
+    opacity: 0.75;
+}
+
+.metric-icon {
+    font-size: 2rem;
+    opacity: 0.25;
+}
+
+/* Gradient Variants - Aligned with Green Theme */
+.bg-gradient-teal {
+    background: linear-gradient(135deg, var(--green-800) 0%, var(--green-900) 100%);
+}
+
+.bg-gradient-blue {
+    background: linear-gradient(135deg, var(--green-700) 0%, var(--green-800) 100%);
+}
+
+.bg-gradient-orange {
+    background: linear-gradient(135deg, #c2410c 0%, #ea580c 100%);
+}
+
+.bg-gradient-slate {
+    background: linear-gradient(135deg, var(--green-600) 0%, var(--green-700) 100%);
+}
+
+.text-alert {
+    animation: flashAlert 1.5s ease-in-out infinite;
+}
+
+@keyframes flashAlert {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.75; }
+}
+
+/* 3. Card & Grids */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.grid-span-2 {
+    grid-column: span 2;
+}
+
+.grid-span-3 {
+    grid-column: span 3;
+}
+
+.card {
+    background-color: var(--doctor-card-bg);
+    border-radius: var(--radius);
+    border: 1px solid var(--doctor-border);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--doctor-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--green-900);
+}
+
+.card-subtitle {
+    font-size: 0.78rem;
+    color: var(--doctor-text-muted);
+    margin-top: 2px;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Filter pills */
+.filter-pills {
+    display: flex;
+    background-color: var(--doctor-bg);
+    padding: 3px;
+    border-radius: 6px;
+    border: 1px solid var(--doctor-border);
+}
+
+.pill {
+    padding: 5px 10px;
+    border: none;
+    background: none;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--doctor-text-muted);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pill.active {
+    background-color: #ffffff;
+    color: var(--doctor-primary);
+    box-shadow: var(--shadow-sm);
+}
+
+/* 4. Table Styling */
+.table-container {
+    overflow-x: auto;
+    flex-grow: 1;
+}
+
+.clinical-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.clinical-table th {
+    padding: 12px 24px;
+    background-color: #fafcfb;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--doctor-text-muted);
+    border-bottom: 1px solid var(--doctor-border);
+}
+
+.clinical-table td {
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--doctor-border);
+    font-size: 0.85rem;
+    vertical-align: middle;
+}
+
+.clinical-table tbody tr {
+    transition: background-color 0.15s;
+}
+
+.clinical-table tbody tr:hover {
+    background-color: rgba(26, 107, 86, 0.02);
+}
+
+.patient-info-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.patient-name {
+    font-weight: 600;
+    color: var(--doctor-text-main);
+}
+
+.patient-id {
+    font-size: 0.75rem;
+    color: var(--doctor-text-muted);
+}
+
+/* Status Badges */
+.badge-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-pending {
+    background-color: #fef3c7; /* light amber */
+    color: var(--doctor-alert);
+}
+
+.badge-inprogress {
+    background-color: #e0f2fe;
+    color: var(--doctor-accent);
+}
+
+.badge-completed {
+    background-color: var(--doctor-accent-light);
+    color: var(--doctor-success);
+}
+
+.badge-cancelled {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--doctor-danger);
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background-color: var(--doctor-primary);
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background-color: var(--doctor-primary-hover);
+}
+
+.btn-secondary {
+    background-color: var(--doctor-bg);
+    color: var(--doctor-text-main);
+    border: 1px solid var(--doctor-border);
+}
+
+.btn-secondary:hover {
+    background-color: var(--doctor-border);
+}
+
+.btn-sm {
+    padding: 6px 10px;
+    font-size: 0.75rem;
+}
+
+/* 5. Clinical Memo & Todo */
+.memo-container {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex-grow: 1;
+}
+
+.memo-add-form {
+    display: flex;
+    gap: 8px;
+}
+
+.memo-add-form input {
+    flex-grow: 1;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--doctor-border);
+    outline: none;
+    font-size: 0.82rem;
+}
+
+.memo-add-form input:focus {
+    border-color: var(--doctor-primary);
+}
+
+.memo-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+    max-height: 280px;
+}
+
+.memo-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px;
+    background-color: var(--doctor-bg);
+    border-radius: var(--radius-sm);
+    font-size: 0.78rem;
+    line-height: 1.4;
+    border-left: 3px solid var(--doctor-accent);
+}
+
+.delete-memo {
+    background: none;
+    border: none;
+    color: var(--doctor-text-muted);
+    cursor: pointer;
+    transition: color 0.15s;
+    margin-top: 2px;
+}
+
+.delete-memo:hover {
+    color: var(--doctor-danger);
+}
+
+/* Card search box next to pills */
+.card-search-box {
+    position: relative;
+    width: 220px;
+}
+
+.card-search-box i {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--doctor-text-muted);
+    font-size: 0.8rem;
+}
+
+.card-search-box input {
+    width: 100%;
+    padding: 6px 12px 6px 30px;
+    border-radius: 6px;
+    border: 1px solid var(--doctor-border);
+    outline: none;
+    font-size: 0.78rem;
+    transition: all 0.2s;
+}
+
+.card-search-box input:focus {
+    border-color: var(--doctor-primary);
+    background-color: #ffffff;
+}
+
+/* Card footer for pagination */
+.card-footer {
+    padding: 12px 24px;
+    border-top: 1px solid var(--doctor-border);
+    display: flex;
+    justify-content: center;
+    background-color: #fafcfb;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pagination button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 8px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--doctor-border);
+    background-color: #ffffff;
+    color: var(--doctor-text-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pagination button:hover:not(:disabled) {
+    border-color: var(--doctor-primary);
+    color: var(--doctor-primary);
+    background-color: var(--doctor-primary-light);
+}
+
+.pagination button.active {
+    background-color: var(--doctor-primary);
+    color: #ffffff;
+    border-color: var(--doctor-primary);
+}
+
+.pagination button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Modals overlays & sizes */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(10, 61, 50, 0.25);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 150;
+    backdrop-filter: blur(2px);
+}
+
+.modal-overlay.open {
+    display: flex;
+}
+
+.modal {
+    background-color: #ffffff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--doctor-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--doctor-text-main);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--doctor-text-muted);
+}
+
+.modal-body {
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.modal-footer {
+    padding: 14px 20px;
+    border-top: 1px solid var(--doctor-border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}

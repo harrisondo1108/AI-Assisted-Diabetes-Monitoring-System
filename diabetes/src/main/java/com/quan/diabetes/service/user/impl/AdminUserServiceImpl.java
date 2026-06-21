@@ -1,4 +1,4 @@
-package com.quan.diabetes.service.user.impl;
+package com.quan.diabetes.service.impl;
 
 import com.quan.diabetes.dto.UserManagementDTO;
 import com.quan.diabetes.entity.Patient;
@@ -6,16 +6,19 @@ import com.quan.diabetes.entity.Profile;
 import com.quan.diabetes.entity.Role;
 import com.quan.diabetes.entity.Room;
 import com.quan.diabetes.entity.User;
+import com.quan.diabetes.entity.ClinicalExamination;
 import com.quan.diabetes.repository.PatientRepository;
 import com.quan.diabetes.repository.ProfileRepository;
 import com.quan.diabetes.repository.RoleRepository;
 import com.quan.diabetes.repository.RoomRepository;
 import com.quan.diabetes.repository.UserRepository;
+import com.quan.diabetes.repository.ClinicalExaminationRepository;
 import com.quan.diabetes.service.user.AdminUserService;
 import com.quan.diabetes.service.user.PatientService;
 import com.quan.diabetes.service.user.UserService;
 import com.quan.diabetes.util.ParseUtil;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +45,8 @@ public class AdminUserServiceImpl implements AdminUserService {
     private final RoomRepository roomRepository;
     private final UserService userService;
     private final PatientService patientService;
+    private final PasswordEncoder passwordEncoder;
+    private final ClinicalExaminationRepository clinicalExaminationRepository;
 
     public AdminUserServiceImpl(UserRepository userRepository,
                                 PatientRepository patientRepository,
@@ -49,7 +54,9 @@ public class AdminUserServiceImpl implements AdminUserService {
                                 RoleRepository roleRepository,
                                 RoomRepository roomRepository,
                                 UserService userService,
-                                PatientService patientService) {
+                                PatientService patientService,
+                                PasswordEncoder passwordEncoder,
+                                ClinicalExaminationRepository clinicalExaminationRepository) {
         this.userRepository = userRepository;
         this.patientRepository = patientRepository;
         this.profileRepository = profileRepository;
@@ -57,7 +64,8 @@ public class AdminUserServiceImpl implements AdminUserService {
         this.roomRepository = roomRepository;
         this.userService = userService;
         this.patientService = patientService;
-
+        this.passwordEncoder = passwordEncoder;
+        this.clinicalExaminationRepository = clinicalExaminationRepository;
     }
 
     @Override
@@ -217,7 +225,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
         user.setPhoneNumber(dto.getAccountPhone());
         if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
-            user.setPasswordHash(dto.getPassword());
+            user.setPasswordHash(passwordEncoder.encode(dto.getPassword()));
         }
         userRepository.save(user);
 
@@ -319,7 +327,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         Optional<User> existing = userRepository.findByPhoneNumber(phone.trim());
         if (existing.isEmpty()) return false;
         if (excludeUserId == null || excludeUserId.trim().isEmpty()) return true;
-        return !existing.get().getUserId().equals(excludeUserId);
+        return !existing.get().getUserId().trim().equalsIgnoreCase(excludeUserId.trim());
     }
 
 

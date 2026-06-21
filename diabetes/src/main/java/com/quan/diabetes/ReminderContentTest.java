@@ -16,7 +16,7 @@ public class ReminderContentTest {
         ReminderSchedualeService service =
                 context.getBean(ReminderSchedualeService.class);
 
-        service.generateReminder("CE001");
+        service.generateReminder("EXM-1782060867382-993");
         System.out.println("============Suscessful==============");
 
     }

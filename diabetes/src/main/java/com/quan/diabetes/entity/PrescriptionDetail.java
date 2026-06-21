@@ -134,6 +134,10 @@ public class PrescriptionDetail {
     public LocalDate getEndDate() {
         return endDate;
     }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
 }
 
 

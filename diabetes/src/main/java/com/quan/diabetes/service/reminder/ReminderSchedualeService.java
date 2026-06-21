@@ -83,6 +83,9 @@ public class ReminderSchedualeService {
             }
             List<LocalDate> dateList = new ArrayList<>(dateSet);
             Collections.sort(dateList);
+            for(LocalDate date : dateList) {
+                System.out.println(date);
+            }
 
             for (int i = 0; i < dateList.size() - 1; i++) {
                 LocalDate startDate = dateList.get(i);

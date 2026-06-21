@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface MedicationTimingRepository
@@ -24,5 +25,6 @@ public interface MedicationTimingRepository
     List<MedicationTiming> findMedicationTimingsByClinicalExamId(
             @Param("clinicalExamId") String clinicalExamId
     );
+    Optional<MedicationTiming> findByTimingName(String timingName);
 
 }

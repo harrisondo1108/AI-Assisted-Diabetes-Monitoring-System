@@ -29,7 +29,8 @@ public class SecurityConfig {
                         .requestMatchers("/login", "/register", "/api/auth/**", "/logout", "/error", "/register/otp",
                                 "/register/verify-otp", "/register/resend-otp", "/forgot-password",
                                 "/forgot-password/send-otp", "/forgot-password/otp", "/forgot-password/verify-otp",
-                                "/forgot-password/reset").permitAll()
+                                "/forgot-password/reset",
+                                "/test-sms").permitAll()
 
                         // 3. Các đường dẫn admin thì bắt buộc phải có quyền ADMIN
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")

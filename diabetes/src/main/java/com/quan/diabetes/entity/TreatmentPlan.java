@@ -12,6 +12,9 @@ public class TreatmentPlan {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int planId;
 
+    @Column(name = "TreatmentGoal",columnDefinition = "NVARCHAR(MAX)")
+    private String treatmentGoal;
+
     @Column(name = "CreatedAt", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -90,6 +93,14 @@ public class TreatmentPlan {
 
     public void setClinicalExam(ClinicalExamination clinicalExam) {
         this.clinicalExam = clinicalExam;
+    }
+
+    public String getTreatmentGoal() {
+        return treatmentGoal;
+    }
+
+    public void setTreatmentGoal(String treatmentGoal) {
+        this.treatmentGoal = treatmentGoal;
     }
 
     @Override

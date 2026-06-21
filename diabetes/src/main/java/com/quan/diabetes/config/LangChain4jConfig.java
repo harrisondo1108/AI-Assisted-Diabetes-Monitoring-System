@@ -30,12 +30,4 @@ public class LangChain4jConfig {
                 .chatLanguageModel(chatLanguageModel)
                 .build();
     }
-
-//    @Bean
-//    public TimingReminderConfig timingReminderConfig(ChatLanguageModel chatLanguageModel) {
-//        // LangChain4j tự tạo code ngầm (Dynamic Proxy) dựa trên Interface bạn khai báo
-//        return AiServices.builder(TimingReminderConfig.class)
-//                .chatLanguageModel(chatLanguageModel)
-//                .build();
-//    }
 }

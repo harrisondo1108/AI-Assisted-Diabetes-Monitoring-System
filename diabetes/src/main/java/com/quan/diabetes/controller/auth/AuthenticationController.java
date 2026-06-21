@@ -1,6 +1,8 @@
 package com.quan.diabetes.controller.auth;
 
+import com.quan.diabetes.config.SecurityConfig;
 import com.quan.diabetes.entity.*;
+import com.quan.diabetes.service.exam.ClinicalExaminationService;
 import com.quan.diabetes.service.masterdata.RoleService;
 import com.quan.diabetes.service.user.PatientRoutineService;
 import com.quan.diabetes.service.user.PatientService;
@@ -12,10 +14,14 @@ import jakarta.transaction.Transactional;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -28,22 +34,34 @@ public class AuthenticationController {
     private final PatientService patientService;
     private final ProfileService profileService;
     private final PatientRoutineService patientRoutineService;
+    private final ClinicalExaminationService clinicalExaminationService;
+    private final PasswordEncoder passwordEncoder;
 
     public AuthenticationController(UserService userService,
                                     RoleService roleService,
                                     PatientService patientService,
                                     ProfileService profileService,
-                                    PatientRoutineService patientRoutineService) {
+                                    PatientRoutineService patientRoutineService,
+                                    ClinicalExaminationService clinicalExaminationService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.roleService = roleService;
         this.patientService = patientService;
         this.profileService = profileService;
         this.patientRoutineService = patientRoutineService;
+        this.clinicalExaminationService = clinicalExaminationService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     // ==================== GET ====================
 
+    @GetMapping("/")
+    public String home() {
+        return "index";
+    }
+
+
     @GetMapping("/login")
+    // required = false; có nghĩa là không bắt buộc . Nếu trên URL
     public String loginPage(@RequestParam(required = false) String resetSuccess,
                             @RequestParam(required = false) String registerSuccess,
                             Model model) {
@@ -83,6 +101,7 @@ public class AuthenticationController {
             return "auth/login";
         }
         User user = userOptional.get();
+        // Sau khi xác thực thành công (user hợp lệ)
         List<SimpleGrantedAuthority> authorities = Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_" + user.getRole().getRoleId())
         );
@@ -91,6 +110,7 @@ public class AuthenticationController {
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
         session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
+
         session.setAttribute("loggedInUser", user);
 
         switch (user.getRole().getRoleId()) {
@@ -242,7 +262,7 @@ public class AuthenticationController {
     // Phương thức tạo user từ dữ liệu tạm (đã được kiểm tra phone chưa tồn tại trước đó,
     // nhưng cần kiểm tra lại phòng trường hợp có người đăng ký cùng số trong lúc chờ OTP)
     @Transactional
-    private void createUserFromRegData(Map<String, Object> regData) {
+    public void createUserFromRegData(Map<String, Object> regData) {
         String roleId = (String) regData.get("roleId");
         String fullName = (String) regData.get("fullName");
         String phoneNumber = (String) regData.get("phoneNumber");
@@ -290,6 +310,7 @@ public class AuthenticationController {
             PatientRoutine patientRoutine = new PatientRoutine();
             patientRoutine.setPatient(patient);
             patientRoutineService.create(patientRoutine);
+            clinicalExaminationService.createAutoPendingExamination(patient.getUserId());
         } else {
             Profile profile = new Profile();
             profile.setUser(user);
@@ -299,4 +320,5 @@ public class AuthenticationController {
             profileService.create(profile);
         }
     }
+
 }

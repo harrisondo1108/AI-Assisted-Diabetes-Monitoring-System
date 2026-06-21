@@ -2,7 +2,7 @@ package com.quan.diabetes.service.reminder;
 
 import com.quan.diabetes.entity.AIReminder;
 import com.quan.diabetes.repository.AIReminderRepository;
-import com.quan.diabetes.service.notification.EmailReminderService;
+import com.quan.diabetes.service.notification.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ public class ReminderScheduledTask {
     private AIReminderRepository aiReminderRepository;
 
     @Autowired
-    private EmailReminderService  emailReminderService;
+    private EmailService emailService;
 
     @Scheduled(fixedRate = 60_000)
     @Transactional
@@ -26,7 +26,7 @@ public class ReminderScheduledTask {
 
         for (AIReminder reminder : reminders) {
             sendReminder(reminder);
-            emailReminderService.sendSimpleEmail("lequan13112005@gmail.com", reminder.getTitle(), reminder.getMessage());
+            emailService.sendSimpleEmail("lequan13112005@gmail.com", reminder.getTitle(), reminder.getMessage());
             reminder.setIsSent(true);
         }
 
