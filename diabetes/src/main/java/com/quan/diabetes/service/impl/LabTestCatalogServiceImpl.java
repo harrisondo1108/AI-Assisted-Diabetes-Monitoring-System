@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
 @Service
 public class LabTestCatalogServiceImpl implements LabTestCatalogService {
@@ -39,8 +38,6 @@ public class LabTestCatalogServiceImpl implements LabTestCatalogService {
         if (!labTestCatalogRepository.existsById(id)) {
             throw new EntityNotFoundException("LabTestCatalog not found with id: " + id);
         }
-
-        entity.setLabTestId(id);
         return labTestCatalogRepository.save(entity);
     }
 
@@ -49,35 +46,11 @@ public class LabTestCatalogServiceImpl implements LabTestCatalogService {
         if (!labTestCatalogRepository.existsById(id)) {
             throw new EntityNotFoundException("LabTestCatalog not found with id: " + id);
         }
-
         labTestCatalogRepository.deleteById(id);
     }
 
     @Override
     public boolean existsById(String id) {
         return labTestCatalogRepository.existsById(id);
-    }
-
-    @Override
-    public boolean existsByTestName(String testName) {
-        return labTestCatalogRepository.existsByTestName(testName);
-    }
-
-    @Override
-    public boolean existsByTestNameAndLabTestIdNot(String testName, String labTestId) {
-        return labTestCatalogRepository.existsByTestNameAndLabTestIdNot(testName, labTestId);
-    }
-
-    @Override
-    public String generateLabTestId() {
-        Random random = new Random();
-        String id;
-
-        do {
-            int number = random.nextInt(9000) + 1000;
-            id = "LT" + number;
-        } while (labTestCatalogRepository.existsById(id));
-
-        return id;
     }
 }

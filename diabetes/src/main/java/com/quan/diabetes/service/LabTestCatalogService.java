@@ -1,27 +1,20 @@
 package com.quan.diabetes.service;
 
 import com.quan.diabetes.entity.LabTestCatalog;
-
 import java.util.List;
 import java.util.Optional;
 
 public interface LabTestCatalogService {
 
-    List<LabTestCatalog> findAll();
+    public List<LabTestCatalog> findAll();
 
-    Optional<LabTestCatalog> findById(String id);
+    public Optional<LabTestCatalog> findById(String id);
 
-    LabTestCatalog create(LabTestCatalog entity);
+    public LabTestCatalog create(LabTestCatalog entity);
 
-    LabTestCatalog update(String id, LabTestCatalog entity);
+    public LabTestCatalog update(String id, LabTestCatalog entity);
 
-    void deleteById(String id);
+    public void deleteById(String id);
 
-    boolean existsById(String id);
-
-    boolean existsByTestName(String testName);
-
-    boolean existsByTestNameAndLabTestIdNot(String testName, String labTestId);
-
-    String generateLabTestId();
+    public boolean existsById(String id);
 }
