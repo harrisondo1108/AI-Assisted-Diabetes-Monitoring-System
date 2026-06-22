@@ -573,19 +573,11 @@ public abstract class BasePatientController {
                     detail,
                     timingName,
                     medicationDateTime,
-                    medicationDateTime.minusMinutes(15),
-                    15,
+                    medicationDateTime.minusMinutes(30),
+                    30,
                     now
             ));
 
-            reminders.add(createMedicationReminderView(
-                    detail,
-                    timingName,
-                    medicationDateTime,
-                    medicationDateTime.minusMinutes(10),
-                    10,
-                    now
-            ));
         }
 
         return reminders.stream()
@@ -692,11 +684,11 @@ public abstract class BasePatientController {
 
     protected LocalTime adjustByMealTiming(String timingName, LocalTime mealTime) {
         if (timingName.contains("before") || timingName.contains("trước")) {
-            return mealTime.minusMinutes(15);
+            return mealTime.minusMinutes(30);
         }
 
         if (timingName.contains("after") || timingName.contains("sau")) {
-            return mealTime.plusMinutes(15);
+            return mealTime.plusMinutes(30);
         }
 
         return mealTime;

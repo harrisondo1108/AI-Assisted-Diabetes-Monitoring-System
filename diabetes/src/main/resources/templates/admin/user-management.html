@@ -51,18 +51,19 @@
             <div class="table-card">
                 <div class="table-toolbar">
                     <div class="filter-tabs">
-                        <a th:href="@{/admin/users(role='all', search=${currentSearch}, page=0)}"
+                        <a th:href="@{/admin/users(role='all', search=${currentSearch}, page=0, size=${pageSize})}"
                            th:classappend="${currentRole == 'all' || currentRole == null} ? 'active' : ''"
                            class="filter-tab">All Users</a>
-                        <a th:href="@{/admin/users(role='patient', search=${currentSearch}, page=0)}"
+                        <a th:href="@{/admin/users(role='patient', search=${currentSearch}, page=0, size=${pageSize})}"
                            th:classappend="${currentRole == 'patient'} ? 'active' : ''"
                            class="filter-tab">Patients</a>
-                        <a th:href="@{/admin/users(role='doctor', search=${currentSearch}, page=0)}"
+                        <a th:href="@{/admin/users(role='doctor', search=${currentSearch}, page=0, size=${pageSize})}"
                            th:classappend="${currentRole == 'doctor'} ? 'active' : ''"
                            class="filter-tab">Doctor</a>
                     </div>
                     <form th:action="@{/admin/users}" method="get" class="toolbar-search">
                         <input type="hidden" name="role" th:value="${currentRole}" />
+                        <input type="hidden" name="size" th:value="${pageSize}" />
                         <i class="fas fa-search"></i>
                         <input type="search" name="search" th:value="${currentSearch}" id="globalSearch"
                                placeholder="Search by name, phone or role..." aria-label="Search users">
@@ -138,20 +139,30 @@
                     </table>
                 </div>
 
-                <div class="table-footer">
-                    <div class="pagination" id="pagination" th:if="${totalPages != null and totalPages > 1}">
+                <div class="table-footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; padding: 15px 24px;">
+                    <div class="pagination-size" style="display: flex; align-items: center; gap: 8px; font-size: 0.875rem; color: #5a6f68;">
+                        <label for="pageSizeSelect">Hiển thị:</label>
+                        <select id="pageSizeSelect" style="padding: 6px 12px; border: 1px solid #e2ebe7; border-radius: 8px; background-color: #fff; color: #0f2e26; font-size: 0.875rem; font-weight: 500; cursor: pointer;" onchange="changePageSize(this.value)">
+                            <option value="4" th:selected="${pageSize == 4}">4 hàng / trang</option>
+                            <option value="8" th:selected="${pageSize == 8}">8 hàng / trang</option>
+                            <option value="15" th:selected="${pageSize == 15}">15 hàng / trang</option>
+                            <option value="30" th:selected="${pageSize == 30}">30 hàng / trang</option>
+                        </select>
+                    </div>
+
+                    <div class="pagination" id="pagination" th:if="${totalPages != null and totalPages > 1}" style="margin: 0;">
 
                         <a th:if="${currentPage > 0}"
-                           th:href="@{/admin/users(role=${currentRole}, search=${currentSearch}, page=${currentPage - 1})}"
+                           th:href="@{/admin/users(role=${currentRole}, search=${currentSearch}, page=${currentPage - 1}, size=${pageSize})}"
                            class="page-link">&laquo; Prev</a>
 
                         <a th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
-                           th:href="@{/admin/users(role=${currentRole}, search=${currentSearch}, page=${i})}"
+                           th:href="@{/admin/users(role=${currentRole}, search=${currentSearch}, page=${i}, size=${pageSize})}"
                            th:classappend="${i == currentPage} ? 'active' : ''" th:text="${i + 1}"
                            class="page-num"></a>
 
                         <a th:if="${currentPage + 1 < totalPages}"
-                           th:href="@{/admin/users(role=${currentRole}, search=${currentSearch}, page=${currentPage + 1})}"
+                           th:href="@{/admin/users(role=${currentRole}, search=${currentSearch}, page=${currentPage + 1}, size=${pageSize})}"
                            class="page-link">Next &raquo;</a>
                     </div>
                 </div>
@@ -525,6 +536,14 @@
 </div>
 
 <script th:src="@{/js/admin/user-management.js}"></script>
+<script>
+    function changePageSize(size) {
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.set('size', size);
+        urlParams.set('page', '0'); // Reset to first page
+        window.location.search = urlParams.toString();
+    }
+</script>
 <!-- Flash message popup -->
 <div th:if="${successMessage}" id="flashMessage" class="toast toast-success">
     <div class="toast-body" th:text="${successMessage}">Success</div>

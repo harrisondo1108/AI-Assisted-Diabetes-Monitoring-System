@@ -2537,3 +2537,29 @@ body::before {
         justify-content: center;
     }
 }
+
+/* Pagination Size Selector */
+.pagination-size {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.page-size-select {
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background-color: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-weight: 500;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.page-size-select:focus, .page-size-select:hover {
+    border-color: var(--green-600);
+}

@@ -29,14 +29,15 @@ public class AdminUserController {
             @RequestParam(name = "role", defaultValue = "all") String role,
             @RequestParam(name = "search", defaultValue = "") String search,
             @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "8") int size,
             Model model) {
-        int size = 8;
         org.springframework.data.domain.Page<UserManagementDTO> userPage = adminUserService
                 .getPagedUserManagementDTOs(role, search, page, size);
         List<UserManagementDTO> users = adminUserService.getAllUserManagementDTOs(role, search);
         model.addAttribute("users", userPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", userPage.getTotalPages());
+        model.addAttribute("pageSize", size);
         model.addAttribute("currentRole", role);
         model.addAttribute("currentSearch", search);
         model.addAttribute("rooms", roomService.findAll());

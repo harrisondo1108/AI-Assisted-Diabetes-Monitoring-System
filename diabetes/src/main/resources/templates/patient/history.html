@@ -86,6 +86,15 @@
 
                 <!-- Pagination Controls -->
                 <div class="pagination-container" th:if="${totalPages > 0}">
+                    <div class="pagination-size">
+                        <label for="pageSizeSelect">Hiển thị:</label>
+                        <select id="pageSizeSelect" class="page-size-select" onchange="changePageSize(this.value)">
+                            <option value="2" th:selected="${pageSize == 2}">2 hàng / trang</option>
+                            <option value="5" th:selected="${pageSize == 5}">5 hàng / trang</option>
+                            <option value="10" th:selected="${pageSize == 10}">10 hàng / trang</option>
+                            <option value="20" th:selected="${pageSize == 20}">20 hàng / trang</option>
+                        </select>
+                    </div>
                     <div class="pagination-controls">
                         <a th:if="${currentPage > 0}" th:href="@{/patient/history(page=0, size=${pageSize}, startDate=${startDate}, endDate=${endDate})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> Trang đầu</a>
                         <a th:if="${currentPage > 0}" th:href="@{/patient/history(page=${currentPage - 1}, size=${pageSize}, startDate=${startDate}, endDate=${endDate})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> Trước</a>

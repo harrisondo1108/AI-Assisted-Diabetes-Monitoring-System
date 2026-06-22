@@ -23,7 +23,7 @@
                         Nhắc nhở Dùng thuốc
                     </h1>
                     <p class="subtitle">
-                        Hệ thống nhắc nhở bạn uống thuốc tiểu đường trước 15 phút và 10 phút trước mỗi liều lượng được lên lịch.
+                        Hệ thống nhắc nhở bạn uống thuốc tiểu đường trước 30 phút trước mỗi liều lượng được lên lịch.
                     </p>
                 </div>
 
@@ -45,7 +45,7 @@
                         <div class="stat-number" th:text="${medicationReminders != null ? medicationReminders.size() : 0}">
                             0
                         </div>
-                        <p>Nhắc nhở trước 15 và 10 phút</p>
+                        <p>Nhắc nhở trước 30 phút</p>
                     </div>
                 </div>
 
@@ -97,8 +97,8 @@
                     </h3>
                     <p>
                         Thời gian nhắc nhở được tính toán dựa trên lịch sinh hoạt hàng ngày và thời gian uống thuốc trong đơn thuốc của bạn.
-                        Ví dụ: Sau bữa sáng = giờ ăn sáng + 15 phút.
-                        Sau đó, hệ thống sẽ nhắc nhở bạn 15 phút và 10 phút trước giờ uống thuốc đó.
+                        Ví dụ: Sau bữa sáng = giờ ăn sáng + 30 phút.
+                        Sau đó, hệ thống sẽ nhắc nhở bạn 30 phút trước giờ uống thuốc đó.
                     </p>
                 </div>
 
@@ -205,6 +205,15 @@
 
                 <!-- Pagination Controls -->
                 <div class="pagination-container" th:if="${totalPages > 0}">
+                    <div class="pagination-size">
+                        <label for="pageSizeSelect">Hiển thị:</label>
+                        <select id="pageSizeSelect" class="page-size-select" onchange="changePageSize(this.value)">
+                            <option value="2" th:selected="${pageSize == 2}">2 hàng / trang</option>
+                            <option value="5" th:selected="${pageSize == 5}">5 hàng / trang</option>
+                            <option value="10" th:selected="${pageSize == 10}">10 hàng / trang</option>
+                            <option value="20" th:selected="${pageSize == 20}">20 hàng / trang</option>
+                        </select>
+                    </div>
                     <div class="pagination-controls">
                         <a th:if="${currentPage > 0}" th:href="@{/patient/notifications(page=0, size=${pageSize})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> Trang đầu</a>
                         <a th:if="${currentPage > 0}" th:href="@{/patient/notifications(page=${currentPage - 1}, size=${pageSize})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> Trước</a>
