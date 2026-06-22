@@ -23,6 +23,28 @@
                 </div>
             </div>
 
+            <!-- Date Search Filter Card -->
+            <div class="patient-card search-filter-card">
+                <form method="get" th:action="@{/patient/history}" class="search-filter-form">
+                    <div class="search-filter-field">
+                        <label for="startDate">Từ ngày</label>
+                        <input type="date" id="startDate" name="startDate" th:value="${startDate}">
+                    </div>
+                    <div class="search-filter-field">
+                        <label for="endDate">Đến ngày</label>
+                        <input type="date" id="endDate" name="endDate" th:value="${endDate}">
+                    </div>
+                    <div class="search-filter-actions">
+                        <button type="submit" class="primary-btn">
+                            <i class="fas fa-search"></i> Tìm kiếm
+                        </button>
+                        <a th:href="@{/patient/history}" class="secondary-btn">
+                            <i class="fas fa-undo"></i> Làm mới
+                        </a>
+                    </div>
+                </form>
+            </div>
+
             <div class="patient-card table-wrapper">
                 <table class="patient-table">
                     <thead>
@@ -32,6 +54,7 @@
                         <th>Chẩn đoán</th>
                         <th>Lịch hẹn tiếp theo</th>
                         <th>Trạng thái</th>
+                        <th>Hành động</th>
                     </tr>
                     </thead>
 
@@ -48,10 +71,15 @@
                         <td>
                             <span class="badge badge-info" th:text="${exam.status}">Hoàn thành</span>
                         </td>
+                        <td>
+                            <a th:href="@{/patient/history/detail(examId=${exam.clinicalExamId})}" class="primary-btn" style="padding: 6px 12px; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                                <i class="fas fa-eye"></i> Chi tiết
+                            </a>
+                        </td>
                     </tr>
 
                     <tr th:if="${examinations == null || examinations.isEmpty()}">
-                        <td colspan="5" class="empty-message">Không tìm thấy lịch sử y tế nào.</td>
+                        <td colspan="6" class="empty-message">Không tìm thấy lịch sử y tế nào.</td>
                     </tr>
                     </tbody>
                 </table>
@@ -59,15 +87,15 @@
                 <!-- Pagination Controls -->
                 <div class="pagination-container" th:if="${totalPages > 0}">
                     <div class="pagination-controls">
-                        <a th:if="${currentPage > 0}" th:href="@{/patient/history(page=0, size=${pageSize})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> Trang đầu</a>
-                        <a th:if="${currentPage > 0}" th:href="@{/patient/history(page=${currentPage - 1}, size=${pageSize})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> Trước</a>
+                        <a th:if="${currentPage > 0}" th:href="@{/patient/history(page=0, size=${pageSize}, startDate=${startDate}, endDate=${endDate})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> Trang đầu</a>
+                        <a th:if="${currentPage > 0}" th:href="@{/patient/history(page=${currentPage - 1}, size=${pageSize}, startDate=${startDate}, endDate=${endDate})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> Trước</a>
                         <div class="pagination-pages">
                             <th:block th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}">
-                                <a th:if="${pageNum >= currentPage - 2 and pageNum <= currentPage + 2}" th:href="@{/patient/history(page=${pageNum}, size=${pageSize})}" class="page-number" th:classappend="${pageNum == currentPage} ? 'active' : ''" th:text="${pageNum + 1}"></a>
+                                <a th:if="${pageNum >= currentPage - 2 and pageNum <= currentPage + 2}" th:href="@{/patient/history(page=${pageNum}, size=${pageSize}, startDate=${startDate}, endDate=${endDate})}" class="page-number" th:classappend="${pageNum == currentPage} ? 'active' : ''" th:text="${pageNum + 1}"></a>
                             </th:block>
                         </div>
-                        <a th:if="${currentPage < totalPages - 1}" th:href="@{/patient/history(page=${currentPage + 1}, size=${pageSize})}" class="pagination-btn">Sau <i class="fas fa-chevron-right"></i></a>
-                        <a th:if="${currentPage < totalPages - 1}" th:href="@{/patient/history(page=${totalPages - 1}, size=${pageSize})}" class="pagination-btn">Trang cuối <i class="fas fa-chevron-right"></i></a>
+                        <a th:if="${currentPage < totalPages - 1}" th:href="@{/patient/history(page=${currentPage + 1}, size=${pageSize}, startDate=${startDate}, endDate=${endDate})}" class="pagination-btn">Sau <i class="fas fa-chevron-right"></i></a>
+                        <a th:if="${currentPage < totalPages - 1}" th:href="@{/patient/history(page=${totalPages - 1}, size=${pageSize}, startDate=${startDate}, endDate=${endDate})}" class="pagination-btn">Trang cuối <i class="fas fa-chevron-right"></i></a>
                     </div>
                 </div>
             </div>

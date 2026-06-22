@@ -59,6 +59,28 @@
                 </div>
             </div>
 
+            <!-- Date Search Filter Card -->
+            <div class="patient-card search-filter-card">
+                <form method="get" th:action="@{/patient/progress}" class="search-filter-form">
+                    <div class="search-filter-field">
+                        <label for="startDate">Từ ngày</label>
+                        <input type="date" id="startDate" name="startDate" th:value="${startDate}">
+                    </div>
+                    <div class="search-filter-field">
+                        <label for="endDate">Đến ngày</label>
+                        <input type="date" id="endDate" name="endDate" th:value="${endDate}">
+                    </div>
+                    <div class="search-filter-actions">
+                        <button type="submit" class="primary-btn">
+                            <i class="fas fa-search"></i> Tìm kiếm
+                        </button>
+                        <a th:href="@{/patient/progress}" class="secondary-btn">
+                            <i class="fas fa-undo"></i> Làm mới
+                        </a>
+                    </div>
+                </form>
+            </div>
+
             <div class="progress-timeline" th:if="${examinations != null && !examinations.isEmpty()}">
                 <section class="progress-card"
                          th:each="exam, iterStat : ${examinations}"
@@ -246,15 +268,15 @@
                 <!-- Pagination Controls -->
                 <div class="pagination-container" th:if="${totalPages > 0}">
                     <div class="pagination-controls">
-                        <a th:if="${currentPage > 0}" th:href="@{/patient/progress(page=0, size=${pageSize})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> Trang đầu</a>
-                        <a th:if="${currentPage > 0}" th:href="@{/patient/progress(page=${currentPage - 1}, size=${pageSize})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> Trước</a>
+                        <a th:if="${currentPage > 0}" th:href="@{/patient/progress(page=0, size=${pageSize}, startDate=${startDate}, endDate=${endDate})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> Trang đầu</a>
+                        <a th:if="${currentPage > 0}" th:href="@{/patient/progress(page=${currentPage - 1}, size=${pageSize}, startDate=${startDate}, endDate=${endDate})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> Trước</a>
                         <div class="pagination-pages">
                             <th:block th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}">
-                                <a th:if="${pageNum >= currentPage - 2 and pageNum <= currentPage + 2}" th:href="@{/patient/progress(page=${pageNum}, size=${pageSize})}" class="page-number" th:classappend="${pageNum == currentPage} ? 'active' : ''" th:text="${pageNum + 1}"></a>
+                                <a th:if="${pageNum >= currentPage - 2 and pageNum <= currentPage + 2}" th:href="@{/patient/progress(page=${pageNum}, size=${pageSize}, startDate=${startDate}, endDate=${endDate})}" class="page-number" th:classappend="${pageNum == currentPage} ? 'active' : ''" th:text="${pageNum + 1}"></a>
                             </th:block>
                         </div>
-                        <a th:if="${currentPage < totalPages - 1}" th:href="@{/patient/progress(page=${currentPage + 1}, size=${pageSize})}" class="pagination-btn">Sau <i class="fas fa-chevron-right"></i></a>
-                        <a th:if="${currentPage < totalPages - 1}" th:href="@{/patient/progress(page=${totalPages - 1}, size=${pageSize})}" class="pagination-btn">Trang cuối <i class="fas fa-chevron-right"></i></a>
+                        <a th:if="${currentPage < totalPages - 1}" th:href="@{/patient/progress(page=${currentPage + 1}, size=${pageSize}, startDate=${startDate}, endDate=${endDate})}" class="pagination-btn">Sau <i class="fas fa-chevron-right"></i></a>
+                        <a th:if="${currentPage < totalPages - 1}" th:href="@{/patient/progress(page=${totalPages - 1}, size=${pageSize}, startDate=${startDate}, endDate=${endDate})}" class="pagination-btn">Trang cuối <i class="fas fa-chevron-right"></i></a>
                     </div>
                 </div>
             </div>
