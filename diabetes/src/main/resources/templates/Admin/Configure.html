@@ -11,48 +11,25 @@
 <body>
 <div class="page-layout">
 
-    <!-- SIDEBAR -->
+    <!-- SIDEBAR (same as LabTest) -->
     <aside class="sidebar">
-        <div class="sidebar-top">
+        <div>
             <div class="brand">
-                <span class="brand-name">Diabetes Care</span>
-                <span class="brand-sub">Admin Console</span>
+                <h1>Diabetes Care</h1>
+                <p>Admin Console</p>
             </div>
             <nav class="nav-menu">
-                <a href="#" class="nav-link"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a>
-                <a href="#" class="nav-link"><i class="fa-solid fa-users"></i><span>User Management</span></a>
-                <a href="#" class="nav-link"><i class="fa-solid fa-pills"></i><span>Medicine Management</span></a>
-                <a th:href="@{/admin/lab-tests}" class="nav-link"><i class="fa-solid fa-flask"></i><span>Medical Tests</span></a>
-                <a href="#" class="nav-link"><i class="fa-solid fa-sliders"></i><span>Threshold Config</span></a>
-                <a href="#" class="nav-link"><i class="fa-solid fa-desktop"></i><span>Monitoring</span></a>
-
-                <div class="nav-section-label">CONFIGURE</div>
-
-                <div class="nav-group">
-                    <div class="nav-group-header active">
-                        <div class="nav-group-left">
-                            <i class="fa-solid fa-gear"></i><span>Configuration</span>
-                        </div>
-                        <i class="fa-solid fa-chevron-up nav-chevron"></i>
-                    </div>
-                    <div class="nav-group-children">
-                        <a th:href="@{/admin/configure(tab=room)}"
-                           th:class="${activeTab == 'room'} ? 'nav-child active' : 'nav-child'">
-                            <i class="fa-solid fa-door-open"></i><span>Room</span>
-                        </a>
-                        <a th:href="@{/admin/configure(tab=timing)}"
-                           th:class="${activeTab == 'timing'} ? 'nav-child active' : 'nav-child'">
-                            <i class="fa-solid fa-clock"></i><span>Timing Medication</span>
-                        </a>
-                    </div>
-                </div>
+                <a href="#"                          class="nav-link"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a>
+                <a href="#"                          class="nav-link"><i class="fa-solid fa-users"></i><span>User Management</span></a>
+                <a href="#"                          class="nav-link"><i class="fa-solid fa-pills"></i><span>Medicine Management</span></a>
+                <a th:href="@{/admin/lab-tests}"     class="nav-link"><i class="fa-solid fa-flask"></i><span>Medical Tests</span></a>
+                <a href="#"                          class="nav-link"><i class="fa-solid fa-sliders"></i><span>Threshold Config</span></a>
+                <a href="#"                          class="nav-link"><i class="fa-solid fa-desktop"></i><span>Monitoring</span></a>
+                <a th:href="@{/admin/configure}"     class="nav-link active"><i class="fa-solid fa-gear"></i><span>Configuration</span></a>
             </nav>
         </div>
-
-        <div class="sidebar-bottom">
-            <button type="button" class="new-report-btn">
-                <i class="fa-solid fa-plus"></i><span>New Report</span>
-            </button>
+        <div class="sidebar-footer">
+            <button type="button" class="new-report-btn"><i class="fa-solid fa-plus"></i><span>New Report</span></button>
             <a href="#" class="footer-link"><i class="fa-solid fa-gear"></i><span>Settings</span></a>
             <a href="#" class="footer-link"><i class="fa-regular fa-circle-question"></i><span>Support</span></a>
         </div>
@@ -63,115 +40,188 @@
 
         <!-- Topbar -->
         <header class="topbar">
-            <div class="topbar-search">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" placeholder="Tìm kiếm...">
-            </div>
-            <div class="topbar-right">
-                <div class="avatar-circle">QT</div>
+            <div></div>
+            <div class="user-area">
+                <button type="button" class="icon-btn" title="Notifications">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="notif-dot"></span>
+                </button>
+                <button type="button" class="icon-btn" title="Help">
+                    <i class="fa-solid fa-circle-question"></i>
+                </button>
+                <div class="topbar-divider"></div>
                 <div class="admin-info">
                     <span class="admin-name">Quản trị viên</span>
                     <span class="admin-role">Chief Administrator</span>
                 </div>
+                <img src="https://i.pravatar.cc/100?img=12" alt="Avatar" class="avatar">
             </div>
         </header>
 
         <!-- Content -->
         <section class="content">
 
-            <!-- Page heading -->
-            <div class="page-heading">
-                <h1 class="page-title">Configure</h1>
-                <p class="page-sub">Quản lý danh mục Room và Timing Medication dùng chung trong hệ thống.</p>
-            </div>
-
-            <!-- Error alert -->
+            <!-- Error -->
             <div th:if="${errorMessage != null}" class="alert-error" th:text="${errorMessage}"></div>
 
-            <!-- Main card -->
-            <div class="config-card">
+            <!-- Table card -->
+            <div class="table-card">
 
-                <!-- Tabs -->
-                <div class="tab-bar">
-                    <button type="button"
-                            th:class="${activeTab == 'room'} ? 'cfg-tab active' : 'cfg-tab'"
-                            id="tabRoom" data-tab="room">Room</button>
-                    <button type="button"
-                            th:class="${activeTab == 'timing'} ? 'cfg-tab active' : 'cfg-tab'"
-                            id="tabTiming" data-tab="timing">Timing Medication</button>
+                <!-- Toolbar (tabs only) -->
+                <div class="table-toolbar">
+                    <div class="tab-group">
+                        <button type="button"
+                                th:class="${activeTab == 'room'} ? 'tab active' : 'tab'"
+                                id="tabRoom" data-tab="room">Room</button>
+                        <button type="button"
+                                th:class="${activeTab == 'timing'} ? 'tab active' : 'tab'"
+                                id="tabTiming" data-tab="timing">Timing Medication</button>
+                    </div>
                 </div>
 
-                <!-- ── ROOM TAB ── -->
+                <!-- ROOM PANEL -->
                 <div id="panelRoom" th:class="${activeTab == 'room'} ? 'tab-panel active' : 'tab-panel'">
-                    <div class="panel-toolbar">
-                        <div class="panel-search">
+                    <div class="panel-toolbar-timing">
+                        <div class="table-search-box">
                             <i class="fa-solid fa-magnifying-glass"></i>
                             <input type="text" id="roomSearch" placeholder="Search by room name...">
                         </div>
-                        <button type="button" class="btn-add-room" id="btnAddRoom">
+                        <button type="button" class="btn-add" id="btnAddRoom" style="margin:0">
                             <i class="fa-solid fa-plus"></i> Add Room
                         </button>
                     </div>
-
-                    <table class="cfg-table">
+                    <table class="data-table">
                         <thead>
                         <tr>
                             <th>ROOM NAME</th>
                             <th>DESCRIPTION</th>
-                            <th>ACTIONS</th>
+                            <th class="col-center">ACTIONS</th>
                         </tr>
                         </thead>
                         <tbody id="roomTableBody">
-                        <tr th:each="room : ${roomList}" class="room-row">
+
+                        <tr th:each="room : ${roomList}" class="data-row room-row">
                             <td>
-                                <div class="room-name-cell">
-                                    <div class="room-icon"><i class="fa-solid fa-door-open"></i></div>
-                                    <span th:text="${room.roomName}">Room 1</span>
+                                <div class="test-info">
+                                    <div class="test-icon"><i class="fa-solid fa-door-open"></i></div>
+                                    <strong th:text="${room.roomName}">Room 1</strong>
                                 </div>
                             </td>
                             <td th:text="${room.description != null and !room.description.isEmpty()} ? ${room.description} : '—'">—</td>
-                            <td>
+                            <td class="col-center">
                                 <div class="row-actions">
-                                    <button type="button" class="icon-action edit-room-btn"
-                                            th:attr="data-id=${room.roomId}, data-name=${room.roomName}, data-desc=${room.description}">
-                                        <i class="fa-regular fa-pen-to-square"></i>
+                                    <button type="button" class="action-btn btn-edit edit-room-btn"
+                                            title="Edit"
+                                            th:attr="data-id=${room.roomId},
+                                                     data-name=${room.roomName},
+                                                     data-desc=${room.description}">
+                                        <i class="fa-solid fa-pen"></i>
                                     </button>
                                     <form th:action="@{/admin/configure/room/delete/{id}(id=${room.roomId})}"
                                           method="post" class="inline-form"
                                           onsubmit="return confirm('Xóa phòng này?')">
-                                        <button type="submit" class="icon-action delete-btn">
+                                        <button type="submit" class="action-btn btn-lock" title="Delete">
                                             <i class="fa-regular fa-trash-can"></i>
                                         </button>
                                     </form>
                                 </div>
                             </td>
                         </tr>
-                        <tr th:if="${roomList == null or roomList.isEmpty()}" class="empty-row">
-                            <td colspan="3">Chưa có phòng nào. Nhấn "+ Add Room" để thêm.</td>
+
+                        <tr th:if="${roomList == null or roomList.isEmpty()}">
+                            <td colspan="3" class="empty-row">Chưa có phòng nào. Nhấn "+ Add Room" để thêm.</td>
                         </tr>
+
                         </tbody>
                     </table>
+
+                    <!-- Pagination -->
+                    <div class="pagination-bar">
+                        <span class="pagination-info" id="paginationInfo">Hiển thị 0 – 0 / 0 phòng</span>
+                        <div class="pagination-btns">
+                            <button type="button" id="prevPageBtn">Previous</button>
+                            <div id="pageNumbers"></div>
+                            <button type="button" id="nextPageBtn">Next</button>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- ── TIMING MEDICATION TAB ── -->
+                <!-- TIMING PANEL -->
                 <div id="panelTiming" th:class="${activeTab == 'timing'} ? 'tab-panel active' : 'tab-panel'">
-                    <div class="panel-toolbar">
-                        <div class="panel-search">
+                    <div class="panel-toolbar-timing">
+                        <div class="table-search-box">
                             <i class="fa-solid fa-magnifying-glass"></i>
                             <input type="text" id="timingSearch" placeholder="Search by timing name...">
                         </div>
-                        <button type="button" class="btn-add-room">
+                        <button type="button" class="btn-add" id="btnAddTiming" style="margin:0">
                             <i class="fa-solid fa-plus"></i> Add Timing
                         </button>
                     </div>
-                    <div class="coming-soon">
-                        <i class="fa-regular fa-clock"></i>
-                        <p>Chức năng Timing Medication đang được phát triển.</p>
+
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th>TIMING NAME</th>
+                            <th class="col-center">ACTIONS</th>
+                        </tr>
+                        </thead>
+                        <tbody id="timingTableBody">
+
+                        <tr th:each="timing : ${timingList}" class="data-row timing-row">
+                            <td>
+                                <div class="test-info">
+                                    <div class="test-icon"><i class="fa-regular fa-clock"></i></div>
+                                    <strong th:text="${timing.timingName}">Sáng</strong>
+                                </div>
+                            </td>
+                            <td class="col-center">
+                                <div class="row-actions">
+                                    <button type="button" class="action-btn btn-edit edit-timing-btn"
+                                            title="Edit"
+                                            th:attr="data-id=${timing.timingId}, data-name=${timing.timingName}">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    <form th:action="@{/admin/configure/timing/delete/{id}(id=${timing.timingId})}"
+                                          method="post" class="inline-form"
+                                          onsubmit="return confirm('Xóa timing này?')">
+                                        <button type="submit" class="action-btn btn-lock" title="Delete">
+                                            <i class="fa-regular fa-trash-can"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr th:if="${timingList == null or timingList.isEmpty()}">
+                            <td colspan="2" class="empty-row">Chưa có timing nào. Nhấn "+ Add Timing" để thêm.</td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+
+                    <!-- Pagination timing -->
+                    <div class="pagination-bar">
+                        <span class="pagination-info" id="timingPaginationInfo">Hiển thị 0 – 0 / 0</span>
+                        <div class="pagination-btns">
+                            <button type="button" id="timingPrevBtn">Previous</button>
+                            <div id="timingPageNumbers"></div>
+                            <button type="button" id="timingNextBtn">Next</button>
+                        </div>
                     </div>
                 </div>
 
-            </div><!-- /.config-card -->
+            </div><!-- /.table-card -->
         </section>
+
+        <!-- Footer -->
+        <footer class="site-footer">
+            <span>© 2024 Diabetes Care System</span>
+            <div class="footer-links">
+                <a href="#">Legal</a>
+                <a href="#">Privacy Policy</a>
+            </div>
+        </footer>
+
     </div><!-- /.main-content -->
 </div><!-- /.page-layout -->
 
@@ -181,9 +231,7 @@
     <div class="modal-box">
         <div class="modal-header">
             <h3>Add Room</h3>
-            <button type="button" class="modal-close" id="btnCloseAddRoom">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
+            <button type="button" class="modal-close" id="btnCloseAddRoom"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <form th:action="@{/admin/configure/room/create}" method="post" class="modal-form">
             <div class="form-group">
@@ -207,9 +255,7 @@
     <div class="modal-box">
         <div class="modal-header">
             <h3>Edit Room</h3>
-            <button type="button" class="modal-close" id="btnCloseEditRoom">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
+            <button type="button" class="modal-close" id="btnCloseEditRoom"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <form id="editRoomForm" method="post" class="modal-form">
             <div class="form-group">
@@ -228,6 +274,47 @@
     </div>
 </div>
 
+<!-- ADD TIMING MODAL -->
+<div class="modal-overlay" id="addTimingModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>Add Timing</h3>
+            <button type="button" class="modal-close" id="btnCloseAddTiming"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form th:action="@{/admin/configure/timing/create}" method="post" class="modal-form">
+            <div class="form-group">
+                <label>Timing Name <span class="required">*</span></label>
+                <input type="text" name="timingName" placeholder="VD: Sáng, Trưa, Tối..." maxlength="100" required>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" id="btnCancelAddTiming">Cancel</button>
+                <button type="submit" class="btn-save">Save Timing</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- EDIT TIMING MODAL -->
+<div class="modal-overlay" id="editTimingModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>Edit Timing</h3>
+            <button type="button" class="modal-close" id="btnCloseEditTiming"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="editTimingForm" method="post" class="modal-form">
+            <div class="form-group">
+                <label>Timing Name <span class="required">*</span></label>
+                <input type="text" id="editTimingName" name="timingName" maxlength="100" required>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" id="btnCancelEditTiming">Cancel</button>
+                <button type="submit" class="btn-save">Update Timing</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script th:src="@{/js/configure.js}"></script>
 </body>
 </html>
+
