@@ -117,7 +117,7 @@ public class AuthenticationController {
             case "PAT" -> {
                 Patient patient = patientService.findById(user.getUserId()).orElse(null);
                 session.setAttribute("userProfile", patient);
-                return "redirect:/admin/dashboard";
+                return "redirect:/patient/dashboard";
             }
             case "DOC" -> {
                 Profile profile = profileService.findById(user.getUserId()).orElse(null);
@@ -294,6 +294,7 @@ public class AuthenticationController {
 
         if ("PAT".equalsIgnoreCase(roleId)) {
             Patient patient = new Patient();
+            patient.setUserId(userId);
             patient.setUser(user);
             patient.setFullName(fullName);
             patient.setPhoneNumber(phoneNumber);
@@ -308,11 +309,12 @@ public class AuthenticationController {
             patientService.create(patient);
             // Tạo patientRoutine
             PatientRoutine patientRoutine = new PatientRoutine();
-            patientRoutine.setPatient(patient);
+            patientRoutine.setUserId(userId);
             patientRoutineService.create(patientRoutine);
             clinicalExaminationService.createAutoPendingExamination(patient.getUserId());
         } else {
             Profile profile = new Profile();
+            profile.setUserId(userId);
             profile.setUser(user);
             profile.setFullName(fullName);
             profile.setPhoneNumber(phoneNumber);

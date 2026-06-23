@@ -15,7 +15,6 @@ import java.util.Random;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-
     private final PasswordEncoder passwordEncoder;
 
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
@@ -52,12 +51,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User create(User entity) {
-        User newUser = new User();
-        newUser.setUserId(entity.getUserId());
-        newUser.setPhoneNumber(entity.getPhoneNumber());
-        newUser.setRole(entity.getRole());
-        newUser.setPasswordHash(passwordEncoder.encode(entity.getPasswordHash()));
-        return userRepository.save(newUser);
+        return userRepository.save(entity);
     }
 
     @Override
@@ -65,12 +59,7 @@ public class UserServiceImpl implements UserService {
         if (!userRepository.existsById(id)) {
             throw new EntityNotFoundException("User not found with id: " + id);
         }
-        User newUser = new User();
-        newUser.setUserId(entity.getUserId());
-        newUser.setPhoneNumber(entity.getPhoneNumber());
-        newUser.setRole(entity.getRole());
-        newUser.setPasswordHash(passwordEncoder.encode(entity.getPasswordHash()));
-        return userRepository.save(newUser);
+        return userRepository.save(entity);
     }
 
     @Override
@@ -95,14 +84,6 @@ public class UserServiceImpl implements UserService {
                     String number = "00000" + new Random().nextInt(1000000);
                     userId = "P" + number.substring(number.length() - 6);
                 }while(this.existsById(userId));
-                break;
-            }
-            case "DOC":{
-                do{
-                    String number = "00000" + new Random().nextInt(1000000);
-                    userId = "D" + number.substring(number.length() - 6);
-                }while(this.existsById(userId));
-                break;
             }
         }
         return userId;

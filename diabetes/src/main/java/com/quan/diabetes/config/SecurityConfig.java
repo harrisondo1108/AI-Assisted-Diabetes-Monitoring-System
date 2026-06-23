@@ -32,10 +32,14 @@ public class SecurityConfig {
                                 "/forgot-password/reset",
                                 "/test-sms").permitAll()
 
-                        // 3. Các đường dẫn admin thì bắt buộc phải có quyền ADMIN
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasRole("AD")
+                        .requestMatchers("/patient/**").hasRole("PAT")
+                        .requestMatchers("/doctor/**").hasRole("DOC")
 
-                        // 4. Tất cả các request còn lại đều phải đăng nhập
+                        .requestMatchers("/api/admin/**").hasRole("AD")
+                        .requestMatchers("/api/patient/**").hasRole("PAT")
+                        .requestMatchers("/api/doctor/**").hasRole("DOC")
+
                         .anyRequest().authenticated()
                 )
                 // KHÔNG dùng formLogin nữa

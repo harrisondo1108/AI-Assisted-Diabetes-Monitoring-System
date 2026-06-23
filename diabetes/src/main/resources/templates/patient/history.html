@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lịch sử Y tế | Hệ thống Chăm sóc Tiểu đường</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/patient/patient.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+<div class="admin-layout">
+    <div th:replace="~{layout/patient-sidebar :: patientSidebar('history')}"></div>
+
+    <div class="admin-main">
+        <div th:replace="~{layout/patient-header :: patientHeader('Lịch sử Y tế')}"></div>
+
+        <main class="admin-content">
+            <div class="page-header">
+                <div>
+                    <h1><i class="fas fa-notes-medical"></i> Lịch sử Y tế</h1>
+                    <p class="subtitle">Xem hồ sơ khám lâm sàng và lịch hẹn tái khám của bạn.</p>
+                </div>
+            </div>
+
+            <div class="patient-card table-wrapper">
+                <table class="patient-table">
+                    <thead>
+                    <tr>
+                        <th>Ngày khám</th>
+                        <th>Tiền sử bệnh</th>
+                        <th>Chẩn đoán</th>
+                        <th>Lịch hẹn tiếp theo</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="exam : ${examinations}">
+                        <td th:text="${exam.examDate != null ? #temporals.format(exam.examDate, 'dd/MM/yyyy HH:mm') : ''}">
+                            08/06/2026
+                        </td>
+                        <td th:text="${exam.medicalHistory}">Đái tháo đường Type 2</td>
+                        <td th:text="${exam.diagnosisNote}">Tuân thủ phác đồ điều trị</td>
+                        <td th:text="${exam.nextAppointment != null ? #temporals.format(exam.nextAppointment, 'dd/MM/yyyy HH:mm') : ''}">
+                            15/06/2026
+                        </td>
+                        <td>
+                            <span class="badge badge-info" th:text="${exam.status}">Hoàn thành</span>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${examinations == null || examinations.isEmpty()}">
+                        <td colspan="5" class="empty-message">Không tìm thấy lịch sử y tế nào.</td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <!-- Pagination Controls -->
+                <div class="pagination-container" th:if="${totalPages > 0}">
+                    <div class="pagination-controls">
+                        <a th:if="${currentPage > 0}" th:href="@{/patient/history(page=0, size=${pageSize})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> Trang đầu</a>
+                        <a th:if="${currentPage > 0}" th:href="@{/patient/history(page=${currentPage - 1}, size=${pageSize})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> Trước</a>
+                        <div class="pagination-pages">
+                            <th:block th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}">
+                                <a th:if="${pageNum >= currentPage - 2 and pageNum <= currentPage + 2}" th:href="@{/patient/history(page=${pageNum}, size=${pageSize})}" class="page-number" th:classappend="${pageNum == currentPage} ? 'active' : ''" th:text="${pageNum + 1}"></a>
+                            </th:block>
+                        </div>
+                        <a th:if="${currentPage < totalPages - 1}" th:href="@{/patient/history(page=${currentPage + 1}, size=${pageSize})}" class="pagination-btn">Sau <i class="fas fa-chevron-right"></i></a>
+                        <a th:if="${currentPage < totalPages - 1}" th:href="@{/patient/history(page=${totalPages - 1}, size=${pageSize})}" class="pagination-btn">Trang cuối <i class="fas fa-chevron-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <div th:replace="~{layout/footer :: footer}"></div>
+    </div>
+</div>
+</body>
+</html>

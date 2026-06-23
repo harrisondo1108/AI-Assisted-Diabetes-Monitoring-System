@@ -1,4 +1,4 @@
-package com.quan.diabetes.service.user.impl;
+package com.quan.diabetes.service.impl;
 
 import com.quan.diabetes.entity.Patient;
 import com.quan.diabetes.entity.PatientRoutine;
@@ -7,6 +7,7 @@ import com.quan.diabetes.repository.PatientRoutineRepository;
 import com.quan.diabetes.service.reminder.ReminderRescheduleService;
 import com.quan.diabetes.service.user.PatientRoutineService;
 import org.springframework.stereotype.Service;
+
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -44,12 +45,24 @@ public class PatientRoutineServiceImpl implements PatientRoutineService {
 
     @Override
     public PatientRoutine create(PatientRoutine entity) {
+        if (entity == null || entity.getUserId() == null || entity.getUserId().isBlank()) {
+            throw new RuntimeException("PatientRoutine UserID must not be null.");
+        }
+
+        if (!patientRepository.existsById(entity.getUserId())) {
+            throw new RuntimeException("Patient not found with id: " + entity.getUserId());
+        }
+
         return patientRoutineRepository.save(entity);
     }
 
     @Override
     @Transactional
     public PatientRoutine update(String id, PatientRoutine entity) {
+        if (id == null || id.isBlank()) {
+            throw new RuntimeException("PatientRoutine id must not be null.");
+        }
+
         if (!patientRoutineRepository.existsById(id)) {
             throw new RuntimeException("PatientRoutine not found with id: " + id);
         }

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Tiến trình Y tế | Hệ thống Chăm sóc Tiểu đường</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/patient/patient.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+<div class="admin-layout">
+    <div th:replace="~{layout/patient-sidebar :: patientSidebar('progress')}"></div>
+
+    <div class="admin-main">
+        <div th:replace="~{layout/patient-header :: patientHeader('Tiến trình Y tế')}"></div>
+
+        <main class="admin-content">
+            <div class="page-header">
+                <div>
+                    <h1><i class="fas fa-notes-medical"></i> Tiến trình Khám bệnh</h1>
+                    <p class="subtitle">
+                        Theo dõi từng cuộc khám bệnh từ đánh giá của bác sĩ, yêu cầu xét nghiệm, kết quả xét nghiệm đến đơn thuốc.
+                    </p>
+                </div>
+            </div>
+
+            <div class="dashboard-stats progress-stats">
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h4><i class="fas fa-stethoscope"></i> Tổng số lần khám</h4>
+                        <div class="stat-number" th:text="${examinations != null ? examinations.size() : 0}">0</div>
+                    </div>
+                    <span class="badge badge-info">Lượt khám</span>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h4><i class="fas fa-flask"></i> Yêu cầu xét nghiệm</h4>
+                        <div class="stat-number" th:text="${labOrders != null ? labOrders.size() : 0}">0</div>
+                    </div>
+                    <span class="badge badge-warning">Xét nghiệm</span>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h4><i class="fas fa-check-circle"></i> Yêu cầu đã hoàn thành</h4>
+                        <div class="stat-number" th:text="${completedOrderCount}">0</div>
+                    </div>
+                    <span class="badge badge-success">Đã xong</span>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h4><i class="fas fa-triangle-exclamation"></i> Kết quả bất thường</h4>
+                        <div class="stat-number" th:text="${abnormalResultCount}">0</div>
+                    </div>
+                    <span class="badge badge-danger">Cảnh báo</span>
+                </div>
+            </div>
+
+            <div class="progress-timeline" th:if="${examinations != null && !examinations.isEmpty()}">
+                <section class="progress-card"
+                         th:each="exam, iterStat : ${examinations}"
+                         th:with="examOrders=${labOrdersByExam[exam.clinicalExamId]}, examPrescriptions=${prescriptionDetailsByExam[exam.clinicalExamId]}">
+                    <div class="progress-marker">
+                        <span th:text="${iterStat.count}">1</span>
+                    </div>
+
+                    <div class="progress-content">
+                        <div class="progress-card-header">
+                            <div>
+                                <h2>
+                                    Lượt khám
+                                    <span th:text="${exam.clinicalExamId}">CE001</span>
+                                </h2>
+                                <p>
+                                    <i class="fas fa-calendar-day"></i>
+                                    <span th:text="${exam.examDate != null ? #temporals.format(exam.examDate, 'dd/MM/yyyy HH:mm') : 'Không có ngày khám'}">
+                                        08/06/2026 09:00
+                                    </span>
+                                </p>
+                            </div>
+
+                            <span class="badge"
+                                  th:classappend="${exam.status != null && #strings.contains(#strings.toLowerCase(exam.status), 'complete')} ? ' badge-success' : (${exam.status != null && #strings.contains(#strings.toLowerCase(exam.status), 'cancel')} ? ' badge-danger' : ' badge-info')"
+                                  th:text="${exam.status != null ? exam.status : 'Đang tiến hành'}">Đang tiến hành</span>
+                        </div>
+
+                        <div class="progress-section-grid">
+                            <div class="progress-info-box">
+                                <label>Bác sĩ</label>
+                                <p th:text="${exam.doctor != null ? exam.doctor.userId : 'Chưa phân công'}">Tên bác sĩ</p>
+                            </div>
+
+                            <div class="progress-info-box">
+                                <label>Lịch hẹn tiếp theo</label>
+                                <p th:text="${exam.nextAppointment != null ? #temporals.format(exam.nextAppointment, 'dd/MM/yyyy HH:mm') : 'Chưa có lịch hẹn'}">
+                                    Chưa có lịch hẹn
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="progress-note-grid">
+                            <div class="progress-note">
+                                <h3><i class="fas fa-file-medical"></i> Tiền sử bệnh</h3>
+                                <p th:text="${exam.medicalHistory != null && !#strings.isEmpty(exam.medicalHistory) ? exam.medicalHistory : 'Không có ghi chú tiền sử bệnh.'}">
+                                    Không có ghi chú tiền sử bệnh.
+                                </p>
+                            </div>
+
+                            <div class="progress-note">
+                                <h3><i class="fas fa-user-doctor"></i> Chẩn đoán</h3>
+                                <p th:text="${exam.diagnosisNote != null && !#strings.isEmpty(exam.diagnosisNote) ? exam.diagnosisNote : 'Không có ghi chú chẩn đoán.'}">
+                                    Không có ghi chú chẩn đoán.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="progress-subsection" th:if="${treatmentPlansByExam[exam.clinicalExamId] != null}" th:with="plan=${treatmentPlansByExam[exam.clinicalExamId]}">
+                            <div class="card-header">
+                                <i class="fas fa-file-medical-alt" style="color: var(--green-600);"></i>
+                                <h3>Phác đồ & Kế hoạch Điều trị</h3>
+                            </div>
+                            <div class="progress-note-grid" style="margin-top: 12px; margin-bottom: 0;">
+                                <div class="progress-note">
+                                    <h3><i class="fas fa-bullseye" style="color: var(--green-600); margin-right: 6px;"></i>Mục tiêu điều trị</h3>
+                                    <p th:text="${plan.treatmentGoal != null && !#strings.isEmpty(plan.treatmentGoal) ? plan.treatmentGoal : 'Chưa có mục tiêu điều trị cụ thể.'}">Mục tiêu</p>
+                                </div>
+                                <div class="progress-note">
+                                    <h3><i class="fas fa-utensils" style="color: var(--green-600); margin-right: 6px;"></i>Chế độ ăn uống</h3>
+                                    <p th:text="${plan.dietPlan != null && !#strings.isEmpty(plan.dietPlan) ? plan.dietPlan : 'Chưa cập nhật chế độ ăn.'}">Chế độ ăn</p>
+                                </div>
+                                <div class="progress-note">
+                                    <h3><i class="fas fa-person-running" style="color: var(--green-600); margin-right: 6px;"></i>Chế độ tập luyện</h3>
+                                    <p th:text="${plan.exercisePlan != null && !#strings.isEmpty(plan.exercisePlan) ? plan.exercisePlan : 'Chưa cập nhật chế độ tập luyện.'}">Tập luyện</p>
+                                </div>
+                                <div class="progress-note">
+                                    <h3><i class="fas fa-droplet" style="color: var(--green-600); margin-right: 6px;"></i>Theo dõi đường huyết</h3>
+                                    <p th:text="${plan.glucoseMonitoringPlan != null && !#strings.isEmpty(plan.glucoseMonitoringPlan) ? plan.glucoseMonitoringPlan : 'Chưa cập nhật kế hoạch theo dõi.'}">Theo dõi</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="progress-subsection">
+                            <div class="card-header">
+                                <i class="fas fa-vial" style="color: var(--green-600);"></i>
+                                <h3>Yêu cầu & Kết quả Xét nghiệm</h3>
+                            </div>
+
+                            <div class="lab-order-list" th:if="${examOrders != null && !examOrders.isEmpty()}">
+                                <div class="lab-order-card" th:each="order : ${examOrders}"
+                                     th:with="orderResults=${labResultsByOrder[order.labOrderId]}">
+                                    <div class="lab-order-title">
+                                        <div>
+                                            <strong th:text="${order.labOrderId}">LO001</strong>
+                                            <span>Yêu cầu xét nghiệm</span>
+                                        </div>
+                                        <span class="badge"
+                                              th:classappend="${order.status != null && #strings.contains(#strings.toLowerCase(order.status), 'complete')} ? ' badge-success' : (${order.status != null && #strings.contains(#strings.toLowerCase(order.status), 'cancel')} ? ' badge-danger' : ' badge-warning')"
+                                              th:text="${order.status != null ? order.status : 'Chờ xử lý'}">Chờ xử lý</span>
+                                    </div>
+
+                                    <div class="table-wrapper compact-table" th:if="${orderResults != null && !orderResults.isEmpty()}">
+                                        <table class="patient-table">
+                                            <thead>
+                                            <tr>
+                                                <th>Tên xét nghiệm</th>
+                                                <th>Giá trị</th>
+                                                <th>Đơn vị</th>
+                                                <th>Phạm vi tham chiếu</th>
+                                                <th>Đánh giá</th>
+                                                <th>Trạng thái</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr th:each="result : ${orderResults}">
+                                                <td th:text="${result.labTest != null ? result.labTest.testName : ''}">HbA1c</td>
+                                                <td th:text="${result.resultValue != null ? result.resultValue.stripTrailingZeros().toPlainString() : ''}">7.2</td>
+                                                <td th:text="${result.labTest != null ? result.labTest.unit : ''}">%</td>
+                                                <td th:text="${result.referenceRange}">4.0 - 5.6</td>
+                                                <td>
+                                                    <span class="badge"
+                                                          th:classappend="${result.flag != null && (#strings.contains(#strings.toLowerCase(result.flag), 'high') || #strings.contains(#strings.toLowerCase(result.flag), 'low') || #strings.contains(#strings.toLowerCase(result.flag), 'abnormal') || #strings.contains(#strings.toLowerCase(result.flag), 'cao') || #strings.contains(#strings.toLowerCase(result.flag), 'thấp'))} ? ' badge-danger' : ' badge-success'"
+                                                          th:text="${result.flag != null ? result.flag : 'Bình thường'}">Bình thường</span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge badge-info" th:text="${result.status != null ? result.status : 'N/A'}">Hoàn thành</span>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <div class="empty-message" th:if="${orderResults == null || orderResults.isEmpty()}">
+                                        Chưa có kết quả nào cho yêu cầu xét nghiệm này.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="empty-message" th:if="${examOrders == null || examOrders.isEmpty()}">
+                                Không có yêu cầu xét nghiệm nào cho lượt khám này.
+                            </div>
+                        </div>
+
+                        <div class="progress-subsection">
+                            <div class="card-header">
+                                <i class="fas fa-pills" style="color: var(--green-600);"></i>
+                                <h3>Đơn thuốc</h3>
+                            </div>
+
+                            <div class="table-wrapper compact-table" th:if="${examPrescriptions != null && !examPrescriptions.isEmpty()}">
+                                <table class="patient-table">
+                                    <thead>
+                                    <tr>
+                                        <th>Thuốc</th>
+                                        <th>Liều lượng</th>
+                                        <th>Dạng bào chế</th>
+                                        <th>Đường dùng</th>
+                                        <th>Tổng số lượng</th>
+                                        <th>Số ngày dùng</th>
+                                        <th>Kế hoạch dùng thuốc</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="detail : ${examPrescriptions}">
+                                        <td th:text="${detail.medication != null ? detail.medication.medicationName : ''}">Metformin</td>
+                                        <td th:text="${detail.dosage}">500mg</td>
+                                        <td th:text="${detail.medication != null ? detail.medication.form : ''}">Viên nén</td>
+                                        <td th:text="${detail.medication != null ? detail.medication.administrationRoute : ''}">Uống</td>
+                                        <td th:text="${detail.totalQuantity}">30</td>
+                                        <td th:text="${detail.durationDays}">15</td>
+                                        <td th:text="${detail.medicationPlan != null && !#strings.isEmpty(detail.medicationPlan) ? detail.medicationPlan : 'N/A'}">Kế hoạch dùng thuốc</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="empty-message" th:if="${examPrescriptions == null || examPrescriptions.isEmpty()}">
+                                Không có đơn thuốc nào cho lượt khám này.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Pagination Controls -->
+                <div class="pagination-container" th:if="${totalPages > 0}">
+                    <div class="pagination-controls">
+                        <a th:if="${currentPage > 0}" th:href="@{/patient/progress(page=0, size=${pageSize})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> Trang đầu</a>
+                        <a th:if="${currentPage > 0}" th:href="@{/patient/progress(page=${currentPage - 1}, size=${pageSize})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> Trước</a>
+                        <div class="pagination-pages">
+                            <th:block th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}">
+                                <a th:if="${pageNum >= currentPage - 2 and pageNum <= currentPage + 2}" th:href="@{/patient/progress(page=${pageNum}, size=${pageSize})}" class="page-number" th:classappend="${pageNum == currentPage} ? 'active' : ''" th:text="${pageNum + 1}"></a>
+                            </th:block>
+                        </div>
+                        <a th:if="${currentPage < totalPages - 1}" th:href="@{/patient/progress(page=${currentPage + 1}, size=${pageSize})}" class="pagination-btn">Sau <i class="fas fa-chevron-right"></i></a>
+                        <a th:if="${currentPage < totalPages - 1}" th:href="@{/patient/progress(page=${totalPages - 1}, size=${pageSize})}" class="pagination-btn">Trang cuối <i class="fas fa-chevron-right"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="patient-card" th:if="${examinations == null || examinations.isEmpty()}">
+                <div class="empty-state-large">
+                    <i class="fas fa-clipboard-list"></i>
+                    <h3>Không tìm thấy tiến trình khám bệnh nào</h3>
+                    <p>Tiến trình khám bệnh của bạn sẽ xuất hiện ở đây sau khi bác sĩ tạo hồ sơ khám lâm sàng.</p>
+                </div>
+            </div>
+        </main>
+
+        <div th:replace="~{layout/footer :: footer}"></div>
+    </div>
+</div>
+
+<script th:src="@{/js/patient/patient.js}"></script>
+</body>
+</html>
