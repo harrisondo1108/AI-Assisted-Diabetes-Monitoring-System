@@ -65,31 +65,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Real-time validation mapping on input events
-    const medInputs = ['medDosage', 'medDuration', 'medQuantity', 'medStartDate'];
-    medInputs.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-            el.addEventListener('input', () => {
-                validateMedicationFields();
-            });
-            if (id === 'medStartDate') {
-                el.addEventListener('change', () => {
-                    validateMedicationFields();
-                });
-            }
-        }
-    });
-
-    // Update End Date when Start Date or Duration changes
+    // Update End Date & quantity when inputs change
     const startDateInput = document.getElementById('medStartDate');
     const durationInput = document.getElementById('medDuration');
+    const dosageInput = document.getElementById('medDosage');
+
     if (startDateInput) {
         startDateInput.addEventListener('change', updateEndDate);
     }
     if (durationInput) {
-        durationInput.addEventListener('input', updateEndDate);
-        durationInput.addEventListener('change', updateEndDate);
+        durationInput.addEventListener('input', () => {
+            updateEndDate();
+            calculateTotalQuantity();
+        });
+        durationInput.addEventListener('change', () => {
+            updateEndDate();
+            calculateTotalQuantity();
+        });
+    }
+    if (dosageInput) {
+        dosageInput.addEventListener('input', calculateTotalQuantity);
+        dosageInput.addEventListener('change', calculateTotalQuantity);
     }
     
     if (viewOnlyMode) {
@@ -236,6 +232,7 @@ function loadSessionPatient() {
                     concentration: p.medication.concentration,
                     form: p.medication.form,
                     dosage: p.dosage,
+                    dosagePerDose: parseDosagePerDose(p.dosage),
                     duration: p.durationDays,
                     quantity: p.totalQuantity,
                     timing: tNames, // standard timing mapped to options
@@ -390,7 +387,7 @@ function confirmLabOrders() {
 
     renderOrderedLabsList();
     closeLabTestModal();
-    simulateLabProcessing();
+    simulateLabResults();
 }
 
 // Render summary of ordered labs in page
@@ -431,50 +428,9 @@ function renderOrderedLabsList() {
 
 // Remove lab order from tag list on main page
 function removeLabOrder(id) {
-    if (viewOnlyMode) return;
     delete orderedLabs[id];
     renderOrderedLabsList();
-
-    if (!isLabProcessing) {
-        simulateLabResults();
-    }
-}
-
-let isLabProcessing = false;
-
-// Simulate the waiting time for the lab
-function simulateLabProcessing() {
-    const tbody = document.getElementById('labResultsTableBody');
-    if (!tbody) return;
-
-    const selectedIds = Object.keys(orderedLabs);
-    if (selectedIds.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--doctor-text-muted); padding: 30px;">Vui lòng chỉ định một hoặc nhiều xét nghiệm từ danh mục phía trên để xem kết quả</td></tr>`;
-        return;
-    }
-
-    isLabProcessing = true;
-
-    tbody.innerHTML = `
-        <tr>
-            <td colspan="4" style="text-align: center; padding: 40px 20px;">
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px;">
-                    <i class="fa-solid fa-spinner fa-spin fa-2x" style="color: var(--doctor-primary);"></i>
-                    <strong style="color: var(--doctor-text-main); font-size: 1.1rem;">Đang xử lý mẫu tại Phòng xét nghiệm...</strong>
-                    <span style="color: var(--doctor-text-muted); font-size: 0.9rem;">Vui lòng đợi trong giây lát</span>
-                </div>
-            </td>
-        </tr>
-    `;
-
-    setTimeout(() => {
-        isLabProcessing = false;
-        if (Object.keys(orderedLabs).length > 0) {
-            simulateLabResults();
-        } else {
-            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--doctor-text-muted); padding: 30px;">Vui lòng chỉ định một hoặc nhiều xét nghiệm từ danh mục phía trên để xem kết quả</td></tr>`;
-        }
-    }, 2000); // reduced processing time to 2s for premium UI responsiveness
+    simulateLabResults();
 }
 
 // Laboratory simulator mapping results
@@ -614,10 +570,7 @@ function switchTab(evt, tabId) {
                 }
                 return;
             }
-            if (isLabProcessing) {
-                showToast('Vui lòng đợi kết quả xét nghiệm được xử lý xong.', 'warning');
-                return;
-            }
+
         }
     }
 
@@ -680,13 +633,7 @@ function showMedicationModal() {
     document.getElementById('medSearch').value = '';
 
     // Clear error spans
-    document.getElementById('error-medDosage').style.display = 'none';
-    document.getElementById('error-medDuration').style.display = 'none';
-    document.getElementById('error-medQuantity').style.display = 'none';
-    const startDateErr = document.getElementById('error-medStartDate');
-    if (startDateErr) startDateErr.style.display = 'none';
-    const timingErr = document.getElementById('error-medTiming');
-    if (timingErr) timingErr.style.display = 'none';
+    clearMedicationErrors();
 
     // Deselect all timings by default
     const timingContainer = document.getElementById('medTimingContainer');
@@ -703,10 +650,11 @@ function showMedicationModal() {
     const btn = document.getElementById('addMedBtn');
     if (btn) btn.textContent = 'Thêm vào đơn thuốc';
 
-    document.getElementById('medDosage').value = 'Auto';
+    document.getElementById('medDosage').value = '1';
     document.getElementById('medDuration').value = '30';
-    document.getElementById('medQuantity').value = '30';
+    document.getElementById('medQuantity').value = '0';
     document.getElementById('medPlan').value = '';
+    calculateTotalQuantity();
 
     // Mặc định ngày bắt đầu khi mở modal là ngày hiện tại
     const today = new Date();
@@ -792,44 +740,43 @@ function addMedicationLine() {
     const quantity = parseInt(document.getElementById('medQuantity').value.trim());
     const startDate = document.getElementById('medStartDate').value;
     const endDate = document.getElementById('medEndDate').value;
+    const dosageVal = parseFloat(document.getElementById('medDosage').value.trim()) || 1;
 
-    let dosage = "Auto";
-    if (duration > 0 && quantity > 0) {
-        const rate = (quantity / duration).toFixed(1);
-        const rateClean = parseFloat(rate) === Math.round(rate) ? Math.round(rate) : rate;
-        
-        let unit = "viên";
-        if (selectedMed && selectedMed.form) {
-            const formLower = selectedMed.form.toLowerCase();
-            if (formLower.includes("viên") || formLower.includes("nén") || formLower.includes("nang")) {
-                unit = "viên";
-            } else if (formLower.includes("gói")) {
-                unit = "gói";
-            } else if (formLower.includes("chai")) {
-                unit = "chai";
-            } else if (formLower.includes("ống")) {
-                unit = "ống";
-            } else if (formLower.includes("tablet")) {
-                unit = "tablet";
-            } else if (formLower.includes("capsule")) {
-                unit = "capsule";
-            } else if (formLower.trim().length > 0) {
-                unit = formLower.trim();
-            }
-        }
-        dosage = `${rateClean} ${unit}/ngày`;
-    }
     const timingContainer = document.getElementById('medTimingContainer');
     let timing = [];
     let timingText = '';
+    let timingsCount = 0;
     if (timingContainer) {
         const checkedOptions = Array.from(timingContainer.querySelectorAll('.custom-multiselect-option input[type="checkbox"]')).filter(cb => cb.checked);
         timing = checkedOptions.map(cb => cb.value);
+        timingsCount = checkedOptions.length;
         timingText = checkedOptions.map(cb => {
             const label = cb.parentNode.querySelector('label');
             return label ? label.textContent.trim() : cb.value;
         }).join(', ');
     }
+
+    let unit = "viên";
+    if (selectedMed && selectedMed.form) {
+        const formLower = selectedMed.form.toLowerCase();
+        if (formLower.includes("viên") || formLower.includes("nén") || formLower.includes("nang")) {
+            unit = "viên";
+        } else if (formLower.includes("gói")) {
+            unit = "gói";
+        } else if (formLower.includes("chai")) {
+            unit = "chai";
+        } else if (formLower.includes("ống")) {
+            unit = "ống";
+        } else if (formLower.includes("tablet")) {
+            unit = "tablet";
+        } else if (formLower.includes("capsule")) {
+            unit = "capsule";
+        } else if (formLower.trim().length > 0) {
+            unit = formLower.trim();
+        }
+    }
+    const dosage = `${dosageVal} ${unit}/lần, ${timingsCount} lần/ngày`;
+
     const medPlan = document.getElementById('medPlan').value.trim();
 
     const line = {
@@ -838,6 +785,7 @@ function addMedicationLine() {
         concentration: selectedMed.concentration,
         form: selectedMed.form,
         dosage: dosage,
+        dosagePerDose: dosageVal,
         duration: duration,
         quantity: quantity,
         timing: timing,
@@ -868,6 +816,9 @@ function editPrescriptionLine(index) {
     const line = prescriptionLines[index];
     if (!line) return;
 
+    // Clear error spans
+    clearMedicationErrors();
+
     selectedMed = medicationsCatalog.find(m => m.id === line.medId);
     editingMedIndex = index;
 
@@ -877,7 +828,7 @@ function editPrescriptionLine(index) {
     document.getElementById('medSearch').value = selectedMed ? `${selectedMed.name} (${selectedMed.concentration})` : line.name;
     document.getElementById('medAutocompleteList').style.display = 'none';
 
-    document.getElementById('medDosage').value = line.dosage;
+    document.getElementById('medDosage').value = line.dosagePerDose || parseDosagePerDose(line.dosage);
     document.getElementById('medDuration').value = line.duration;
     document.getElementById('medQuantity').value = line.quantity;
     
@@ -1249,6 +1200,27 @@ function validateMedicationFields() {
     if (quantityErr) quantityErr.style.display = 'none';
     if (startDateErr) startDateErr.style.display = 'none';
 
+    // Validate Dosage
+    if (dosageInput) {
+        const dosageVal = dosageInput.value.trim();
+        if (!dosageVal) {
+            if (dosageErr) {
+                dosageErr.textContent = 'Vui lòng nhập liều lượng mỗi lần dùng';
+                dosageErr.style.display = 'block';
+            }
+            isValid = false;
+        } else {
+            const num = Number(dosageVal);
+            if (isNaN(num) || num <= 0) {
+                if (dosageErr) {
+                    dosageErr.textContent = 'Liều lượng phải là số dương';
+                    dosageErr.style.display = 'block';
+                }
+                isValid = false;
+            }
+        }
+    }
+
     // Validate Duration
     if (durationInput) {
         const durationVal = durationInput.value;
@@ -1349,7 +1321,7 @@ function updateEndDate() {
     }
 
     const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + durationDays);
+    endDate.setDate(startDate.getDate() + durationDays - 1);
 
     const yyyy = endDate.getFullYear();
     const mm = String(endDate.getMonth() + 1).padStart(2, '0');
@@ -1411,6 +1383,7 @@ function updateTimingPlaceholder() {
             placeholder.style.color = '#888';
         }
     }
+    calculateTotalQuantity();
 }
 
 // Close dropdown on click outside
@@ -1479,6 +1452,40 @@ function restoreExamineDraft() {
     } catch (e) {
         console.error('Error restoring examine draft:', e);
     }
+}
+
+function calculateTotalQuantity() {
+    const dosageInput = document.getElementById('medDosage');
+    const durationInput = document.getElementById('medDuration');
+    const quantityInput = document.getElementById('medQuantity');
+    const timingContainer = document.getElementById('medTimingContainer');
+
+    if (!dosageInput || !durationInput || !quantityInput || !timingContainer) return;
+
+    const dosageVal = parseFloat(dosageInput.value) || 0;
+    const durationVal = parseInt(durationInput.value, 10) || 0;
+    const checkedTimings = timingContainer.querySelectorAll('.custom-multiselect-option input[type="checkbox"]:checked').length;
+
+    const total = Math.ceil(dosageVal * checkedTimings * durationVal);
+    quantityInput.value = total;
+}
+
+function parseDosagePerDose(dosageStr) {
+    if (!dosageStr || dosageStr === 'Auto') return 1;
+    const match = dosageStr.match(/^([\d.]+)/);
+    if (match) {
+        const val = parseFloat(match[1]);
+        return isNaN(val) ? 1 : val;
+    }
+    return 1;
+}
+
+function clearMedicationErrors() {
+    const ids = ['error-medDosage', 'error-medDuration', 'error-medQuantity', 'error-medStartDate', 'error-medTiming'];
+    ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
 }
 
 

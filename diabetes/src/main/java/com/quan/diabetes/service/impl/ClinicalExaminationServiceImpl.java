@@ -407,8 +407,11 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                             int quantity = qtyObj instanceof Integer ? (Integer) qtyObj : Integer.parseInt(qtyObj.toString());
                             detail.setTotalQuantity(quantity);
                             
-                            String calcDosage = calculateDosage(quantity, duration, med.getForm());
-                            detail.setDosage(calcDosage);
+                            Object clientDosageObj = line.get("dosage");
+                            String dosage = (clientDosageObj != null && !clientDosageObj.toString().trim().isEmpty() && !"Auto".equalsIgnoreCase(clientDosageObj.toString())) 
+                                    ? clientDosageObj.toString() 
+                                    : calculateDosage(quantity, duration, med.getForm());
+                            detail.setDosage(dosage);
                             
                             Object medPlanObj = line.get("medicationPlan");
                             detail.setMedicationPlan(medPlanObj != null ? medPlanObj.toString() : "");
