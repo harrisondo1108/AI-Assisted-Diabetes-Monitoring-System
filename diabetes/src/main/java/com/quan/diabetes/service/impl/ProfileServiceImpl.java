@@ -6,6 +6,7 @@ import com.quan.diabetes.service.ProfileService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +22,31 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public List<Profile> findAll() {
         return profileRepository.findAll();
+    }
+
+    @Override
+    public List<Profile> findTotalDoctor() {
+        List<Profile> profiles = this.findAll();
+        List<Profile> doctors = new ArrayList<>();
+        for (Profile profile : profiles) {
+            if ("DOC".equals(profile.getUser().getRole().getRoleId())) {
+                doctors.add(profile);
+            }
+        }
+        return doctors;
+
+    }
+
+    @Override
+    public List<Profile> findTotalAdmin() {
+        List<Profile> profiles = this.findAll();
+        List<Profile> admins = new ArrayList<>();
+        for (Profile profile : profiles) {
+            if ("AD".equals(profile.getUser().getRole().getRoleId())) {
+                admins.add(profile);
+            }
+        }
+        return admins;
     }
 
     @Override

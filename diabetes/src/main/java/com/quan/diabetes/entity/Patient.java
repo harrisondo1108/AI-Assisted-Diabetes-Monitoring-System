@@ -37,9 +37,10 @@ public class Patient {
 
     @Column(name = "Gender")
     private Boolean gender;
+    // true -> male, false -> female
 
     @Column(name = "Height")
-    private int height;
+    private Integer height;
 
     @Column(name = "Weight", precision = 5, scale = 2)
     private BigDecimal weight;
@@ -118,11 +119,11 @@ public class Patient {
         this.gender = gender;
     }
 
-    public int getHeight() {
+    public Integer getHeight() {
         return height;
     }
 
-    public void setHeight(int height) {
+    public void setHeight(Integer height) {
         this.height = height;
     }
 

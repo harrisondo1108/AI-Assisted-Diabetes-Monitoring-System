@@ -28,6 +28,9 @@ public class Medication {
     @Column(name = "UsageInstruction", columnDefinition = "NVARCHAR(MAX)")
     private String usageInstruction;
 
+    @Column(name = "Status", length = 20, columnDefinition = "VARCHAR(20) DEFAULT 'Active'")
+    private String status;
+
     public Medication() {
     }
 
@@ -77,6 +80,14 @@ public class Medication {
 
     public void setUsageInstruction(String usageInstruction) {
         this.usageInstruction = usageInstruction;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
 

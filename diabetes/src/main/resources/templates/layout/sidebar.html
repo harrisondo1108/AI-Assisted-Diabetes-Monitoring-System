@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<aside class="admin-sidebar" th:fragment="sidebar(activeMenu)">
+    <div class="sidebar-brand">
+        <div class="brand-name">Diabetes Care System</div>
+        <div class="brand-sub">Admin Console</div>
+    </div>
+    <nav class="sidebar-nav">
+        <a th:href="@{/admin/dashboard}" class="nav-item" th:classappend="${activeMenu == 'dashboard'} ? 'active' : ''"><i class="fas fa-chart-line"></i> Dashboard</a>
+        <a th:href="@{/admin/users}"
+           class="nav-item"
+           th:classappend="${activeMenu == 'users'} ? 'active' : ''">
+            <i class="fas fa-users"></i> User Management
+        </a>
+        <a th:href="@{/admin/medicines}"
+           class="nav-item"
+           th:classappend="${activeMenu == 'medicine' || activeMenu == 'medicines'} ? 'active' : ''">
+            <i class="fas fa-pills"></i> Medicine Management
+        </a>
+        <a href="#" class="nav-item" th:classappend="${activeMenu == 'lab'} ? 'active' : ''"><i class="fas fa-flask"></i> Lab Tests</a>
+        <a th:href="@{/admin/symptoms}" class="nav-item" th:classappend="${activeMenu == 'symptom'} ? 'active' : ''"><i class="fas fa-notes-medical"></i> Symptom Catalog</a>
+        <a href="#" class="nav-item" th:classappend="${activeMenu == 'monitoring'} ? 'active' : ''"><i class="fas fa-desktop"></i> Monitoring</a>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="sidebar-footer-links">
+            <a href="#"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </div>
+</aside>
+</body>
+</html>
