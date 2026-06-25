@@ -1,8 +1,21 @@
 package com.quan.diabetes.controller.patient;
 
 import com.quan.diabetes.entity.*;
-import com.quan.diabetes.service.*;
+
 import com.quan.diabetes.dto.MedicationReminderView;
+import com.quan.diabetes.service.ai.AIConversationService;
+import com.quan.diabetes.service.ai.AIMessageService;
+import com.quan.diabetes.service.ai.AIReminderService;
+import com.quan.diabetes.service.exam.ClinicalExaminationService;
+import com.quan.diabetes.service.exam.TreatmentPlanService;
+import com.quan.diabetes.service.lab.LabOrderService;
+import com.quan.diabetes.service.lab.LabResultService;
+import com.quan.diabetes.service.medication.PrescriptionDetailService;
+import com.quan.diabetes.service.medication.PrescriptionService;
+import com.quan.diabetes.service.medication.PrescriptionTimingService;
+import com.quan.diabetes.service.user.PatientRoutineService;
+import com.quan.diabetes.service.user.PatientService;
+import com.quan.diabetes.util.ReminderTimeCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import jakarta.servlet.http.HttpSession;
@@ -42,6 +55,7 @@ public abstract class BasePatientController {
     @Autowired
     protected TreatmentPlanService treatmentPlanService;
 
+
     protected Patient addCommonData(Model model, HttpSession session, String activeMenu) {
         Patient patient = getCurrentPatient(session);
 
@@ -49,6 +63,13 @@ public abstract class BasePatientController {
         model.addAttribute("patient", patient);
         model.addAttribute("patientCode", patient != null ? patient.getUserId() : "");
         model.addAttribute("pageRole", "Cổng thông tin bệnh nhân");
+
+        boolean hasUnreadNotifications = false;
+        if (patient != null) {
+            hasUnreadNotifications = findRemindersByPatient(patient).stream()
+                    .anyMatch(r -> r.getIsRead() == null || !r.getIsRead());
+        }
+        model.addAttribute("hasUnreadNotifications", hasUnreadNotifications);
 
         return patient;
     }
@@ -259,15 +280,7 @@ public abstract class BasePatientController {
             return List.of();
         }
 
-        return aiReminderService.findAll()
-                .stream()
-                .filter(reminder -> reminder.getPatient() != null)
-                .filter(reminder -> patient.getUserId().equals(reminder.getPatient().getUserId()))
-                .sorted(Comparator.comparing(
-                        AIReminder::getScheduledTime,
-                        Comparator.nullsLast(Comparator.reverseOrder())
-                ))
-                .collect(Collectors.toList());
+        return aiReminderService.getListByIdAndScheduledTimeLessThanEqual(patient.getUserId(), LocalDateTime.now());
     }
 
     protected List<AIConversation> findConversationsByPatient(Patient patient) {
@@ -561,7 +574,7 @@ public abstract class BasePatientController {
             }
 
             String timingName = prescriptionTiming.getTiming().getTimingName();
-            LocalTime medicationTime = resolveMedicationTime(timingName, routine);
+            LocalTime medicationTime = ReminderTimeCalculator.calculateReminderTime(timingName, routine);
 
             if (medicationTime == null) {
                 continue;
@@ -569,12 +582,13 @@ public abstract class BasePatientController {
 
             LocalDateTime medicationDateTime = LocalDateTime.of(today, medicationTime);
 
+
             reminders.add(createMedicationReminderView(
                     detail,
                     timingName,
+                    medicationDateTime.plusMinutes(10),
                     medicationDateTime,
-                    medicationDateTime.minusMinutes(30),
-                    30,
+//                    30,
                     now
             ));
 
@@ -587,9 +601,9 @@ public abstract class BasePatientController {
 
     protected MedicationReminderView createMedicationReminderView(PrescriptionDetail detail,
                                                                  String timingName,
-                                                                 LocalDateTime medicationTime,
+                                                                 LocalDateTime endTime,
                                                                  LocalDateTime reminderTime,
-                                                                 int minutesBefore,
+//                                                                 int minutesBefore,
                                                                  LocalDateTime now) {
         String medicationName = detail.getMedication() != null
                 ? detail.getMedication().getMedicationName()
@@ -605,12 +619,12 @@ public abstract class BasePatientController {
 
         String medicationPlan = detail.getMedicationPlan();
 
-        boolean isDueNow = !now.isBefore(reminderTime) && now.isBefore(medicationTime);
-        boolean isPast = now.isAfter(medicationTime);
+        boolean isDueNow = !now.isBefore(reminderTime) && now.isBefore(endTime);
+        boolean isPast = now.isAfter(endTime);
 
         String title = "Nhắc nhở dùng thuốc";
         String message = "Uống " + medicationName + " - " + dosage + " lúc "
-                + medicationTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm"));
+                + endTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm"));
 
         return new MedicationReminderView(
                 title,
@@ -620,63 +634,11 @@ public abstract class BasePatientController {
                 timingName,
                 instruction,
                 medicationPlan,
-                medicationTime,
+                endTime,
                 reminderTime,
-                minutesBefore,
+//                minutesBefore,
                 isDueNow,
                 isPast
         );
-    }
-
-    protected LocalTime resolveMedicationTime(String timingName, PatientRoutine routine) {
-        if (timingName == null || timingName.trim().isEmpty()) {
-            return null;
-        }
-
-        String normalizedTiming = timingName.toLowerCase();
-
-        LocalTime breakfastTime = routine != null && routine.getBreakfastTime() != null
-                ? routine.getBreakfastTime()
-                : LocalTime.of(7, 0);
-
-        LocalTime lunchTime = routine != null && routine.getLunchTime() != null
-                ? routine.getLunchTime()
-                : LocalTime.of(12, 0);
-
-        LocalTime dinnerTime = routine != null && routine.getDinnerTime() != null
-                ? routine.getDinnerTime()
-                : LocalTime.of(18, 30);
-
-        LocalTime sleepTime = routine != null && routine.getSleepTime() != null
-                ? routine.getSleepTime()
-                : LocalTime.of(22, 30);
-
-        LocalTime wakeUpTime = routine != null && routine.getWakeUpTime() != null
-                ? routine.getWakeUpTime()
-                : LocalTime.of(6, 0);
-
-        LocalTime baseTime = null;
-
-        if (normalizedTiming.contains("breakfast") || normalizedTiming.contains("sáng")) {
-            baseTime = breakfastTime;
-        } else if (normalizedTiming.contains("lunch") || normalizedTiming.contains("trưa")) {
-            baseTime = lunchTime;
-        } else if (normalizedTiming.contains("dinner") || normalizedTiming.contains("tối")) {
-            baseTime = dinnerTime;
-        } else if (normalizedTiming.contains("sleep")
-                || normalizedTiming.contains("bed")
-                || normalizedTiming.contains("ngủ")) {
-            baseTime = sleepTime;
-        } else if (normalizedTiming.contains("wake")
-                || normalizedTiming.contains("morning")
-                || normalizedTiming.contains("thức")) {
-            baseTime = wakeUpTime;
-        }
-
-        if (baseTime != null) {
-            return baseTime.plusMinutes(30);
-        }
-
-        return null;
     }
 }

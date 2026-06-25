@@ -1,6 +1,9 @@
 package com.quan.diabetes.entity;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -36,8 +39,14 @@ public class PrescriptionDetail {
     @Column(name = "DurationDays")
     private int durationDays;
 
+    @Column(name = "StartDate")
+    private LocalDate startDate;
+
+    @Column(name = "EndDate")
+    private LocalDate endDate;
+
     @Column(name = "MedicationPlan", columnDefinition = "NVARCHAR(MAX)")
-    private String medicationPlan;
+    private String medicationPlan; // kế hoạch dùng thuốc, có thể là "Dùng liên tục", "Dùng khi cần thiết", "Dùng theo chu kỳ",....
 
     public PrescriptionDetail() {
     }
@@ -112,6 +121,22 @@ public class PrescriptionDetail {
 
     public void setMedicationPlan(String medicationPlan) {
         this.medicationPlan = medicationPlan;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
     }
 }
 

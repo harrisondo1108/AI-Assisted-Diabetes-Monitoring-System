@@ -184,7 +184,7 @@ public class PatientChatController extends BasePatientController {
             Set<String> uniqueReminders = new LinkedHashSet<>();
             for (MedicationReminderView reminder : reminders) {
                 String desc = "- " + reminder.getMedicationName() + " (" + reminder.getDosage() + ") uống lúc " 
-                        + reminder.getMedicationTime().toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm")) 
+                        + reminder.getEndTime().toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm"))
                         + " (" + reminder.getTimingName() + ")";
                 if (reminder.getInstruction() != null && !reminder.getInstruction().isEmpty()) {
                     desc += " - Lưu ý: " + reminder.getInstruction();

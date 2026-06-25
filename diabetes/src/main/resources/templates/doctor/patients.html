@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ sơ Bệnh nhân | Hệ thống chăm sóc tiểu đường</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Page CSS -->
+    <link rel="stylesheet" th:href="@{/css/doctor/doctor-common.css}">
+    <link rel="stylesheet" th:href="@{/css/doctor/doctor-patients.css}">
+</head>
+<body>
+    <div class="doctor-layout">
+        <div class="doctor-main">
+            <!-- Header layout replacement -->
+            <div th:replace="~{doctor/doctor_header :: header('Hồ sơ bệnh án & Lịch sử bệnh nhân', 'patients')}"></div>
+
+            <main class="doctor-content history-layout">
+                
+                <!-- Detailed Medical Timeline (Full-Width) -->
+                <section class="patient-history-detail" id="patientDetailSection">
+                    <div class="patient-history-container" id="historyDetails">
+                        <!-- Top Details Header -->
+                        <div class="history-profile-header">
+                            <div class="profile-header-meta">
+                                <div class="profile-avatar"><i class="fas fa-hospital-user"></i></div>
+                                <div>
+                                    <h2 class="profile-name" id="detName" th:text="${patient.fullName}">Nguyen Van A</h2>
+                                    <span class="profile-id" id="detId" style="display: none;" th:text="${patient.userId}">P012932</span>
+                                </div>
+                            </div>
+                            <div class="profile-header-actions">
+                                <a id="backBtn" th:href="@{/doctor/examine}" class="btn btn-secondary btn-sm">
+                                    <i class="fas fa-arrow-left"></i> Quay lại ca khám
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Statistics Grid details -->
+                        <div class="history-specs-row">
+                            <div class="history-spec-col">
+                                <span class="lbl">Tuổi / Giới tính</span>
+                                <strong class="val" id="detAgeGender" th:text="${(patient.dob != null ? (T(java.time.Period).between(patient.dob, T(java.time.LocalDate).now()).getYears() + ' tuổi') : 'N/A') + ' / ' + (patient.gender != null ? (patient.gender ? 'Nữ' : 'Nam') : 'N/A')}">45 tuổi / Nam</strong>
+                            </div>
+                            <div class="history-spec-col">
+                                <span class="lbl">Nhóm máu</span>
+                                <strong class="val" id="detBlood" th:text="${patient.bloodgroup != null ? patient.bloodgroup : 'N/A'}">O+</strong>
+                            </div>
+                            <div class="history-spec-col">
+                                <span class="lbl">Người giám hộ</span>
+                                <strong class="val" id="detSupervisor" th:text="${patient.supervisorName != null && !patient.supervisorName.empty ? patient.supervisorName : 'Không có'}">Nguyen Van B</strong>
+                            </div>
+                            <div class="history-spec-col">
+                                <span class="lbl">SĐT người giám hộ</span>
+                                <strong class="val" id="detSupervisorPhone" th:text="${patient.supervisorPhone != null && !patient.supervisorPhone.empty ? patient.supervisorPhone : 'Không có'}">0912345678</strong>
+                            </div>
+                        </div>
+
+                        <!-- Historical Blood Sugar Trend Chart -->
+                        <div class="history-section-card">
+                            <h3 class="section-title-label"><i class="fas fa-chart-line"></i> Xu hướng đường huyết lúc đói</h3>
+                            <div class="chart-wrapper" id="chartWrapper">
+                                <!-- Canvas used to draw blood sugar trend graph dynamically without external dependencies -->
+                                <canvas id="glucoseTrendChart" width="800" height="220"></canvas>
+                            </div>
+                            <div class="chart-legend" id="chartLegend">
+                                <span class="legend-item"><span class="legend-color normal"></span> Khoảng bình thường (3.9 - 5.6 mmol/L)</span>
+                                <span class="legend-item"><span class="legend-color patient-line"></span> Chỉ số của bệnh nhân (mmol/L)</span>
+                            </div>
+                            <div id="noChartDataMessage" style="display: none; padding: 30px 20px; text-align: center; color: var(--doctor-text-muted); background: var(--doctor-bg); border-radius: var(--radius-sm); border: 1px dashed var(--doctor-border); margin-top: 10px;">
+                                <i class="fas fa-chart-area fa-3x" style="margin-bottom: 12px; color: var(--doctor-text-muted); opacity: 0.6;"></i>
+                                <h4 style="margin: 0 0 6px 0; color: var(--doctor-text-main); font-size: 0.9rem;">Chưa có xu hướng đường huyết</h4>
+                                <p style="margin: 0; font-size: 0.8rem; line-height: 1.4;">Cần tối thiểu 4 ca khám hoàn thành có kết quả xét nghiệm Đường huyết lúc đói để vẽ biểu đồ xu hướng.</p>
+                            </div>
+                        </div>
+
+                        <!-- Patient Diagnostics History Timeline -->
+                        <div class="history-section-card" style="margin-top: 20px;">
+                            <div class="timeline-header-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <h3 class="section-title-label" style="margin-bottom: 0;"><i class="fas fa-timeline"></i> Lịch sử khám bệnh</h3>
+                                <div class="timeline-date-filter" style="display: flex; align-items: center; gap: 10px;">
+                                    <div class="date-input-group" style="display: flex; align-items: center; gap: 6px;">
+                                        <span style="font-size: 0.78rem; color: var(--doctor-text-muted); font-weight: 500;">Từ ngày:</span>
+                                        <input type="date" id="timelineFromDate" onchange="filterTimeline()" style="padding: 4px 8px; border-radius: 6px; border: 1px solid var(--doctor-border); outline: none; font-size: 0.78rem; font-family: inherit; color: var(--doctor-text-main);">
+                                    </div>
+                                    <div class="date-input-group" style="display: flex; align-items: center; gap: 6px;">
+                                        <span style="font-size: 0.78rem; color: var(--doctor-text-muted); font-weight: 500;">Đến ngày:</span>
+                                        <input type="date" id="timelineToDate" onchange="filterTimeline()" style="padding: 4px 8px; border-radius: 6px; border: 1px solid var(--doctor-border); outline: none; font-size: 0.78rem; font-family: inherit; color: var(--doctor-text-main);">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="timeline-trail" id="consultationTimeline">
+                                <div th:each="t, iterStat : ${timeline}" class="timeline-item" th:classappend="${iterStat.first} ? 'active' : ''" th:data-date="${t.examDate != null ? #temporals.format(t.examDate, 'MMMM yyyy') : ''}" th:data-exam-date="${t.examDate != null ? #temporals.format(t.examDate, 'yyyy-MM-dd') : ''}">
+                                    <div class="timeline-node"></div>
+                                    <div class="timeline-content-card">
+                                        <div class="timeline-header-meta" style="margin-bottom: 6px;">
+                                            <span class="timeline-date" th:text="${t.examDate != null ? #temporals.format(t.examDate, 'dd/MM/yyyy') : ''}">May 12, 2026</span>
+                                            <span class="timeline-doc" th:text="${'Bác sĩ khám: ' + (t.doctor.profile != null ? t.doctor.profile.fullName : t.doctor.userId)}">Examiner: Dr. Harrison</span>
+                                        </div>
+                                        <div class="timeline-diagnosis" style="margin-bottom: 12px; font-size: 0.85rem;">
+                                            <strong>Chẩn đoán:</strong> <span th:text="${t.diagnosisNote}">Diagnosis note</span>
+                                        </div>
+                                        <button type="button" class="btn btn-secondary btn-sm" th:data-exam-id="${t.clinicalExamId}" onclick="openTimelineDetail(this.getAttribute('data-exam-id'))" style="font-size: 0.7rem; gap: 4px; padding: 4px 8px;">
+                                            <i class="fas fa-eye"></i> Xem chi tiết
+                                        </button>
+                                    </div>
+                                </div>
+                                <div th:if="${timeline == null || timeline.empty}" style="color: var(--doctor-text-muted); font-size: 0.85rem; padding: 20px 0; text-align: center;">
+                                    Không tìm thấy lịch sử khám bệnh.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- TIMELINE DETAIL MODAL -->
+    <div class="modal-overlay" id="timelineDetailModal">
+        <div class="modal modal-history">
+            <div class="modal-header">
+                <h2 id="modalTitle">Chi tiết ca khám</h2>
+                <button type="button" class="modal-close" onclick="closeTimelineDetail()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" th:fragment="timelineDetail" id="timelineDetailModalBody" style="max-height: 75vh; overflow-y: auto; display: flex; flex-direction: column; gap: 20px;">
+                <!-- Basic Meta Info -->
+                <div class="history-grid-info">
+                    <div class="history-info-box">
+                        <span class="lbl">Ngày khám</span>
+                        <strong class="val" id="modalDate" th:text="${exam != null && exam.examDate != null ? #temporals.format(exam.examDate, 'dd/MM/yyyy') : ''}"></strong>
+                    </div>
+                    <div class="history-info-box">
+                        <span class="lbl">Bác sĩ khám</span>
+                        <strong class="val" id="modalDoctor" th:text="${exam != null && exam.doctor.profile != null ? exam.doctor.profile.fullName : (exam != null ? exam.doctor.userId : '')}"></strong>
+                    </div>
+                    <div class="history-info-box">
+                        <span class="lbl">Hẹn tái khám</span>
+                        <strong class="val" id="modalNextAppt" th:text="${exam != null && exam.nextAppointment != null ? #temporals.format(exam.nextAppointment, 'dd/MM/yyyy') : 'Không có lịch hẹn'}"></strong>
+                    </div>
+                </div>
+
+                <!-- Final Diagnosis -->
+                <div class="notes-card diagnosis">
+                    <span class="lbl" style="font-size: 0.68rem; color: var(--doctor-primary); font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 6px; letter-spacing: 0.5px;"><i class="fas fa-file-medical"></i> Chẩn đoán cuối cùng</span>
+                    <h4 class="notes-content" id="modalDiagnosis" style="font-weight: 700; color: var(--green-900);" th:text="${exam != null ? exam.diagnosisNote : ''}"></h4>
+                </div>
+
+                <!-- Symptoms & Observations -->
+                <div class="history-detail-card">
+                    <h3 class="history-section-title"><i class="fas fa-stethoscope"></i> Triệu chứng & Ghi chú lâm sàng</h3>
+                    <div class="timeline-badges-wrap" id="modalSymptoms" style="margin-bottom: 4px; margin-top: 4px; display: flex; gap: 8px; flex-wrap: wrap;">
+                        <span th:each="s : ${symptoms}" class="timeline-symptom-badge" th:text="${s.symptom.symptomName + (s.note != null && !s.note.trim().isEmpty() ? ' (' + s.note + ')' : '')}" style="background: #ffffff; border: 1px solid var(--doctor-border); padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; color: var(--doctor-text-main); font-weight: 600;"></span>
+                        <span th:if="${symptoms == null || symptoms.empty}" style="font-size: 0.8rem; color: var(--doctor-text-muted);">Không ghi nhận triệu chứng</span>
+                    </div>
+                    <div class="notes-card clinical" style="margin-top: 6px; padding: 12px;">
+                        <p class="notes-content" id="modalNotes" th:text="${exam != null ? exam.medicalHistory : ''}"></p>
+                    </div>
+                </div>
+
+                <!-- Clinical Treatment Plan -->
+                <div id="modalTreatmentPlanContainer" th:if="${exam != null && exam.treatmentPlan != null}" class="history-detail-card">
+                    <h3 class="history-section-title"><i class="fas fa-notes-medical"></i> Kế hoạch & Phác đồ điều trị</h3>
+                    <div class="treatment-plan-card">
+                        <div class="plan-item-row" id="modalPlanGoalRow" th:if="${exam.treatmentPlan.treatmentGoal != null && !exam.treatmentPlan.treatmentGoal.empty}">
+                            <div class="plan-item-icon"><i class="fas fa-bullseye"></i></div>
+                            <div class="plan-item-content">
+                                <span class="plan-item-label">Mục tiêu điều trị</span>
+                                <p class="plan-item-text" id="modalPlanGoalVal" th:text="${exam.treatmentPlan.treatmentGoal}"></p>
+                            </div>
+                        </div>
+                        <div class="plan-item-row" id="modalPlanDietRow" th:if="${exam.treatmentPlan.dietPlan != null && !exam.treatmentPlan.dietPlan.empty}">
+                            <div class="plan-item-icon"><i class="fas fa-apple-whole"></i></div>
+                            <div class="plan-item-content">
+                                <span class="plan-item-label">Chế độ dinh dưỡng</span>
+                                <p class="plan-item-text" id="modalPlanDietVal" th:text="${exam.treatmentPlan.dietPlan}"></p>
+                            </div>
+                        </div>
+                        <div class="plan-item-row" id="modalPlanExerciseRow" th:if="${exam.treatmentPlan.exercisePlan != null && !exam.treatmentPlan.exercisePlan.empty}">
+                            <div class="plan-item-icon"><i class="fas fa-person-running"></i></div>
+                            <div class="plan-item-content">
+                                <span class="plan-item-label">Chế độ vận động & Tập luyện</span>
+                                <p class="plan-item-text" id="modalPlanExerciseVal" th:text="${exam.treatmentPlan.exercisePlan}"></p>
+                            </div>
+                        </div>
+                        <div class="plan-item-row" id="modalPlanGlucoseRow" th:if="${exam.treatmentPlan.glucoseMonitoringPlan != null && !exam.treatmentPlan.glucoseMonitoringPlan.empty}">
+                            <div class="plan-item-icon"><i class="fas fa-droplet"></i></div>
+                            <div class="plan-item-content">
+                                <span class="plan-item-label">Tần suất tự theo dõi đường huyết</span>
+                                <p class="plan-item-text" id="modalPlanGlucoseVal" th:text="${exam.treatmentPlan.glucoseMonitoringPlan}"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lab results table -->
+                <div class="history-detail-card">
+                    <h3 class="history-section-title"><i class="fas fa-flask"></i> Chỉ định & Kết quả xét nghiệm</h3>
+                    <div style="overflow-x: auto;">
+                        <table class="clinical-table" style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr>
+                                    <th>Tên xét nghiệm</th>
+                                    <th>Khoảng tham chiếu</th>
+                                    <th>Kết quả</th>
+                                    <th>Đánh giá</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalLabsTableBody">
+                                <tr th:each="l : ${labResults}">
+                                    <td th:text="${l.labTest.testName}"></td>
+                                    <td style="color: var(--doctor-text-muted);" th:text="${l.referenceRange}"></td>
+                                    <td style="font-weight: 600;">
+                                        <span th:text="${l.resultValue}"></span> <span style="font-size: 0.75rem; color: var(--doctor-text-muted); font-weight: normal;" th:text="${l.labTest.unit}"></span>
+                                    </td>
+                                    <td style="font-weight: bold;" th:text="${l.flag == 'HIGH' ? 'CAO' : (l.flag == 'NORMAL' ? 'BÌNH THƯỜNG' : l.flag)}" th:styleappend="${l.flag == 'HIGH' ? 'color: var(--doctor-danger)' : 'color: var(--doctor-success)'}"></td>
+                                </tr>
+                                <tr th:if="${labResults == null || labResults.empty}">
+                                    <td colspan="4" style="text-align: center; color: var(--doctor-text-muted); padding: 15px;">Không có chỉ định xét nghiệm nào trong ca khám này</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Prescription table -->
+                <div class="history-detail-card">
+                    <h3 class="history-section-title"><i class="fas fa-pills"></i> Đơn thuốc điều trị đã kê</h3>
+                    <div style="overflow-x: auto;">
+                        <table class="clinical-table" style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr>
+                                    <th>Tên thuốc</th>
+                                    <th>Liều dùng</th>
+                                    <th>Thời điểm dùng</th>
+                                    <th>Thời gian / Số lượng</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalPrescriptionTableBody">
+                                <tr th:each="p : ${prescriptionDetails}">
+                                    <td>
+                                        <strong th:text="${p.medication.medicationName + ' (' + p.medication.concentration + ')'}"></strong>
+                                        
+                                        <!-- Liệu trình ngày sử dụng (đặt dưới tên thuốc cho thoáng và đẹp) -->
+                                        <div th:if="${p.startDate != null && p.endDate != null}" class="med-history-date-range">
+                                            <i class="far fa-calendar-alt"></i> Liệu trình: Từ <span th:text="${#temporals.format(p.startDate, 'dd/MM/yyyy')}"></span> đến <span th:text="${#temporals.format(p.endDate, 'dd/MM/yyyy')}"></span>
+                                        </div>
+                                        
+                                        <div th:if="${p.medicationPlan != null && !p.medicationPlan.empty}" class="med-history-item-desc">
+                                            <i class="fas fa-info-circle"></i> <span th:text="${p.medicationPlan}"></span>
+                                        </div>
+                                    </td>
+                                    <td th:text="${p.dosage}"></td>
+                                    <td style="font-style: italic; color: var(--doctor-primary); font-weight: 500;">
+                                        <span th:each="t, iter : ${p.prescriptionTimings}" th:text="${t.timing.timingName + (iter.last ? '' : ', ')}"></span>
+                                    </td>
+                                    <td th:text="${p.durationDays + ' ngày / ' + p.totalQuantity + ' viên'}"></td>
+                                </tr>
+                                <tr th:if="${prescriptionDetails == null || prescriptionDetails.empty}">
+                                    <td colspan="4" style="text-align: center; color: var(--doctor-text-muted); padding: 15px;">Không có thuốc nào được kê trong ca khám này</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeTimelineDetail()">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NAVIGATION BLOCKED MODAL -->
+    <div class="modal-overlay" id="navigationBlockedModal">
+        <div class="modal" style="max-width: 500px; padding: 25px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.2); box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.1), 0 8px 10px -6px rgba(239, 68, 68, 0.1);">
+            <div class="modal-header" style="border-bottom: none; padding-bottom: 0; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="font-size: 1.3rem; color: var(--doctor-danger); display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-hand-paper"></i> Hành động bị chặn
+                </h3>
+                <button type="button" class="close-btn" onclick="closeNavigationBlockedModal()" style="background: none; border: none; font-size: 1.3rem; color: var(--doctor-text-muted); cursor: pointer;"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" style="text-align: center; padding: 20px 10px;">
+                <div style="background: rgba(239, 68, 68, 0.05); color: var(--doctor-danger); width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2.5rem; box-shadow: 0 0 15px rgba(239, 68, 68, 0.1);">
+                    <i class="fas fa-user-lock"></i>
+                </div>
+                <p style="font-size: 1.15rem; font-weight: 700; color: var(--doctor-text-main); margin-bottom: 10px;">
+                    Ca khám đang được thực hiện
+                </p>
+                <p style="font-size: 0.88rem; color: var(--doctor-text-muted); line-height: 1.5; margin: 0;">
+                    Bạn đang thực hiện khám cho một bệnh nhân. Bạn phải hoàn thành hoặc hủy ca khám này trước khi rời phòng khám.
+                </p>
+            </div>
+            <div class="modal-footer" style="justify-content: center; gap: 12px; padding-top: 15px; border-top: none;">
+                <button type="button" class="btn btn-primary" onclick="closeNavigationBlockedModal()"
+                    style="background: var(--doctor-primary); border: none; color: white; font-size: 0.85rem; padding: 8px 20px; border-radius: 6px; font-weight: 600; cursor: pointer;">Đã hiểu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script assets -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const glucoseTrend = /*[[${glucoseTrend}]]*/ [];
+        const hasActiveExam = /*[[${hasActiveExam}]]*/ false;
+        /*]]>*/
+    </script>
+    <script th:src="@{/js/doctor/patients.js}"></script>
+</body>
+</html>

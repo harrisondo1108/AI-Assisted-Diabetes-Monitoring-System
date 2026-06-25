@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lịch uống thuốc | Hệ thống Chăm sóc Tiểu đường</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/patient/patient.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .back-link-container {
+            margin-bottom: 24px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #047857;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .back-link:hover {
+            color: #065f46;
+        }
+
+        .prescription-schedule-card {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .schedule-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .schedule-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: #064e3b; /* Dark green/teal title matching mockup */
+            margin: 0 0 6px 0;
+            letter-spacing: -0.02em;
+        }
+
+        .schedule-subtitle {
+            font-size: 14px;
+            color: #64748b;
+            margin: 0;
+        }
+
+        .active-items-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background-color: #e8f7f0;
+            color: #047857;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .schedule-table th {
+            background-color: #f8fafc;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 16px 24px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .schedule-table td {
+            padding: 18px 24px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+            color: #334155;
+            vertical-align: middle;
+        }
+
+        .schedule-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .drug-name-col {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .drug-icon-box {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #e8f7f0;
+            color: #047857;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .drug-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .drug-subclass {
+            font-size: 10px;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .dosage-col {
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 15px;
+        }
+
+        .timing-badge {
+            display: inline-block;
+            background-color: #f1f5f9;
+            color: #475569;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .notes-col {
+            font-style: italic;
+            color: #475569;
+            line-height: 1.5;
+            max-width: 350px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="admin-layout">
+    <div th:replace="~{layout/patient-sidebar :: patientSidebar('notifications')}"></div>
+
+    <div class="admin-main">
+        <div th:replace="~{layout/patient-header :: patientHeader('Lịch uống thuốc')}"></div>
+
+        <main class="admin-content">
+            <!-- Back button -->
+            <div class="back-link-container">
+                <a href="#" onclick="window.history.back(); return false;" class="back-link">
+                    <i class="fas fa-arrow-left"></i>
+                    Quay lại
+                </a>
+            </div>
+
+            <!-- Schedule Card -->
+            <div class="prescription-schedule-card">
+                <div class="schedule-header">
+                    <div>
+                        <h2 class="schedule-title">Lịch sử dụng thuốc</h2>
+                        <p class="schedule-subtitle">Bảng tổng hợp chi tiết các loại thuốc điều trị được kê đơn.</p>
+                    </div>
+                    <span class="active-items-badge">
+                        <i class="fas fa-link"></i>
+                        <span th:text="${activeItemsCount} + ' thuốc được kê'">4 thuốc được kê</span>
+                    </span>
+                </div>
+                <div class="table-wrapper">
+                    <table class="schedule-table">
+                        <thead>
+                            <tr>
+                                <th>Tên thuốc</th>
+                                <th>Liều lượng</th>
+                                <th>Tần suất</th>
+                                <th>Thời điểm</th>
+                                <th>Ghi chú / Hướng dẫn</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="detail : ${prescriptionDetails}">
+                                <td>
+                                    <div class="drug-name-col">
+                                        <div class="drug-icon-box">
+                                            <i class="fas fa-prescription-bottle-medical"></i>
+                                        </div>
+                                        <div>
+                                            <div class="drug-name" th:text="${detail.name}">Metformin</div>
+                                            <div class="drug-subclass" th:text="${detail.subclass}">BIGUANIDE CLASS</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="dosage-col" th:text="${detail.dosage}">500mg</td>
+                                <td th:text="${detail.frequency}">2 lần/ngày</td>
+                                <td>
+                                    <span class="timing-badge" th:text="${detail.timing}">Sau ăn sáng & tối</span>
+                                </td>
+                                <td class="notes-col" th:text="${detail.notes}">Uống với một ly nước đầy. Báo cáo tình trạng buồn nôn kéo dài cho BS. Hà.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <div th:replace="~{layout/footer :: footer}"></div>
+    </div>
+</div>
+</body>
+</html>

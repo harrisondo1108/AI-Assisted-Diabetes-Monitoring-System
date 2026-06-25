@@ -1,7 +1,7 @@
 package com.quan.diabetes.controller.auth;
 
 import com.quan.diabetes.entity.User;
-import com.quan.diabetes.service.UserService;
+import com.quan.diabetes.service.user.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -54,7 +54,7 @@ public class ResetPasswordController {
         User user = userService.findByPhoneNumber(phoneNumber).orElse(null);
 
         if (user == null) {
-            model.addAttribute("errorMsg", "The phone number does not exist in the system.");
+            model.addAttribute("errorMsg", "Số điện thoại không tồn tại trên hệ thống.");
             return "auth/forgot-phone";
         }
 
@@ -82,12 +82,12 @@ public class ResetPasswordController {
         }
 
         if (LocalDateTime.now().isAfter(expiredAt)) {
-            model.addAttribute("errorMsg", "The OTP code has expired.");
+            model.addAttribute("errorMsg", "Mã OTP đã hết hạn.");
             return "auth/forgot-otp";
         }
 
         if (!sessionOtp.equals(otp)) {
-            model.addAttribute("errorMsg", "Incorrect OTP code");
+            model.addAttribute("errorMsg", "Mã OTP không chính xác.");
             return "auth/forgot-otp";
         }
 
@@ -106,14 +106,14 @@ public class ResetPasswordController {
         }
 
         if (!newPassword.equals(confirmPassword)) {
-            model.addAttribute("errorMsg", "The verification password does not match.");
+            model.addAttribute("errorMsg", "Mật khẩu xác nhận không khớp.");
             return "auth/reset_pass";
         }
 
         String phoneNumber = (String) session.getAttribute("resetPhoneNumber");
         User user = userService.findByPhoneNumber(phoneNumber).orElse(null);
         if (user == null) {
-            model.addAttribute("errorMsg", "Account not found");
+            model.addAttribute("errorMsg", "Không tìm thấy tài khoản.");
             return "auth/reset_pass";
         }
 

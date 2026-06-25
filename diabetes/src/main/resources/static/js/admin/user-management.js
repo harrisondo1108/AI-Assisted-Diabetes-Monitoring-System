@@ -21,6 +21,7 @@
     let pendingUserId = null;
     let pendingUserStatus = null;
     let pendingUserName = null;
+    let resetValidationState = null;
 
     window.showConfirmModal = function(id, currentStatus, fullName) {
         const isActive = currentStatus === 'Active';
@@ -132,14 +133,16 @@
 
         const doctorSec = document.querySelectorAll('.doctor-only-section');
         const patientSec = document.querySelectorAll('.patient-only-section');
-        doctorSec.forEach(el => el.classList.toggle('visible', user.role === 'doctor'));
-        patientSec.forEach(el => el.classList.toggle('visible', user.role === 'patient'));
+        const isDoc = user.role && (user.role.toLowerCase() === 'doctor' || user.role.toLowerCase() === 'doc');
+        const isPat = user.role && (user.role.toLowerCase() === 'patient' || user.role.toLowerCase() === 'pat');
+        doctorSec.forEach(el => el.classList.toggle('visible', isDoc));
+        patientSec.forEach(el => el.classList.toggle('visible', isPat));
 
-        if (user.role === 'doctor') {
+        if (isDoc) {
             setDrawerRow('drawerRoom', user.roomName || '—');
             setDrawerRow('drawerSpecialty', user.specialty || '—');
         }
-        if (user.role === 'patient') {
+        if (isPat) {
             setDrawerRow('drawerHeight', user.height ? user.height + ' cm' : '—');
             setDrawerRow('drawerWeight', user.weight != null ? user.weight + ' kg' : '—');
             setDrawerRow('drawerBloodgroup', user.bloodgroup || '—');
@@ -221,6 +224,7 @@
         editingUserId = mode === 'edit' ? (user && user.userId) : null;
         els.modalTitle.textContent = mode === 'edit' ? 'Edit User' : 'Add New User';
         els.userForm.reset();
+        if (resetValidationState) resetValidationState();
 
         enableAllFields();
         resetRoleFields();
@@ -239,7 +243,7 @@
 
             const genderVal = normalizeGenderKey(user.gender) || '0';
 
-            if (user.role === 'doctor') {
+            if (user.role && (user.role.toLowerCase() === 'doctor' || user.role.toLowerCase() === 'doc')) {
                 roleDoctor.checked = true;
                 document.getElementById('formFullName').value = user.fullName || '';
                 const contactPhoneInput = document.getElementById('formContactPhone');
@@ -401,7 +405,7 @@
         // Submit form validation
         if (els.userForm) {
 
-            const nameRegex = /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂÂÊÔƠƯưăâêôơư\s]+$/;
+            const nameRegex = /^[\p{L}\s]+$/u;
             const phoneRegex = /^(0[35789])[0-9]{8}$/;
 
             const show = (input, msg) => {
@@ -412,16 +416,6 @@
             const isFutureDate = (dateStr) => {
                 return new Date(dateStr) >= new Date();
             };
-
-            els.userForm.addEventListener('submit', function (e) {
-                // Old submit-time validation removed — rely on live validators.
-                const firstError = els.userForm.querySelector('.is-invalid');
-                if (firstError) {
-                    e.preventDefault();
-                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    try { firstError.focus(); } catch (err) { /* ignore */ }
-                }
-            });
 
             // Auto clear error when user edits
             els.userForm.querySelectorAll('input, select, textarea').forEach(field => {
@@ -438,7 +432,7 @@
             // Live/inline validators: validate while typing and disable submit if any error
             (function attachLiveValidators() {
                 const phoneRegex = /^(0[35789])[0-9]{8}$/;
-                const nameRegex = /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂÂÊÔƠƯưăâêôơư\s]+$/;
+                const nameRegex = /^[\p{L}\s]+$/u;
 
                 // Only perform validation checks after the user starts interacting
                 let phoneTouched = false;
@@ -458,16 +452,31 @@
                     submitBtn.disabled = !!els.userForm.querySelector('.is-invalid');
                 };
 
+                resetValidationState = function() {
+                    phoneTouched = false;
+                    for (const key in touched) {
+                        delete touched[key];
+                    }
+                    clearErrors();
+                    setSubmitState();
+                };
+
                 const validatePhone = () => {
                     if (!phoneInput) return false;
                     const v = (phoneInput.value || '').trim();
                     if (!v) {
-                        showError(phoneInput, 'Account phone number must not be empty');
-                        return true;
+                        if (phoneTouched) {
+                            showError(phoneInput, 'Account phone number must not be empty');
+                            return true;
+                        }
+                        return false;
                     }
                     if (!phoneRegex.test(v)) {
-                        showError(phoneInput, 'Phone number must be a valid Vietnamese mobile number (10 digits, starting with 03, 05, 07, 08, 09)');
-                        return true;
+                        if (phoneTouched) {
+                            showError(phoneInput, 'Phone number must be a valid Vietnamese mobile number (10 digits, starting with 03, 05, 07, 08, 09)');
+                            return true;
+                        }
+                        return false;
                     }
                     // clear local format error then (only if user interacted) run remote uniqueness check
                     phoneInput.classList.remove('is-invalid');
@@ -480,21 +489,26 @@
                     if (!pwdInput) return false;
                     const v = pwdInput.value || '';
                     const isEdit = !!editingUserId;
+                    const isTouched = touched['formPassword'];
                     if (!isEdit) {
                         if (v.trim().length === 0) {
-                            if (touched['formPassword']) {
+                            if (isTouched) {
                                 showError(pwdInput, 'Password must not be empty');
                                 return true;
                             }
                         } else if (v.length < 6) {
-                            showError(pwdInput, 'Password must be at least 6 characters');
-                            return true;
+                            if (isTouched) {
+                                showError(pwdInput, 'Password must be at least 6 characters');
+                                return true;
+                            }
                         }
                     } else {
                         // edit mode: only validate if provided (and only after interaction)
                         if (v && v.length > 0 && v.length < 6) {
-                            showError(pwdInput, 'Password must be at least 6 characters');
-                            return true;
+                            if (isTouched) {
+                                showError(pwdInput, 'Password must be at least 6 characters');
+                                return true;
+                            }
                         }
                     }
                     pwdInput.classList.remove('is-invalid');
@@ -506,20 +520,27 @@
                     if (!inputEl) return false;
                     const id = inputEl.id;
                     const v = (inputEl.value || '').trim();
+                    const isTouched = touched[id];
                     if (!v) {
-                        if (touched[id]) {
+                        if (isTouched) {
                             showError(inputEl, `${label} must not be empty`);
                             return true;
                         }
                         return false;
                     }
                     if (!nameRegex.test(v)) {
-                        showError(inputEl, 'Full name must contain only letters and spaces');
-                        return true;
+                        if (isTouched) {
+                            showError(inputEl, 'Full name must contain only letters and spaces');
+                            return true;
+                        }
+                        return false;
                     }
                     if (v.length > 60) {
-                        showError(inputEl, 'Full name must not exceed 60 characters');
-                        return true;
+                        if (isTouched) {
+                            showError(inputEl, 'Full name must not exceed 60 characters');
+                            return true;
+                        }
+                        return false;
                     }
 
                     inputEl.classList.remove('is-invalid');
@@ -531,16 +552,20 @@
                     if (!inputEl) return false;
                     const id = inputEl.id;
                     const v = inputEl.value;
+                    const isTouched = touched[id];
                     if (!v) {
-                        if (touched[id]) {
+                        if (isTouched) {
                             showError(inputEl, 'Please select date of birth');
                             return true;
                         }
                         return false;
                     }
                     if (new Date(v) >= new Date()) {
-                        showError(inputEl, 'Date of birth must be in the past');
-                        return true;
+                        if (isTouched) {
+                            showError(inputEl, 'Date of birth must be in the past');
+                            return true;
+                        }
+                        return false;
                     }
                     inputEl.classList.remove('is-invalid');
                     const f = inputEl.parentNode.querySelector('.error-feedback'); if (f) f.textContent = '';
@@ -549,35 +574,76 @@
 
                 // Attach events
                 if (phoneInput) {
-                    phoneInput.addEventListener('input', (e) => { phoneTouched = true; touched['formAccountPhone'] = true; validatePhone(); setSubmitState(); });
-                    phoneInput.addEventListener('keydown', (e) => { phoneTouched = true; touched['formAccountPhone'] = true; });
+                    phoneInput.addEventListener('keydown', () => { phoneTouched = true; touched['formAccountPhone'] = true; });
+                    phoneInput.addEventListener('mousedown', () => { phoneTouched = true; touched['formAccountPhone'] = true; });
+                    phoneInput.addEventListener('input', (e) => { validatePhone(); setSubmitState(); });
                     phoneInput.addEventListener('blur', () => { validatePhone(); setSubmitState(); });
                 }
                 if (pwdInput) {
-                    pwdInput.addEventListener('input', (e) => { touched['formPassword'] = true; validatePassword(); setSubmitState(); });
-                    pwdInput.addEventListener('keydown', (e) => { touched['formPassword'] = true; });
+                    pwdInput.addEventListener('keydown', () => { touched['formPassword'] = true; });
+                    pwdInput.addEventListener('mousedown', () => { touched['formPassword'] = true; });
+                    pwdInput.addEventListener('input', (e) => { validatePassword(); setSubmitState(); });
                     pwdInput.addEventListener('blur', () => { validatePassword(); setSubmitState(); });
                 }
                 if (docName) {
-                    docName.addEventListener('input', (e) => { touched['formFullName'] = true; validateName(docName, 'Doctor full name'); setSubmitState(); });
-                    docName.addEventListener('keydown', (e) => { touched['formFullName'] = true; });
+                    docName.addEventListener('keydown', () => { touched['formFullName'] = true; });
+                    docName.addEventListener('mousedown', () => { touched['formFullName'] = true; });
+                    docName.addEventListener('input', (e) => { validateName(docName, 'Doctor full name'); setSubmitState(); });
                     docName.addEventListener('blur', () => { validateName(docName, 'Doctor full name'); setSubmitState(); });
                 }
                 if (patName) {
-                    patName.addEventListener('input', (e) => { touched['formPatFullName'] = true; validateName(patName, 'Patient full name'); setSubmitState(); });
-                    patName.addEventListener('keydown', (e) => { touched['formPatFullName'] = true; });
+                    patName.addEventListener('keydown', () => { touched['formPatFullName'] = true; });
+                    patName.addEventListener('mousedown', () => { touched['formPatFullName'] = true; });
+                    patName.addEventListener('input', (e) => { validateName(patName, 'Patient full name'); setSubmitState(); });
                     patName.addEventListener('blur', () => { validateName(patName, 'Patient full name'); setSubmitState(); });
                 }
                 if (dobDoc) {
+                    dobDoc.addEventListener('keydown', () => { touched['formDob'] = true; });
+                    dobDoc.addEventListener('mousedown', () => { touched['formDob'] = true; });
                     dobDoc.addEventListener('change', (e) => { touched['formDob'] = true; validateDob(dobDoc); setSubmitState(); });
-                    dobDoc.addEventListener('keydown', (e) => { touched['formDob'] = true; });
                     dobDoc.addEventListener('blur', () => { validateDob(dobDoc); setSubmitState(); });
                 }
                 if (dobPat) {
+                    dobPat.addEventListener('keydown', () => { touched['formPatDob'] = true; });
+                    dobPat.addEventListener('mousedown', () => { touched['formPatDob'] = true; });
                     dobPat.addEventListener('change', (e) => { touched['formPatDob'] = true; validateDob(dobPat); setSubmitState(); });
-                    dobPat.addEventListener('keydown', (e) => { touched['formPatDob'] = true; });
                     dobPat.addEventListener('blur', () => { validateDob(dobPat); setSubmitState(); });
                 }
+
+                // Submit validation check
+                els.userForm.addEventListener('submit', function (e) {
+                    phoneTouched = true;
+                    touched['formAccountPhone'] = true;
+                    touched['formPassword'] = true;
+                    touched['formFullName'] = true;
+                    touched['formPatFullName'] = true;
+                    touched['formDob'] = true;
+                    touched['formPatDob'] = true;
+
+                    const hasPhoneError = validatePhone();
+                    const hasPwdError = validatePassword();
+                    const isDocRole = document.getElementById('roleDoctor').checked;
+                    let hasNameError = false;
+                    let hasDobError = false;
+
+                    if (isDocRole) {
+                        hasNameError = validateName(docName, 'Doctor full name');
+                        hasDobError = validateDob(dobDoc);
+                    } else {
+                        hasNameError = validateName(patName, 'Patient full name');
+                        hasDobError = validateDob(dobPat);
+                    }
+
+                    if (hasPhoneError || hasPwdError || hasNameError || hasDobError || els.userForm.querySelector('.is-invalid')) {
+                        e.preventDefault();
+                        setSubmitState();
+                        const firstError = els.userForm.querySelector('.is-invalid');
+                        if (firstError) {
+                            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            try { firstError.focus(); } catch (err) { /* ignore */ }
+                        }
+                    }
+                });
 
                 // Remote uniqueness helper and initial checks
                 let phoneAvailable = true;
@@ -597,6 +663,12 @@
                         const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
                         if (!res.ok) { phoneAvailable = true; setSubmitState(); return; }
                         const data = await res.json();
+                        
+                        // Prevent race condition: if the user changed the input value since this request was sent, ignore the result.
+                        if (phoneInput.value.trim() !== val) {
+                            return;
+                        }
+
                         if (!data.available) {
                             showError(phoneInput, 'Phone Number is already in use by another account');
                             phoneAvailable = false;
@@ -612,9 +684,6 @@
                 };
 
                 debouncedRemoteCheck = debounce(remoteCheck, 350);
-
-                // Initial state check (in case modal opened with prefilled values)
-                setTimeout(() => { validatePhone(); validatePassword(); validateName(docName, 'Doctor full name'); validateName(patName, 'Patient full name'); validateDob(dobDoc); validateDob(dobPat); setSubmitState(); }, 50);
             })();
         }
 
@@ -700,7 +769,7 @@
                 <td>
                     <div class="action-group">
                         <button type="button" class="action-btn view" title="View details" data-action="view" data-id="${user.userId || ''}"><i class="fas fa-eye"></i></button>
-                        <button type="button" class="action-btn edit" title="Edit" data-action="edit" data-id="${user.userId || ''}"><i class="fas fa-pen"></i></button>
+                        ${(user.role === 'patient' || user.role === 'PAT') ? '' : `<button type="button" class="action-btn edit" title="Edit" data-action="edit" data-id="${user.userId || ''}"><i class="fas fa-pen"></i></button>`}
                         <button type="button" class="action-btn ${user.status === 'Active' ? 'lock' : 'unlock'}" 
                             data-id="${user.userId || ''}" 
                             data-status="${user.status || ''}" 
@@ -787,20 +856,26 @@
         });
     }
 
-    // Flash toast auto-show and auto-hide (3s)
+    // Flash toast auto-show and auto-hide (4s)
     (function setupFlash() {
         document.addEventListener('DOMContentLoaded', function () {
-            const toast = document.getElementById('flashMessage');
-            if (!toast) return;
-            // small delay for CSS transition
-            setTimeout(() => toast.classList.add('visible'), 50);
-            const hide = () => {
-                toast.classList.remove('visible');
-                setTimeout(() => { if (toast && toast.parentNode) toast.parentNode.removeChild(toast); }, 220);
+            const successToast = document.getElementById('flashMessage');
+            const errorToast = document.getElementById('flashErrorMessage');
+
+            const handleToast = (toast, closeBtnId) => {
+                if (!toast) return;
+                setTimeout(() => toast.classList.add('visible'), 50);
+                const hide = () => {
+                    toast.classList.remove('visible');
+                    setTimeout(() => { if (toast && toast.parentNode) toast.parentNode.removeChild(toast); }, 220);
+                };
+                const timer = setTimeout(hide, 4000);
+                const btn = document.getElementById(closeBtnId);
+                if (btn) btn.addEventListener('click', () => { clearTimeout(timer); hide(); });
             };
-            const timer = setTimeout(hide, 3000);
-            const btn = document.getElementById('toastClose');
-            if (btn) btn.addEventListener('click', () => { clearTimeout(timer); hide(); });
+
+            handleToast(successToast, 'toastClose');
+            handleToast(errorToast, 'toastErrorClose');
         });
     })();
 

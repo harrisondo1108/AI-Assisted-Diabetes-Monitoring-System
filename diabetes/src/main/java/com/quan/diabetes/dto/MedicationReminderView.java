@@ -10,9 +10,9 @@ public class MedicationReminderView {
     private final String timingName;
     private final String instruction;
     private final String medicationPlan;
-    private final LocalDateTime medicationTime;
+    private final LocalDateTime endTime;
     private final LocalDateTime reminderTime;
-    private final int minutesBefore;
+//    private final int minutesBefore;
     private final boolean dueNow;
     private final boolean past;
 
@@ -23,9 +23,9 @@ public class MedicationReminderView {
                                   String timingName,
                                   String instruction,
                                   String medicationPlan,
-                                  LocalDateTime medicationTime,
+                                  LocalDateTime endTime,
                                   LocalDateTime reminderTime,
-                                  int minutesBefore,
+//                                  int minutesBefore,
                                   boolean dueNow,
                                   boolean past) {
         this.title = title;
@@ -35,9 +35,9 @@ public class MedicationReminderView {
         this.timingName = timingName;
         this.instruction = instruction;
         this.medicationPlan = medicationPlan;
-        this.medicationTime = medicationTime;
+        this.endTime = endTime;
         this.reminderTime = reminderTime;
-        this.minutesBefore = minutesBefore;
+//        this.minutesBefore = minutesBefore;
         this.dueNow = dueNow;
         this.past = past;
     }
@@ -70,17 +70,17 @@ public class MedicationReminderView {
         return medicationPlan;
     }
 
-    public LocalDateTime getMedicationTime() {
-        return medicationTime;
+    public LocalDateTime getEndTime() {
+        return endTime;
     }
 
     public LocalDateTime getReminderTime() {
         return reminderTime;
     }
 
-    public int getMinutesBefore() {
-        return minutesBefore;
-    }
+//    public int getMinutesBefore() {
+//        return minutesBefore;
+//    }
 
     public boolean isDueNow() {
         return dueNow;
@@ -89,4 +89,6 @@ public class MedicationReminderView {
     public boolean isPast() {
         return past;
     }
+
+
 }
