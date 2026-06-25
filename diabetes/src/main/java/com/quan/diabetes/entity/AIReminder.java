@@ -31,6 +31,9 @@ public class AIReminder {
     @Column(name = "IsRead")
     private Boolean isRead;
 
+    @Column(name = "IsSent")
+    private Boolean isSent = false;
+
     @ManyToOne
     @JoinColumn(name = "AIAssistantID")
     private AIAssistant aiAssistant;
@@ -38,6 +41,17 @@ public class AIReminder {
     @ManyToOne
     @JoinColumn(name = "PatientID")
     private Patient patient;
+
+    @ManyToOne
+    @JoinColumn(name = "TimingID")
+    private MedicationTiming timing;
+
+    @Column(name = "Status")
+    private Boolean status = true;
+
+    @ManyToOne
+    @JoinColumn(name = "ClinicalExamID")
+    private ClinicalExamination clinicalExamination;
 
     public AIReminder() {
     }
@@ -82,6 +96,14 @@ public class AIReminder {
         this.isRead = isRead;
     }
 
+    public Boolean getIsSent() {
+        return isSent;
+    }
+
+    public void setIsSent(Boolean isSent) {
+        this.isSent = isSent;
+    }
+
     public AIAssistant getAiAssistant() {
         return aiAssistant;
     }
@@ -97,7 +119,28 @@ public class AIReminder {
     public void setPatient(Patient patient) {
         this.patient = patient;
     }
+
+    public MedicationTiming getTiming() {
+        return timing;
+    }
+
+    public void setTiming(MedicationTiming timing) {
+        this.timing = timing;
+    }
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
+    }
+
+    public ClinicalExamination getClinicalExamination() {
+        return clinicalExamination;
+    }
+
+    public void setClinicalExamination(ClinicalExamination clinicalExamination) {
+        this.clinicalExamination = clinicalExamination;
+    }
 }
-
-
-

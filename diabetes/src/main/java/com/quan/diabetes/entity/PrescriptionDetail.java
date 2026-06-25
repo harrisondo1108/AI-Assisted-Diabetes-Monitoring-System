@@ -1,11 +1,11 @@
 package com.quan.diabetes.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
 
 @Entity
 @Table(name = "PrescriptionDetail")
@@ -26,8 +26,12 @@ public class PrescriptionDetail {
     @Column(name = "Dosage", length = 50)
     private String dosage;
 
-    @Column(name = "Timing")
-    private String timing;
+    @OneToMany(
+            mappedBy = "prescriptionDetail",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<PrescriptionTiming> prescriptionTimings;
 
     @Column(name = "TotalQuantity")
     private int totalQuantity;
@@ -35,15 +39,40 @@ public class PrescriptionDetail {
     @Column(name = "DurationDays")
     private int durationDays;
 
+    @Column(name = "StartDate")
+    private LocalDate startDate;
+
+    @Column(name = "EndDate")
+    private LocalDate endDate;
+
+    @Column(name = "MedicationPlan", columnDefinition = "NVARCHAR(MAX)")
+    private String medicationPlan; // kế hoạch dùng thuốc, có thể là "Dùng liên tục", "Dùng khi cần thiết", "Dùng theo chu kỳ",....
+
     public PrescriptionDetail() {
     }
+    public void addTiming(PrescriptionTiming timing){
+        prescriptionTimings.add(timing);
+        timing.setPrescriptionDetail(this);
+    }
 
+    public void removeTiming(PrescriptionTiming timing){
+        prescriptionTimings.remove(timing);
+        timing.setPrescriptionDetail(null);
+    }
     public String getPrescriptionDetailId() {
         return prescriptionDetailId;
     }
 
     public void setPrescriptionDetailId(String prescriptionDetailId) {
         this.prescriptionDetailId = prescriptionDetailId;
+    }
+
+    public List<PrescriptionTiming> getPrescriptionTimings() {
+        return prescriptionTimings;
+    }
+
+    public void setPrescriptionTimings(List<PrescriptionTiming> prescriptionTimings) {
+        this.prescriptionTimings = prescriptionTimings;
     }
 
     public Prescription getPrescription() {
@@ -70,15 +99,6 @@ public class PrescriptionDetail {
         this.dosage = dosage;
     }
 
-    public String getTiming() {
-        return timing;
-    }
-
-    public void setTiming(String timing) {
-        this.timing = timing;
-    }
-
-
     public int getTotalQuantity() {
         return totalQuantity;
     }
@@ -93,6 +113,30 @@ public class PrescriptionDetail {
 
     public void setDurationDays(int durationDays) {
         this.durationDays = durationDays;
+    }
+
+    public String getMedicationPlan() {
+        return medicationPlan;
+    }
+
+    public void setMedicationPlan(String medicationPlan) {
+        this.medicationPlan = medicationPlan;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
     }
 }
 

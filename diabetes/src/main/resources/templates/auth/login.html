@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Diabetes Care System</title>
+    <title>Đăng nhập - Diabetes Care System</title>
     <link rel="stylesheet" th:href="@{/css/pages/auth.css}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -16,63 +16,62 @@
                 <i class="fas fa-droplet"></i>
                 <span>Diabetes Care System</span>
             </div>
-            <h1>Diabetes Management System</h1>
-            <h2>Welcome Back</h2>
-            <p class="subtitle">Log in to manage patient records and track treatment progress.</p>
+            <h1>Hệ thống Quản lý Tiểu đường</h1>
+            <h2>Chào mừng quay trở lại</h2>
+            <p class="subtitle">Đăng nhập để quản lý hồ sơ bệnh nhân và theo dõi tiến trình điều trị.</p>
 
             <div class="feature-card">
-                <h3><i class="fas fa-stethoscope"></i> Key Features</h3>
+                <h3><i class="fas fa-stethoscope"></i> Tính năng chính</h3>
                 <ul>
-                    <li><i class="fas fa-user-md"></i> Patient Management</li>
-                    <li><i class="fas fa-flask"></i> Lab Tests &amp; Metrics</li>
-                    <li><i class="fas fa-prescription-bottle"></i> Medication Prescription</li>
-                    <li><i class="fas fa-robot"></i> Smart AI Assistant</li>
-                    <li><i class="fas fa-calendar-check"></i> Follow-up Reminders</li>
+                    <li><i class="fas fa-user-md"></i> Quản lý Bệnh nhân</li>
+                    <li><i class="fas fa-flask"></i> Xét nghiệm &amp; Chỉ số Lâm sàng</li>
+                    <li><i class="fas fa-prescription-bottle"></i> Kê đơn thuốc</li>
+                    <li><i class="fas fa-robot"></i> Trợ lý AI Thông minh</li>
+                    <li><i class="fas fa-calendar-check"></i> Nhắc nhở Tái khám</li>
                 </ul>
             </div>
         </div>
 
         <div class="right-panel">
             <div class="login-form">
-                <h2>Login</h2>
+                <h2>Đăng nhập</h2>
                 <div id="errorMsg" class="error-message"
                      th:classappend="${errorMsg != null} ? '' : ''"
                      th:text="${errorMsg}" >
                 </div>
                 <div id="successMsg" class="success-message"
-                     th:if="${successMsg}" th:text="${successMsg}">
-
+                     th:if="${successMsg != null}" th:text="${successMsg}">
                 </div>
 
                 <form id="loginForm" th:action="@{/login}" method="post">
                     <div class="input-group">
-                        <label for="phoneNumber">Phone Number</label>
+                        <label for="phoneNumber">Số điện thoại</label>
                         <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="0912 345 678" required>
                         <i class="fas fa-phone input-icon"></i>
                     </div>
                     <div class="input-group">
-                        <label for="password">Password</label>
+                        <label for="password">Mật khẩu</label>
                         <input type="password" id="password" name="password" placeholder="••••••••" required>
                         <i class="fas fa-lock input-icon"></i>
                     </div>
                     <div></div>
                     <button type="submit" class="btn-primary">
-                        <i class="fas fa-sign-in-alt"></i> Login
+                        <i class="fas fa-sign-in-alt"></i> Đăng nhập
                     </button>
                 </form>
                 <p class="register-link">
-                    Don't have an account? <a th:href="@{/register}">Register now</a>
+                    Chưa có tài khoản? <a th:href="@{/register}">Đăng ký ngay</a>
                 </p>
                 <p class="register-link">
-                    <a th:href="@{/forgot-password}">Forgot password?</a>
+                    <a th:href="@{/forgot-password}">Quên mật khẩu?</a>
                 </p>
             </div>
             <footer>
-                <p>© 2024 Diabetes Care System - Diabetes Management Solution</p>
+                <p>© 2024 Diabetes Care System - Giải pháp Quản lý Tiểu đường</p>
                 <div class="footer-links">
-                    <a href="#">Privacy Policy</a> |
-                    <a href="#">Terms of Service</a> |
-                    <a href="#">Support</a>
+                    <a href="#">Chính sách bảo mật</a> |
+                    <a href="#">Điều khoản dịch vụ</a> |
+                    <a href="#">Hỗ trợ</a>
                 </div>
             </footer>
         </div>

@@ -1,9 +1,6 @@
 package com.quan.diabetes.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "Lab_Test_Catalog")
@@ -19,14 +16,15 @@ public class LabTestCatalog {
     @Column(name = "Unit", length = 20, columnDefinition = "NVARCHAR(20)")
     private String unit;
 
-    @Column(name = "MinValue")
-    private int minValue;
-
-    @Column(name = "MaxValue")
-    private int maxValue;
-
     @Column(name = "Description", columnDefinition = "NVARCHAR(MAX)")
     private String description;
+
+    @ManyToOne
+    @JoinColumn(name="RoomID")
+    private Room room;
+
+    @Column(name = "Status", columnDefinition = "BIT")
+    private Boolean status = true; // true: unlock  false: lock
 
     public LabTestCatalog() {
     }
@@ -55,20 +53,20 @@ public class LabTestCatalog {
         this.unit = unit;
     }
 
-    public int getMinValue() {
-        return minValue;
+    public Room getRoom() {
+        return room;
     }
 
-    public void setMinValue(int minValue) {
-        this.minValue = minValue;
+    public Boolean getStatus() {
+        return status;
     }
 
-    public int getMaxValue() {
-        return maxValue;
+    public void setStatus(Boolean status) {
+        this.status = status;
     }
 
-    public void setMaxValue(int maxValue) {
-        this.maxValue = maxValue;
+    public void setRoom(Room room) {
+        this.room = room;
     }
 
     public String getDescription() {

@@ -66,6 +66,19 @@ CREATE TABLE [Patient] (
     CHECK (Bloodgroup IN ('A+','A-','B+','B-','AB+','AB-','O+','O-'))
 );
 
+CREATE TABLE PatientRoutine (
+    UserID VARCHAR(50) PRIMARY KEY,
+    BreakfastTime TIME,
+    LunchTime TIME,
+    DinnerTime TIME,
+
+    WakeUpTime TIME,
+    SleepTime TIME,
+
+    FOREIGN KEY (UserID)
+        REFERENCES Patient(UserID) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
 -- 5. ClinicalExamination
 CREATE TABLE [ClinicalExamination] (
     ClinicalExamID VARCHAR(50) PRIMARY KEY,
@@ -81,10 +94,30 @@ CREATE TABLE [ClinicalExamination] (
     FOREIGN KEY (DoctorID) REFERENCES [Account](UserID)
 );
 
+CREATE TABLE TreatmentPlan (
+    PlanID INT IDENTITY(1,1) PRIMARY KEY,
+
+    CreatedAt DATETIME DEFAULT GETDATE(),
+	[TreatmentGoal] NVARCHAR(MAX),
+
+    DietPlan NVARCHAR(MAX),
+
+    ExercisePlan NVARCHAR(MAX),
+
+    GlucoseMonitoringPlan NVARCHAR(MAX),
+
+    ClinicalExamID VARCHAR(50) NOT NULL,
+
+    CONSTRAINT FK_TreatmentPlan_ClinicalExamination
+        FOREIGN KEY (ClinicalExamID)
+        REFERENCES ClinicalExamination(ClinicalExamID)
+);
+
 -- 6. Symptoms Catalog
 CREATE TABLE [Symptoms_Catalog] (
     SymptomID VARCHAR(50) PRIMARY KEY,
-    SymptomName NVARCHAR(200) UNIQUE
+    SymptomName NVARCHAR(200) UNIQUE,
+	Status BIT DEFAULT(1) -- 1 -> unclock , 0 -> lock
 );
 
 -- 7. ExamSymptom
@@ -102,9 +135,37 @@ CREATE TABLE [Lab_Test_Catalog] (
     LabTestID VARCHAR(50) PRIMARY KEY,
     TestName NVARCHAR(100) UNIQUE,
     Unit NVARCHAR(20), -- đơn vị mô tả
-	MinValue INT,
-    MaxValue INT,
-    Description NVARCHAR(MAX)
+    Description NVARCHAR(MAX),
+	RoomID INT,
+	FOREIGN KEY (RoomID) REFERENCES Room(RoomID) ON DELETE CASCADE ON UPDATE CASCADE,
+	Status BIT DEFAULT(1) -- 1 -> unclock , 0 -> lock
+);
+
+CREATE TABLE PatientType (
+    PatientTypeID INT IDENTITY(1,1) PRIMARY KEY,
+
+    TypeName NVARCHAR(50) NOT NULL,
+
+    MinAge INT,
+
+    MaxAge INT
+);
+
+CREATE TABLE IndicatorThreshold (
+    ThresholdID INT IDENTITY(1,1) PRIMARY KEY,
+    LabTestID VARCHAR(50) NOT NULL,
+    PatientTypeID INT NOT NULL,
+
+    MinValue DECIMAL(10,2),
+    MaxValue DECIMAL(10,2),
+
+    CreatedAt DATETIME DEFAULT GETDATE(),
+
+    FOREIGN KEY (LabTestID)
+        REFERENCES Lab_Test_Catalog(LabTestID) ON DELETE CASCADE ON UPDATE CASCADE,
+
+    FOREIGN KEY (PatientTypeID)
+        REFERENCES PatientType(PatientTypeID)
 );
 
 -- 9. LabOrder
@@ -144,7 +205,8 @@ CREATE TABLE [Medication] (
     Form NVARCHAR(50), -- dạng bào chế
     Concentration NVARCHAR(50), -- Nồng độ
     AdministrationRoute NVARCHAR(50), -- đường dùng
-    UsageInstruction NVARCHAR(MAX) -- hướng dẫn sử dụng mặc định
+    UsageInstruction NVARCHAR(MAX), -- hướng dẫn sử dụng mặc định
+	Status VARCHAR(20) DEFAULT('Active') CHECK (Status in ('Active', 'Clocked'))
 );
 
 -- 13. PrescriptionDetail
@@ -153,11 +215,35 @@ CREATE TABLE [PrescriptionDetail] (
     PrescriptionID VARCHAR(50),
     MedicationID VARCHAR(50),
     Dosage NVARCHAR(50), -- liều lượng (mỗi lần dùng bn)
-    Timing NVARCHAR(MAX), -- thời điểm dùng
     TotalQuantity INT, -- tổng số thuốc cung cấp
     DurationDays INT, -- tổng số ngày sử dụng
+	StartDate DATE,
+	EndDate DATE,
     FOREIGN KEY (PrescriptionID) REFERENCES Prescription(PrescriptionID) ON DELETE CASCADE,
-    FOREIGN KEY (MedicationID) REFERENCES Medication(MedicationID)
+    FOREIGN KEY (MedicationID) REFERENCES Medication(MedicationID),
+	MedicationPlan NVARCHAR(MAX)
+);
+
+CREATE TABLE MedicationTiming (
+    TimingID INT IDENTITY(1,1) PRIMARY KEY,
+    TimingName NVARCHAR(100)
+);
+
+CREATE TABLE PrescriptionTiming (
+    PrescriptionTimingID BIGINT IDENTITY(1,1) PRIMARY KEY,
+
+    PrescriptionDetailID VARCHAR(50) NOT NULL,
+    TimingID INT NOT NULL,
+
+    CONSTRAINT UQ_PrescriptionTiming
+        UNIQUE(PrescriptionDetailID, TimingID),
+
+    FOREIGN KEY (PrescriptionDetailID)
+        REFERENCES PrescriptionDetail(PrescriptionDetailID)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (TimingID)
+        REFERENCES MedicationTiming(TimingID)
 );
 
 -- 14. AI Assistant
@@ -166,6 +252,18 @@ CREATE TABLE [AI_Assistant] (
     AIName NVARCHAR(100) UNIQUE,
     Status NVARCHAR(50),
     ModelName VARCHAR(50)
+);
+
+CREATE TABLE PromptTemplate (
+    TemplateID INT IDENTITY(1,1) PRIMARY KEY,
+
+    TemplateName NVARCHAR(100) NOT NULL,
+
+    SystemPrompt NVARCHAR(MAX),
+
+    IsActive BIT DEFAULT 1,
+
+    CreatedAt DATETIME DEFAULT GETDATE()
 );
 
 -- 15. Conversation
@@ -198,6 +296,51 @@ CREATE TABLE [AI_Reminder] (
     IsRead BIT DEFAULT 0,
 	AIAssistantID INT,
     PatientID VARCHAR(50),
+	TimingID INT,
     FOREIGN KEY (PatientID) REFERENCES Patient(UserID) ON DELETE CASCADE,
-	FOREIGN KEY (AIAssistantID) REFERENCES AI_Assistant(AIAssistantID) ON DELETE CASCADE
+	FOREIGN KEY (AIAssistantID) REFERENCES AI_Assistant(AIAssistantID) ON DELETE CASCADE,
+	FOREIGN KEY (TimingID) REFERENCES MedicationTiming(TimingID)
 );
+
+------------------  INSERT  ----------------------------------------
+INSERT INTO [Role] (RoleID, RoleName)
+VALUES
+    ('AD', 'Admin'),
+    ('PAT', 'Patient'),
+    ('DOC', 'Doctor');
+
+INSERT INTO PatientType (TypeName, MinAge, MaxAge)
+VALUES
+    ('Adult', 18, 39),
+    ('Middle-aged', 40, 64),
+    ('Elderly', 65, 120),
+    ('Pregnant', NULL, NULL);
+
+INSERT INTO [Room] ([RoomName])
+VALUES
+('Endocrinology Clinic'),
+('Laboratory');
+
+INSERT INTO [Symptoms_Catalog] (SymptomID, SymptomName, Status)
+VALUES
+('SYM001', N'Khát nước quá mức (Polydipsia)', 1),
+('SYM002', N'Đi tiểu nhiều lần (Polyuria)', 1),
+('SYM003', N'Đói dữ dội (Polyphagia)', 1),
+('SYM004', N'Sụt cân không rõ nguyên nhân', 1),
+('SYM005', N'Mệt mỏi, uể oải', 1),
+('SYM006', N'Mờ mắt', 1),
+('SYM007', N'Vết thương lâu lành', 1);
+
+INSERT INTO [Lab_Test_Catalog] (LabTestID, TestName, Unit, Description, RoomID, Status)
+VALUES
+('LAB001', N'Đường huyết lúc đói (FPG)', 'mg/dL', N'Đo lượng đường trong máu sau khi nhịn ăn 8h', 2, 1),
+('LAB002', N'HbA1c', '%', N'Đo đường huyết trung bình trong 2-3 tháng qua', 2, 1),
+('LAB003', N'Nghiệm pháp dung nạp Glucose (OGTT)', 'mg/dL', N'Đánh giá khả năng chuyển hóa đường của cơ thể', 2, 1),
+('LAB004', N'Đường huyết ngẫu nhiên', 'mg/dL', N'Đo đường huyết tại thời điểm bất kỳ', 2, 1);
+
+INSERT INTO [Medication] (MedicationID, MedicationName, Form, Concentration, AdministrationRoute, UsageInstruction, Status)
+VALUES
+('MED001', 'Metformin', N'Viên nén', '500mg', N'Đường uống', N'Uống sau khi ăn', 'Active'),
+('MED002', 'Gliclazide', N'Viên nén', '30mg', N'Đường uống', N'Uống trước bữa ăn sáng', 'Active'),
+('MED003', 'Insulin Glargine', N'Bút tiêm', '100IU/ml', N'Tiêm dưới da', N'Tiêm vào cùng một thời điểm mỗi ngày', 'Active'),
+('MED004', 'Sitagliptin', N'Viên nén', '100mg', N'Đường uống', N'Uống một lần mỗi ngày', 'Active');

@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lịch sử Thông báo | Hệ thống Chăm sóc Tiểu đường</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/patient/patient.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Modern Premium Notification Styling */
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .history-tabs-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #ffffff;
+            border-radius: var(--radius);
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+        }
+
+        .filter-tab {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2c ease;
+            border: none;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-tab.active {
+            background-color: var(--mint-200);
+            color: var(--green-900);
+        }
+
+        .tab-count {
+            font-size: 11px;
+            background-color: rgba(10, 61, 50, 0.1);
+            color: var(--green-900);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+        .filter-tab.active .tab-count {
+            background-color: var(--green-700);
+            color: #ffffff;
+        }
+
+        .mark-read-btn {
+            background: transparent;
+            border: none;
+            color: var(--green-700);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+        }
+
+        .mark-read-btn:hover {
+            background-color: var(--mint-50);
+            color: var(--green-900);
+        }
+
+        .notification-group {
+            margin-bottom: 32px;
+        }
+
+        .group-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+            padding-left: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .group-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background-color: var(--border);
+        }
+
+        .notification-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .notification-card {
+            background: #ffffff;
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .notification-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--mint-400);
+        }
+
+        .notification-card.unread {
+            background-color: #f4fbf8;
+            border-left: 4px solid var(--green-700);
+        }
+
+        .card-main-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+        }
+
+        .notif-icon-wrapper {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .notif-icon-medication {
+            background-color: #fff1f1;
+            color: #d32f2f;
+        }
+
+        .notif-icon-checkup {
+            background-color: #e8f7f0;
+            color: #2e7d32;
+        }
+
+        .notif-icon-knowledge {
+            background-color: #f0f2f5;
+            color: #5c6bc0;
+        }
+
+        .notif-text-block {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .notif-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .notification-card.unread .notif-title {
+            color: #0f172a;
+        }
+
+        .notif-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--danger);
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .notif-message {
+            font-size: 13.5px;
+            color: var(--text-secondary);
+            margin: 0;
+            line-height: 1.4;
+            max-width: 700px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-time-block {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-align: right;
+            min-width: 80px;
+        }
+
+        .empty-history-state {
+            background: #ffffff;
+            border-radius: var(--radius);
+            padding: 48px;
+            border: 1px solid var(--border);
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            margin-top: 16px;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            opacity: 0.6;
+        }
+
+        .empty-history-state h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .empty-history-state p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+
+<body>
+<div class="admin-layout">
+    <div th:replace="~{layout/patient-sidebar :: patientSidebar('notifications')}"></div>
+
+    <div class="admin-main">
+        <div th:replace="~{layout/patient-header :: patientHeader('Thông báo')}"></div>
+
+        <main class="admin-content" th:with="
+            unreadToday=${todayNotifications.?[isRead == null or !isRead].size()},
+            unreadYesterday=${yesterdayNotifications.?[isRead == null or !isRead].size()},
+            unreadOlder=${olderNotifications.?[isRead == null or !isRead].size()},
+            totalCount=${todayNotifications.size() + yesterdayNotifications.size() + olderNotifications.size()},
+            totalUnreadCount=${unreadToday + unreadYesterday + unreadOlder}
+        ">
+            <div class="page-header dashboard-hero" style="margin-bottom: 24px;">
+                <div>
+                    <h1 id="page-title">
+                        <i class="fas fa-history"></i>
+                        Lịch sử thông báo
+                    </h1>
+                    <p class="subtitle" id="page-subtitle">
+                        Xem và lọc lại toàn bộ các thông báo, lịch tái khám và cập nhật sức khỏe từ bác sĩ.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Tab Filtering and Action buttons -->
+            <div class="history-tabs-container">
+                <div class="filter-tabs">
+                    <button class="filter-tab active" id="tab-all" onclick="filterNotifications('all')">
+                        Tất cả <span class="tab-count" id="count-all" th:text="${totalCount}">0</span>
+                    </button>
+                    <button class="filter-tab" id="tab-unread" onclick="filterNotifications('unread')">
+                        Chưa đọc <span class="tab-count" id="count-unread" th:text="${totalUnreadCount}">0</span>
+                    </button>
+                </div>
+
+                <button class="mark-read-btn" th:style="${totalUnreadCount > 0} ? '' : 'display: none;'" id="mark-all-read-btn" onclick="markAllAsRead()">
+                    <i class="fas fa-check-double"></i>
+                    Đánh dấu tất cả là đã đọc
+                </button>
+            </div>
+
+            <!-- Group 1: Today -->
+            <div class="notification-group" id="group-today" th:if="${!todayNotifications.isEmpty()}">
+                <div class="group-title">Hôm nay</div>
+                <div class="notification-list">
+                    <a th:href="@{/patient/notifications/{id}(id=${reminder.aiReminderId})}" 
+                       class="notification-card" 
+                       th:each="reminder : ${todayNotifications}"
+                       th:classappend="${reminder.isRead == null or !reminder.isRead} ? 'unread' : 'read'"
+                       th:attr="data-read=${reminder.isRead == null ? 'false' : reminder.isRead}">
+                        
+                        <div class="card-main-content">
+                            <!-- Categorized Icon -->
+                            <div class="notif-icon-wrapper" 
+                                 th:classappend="${#strings.contains(reminder.title, 'Nhắc nhở') or #strings.contains(reminder.title, 'Uống') or #strings.contains(reminder.title, 'thuốc') or reminder.timing != null} ? 'notif-icon-medication' : (${#strings.contains(reminder.title, 'Lịch') or #strings.contains(reminder.title, 'Tái khám') or #strings.contains(reminder.title, 'Hẹn') or #strings.contains(reminder.title, 'Xác nhận')} ? 'notif-icon-checkup' : 'notif-icon-knowledge')">
+                                <i th:class="${#strings.contains(reminder.title, 'Nhắc nhở') or #strings.contains(reminder.title, 'Uống') or #strings.contains(reminder.title, 'thuốc') or reminder.timing != null} ? 'fas fa-pills' : (${#strings.contains(reminder.title, 'Lịch') or #strings.contains(reminder.title, 'Tái khám') or #strings.contains(reminder.title, 'Hẹn') or #strings.contains(reminder.title, 'Xác nhận')} ? 'fas fa-calendar-alt' : 'fas fa-file-alt')"></i>
+                            </div>
+
+                            <div class="notif-text-block">
+                                <h4 class="notif-title">
+                                    <span th:text="${reminder.title}">Tiêu đề</span>
+                                    <span class="notif-dot" th:if="${reminder.isRead == null or !reminder.isRead}"></span>
+                                </h4>
+                                <p class="notif-message" th:text="${reminder.message}">Nội dung</p>
+                            </div>
+                        </div>
+
+                        <div class="card-time-block">
+                            <span th:text="${reminder.scheduledTime != null ? #temporals.format(reminder.scheduledTime, 'HH:mm') : ''}">10:30</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Group 2: Yesterday -->
+            <div class="notification-group" id="group-yesterday" th:if="${!yesterdayNotifications.isEmpty()}">
+                <div class="group-title">Hôm qua</div>
+                <div class="notification-list">
+                    <a th:href="@{/patient/notifications/{id}(id=${reminder.aiReminderId})}" 
+                       class="notification-card" 
+                       th:each="reminder : ${yesterdayNotifications}"
+                       th:classappend="${reminder.isRead == null or !reminder.isRead} ? 'unread' : 'read'"
+                       th:attr="data-read=${reminder.isRead == null ? 'false' : reminder.isRead}">
+                        
+                        <div class="card-main-content">
+                            <!-- Categorized Icon -->
+                            <div class="notif-icon-wrapper" 
+                                 th:classappend="${#strings.contains(reminder.title, 'Nhắc nhở') or #strings.contains(reminder.title, 'Uống') or #strings.contains(reminder.title, 'thuốc') or reminder.timing != null} ? 'notif-icon-medication' : (${#strings.contains(reminder.title, 'Lịch') or #strings.contains(reminder.title, 'Tái khám') or #strings.contains(reminder.title, 'Hẹn') or #strings.contains(reminder.title, 'Xác nhận')} ? 'notif-icon-checkup' : 'notif-icon-knowledge')">
+                                <i th:class="${#strings.contains(reminder.title, 'Nhắc nhở') or #strings.contains(reminder.title, 'Uống') or #strings.contains(reminder.title, 'thuốc') or reminder.timing != null} ? 'fas fa-pills' : (${#strings.contains(reminder.title, 'Lịch') or #strings.contains(reminder.title, 'Tái khám') or #strings.contains(reminder.title, 'Hẹn') or #strings.contains(reminder.title, 'Xác nhận')} ? 'fas fa-calendar-alt' : 'fas fa-file-alt')"></i>
+                            </div>
+
+                            <div class="notif-text-block">
+                                <h4 class="notif-title">
+                                    <span th:text="${reminder.title}">Tiêu đề</span>
+                                    <span class="notif-dot" th:if="${reminder.isRead == null or !reminder.isRead}"></span>
+                                </h4>
+                                <p class="notif-message" th:text="${reminder.message}">Nội dung</p>
+                            </div>
+                        </div>
+
+                        <div class="card-time-block">
+                            <span th:text="${reminder.scheduledTime != null ? #temporals.format(reminder.scheduledTime, 'HH:mm') : ''}">15:45</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Group 3: Older -->
+            <div class="notification-group" id="group-older" th:if="${!olderNotifications.isEmpty()}">
+                <div class="group-title">Cũ hơn</div>
+                <div class="notification-list">
+                    <a th:href="@{/patient/notifications/{id}(id=${reminder.aiReminderId})}" 
+                       class="notification-card" 
+                       th:each="reminder : ${olderNotifications}"
+                       th:classappend="${reminder.isRead == null or !reminder.isRead} ? 'unread' : 'read'"
+                       th:attr="data-read=${reminder.isRead == null ? 'false' : reminder.isRead}">
+                        
+                        <div class="card-main-content">
+                            <!-- Categorized Icon -->
+                            <div class="notif-icon-wrapper" 
+                                 th:classappend="${#strings.contains(reminder.title, 'Nhắc nhở') or #strings.contains(reminder.title, 'Uống') or #strings.contains(reminder.title, 'thuốc') or reminder.timing != null} ? 'notif-icon-medication' : (${#strings.contains(reminder.title, 'Lịch') or #strings.contains(reminder.title, 'Tái khám') or #strings.contains(reminder.title, 'Hẹn') or #strings.contains(reminder.title, 'Xác nhận')} ? 'notif-icon-checkup' : 'notif-icon-knowledge')">
+                                <i th:class="${#strings.contains(reminder.title, 'Nhắc nhở') or #strings.contains(reminder.title, 'Uống') or #strings.contains(reminder.title, 'thuốc') or reminder.timing != null} ? 'fas fa-pills' : (${#strings.contains(reminder.title, 'Lịch') or #strings.contains(reminder.title, 'Tái khám') or #strings.contains(reminder.title, 'Hẹn') or #strings.contains(reminder.title, 'Xác nhận')} ? 'fas fa-calendar-alt' : 'fas fa-file-alt')"></i>
+                            </div>
+
+                            <div class="notif-text-block">
+                                <h4 class="notif-title">
+                                    <span th:text="${reminder.title}">Tiêu đề</span>
+                                    <span class="notif-dot" th:if="${reminder.isRead == null or !reminder.isRead}"></span>
+                                </h4>
+                                <p class="notif-message" th:text="${reminder.message}">Nội dung</p>
+                            </div>
+                        </div>
+
+                        <div class="card-time-block">
+                            <span th:text="${reminder.scheduledTime != null ? #temporals.format(reminder.scheduledTime, 'dd/MM') : ''}">25/09</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Empty History State -->
+            <div class="empty-history-state" id="empty-state" th:style="${totalCount > 0} ? 'display: none;' : ''">
+                <div class="empty-icon">
+                    <i class="far fa-bell-slash"></i>
+                </div>
+                <h3 id="empty-state-title">Không có thông báo</h3>
+                <p id="empty-state-desc">Bạn chưa nhận được bất kỳ thông báo hoặc cập nhật y khoa nào.</p>
+            </div>
+        </main>
+
+        <div th:replace="~{layout/footer :: footer}"></div>
+    </div>
+</div>
+
+<script>
+    let currentFilter = 'all';
+
+    function filterNotifications(filter) {
+        currentFilter = filter;
+        
+        // Toggle Active Tab Styling
+        document.getElementById('tab-all').classList.toggle('active', filter === 'all');
+        document.getElementById('tab-unread').classList.toggle('active', filter === 'unread');
+
+        const cards = document.querySelectorAll('.notification-card');
+        const groups = document.querySelectorAll('.notification-group');
+        let visibleCount = 0;
+
+        groups.forEach(group => {
+            let visibleInGroup = 0;
+            const groupCards = group.querySelectorAll('.notification-card');
+            
+            groupCards.forEach(card => {
+                const isRead = card.getAttribute('data-read') === 'true';
+                if (filter === 'all' || (filter === 'unread' && !isRead)) {
+                    card.style.display = 'flex';
+                    visibleInGroup++;
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Hide the entire group header if no visible cards are inside
+            group.style.display = visibleInGroup > 0 ? '' : 'none';
+        });
+
+        // Show/hide empty state
+        const emptyState = document.getElementById('empty-state');
+        if (visibleCount === 0) {
+            emptyState.style.display = 'block';
+            if (filter === 'unread') {
+                document.getElementById('empty-state-title').innerText = 'Không có thông báo chưa đọc';
+                document.getElementById('empty-state-desc').innerText = 'Chúc mừng! Bạn đã đọc toàn bộ thông báo của mình.';
+            } else {
+                document.getElementById('empty-state-title').innerText = 'Không có thông báo';
+                document.getElementById('empty-state-desc').innerText = 'Bạn chưa nhận được bất kỳ thông báo hoặc cập nhật y khoa nào.';
+            }
+        } else {
+            emptyState.style.display = 'none';
+        }
+    }
+
+    function markAllAsRead() {
+        fetch('/patient/notifications/mark-all-read', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update frontend cards locally
+                const cards = document.querySelectorAll('.notification-card');
+                cards.forEach(card => {
+                    card.classList.remove('unread');
+                    card.classList.add('read');
+                    card.setAttribute('data-read', 'true');
+                    
+                    const dot = card.querySelector('.notif-dot');
+                    if (dot) {
+                        dot.remove();
+                    }
+                });
+
+                // Reset counts
+                document.getElementById('count-unread').innerText = '0';
+                
+                // Hide header notification bell dot
+                const headerDot = document.querySelector('.header-actions .notification-dot');
+                if (headerDot) {
+                    headerDot.remove();
+                }
+
+                // Hide mark-all-read button
+                const markBtn = document.getElementById('mark-all-read-btn');
+                if (markBtn) {
+                    markBtn.style.display = 'none';
+                }
+
+                // If currently viewing unread tab, re-apply filter to update display
+                if (currentFilter === 'unread') {
+                    filterNotifications('unread');
+                }
+            } else {
+                alert(data.message || 'Có lỗi xảy ra khi cập nhật thông báo.');
+            }
+        })
+        .catch(err => {
+            console.error('Error marking all as read:', err);
+            alert('Không thể kết nối đến máy chủ. Vui lòng thử lại sau.');
+        });
+    }
+</script>
+</body>
+</html>
