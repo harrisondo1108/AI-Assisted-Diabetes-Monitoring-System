@@ -655,42 +655,28 @@ public abstract class BasePatientController {
                 ? routine.getWakeUpTime()
                 : LocalTime.of(6, 0);
 
+        LocalTime baseTime = null;
+
         if (normalizedTiming.contains("breakfast") || normalizedTiming.contains("sáng")) {
-            return adjustByMealTiming(normalizedTiming, breakfastTime);
-        }
-
-        if (normalizedTiming.contains("lunch") || normalizedTiming.contains("trưa")) {
-            return adjustByMealTiming(normalizedTiming, lunchTime);
-        }
-
-        if (normalizedTiming.contains("dinner") || normalizedTiming.contains("tối")) {
-            return adjustByMealTiming(normalizedTiming, dinnerTime);
-        }
-
-        if (normalizedTiming.contains("sleep")
+            baseTime = breakfastTime;
+        } else if (normalizedTiming.contains("lunch") || normalizedTiming.contains("trưa")) {
+            baseTime = lunchTime;
+        } else if (normalizedTiming.contains("dinner") || normalizedTiming.contains("tối")) {
+            baseTime = dinnerTime;
+        } else if (normalizedTiming.contains("sleep")
                 || normalizedTiming.contains("bed")
                 || normalizedTiming.contains("ngủ")) {
-            return sleepTime;
-        }
-
-        if (normalizedTiming.contains("wake")
+            baseTime = sleepTime;
+        } else if (normalizedTiming.contains("wake")
                 || normalizedTiming.contains("morning")
                 || normalizedTiming.contains("thức")) {
-            return wakeUpTime;
+            baseTime = wakeUpTime;
+        }
+
+        if (baseTime != null) {
+            return baseTime.plusMinutes(30);
         }
 
         return null;
-    }
-
-    protected LocalTime adjustByMealTiming(String timingName, LocalTime mealTime) {
-        if (timingName.contains("before") || timingName.contains("trước")) {
-            return mealTime.minusMinutes(30);
-        }
-
-        if (timingName.contains("after") || timingName.contains("sau")) {
-            return mealTime.plusMinutes(30);
-        }
-
-        return mealTime;
     }
 }
