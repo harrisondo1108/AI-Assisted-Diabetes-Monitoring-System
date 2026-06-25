@@ -1,4 +1,4 @@
-﻿--DROP trước
+--DROP trước
 --IF DB_ID('Diabetes') IS NOT NULL
 --   DROP DATABASE Diabetes;
 --GO
@@ -294,12 +294,16 @@ CREATE TABLE [AI_Reminder] (
     Message NVARCHAR(MAX),
     ScheduledTime DATETIME,
     IsRead BIT DEFAULT 0,
+    IsSent BIT DEFAULT 0,
 	AIAssistantID INT,
     PatientID VARCHAR(50),
 	TimingID INT,
+    Status BIT DEFAULT 1,
+    ClinicalExamID VARCHAR(50),
     FOREIGN KEY (PatientID) REFERENCES Patient(UserID) ON DELETE CASCADE,
 	FOREIGN KEY (AIAssistantID) REFERENCES AI_Assistant(AIAssistantID) ON DELETE CASCADE,
-	FOREIGN KEY (TimingID) REFERENCES MedicationTiming(TimingID)
+	FOREIGN KEY (TimingID) REFERENCES MedicationTiming(TimingID),
+    FOREIGN KEY (ClinicalExamID) REFERENCES ClinicalExamination(ClinicalExamID) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 ------------------  INSERT  ----------------------------------------
