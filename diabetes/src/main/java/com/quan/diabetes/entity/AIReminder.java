@@ -46,6 +46,13 @@ public class AIReminder {
     @JoinColumn(name = "TimingID")
     private MedicationTiming timing;
 
+    @Column(name = "Status")
+    private Boolean status = true;
+
+    @ManyToOne
+    @JoinColumn(name = "ClinicalExamID")
+    private ClinicalExamination clinicalExamination;
+
     public AIReminder() {
     }
 
@@ -120,7 +127,20 @@ public class AIReminder {
     public void setTiming(MedicationTiming timing) {
         this.timing = timing;
     }
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
+    }
+
+    public ClinicalExamination getClinicalExamination() {
+        return clinicalExamination;
+    }
+
+    public void setClinicalExamination(ClinicalExamination clinicalExamination) {
+        this.clinicalExamination = clinicalExamination;
+    }
 }
-
-
-

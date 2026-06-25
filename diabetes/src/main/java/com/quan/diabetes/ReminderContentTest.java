@@ -1,6 +1,6 @@
 package com.quan.diabetes;
 
-import com.quan.diabetes.service.reminder.ReminderSchedualeService;
+import com.quan.diabetes.service.reminder.MedicationSchedualeService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -13,8 +13,8 @@ public class ReminderContentTest {
         ConfigurableApplicationContext context =
                 SpringApplication.run(ReminderContentTest.class, args);
 
-        ReminderSchedualeService service =
-                context.getBean(ReminderSchedualeService.class);
+        MedicationSchedualeService service =
+                context.getBean(MedicationSchedualeService.class);
 
         service.generateReminder("EXM-1782060867382-993");
         System.out.println("============Suscessful==============");

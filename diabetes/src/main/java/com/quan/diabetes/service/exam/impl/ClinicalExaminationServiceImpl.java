@@ -1,7 +1,7 @@
 package com.quan.diabetes.service.exam.impl;
 
 import com.quan.diabetes.service.exam.ClinicalExaminationService;
-import com.quan.diabetes.service.reminder.ReminderSchedualeService;
+import com.quan.diabetes.service.reminder.MedicationSchedualeService;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import com.quan.diabetes.entity.*;
@@ -9,6 +9,9 @@ import com.quan.diabetes.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import com.quan.diabetes.service.reminder.AppointmentSchedule;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -36,7 +39,10 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
     private final IndicatorThresholdRepository indicatorThresholdRepository;
 
     // khai báo Reminder
-    private final ReminderSchedualeService reminderSchedualeService;
+    private final MedicationSchedualeService medicationSchedualeService;
+
+    @Autowired
+    private AppointmentSchedule appointmentSchedule;
 
 
     public ClinicalExaminationServiceImpl(
@@ -56,7 +62,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
             LabTestCatalogRepository labTestCatalogRepository,
             PatientTypeRepository patientTypeRepository,
             IndicatorThresholdRepository indicatorThresholdRepository,
-            ReminderSchedualeService reminderSchedualeService) {
+            MedicationSchedualeService medicationSchedualeService) {
         this.clinicalExaminationRepository = clinicalExaminationRepository;
         this.userRepository = userRepository;
         this.patientRepository = patientRepository;
@@ -73,7 +79,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         this.labTestCatalogRepository = labTestCatalogRepository;
         this.patientTypeRepository = patientTypeRepository;
         this.indicatorThresholdRepository = indicatorThresholdRepository;
-        this.reminderSchedualeService = reminderSchedualeService;
+        this.medicationSchedualeService = medicationSchedualeService;
     }
 
     @Override
@@ -464,7 +470,8 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                     }
                 }
                 // tao và luu reminder
-                reminderSchedualeService.generateReminder(examId);
+                medicationSchedualeService.generateReminder(examId);
+                appointmentSchedule.generateAppointmentReminder(examId);
                 // tao và luu reminder
             } catch (Exception e) {
                 throw new RuntimeException("Error deserializing prescription JSON: " + e.getMessage(), e);

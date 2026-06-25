@@ -6,6 +6,7 @@ import com.quan.diabetes.service.ai.AIReminderService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +17,11 @@ public class AIReminderServiceImpl implements AIReminderService {
 
     public AIReminderServiceImpl(AIReminderRepository aIReminderRepository) {
         this.aIReminderRepository = aIReminderRepository;
+    }
+
+    @Override
+    public List<AIReminder> getListByIdAndScheduledTimeLessThanEqual(String id, LocalDateTime scheduledTimeIsLessThan) {
+        return aIReminderRepository.findByPatient_UserIdAndScheduledTimeLessThanEqualOrderByScheduledTimeDesc(id, scheduledTimeIsLessThan);
     }
 
     @Override

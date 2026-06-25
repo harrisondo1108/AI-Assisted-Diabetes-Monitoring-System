@@ -2464,3 +2464,102 @@ body::before {
         align-items: stretch;
     }
 }
+
+/* ==========================================
+   Search Filter Styles for Patient Portal
+   ========================================== */
+.search-filter-card {
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.search-filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: flex-end;
+}
+
+.search-filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    min-width: 200px;
+}
+
+.search-filter-field label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
+.search-filter-field input {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    background: #fff;
+    outline: none;
+    transition: 0.2s ease;
+}
+
+.search-filter-field input:focus {
+    border-color: var(--green-600);
+    box-shadow: 0 0 0 3px rgba(26, 107, 86, 0.12);
+}
+
+.search-filter-actions {
+    display: flex;
+    gap: 10px;
+}
+
+@media (max-width: 768px) {
+    .search-filter-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-filter-field {
+        width: 100%;
+    }
+    
+    .search-filter-actions {
+        width: 100%;
+        margin-top: 8px;
+    }
+    
+    .search-filter-actions .primary-btn,
+    .search-filter-actions .secondary-btn {
+        flex: 1;
+        justify-content: center;
+    }
+}
+
+/* Pagination Size Selector */
+.pagination-size {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.page-size-select {
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background-color: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-weight: 500;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.page-size-select:focus, .page-size-select:hover {
+    border-color: var(--green-600);
+}

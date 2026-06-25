@@ -479,3 +479,10 @@ function setupChangePasswordValidation() {
         }
     });
 }
+
+function changePageSize(size) {
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set('size', size);
+    urlParams.set('page', '0'); // Reset to first page
+    window.location.search = urlParams.toString();
+}

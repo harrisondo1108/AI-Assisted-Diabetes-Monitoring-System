@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forgot Password - Diabetes Care System</title>
+    <title>Quên mật khẩu - Diabetes Care System</title>
     <link rel="stylesheet" th:href="@{/css/pages/auth.css}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -16,51 +16,51 @@
                 <i class="fas fa-droplet"></i>
                 <span>Diabetes Care System</span>
             </div>
-            <h1>Recover Access</h1>
-            <p class="subtitle">We will help you regain system access securely.</p>
+            <h1>Khôi phục quyền truy cập</h1>
+            <p class="subtitle">Chúng tôi sẽ giúp bạn khôi phục quyền truy cập hệ thống một cách an toàn.</p>
 
             <div class="feature-card">
-                <h3><i class="fas fa-shield-alt"></i> Two-Factor Security</h3>
+                <h3><i class="fas fa-shield-alt"></i> Bảo mật hai lớp</h3>
                 <ul>
-                    <li><i class="fas fa-mobile-alt"></i> Verification via phone number</li>
-                    <li><i class="fas fa-key"></i> Secure password reset</li>
-                    <li><i class="fas fa-user-check"></i> Medical records protection</li>
+                    <li><i class="fas fa-mobile-alt"></i> Xác thực qua số điện thoại</li>
+                    <li><i class="fas fa-key"></i> Đặt lại mật khẩu an toàn</li>
+                    <li><i class="fas fa-user-check"></i> Bảo vệ hồ sơ y tế</li>
                 </ul>
             </div>
         </div>
 
         <div class="right-panel">
             <div class="login-form">
-                <h2>Enter Phone Number</h2>
+                <h2>Nhập số điện thoại</h2>
                 <div id="errorMsg" class="error-message" style="display: none;"></div>
 
                 <form id="forgotPhoneForm" th:action="@{/forgot-password/send-otp}" method="post">
                     <p style="text-align: center; color: #64748b; margin-bottom: 25px; font-size: 14px;">
-                        Please enter the phone number associated with your account. We will send a verification OTP via SMS.
+                        Vui lòng nhập số điện thoại liên kết với tài khoản của bạn. Chúng tôi sẽ gửi mã xác thực OTP qua SMS.
                     </p>
 
                     <div class="input-group">
-                        <label for="phoneNumber">Phone Number</label>
+                        <label for="phoneNumber">Số điện thoại</label>
                         <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="0912 345 678" required>
                         <i class="fas fa-phone input-icon"></i>
-                        <div class="error-hint" id="phoneHint">Invalid phone number</div>
+                        <div class="error-hint" id="phoneHint">Số điện thoại không hợp lệ</div>
                     </div>
 
                     <button type="submit" class="btn-primary">
-                        Send OTP <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>
+                        Gửi mã OTP <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>
                     </button>
                 </form>
 
                 <p class="login-link">
-                    <a th:href="@{/login}"><i class="fas fa-arrow-left"></i> Back to login</a>
+                    <a th:href="@{/login}"><i class="fas fa-arrow-left"></i> Quay lại đăng nhập</a>
                 </p>
             </div>
             <footer>
-                <p>© 2024 Diabetes Care System - Diabetes Management Solution</p>
+                <p>© 2024 Diabetes Care System - Giải pháp Quản lý Tiểu đường</p>
                 <div class="footer-links">
-                    <a href="#">Privacy Policy</a> |
-                    <a href="#">Terms of Service</a> |
-                    <a href="#">Support</a>
+                    <a href="#">Chính sách bảo mật</a> |
+                    <a href="#">Điều khoản dịch vụ</a> |
+                    <a href="#">Hỗ trợ</a>
                 </div>
             </footer>
         </div>

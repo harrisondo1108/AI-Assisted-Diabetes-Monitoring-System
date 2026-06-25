@@ -2,6 +2,7 @@ package com.quan.diabetes.service.reminder;
 
 import com.quan.diabetes.dto.PrescriptionReminderDto;
 import com.quan.diabetes.entity.AIReminder;
+import com.quan.diabetes.entity.ClinicalExamination;
 import com.quan.diabetes.entity.MedicationTiming;
 import com.quan.diabetes.entity.Patient;
 import com.quan.diabetes.entity.PatientRoutine;
@@ -26,7 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 @Service
-public class ReminderSchedualeService {
+public class MedicationSchedualeService {
 
     public static final String MEDICATION_REMINDER_TITLE = "Nhắc nhở lịch sử dụng thuốc";
 
@@ -34,7 +35,7 @@ public class ReminderSchedualeService {
     private AIReminderCreationService AIReminderCreationService;
 
     @Autowired
-    private TemplateReminderCreationService templateReminderCreationService;
+    private TemplateMedicationCreationService templateMedicationCreationService;
 
     @Autowired
     private PrescriptionTimingRepository prescriptionTimingRepo;
@@ -53,9 +54,23 @@ public class ReminderSchedualeService {
 
     @Transactional
     public void generateReminder(String clinicalExamId) {
-        Patient patient = clinicalExaminationRepo.findPatientByClinicalExamId(clinicalExamId);
+        ClinicalExamination clinicalExamination = clinicalExaminationRepo.findById(clinicalExamId)
+                .orElseThrow(() -> new IllegalArgumentException("Clinical examination not found: " + clinicalExamId));
+        Patient patient = clinicalExamination.getPatient();
         if (patient == null) {
-            throw new IllegalArgumentException("Clinical examination not found: " + clinicalExamId);
+            throw new IllegalArgumentException("Patient not found for clinical exam: " + clinicalExamId);
+        }
+
+        // Before generating new reminders, lock all future medication reminders for this patient
+        LocalDateTime now = LocalDateTime.now();
+        List<AIReminder> futureReminders = aiReminderRepo.findByPatient_UserIdAndScheduledTimeGreaterThanEqualAndTitleOrderByScheduledTimeAsc(
+                patient.getUserId(),
+                now,
+                MEDICATION_REMINDER_TITLE
+        );
+        for (AIReminder oldReminder : futureReminders) {
+            oldReminder.setStatus(false); // false = lock
+            aiReminderRepo.save(oldReminder);
         }
 
         String name = patient.getFullName();
@@ -96,12 +111,12 @@ public class ReminderSchedualeService {
                 if (reminderForDate.isEmpty()) {
                     continue;
                 }
-                for (PrescriptionReminderDto prescription : reminderForDate) {
-                    System.out.println(prescription);
-                }
+//                for (PrescriptionReminderDto prescription : reminderForDate) {
+//                    System.out.println(prescription);
+//                }
                 String segmentReminder = getContentFromTemplate(name, time, reminderForDate);
                 LocalTime timeForSegment = ReminderTimeCalculator.calculateReminderTime(time, patientRoutine);
-                saveRemindersForDateRange(patient, timing, segmentReminder, startDate, endDateExclusive, timeForSegment);
+                saveRemindersForDateRange(patient, timing, segmentReminder, startDate, endDateExclusive, timeForSegment, clinicalExamination);
             }
         }
     }
@@ -110,7 +125,7 @@ public class ReminderSchedualeService {
     }
 
     private String getContentFromTemplate(String name, String time, List<PrescriptionReminderDto> reminderForDate) {
-        return templateReminderCreationService.generateGroupReminder(name, time, reminderForDate);
+        return templateMedicationCreationService.generateGroupReminder(name, time, reminderForDate);
     }
 
     private boolean isValidPrescriptionForTiming(PrescriptionReminderDto prescription, String time) {
@@ -149,17 +164,19 @@ public class ReminderSchedualeService {
             String message,
             LocalDate startDate,
             LocalDate endDateExclusive,
-            LocalTime reminderTime
+            LocalTime reminderTime,
+            ClinicalExamination clinicalExamination
     ) {
         LocalDate currentDate = startDate;
         while (currentDate.isBefore(endDateExclusive)) {
             LocalDateTime reminderDateTime = LocalDateTime.of(currentDate, reminderTime);
 
-            if (!aiReminderRepo.existsByPatient_UserIdAndScheduledTimeAndTitleAndTiming_TimingID(
+            if (!aiReminderRepo.existsByPatient_UserIdAndScheduledTimeAndTitleAndTiming_TimingIDAndStatus(
                     patient.getUserId(),
                     reminderDateTime,
                     MEDICATION_REMINDER_TITLE,
-                    timing.getTimingID())) {
+                    timing.getTimingID(),
+                    true)) {
                 AIReminder reminder = new AIReminder();
                 reminder.setTitle(MEDICATION_REMINDER_TITLE);
                 reminder.setMessage(message);
@@ -168,6 +185,8 @@ public class ReminderSchedualeService {
                 reminder.setTiming(timing);
                 reminder.setIsRead(false);
                 reminder.setIsSent(false);
+                reminder.setStatus(true); // true = unlock
+                reminder.setClinicalExamination(clinicalExamination);
 
                 aiReminderRepo.save(reminder);
             }

@@ -51,7 +51,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User create(User entity) {
-        return userRepository.save(entity);
+        User newUser = new User();
+        newUser.setUserId(entity.getUserId());
+        newUser.setPhoneNumber(entity.getPhoneNumber());
+        newUser.setRole(entity.getRole());
+        newUser.setPasswordHash(passwordEncoder.encode(entity.getPasswordHash()));
+        return userRepository.save(newUser);
     }
 
     @Override
@@ -59,7 +64,12 @@ public class UserServiceImpl implements UserService {
         if (!userRepository.existsById(id)) {
             throw new EntityNotFoundException("User not found with id: " + id);
         }
-        return userRepository.save(entity);
+        User newUser = new User();
+        newUser.setUserId(entity.getUserId());
+        newUser.setPhoneNumber(entity.getPhoneNumber());
+        newUser.setRole(entity.getRole());
+        newUser.setPasswordHash(passwordEncoder.encode(entity.getPasswordHash()));
+        return userRepository.save(newUser);
     }
 
     @Override

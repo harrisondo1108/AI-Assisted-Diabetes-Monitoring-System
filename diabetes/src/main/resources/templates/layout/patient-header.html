@@ -8,8 +8,9 @@
     </div>
 
     <div class="header-actions">
-        <a th:href="@{/patient/notifications}" class="icon-btn header-link-btn" title="Nhắc nhở dùng thuốc">
+        <a th:href="@{/patient/notifications/history}" class="icon-btn header-link-btn" title="Thông báo" style="position: relative; display: flex; align-items: center; justify-content: center;">
             <i class="fas fa-bell"></i>
+            <span th:if="${hasUnreadNotifications}" class="notification-dot" style="position: absolute; top: 8px; right: 8px; width: 8px; height: 8px; background-color: var(--danger, #dc2626); border-radius: 50%;"></span>
         </a>
 
         <a th:href="@{/patient/chat}" class="icon-btn header-link-btn" title="Trợ lý chăm sóc AI">

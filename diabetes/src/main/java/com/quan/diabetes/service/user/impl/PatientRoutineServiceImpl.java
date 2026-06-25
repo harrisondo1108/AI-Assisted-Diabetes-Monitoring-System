@@ -1,10 +1,10 @@
-package com.quan.diabetes.service.impl;
+package com.quan.diabetes.service.user.impl;
 
 import com.quan.diabetes.entity.Patient;
 import com.quan.diabetes.entity.PatientRoutine;
 import com.quan.diabetes.repository.PatientRepository;
 import com.quan.diabetes.repository.PatientRoutineRepository;
-import com.quan.diabetes.service.reminder.ReminderRescheduleService;
+import com.quan.diabetes.service.reminder.MedicationRescheduleService;
 import com.quan.diabetes.service.user.PatientRoutineService;
 import org.springframework.stereotype.Service;
 
@@ -21,16 +21,16 @@ public class PatientRoutineServiceImpl implements PatientRoutineService {
 
     private final PatientRepository patientRepository;
 
-    private final ReminderRescheduleService reminderRescheduleService;
+    private final MedicationRescheduleService medicationRescheduleService;
 
     public PatientRoutineServiceImpl(
             PatientRoutineRepository patientRoutineRepository,
             PatientRepository patientRepository,
-            ReminderRescheduleService reminderRescheduleService
+            MedicationRescheduleService medicationRescheduleService
     ) {
         this.patientRoutineRepository = patientRoutineRepository;
         this.patientRepository = patientRepository;
-        this.reminderRescheduleService = reminderRescheduleService;
+        this.medicationRescheduleService = medicationRescheduleService;
     }
 
     @Override
@@ -72,7 +72,7 @@ public class PatientRoutineServiceImpl implements PatientRoutineService {
         entity.setUserId(id);
         entity.setPatient(patient);
         PatientRoutine savedRoutine = patientRoutineRepository.save(entity);
-        reminderRescheduleService.rescheduleFutureMedicationReminders(id, savedRoutine);
+        medicationRescheduleService.rescheduleFutureMedicationReminders(id, savedRoutine);
 
         return savedRoutine;
     }

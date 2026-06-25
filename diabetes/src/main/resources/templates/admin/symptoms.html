@@ -87,6 +87,15 @@
 
         <!-- PHÂN TRANG GIỮ NGUYÊN (thẻ a, reload trang) -->
         <div class="pagination-container" th:if="${totalPages > 0}">
+          <div class="page-size-selector" style="display: flex; align-items: center; gap: 8px; font-size: 0.875rem; color: #5a6f68;">
+            <label>Hiển thị: </label>
+            <select id="pageSizeSelect" style="padding: 6px 12px; border: 1px solid #e2ebe7; border-radius: 8px; background-color: #fff; color: #0f2e26; font-size: 0.875rem; font-weight: 500; cursor: pointer;" onchange="changePageSize()">
+              <option value="4" th:selected="${pageSize == 4}">4 hàng / trang</option>
+              <option value="8" th:selected="${pageSize == 8}">8 hàng / trang</option>
+              <option value="15" th:selected="${pageSize == 15}">15 hàng / trang</option>
+              <option value="30" th:selected="${pageSize == 30}">30 hàng / trang</option>
+            </select>
+          </div>
           <div class="pagination-controls">
             <a th:if="${currentPage > 0}" th:href="@{/admin/symptoms(page=0, size=${pageSize}, status=${selectedStatus}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> First</a>
             <a th:if="${currentPage > 0}" th:href="@{/admin/symptoms(page=${currentPage - 1}, size=${pageSize}, status=${selectedStatus}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> Previous</a>
@@ -186,5 +195,14 @@
 
 <script th:src="@{/js/admin/symptoms.js}"></script>
 <script src="/static/js/admin/symptoms.js"></script>
+<script>
+    function changePageSize() {
+        var size = document.getElementById('pageSizeSelect').value;
+        var currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('size', size);
+        currentUrl.searchParams.set('page', '0');
+        window.location.href = currentUrl.toString();
+    }
+</script>
 </body>
 </html>

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 @Service
-public class TemplateReminderCreationService {
+public class TemplateMedicationCreationService {
 
     public String generateGroupReminder(
             String patientName,

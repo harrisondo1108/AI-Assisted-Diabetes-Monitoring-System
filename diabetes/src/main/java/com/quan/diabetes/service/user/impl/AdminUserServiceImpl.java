@@ -1,4 +1,4 @@
-package com.quan.diabetes.service.impl;
+package com.quan.diabetes.service.user.impl;
 
 import com.quan.diabetes.dto.UserManagementDTO;
 import com.quan.diabetes.entity.Patient;

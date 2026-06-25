@@ -13,11 +13,11 @@ import java.time.LocalTime;
 import java.util.List;
 
 @Service
-public class ReminderRescheduleService {
+public class MedicationRescheduleService {
 
     private final AIReminderRepository aiReminderRepository;
 
-    public ReminderRescheduleService(AIReminderRepository aiReminderRepository) {
+    public MedicationRescheduleService(AIReminderRepository aiReminderRepository) {
         this.aiReminderRepository = aiReminderRepository;
     }
 
@@ -34,13 +34,16 @@ public class ReminderRescheduleService {
                 aiReminderRepository.findByPatient_UserIdAndScheduledTimeGreaterThanEqualAndTitleOrderByScheduledTimeAsc(
                         patientId,
                         changedAt,
-                        ReminderSchedualeService.MEDICATION_REMINDER_TITLE);
+                        MedicationSchedualeService.MEDICATION_REMINDER_TITLE);
 
         if (futureReminders.isEmpty()) {
             return;
         }
 
         for (AIReminder reminder : futureReminders) {
+            if (Boolean.FALSE.equals(reminder.getStatus())) {
+                continue; // Skip locked reminders
+            }
             if (reminder.getTiming() == null || reminder.getTiming().getTimingName() == null) {
                 continue;
             }
