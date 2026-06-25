@@ -112,7 +112,7 @@
                         <div class="progress-section-grid">
                             <div class="progress-info-box">
                                 <label>Bác sĩ</label>
-                                <p th:text="${exam.doctor != null ? exam.doctor.userId : 'Chưa phân công'}">Tên bác sĩ</p>
+                                <p th:text="${exam.doctor != null && exam.doctor.profile != null ? exam.doctor.profile.fullName : (exam.doctor != null ? exam.doctor.userId : 'Chưa phân công')}">Tên bác sĩ</p>
                             </div>
 
                             <div class="progress-info-box">
