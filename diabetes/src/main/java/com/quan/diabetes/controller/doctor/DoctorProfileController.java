@@ -8,6 +8,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import com.quan.diabetes.service.CloudinaryService;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -21,18 +23,21 @@ public class DoctorProfileController {
     private final ClinicalExaminationRepository clinicalExaminationRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CloudinaryService cloudinaryService;
 
     public DoctorProfileController(
             ProfileRepository profileRepository,
             RoomRepository roomRepository,
             ClinicalExaminationRepository clinicalExaminationRepository,
             UserRepository userRepository,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            CloudinaryService cloudinaryService) {
         this.profileRepository = profileRepository;
         this.roomRepository = roomRepository;
         this.clinicalExaminationRepository = clinicalExaminationRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.cloudinaryService = cloudinaryService;
     }
 
     @GetMapping("/profile")
@@ -70,6 +75,7 @@ public class DoctorProfileController {
             @RequestParam("specialty") String specialty,
             @RequestParam("address") String address,
             @RequestParam("roomId") Integer roomId,
+            @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
             HttpSession session,
             RedirectAttributes redirectAttributes) {
         User loggedInUser = (User) session.getAttribute("loggedInUser");
@@ -92,6 +98,19 @@ public class DoctorProfileController {
             if (fullName == null || fullName.trim().isEmpty()) {
                 redirectAttributes.addFlashAttribute("errorMsg", "Full Name is required.");
                 return "redirect:/doctor/profile";
+            }
+
+            // Handle file upload to Cloudinary
+            if (avatarFile != null && !avatarFile.isEmpty()) {
+                try {
+                    String imageUrl = cloudinaryService.uploadFile(avatarFile);
+                    if (imageUrl != null) {
+                        profile.setImageUrl(imageUrl);
+                    }
+                } catch (Exception e) {
+                    redirectAttributes.addFlashAttribute("errorMsg", "Failed to upload avatar: " + e.getMessage());
+                    return "redirect:/doctor/profile";
+                }
             }
 
             profile.setFullName(fullName.trim());

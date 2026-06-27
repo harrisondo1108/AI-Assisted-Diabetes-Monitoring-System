@@ -60,6 +60,9 @@ public class Patient {
     @Column(name = "SupervisorPhone", length = 15, columnDefinition = "NVARCHAR(15)")
     private String supervisorPhone;
 
+    @Column(name = "ImageURL", length = 255, columnDefinition = "NVARCHAR(255)")
+    private String imageUrl;
+
     public Patient() {
     }
 
@@ -173,6 +176,14 @@ public class Patient {
 
     public void setSupervisorPhone(String supervisorPhone) {
         this.supervisorPhone = supervisorPhone;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }
 

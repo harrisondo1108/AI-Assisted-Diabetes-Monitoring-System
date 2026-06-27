@@ -19,15 +19,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (noChartDataMessage) noChartDataMessage.style.display = 'block';
     }
 
-    // Adjust Back Button dynamically based on origin and handle active checkup lock
+    // Handle active checkup lock for other links
     const backBtn = document.getElementById('backBtn');
     const hasActive = typeof hasActiveExam !== 'undefined' && hasActiveExam;
     let isLeavingToExamine = false;
 
     if (hasActive) {
         if (backBtn) {
-            backBtn.href = '/doctor/examine';
-            backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Quay lại ca khám';
             backBtn.addEventListener('click', () => {
                 isLeavingToExamine = true;
             });
@@ -51,17 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return e.returnValue;
             }
         });
-    } else {
-        if (backBtn) {
-            const fromExamineRoom = sessionStorage.getItem('fromExamineRoom') === 'true';
-            if (fromExamineRoom) {
-                backBtn.href = '/doctor/examine';
-                backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Quay lại ca khám';
-            } else {
-                backBtn.href = '/doctor/dashboard';
-                backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Quay lại trang tổng quan';
-            }
-        }
     }
 });
 
@@ -228,7 +215,7 @@ function openTimelineDetail(examId) {
     if (modalBody) {
         modalBody.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--doctor-text-muted);"><i class="fas fa-spinner fa-spin fa-2x"></i><p style="margin-top: 10px;">Đang tải chi tiết ca khám...</p></div>';
 
-        fetch(`/doctor/examine/patients/view-exam/${examId}`)
+        fetch(`/doctor/history/view-exam/${examId}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Không thể tải chi tiết ca khám');
@@ -245,7 +232,7 @@ function openTimelineDetail(examId) {
     }
 }
 
-// Close timeline detail modal
+// Close timeline detail modal///////////
 function closeTimelineDetail() {
     const modal = document.getElementById('timelineDetailModal');
     if (modal) modal.classList.remove('open');

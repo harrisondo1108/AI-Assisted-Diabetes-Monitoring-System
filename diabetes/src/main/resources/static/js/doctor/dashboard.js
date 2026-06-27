@@ -216,8 +216,7 @@ function closeCompletedExam() {
 
 // Navigate to patient medical history timeline page
 function viewPatientHistory(patientId) {
-    sessionStorage.setItem('fromExamineRoom', 'false');
-    window.location.href = `/doctor/examine/patients?patientId=${patientId}`;
+    window.location.href = `/doctor/history?patientId=${patientId}&from=dashboard`;
 }
 
 function viewPatientHistoryFromModal() {

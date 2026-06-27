@@ -8,7 +8,7 @@ const symptomsCatalog = (typeof rawSymptomsCatalog !== 'undefined' && rawSymptom
     name: s.symptomName
 }));
 
-const labTestsCatalog = (typeof rawLabTestsCatalog !== 'undefined' && rawLabTestsCatalog ? rawLabTestsCatalog : []).map(l => ({
+let labTestsCatalog = (typeof rawLabTestsCatalog !== 'undefined' && rawLabTestsCatalog ? rawLabTestsCatalog : []).map(l => ({
     id: l.testId,
     name: l.testName,
     unit: l.unit,
@@ -94,9 +94,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // In view only mode, disable all interactable form inputs
         document.querySelectorAll('textarea, input, select, button').forEach(el => {
-            // Keep common navigation, tabs, close/logout and close modal buttons active
-            if (!el.classList.contains('tab-btn') && 
-                !el.classList.contains('modal-close') && 
+            // Keep common navigation, close/logout and close modal buttons active
+            if (!el.classList.contains('modal-close') && 
                 !el.classList.contains('logout-link-btn') && 
                 el.id !== 'viewHistoryBtn') {
                 el.disabled = true;
@@ -104,20 +103,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Intercept navigation if checkup is InProgress
+    // Handle cancel form submission to clear draft
     const isInProgress = thActiveExam && thActiveExam.status === 'InProgress';
     if (isInProgress) {
-        const navLinks = document.querySelectorAll('.header-nav-item, .logout-link-btn, .doctor-profile-block');
-        navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                const href = link.getAttribute('href');
-                if (href && (href.includes('dashboard') || href.includes('login') || href.includes('profile') || href === '/')) {
-                    e.preventDefault();
-                    showNavigationBlockedModal();
-                }
-            });
-        });
-
         const cancelForm = document.getElementById('cancelForm');
         if (cancelForm) {
             cancelForm.addEventListener('submit', () => {
@@ -125,6 +113,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 sessionStorage.removeItem('examineDraft');
             });
         }
+    }
+
+    // Handle isPregnant checkbox change dynamically
+    const isPregnantCheckbox = document.getElementById('isPregnant');
+    if (isPregnantCheckbox) {
+        isPregnantCheckbox.addEventListener('change', (e) => {
+            updateLabCatalog(e.target.checked);
+        });
+        // Initial sync on page load or draft restore
+        updateLabCatalog(isPregnantCheckbox.checked);
     }
 });
 
@@ -480,37 +478,27 @@ function simulateLabResults() {
             let hasDbThreshold = !isNaN(minVal) && !isNaN(maxVal);
 
             if (hasDbThreshold) {
-                const isHigh = rand.next() > 0.5;
-                if (isHigh) {
-                    const scale = maxVal > 20 ? (maxVal * 0.4) : 4.0;
-                    val = parseFloat((maxVal + rand.next() * scale).toFixed(1));
-                } else {
+                const randType = rand.next();
+                if (randType < 0.15) { // 15% chance of LOW
+                    val = parseFloat((minVal - 0.5 - rand.next() * (minVal * 0.15)).toFixed(1));
+                    if (val < 0) val = 0;
+                } else if (randType > 0.85) { // 15% chance of HIGH
+                    const scale = maxVal > 20 ? (maxVal * 0.3) : 4.0;
+                    val = parseFloat((maxVal + 0.1 + rand.next() * scale).toFixed(1));
+                } else { // 70% chance of NORMAL
                     val = parseFloat((minVal + rand.next() * (maxVal - minVal)).toFixed(1));
                 }
-                if (val > maxVal) {
+
+                if (val < minVal) {
+                    flag = 'LOW';
+                } else if (val > maxVal) {
                     flag = 'HIGH';
+                } else {
+                    flag = 'NORMAL';
                 }
             } else {
-                const testName = test.name.toLowerCase();
-                if (test.id === 'LAB001' || testName.includes("fasting blood glucose") || testName.includes("lúc đói") || testName.includes("fpg")) {
-                    val = parseFloat((70.0 + rand.next() * 80.0).toFixed(1));
-                    if (val > 100.0) { flag = 'HIGH'; }
-                } else if (test.id === 'LAB002' || testName.includes("hba1c")) {
-                    val = parseFloat((4.0 + rand.next() * 4.0).toFixed(1));
-                    if (val > 5.6) { flag = 'HIGH'; }
-                } else if (test.id === 'LAB003' || testName.includes("ogtt") || testName.includes("dung nạp")) {
-                    val = parseFloat((75.0 + rand.next() * 100.0).toFixed(1));
-                    if (val >= 140.0) { flag = 'HIGH'; }
-                } else if (test.id === 'LAB004' || testName.includes("ngẫu nhiên") || testName.includes("random")) {
-                    val = parseFloat((75.0 + rand.next() * 100.0).toFixed(1));
-                    if (val >= 140.0) { flag = 'HIGH'; }
-                } else if (testName.includes("creatinine")) {
-                    val = Math.round(60 + rand.next() * 75);
-                    if (val > 115) { flag = 'HIGH'; }
-                } else if (testName.includes("cholesterol")) {
-                    val = parseFloat((4.0 + rand.next() * 2.5).toFixed(1));
-                    if (val >= 5.2) { flag = 'HIGH'; }
-                }
+                val = 0.0;
+                flag = 'NORMAL';
             }
             
             val = parseFloat(val);
@@ -519,17 +507,44 @@ function simulateLabResults() {
 
         val = simulatedResults[id].val;
         flag = simulatedResults[id].flag;
-        flagClass = flag === 'HIGH' ? 'flag-high' : 'flag-normal';
+        flagClass = flag === 'HIGH' ? 'flag-high' : (flag === 'LOW' ? 'flag-low' : 'flag-normal');
+        const flagText = flag === 'HIGH' ? 'CAO' : (flag === 'LOW' ? 'THẤP' : 'BÌNH THƯỜNG');
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td><strong>${test.name}</strong></td>
             <td><span style="font-weight:500; color: var(--doctor-text-muted);">${test.range} ${test.unit}</span></td>
             <td><strong>${val} ${test.unit}</strong></td>
-            <td><span class="flag-badge ${flagClass}">${flag === 'HIGH' ? 'CAO' : (flag === 'NORMAL' ? 'BÌNH THƯỜNG' : flag)}</span></td>
+            <td><span class="flag-badge ${flagClass}">${flagText}</span></td>
         `;
         tbody.appendChild(tr);
     });
+}
+
+function updateLabCatalog(isPregnant) {
+    const rawCatalog = (isPregnant && typeof rawLabTestsPregnantCatalog !== 'undefined')
+        ? rawLabTestsPregnantCatalog
+        : (typeof rawLabTestsCatalog !== 'undefined' ? rawLabTestsCatalog : []);
+
+    labTestsCatalog = rawCatalog.map(l => ({
+        id: l.testId,
+        name: l.testName,
+        unit: l.unit,
+        range: l.referenceRange,
+        room: 'Phòng xét nghiệm',
+        minValue: l.minValue,
+        maxValue: l.maxValue
+    }));
+
+    // Clear simulated results cache
+    simulatedResults = {};
+
+    // Refresh modal checklist and results table display
+    initLabTestChecklist();
+    const selectedIds = Object.keys(orderedLabs);
+    if (selectedIds.length > 0) {
+        simulateLabResults();
+    }
 }
 
 class RandomVal {
@@ -539,89 +554,6 @@ class RandomVal {
     next() {
         let x = Math.sin(this.seed++) * 10000;
         return x - Math.floor(x);
-    }
-}
-
-let pendingTabTransition = null;
-
-// Diagnostic Switch Tab Logic
-function switchTab(evt, tabId) {
-    if (!viewOnlyMode) {
-        if (tabId === 'labs-tab' || tabId === 'prescription-tab') {
-            const history = document.getElementById('examHistory').value.trim();
-            const diagnosis = document.getElementById('examDiagnosis').value.trim();
-            const checkedSymptoms = document.querySelectorAll('#symptomsGrid input:checked').length;
-            if (!history || !diagnosis || checkedSymptoms === 0) {
-                showToast('Vui lòng không để trống hoặc mỗi phím cách Triệu chứng, Lý do khám & chẩn đoán.', 'warning');
-                return;
-            }
-        }
-
-        if (tabId === 'prescription-tab') {
-            const orderedCount = Object.keys(orderedLabs).length;
-            if (orderedCount === 0) {
-                pendingTabTransition = {
-                    tabId: tabId,
-                    targetBtn: evt ? evt.currentTarget : null
-                };
-                const skipModal = document.getElementById('skipLabConfirmModal');
-                if (skipModal) {
-                    skipModal.classList.add('open');
-                }
-                return;
-            }
-
-        }
-    }
-
-    executeTabSwitch(evt ? evt.currentTarget : null, tabId);
-}
-
-const tabIndexMap = {
-    'symptoms-tab': 0,
-    'labs-tab': 1,
-    'prescription-tab': 2
-};
-
-function executeTabSwitch(targetBtn, tabId) {
-    const tabcontents = document.getElementsByClassName('tab-content');
-    for (let i = 0; i < tabcontents.length; i++) {
-        tabcontents[i].classList.remove('active');
-    }
-
-    const tablinks = document.getElementsByClassName('tab-btn');
-    for (let i = 0; i < tablinks.length; i++) {
-        tablinks[i].classList.remove('active');
-    }
-
-    document.getElementById(tabId).classList.add('active');
-    if (targetBtn) {
-        targetBtn.classList.add('active');
-    } else {
-        const btns = document.querySelectorAll('.tab-btn');
-        const idx = tabIndexMap[tabId];
-        if (btns[idx]) {
-            btns[idx].classList.add('active');
-        }
-    }
-}
-
-function closeSkipLabModal() {
-    const skipModal = document.getElementById('skipLabConfirmModal');
-    if (skipModal) skipModal.classList.remove('open');
-    pendingTabTransition = null;
-}
-
-function confirmSkipLab() {
-    if (pendingTabTransition) {
-        const targetTabId = pendingTabTransition.tabId;
-        const targetBtn = pendingTabTransition.targetBtn;
-        pendingTabTransition = null;
-
-        const skipModal = document.getElementById('skipLabConfirmModal');
-        if (skipModal) skipModal.classList.remove('open');
-
-        executeTabSwitch(targetBtn, targetTabId);
     }
 }
 
@@ -963,39 +895,6 @@ function saveExam() {
         return;
     }
 
-    const diagnosis = document.getElementById('examDiagnosis').value.trim();
-    if (!diagnosis) {
-        showToast('Vui lòng điền ghi chú Chẩn đoán trước khi hoàn thành ca khám.', 'error');
-        isSubmitting = false;
-        return;
-    }
-
-    // Validate that at least one field of the Treatment Plan is filled
-    const planGoal = document.getElementById('planGoal').value.trim();
-    const planDiet = document.getElementById('planDiet').value.trim();
-    const planExercise = document.getElementById('planExercise').value.trim();
-    const planGlucose = document.getElementById('planGlucose').value.trim();
-
-    if (!planGoal && !planDiet && !planExercise && !planGlucose) {
-        showToast('Yêu cầu điền ít nhất 1 trường của Kế hoạch & Phác đồ điều trị để hoàn thành.', 'error');
-        isSubmitting = false;
-        if (!document.getElementById('prescription-tab').classList.contains('active')) {
-             switchTab({currentTarget: document.querySelectorAll('.tab-btn')[2]}, 'prescription-tab');
-        }
-        return;
-    }
-
-    // Validate if Prescription is filled
-    const prescribedCount = prescriptionLines.length;
-    if (prescribedCount === 0) {
-        showToast('Vui lòng kê ít nhất 1 loại thuốc trước khi hoàn thành.', 'warning');
-        isSubmitting = false;
-        if (!document.getElementById('prescription-tab').classList.contains('active')) {
-             switchTab({currentTarget: document.querySelectorAll('.tab-btn')[2]}, 'prescription-tab');
-        }
-        return;
-    }
-
     // Serialize prescription list to hidden JSON input
     const prescriptionList = prescriptionLines.map(line => {
         return {
@@ -1132,6 +1031,7 @@ function goToHistory() {
         // Collect current state
         const draft = {
             patientId: currentPatient.id,
+            isPregnant: document.getElementById('isPregnant') ? document.getElementById('isPregnant').checked : false,
             examDiagnosis: document.getElementById('examDiagnosis') ? document.getElementById('examDiagnosis').value : '',
             examHistory: document.getElementById('examHistory') ? document.getElementById('examHistory').value : '',
             examNextDate: document.getElementById('examNextDate') ? document.getElementById('examNextDate').value : '',
@@ -1153,20 +1053,11 @@ function goToHistory() {
         });
 
         sessionStorage.setItem('examineDraft', JSON.stringify(draft));
-        sessionStorage.setItem('fromExamineRoom', 'true');
-        window.location.href = `/doctor/examine/patients?patientId=${currentPatient.id}`;
+        window.location.href = `/doctor/history?patientId=${currentPatient.id}&from=examine`;
     }
 }
 
-function showNavigationBlockedModal() {
-    const modal = document.getElementById('navigationBlockedModal');
-    if (modal) modal.classList.add('open');
-}
-
-function closeNavigationBlockedModal() {
-    const modal = document.getElementById('navigationBlockedModal');
-    if (modal) modal.classList.remove('open');
-}
+// Navigation blocked modals removed
 
 // Warn when leaving page with unsaved changes
 window.addEventListener('beforeunload', (e) => {
@@ -1236,27 +1127,6 @@ function validateMedicationFields() {
                 if (durationErr) {
                     durationErr.textContent = 'Số ngày sử dụng phải là số nguyên dương';
                     durationErr.style.display = 'block';
-                }
-                isValid = false;
-            }
-        }
-    }
-
-    // Validate Quantity
-    if (quantityInput) {
-        const quantityVal = quantityInput.value;
-        if (!quantityVal) {
-            if (quantityErr) {
-                quantityErr.textContent = 'Vui lòng nhập tổng số lượng cấp';
-                quantityErr.style.display = 'block';
-            }
-            isValid = false;
-        } else {
-            const num = Number(quantityVal);
-            if (isNaN(num) || !Number.isInteger(num) || num <= 0) {
-                if (quantityErr) {
-                    quantityErr.textContent = 'Tổng số lượng cấp phải là số nguyên dương';
-                    quantityErr.style.display = 'block';
                 }
                 isValid = false;
             }
@@ -1401,6 +1271,12 @@ function restoreExamineDraft() {
     try {
         const draft = JSON.parse(draftStr);
         if (currentPatient && draft.patientId === currentPatient.id) {
+            if (draft.isPregnant !== undefined) {
+                const chk = document.getElementById('isPregnant');
+                if (chk) {
+                    chk.checked = draft.isPregnant;
+                }
+            }
             if (draft.examDiagnosis) {
                 const el = document.getElementById('examDiagnosis');
                 if (el) el.value = draft.examDiagnosis;

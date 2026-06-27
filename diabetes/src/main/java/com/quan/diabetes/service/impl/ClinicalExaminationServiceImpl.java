@@ -265,15 +265,23 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
             }
 
             Patient patient = exam.getPatient();
-            int age = 0;
-            if (patient != null && patient.getDob() != null) {
-                age = java.time.Period.between(patient.getDob(), java.time.LocalDate.now()).getYears();
+            PatientType matchedType = null;
+            if (Boolean.TRUE.equals(form.getIsPregnant())) {
+                matchedType = patientTypeRepository.findAll().stream()
+                        .filter(t -> t.getTypeName().equalsIgnoreCase("Pregnant"))
+                        .findFirst()
+                        .orElse(null);
+            } else {
+                int age = 0;
+                if (patient != null && patient.getDob() != null) {
+                    age = java.time.Period.between(patient.getDob(), java.time.LocalDate.now()).getYears();
+                }
+                final int finalAge = age;
+                matchedType = patientTypeRepository.findAll().stream()
+                        .filter(t -> t.getMinAge() != null && t.getMaxAge() != null && finalAge >= t.getMinAge() && finalAge <= t.getMaxAge())
+                        .findFirst()
+                        .orElse(null);
             }
-            final int finalAge = age;
-            PatientType matchedType = patientTypeRepository.findAll().stream()
-                    .filter(t -> (t.getMinAge() == null || finalAge >= t.getMinAge()) && (t.getMaxAge() == null || finalAge <= t.getMaxAge()))
-                    .findFirst()
-                    .orElse(null);
 
             for (String testId : form.getLabTestIds()) {
                 LabTestCatalog test = labTestCatalogRepository.findById(testId).orElse(null);
@@ -301,7 +309,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                         }
                     }
 
-                    String range = "0 - 5.2";
+                    String range = "N/A";
                     BigDecimal dbMin = null;
                     BigDecimal dbMax = null;
 
@@ -309,27 +317,23 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                         dbMin = thresholdOpt.get().getMinValue();
                         dbMax = thresholdOpt.get().getMaxValue();
                         range = dbMin + " - " + dbMax;
-                    } else {
-                        String testName = test.getTestName().toLowerCase();
-                        if (testId.equals("LAB003") || testName.contains("ogtt") || testName.contains("dung nạp")) {
-                            range = "70 - 140";
-                        } else if (testId.equals("LAB001") || testName.contains("fpg") || testName.contains("lúc đói") || testName.contains("fasting")) {
-                            range = "70 - 100";
-                        } else if (testId.equals("LAB002") || testName.contains("hba1c")) {
-                            range = "4.0 - 5.6";
-                        } else if (testId.equals("LAB004") || testName.contains("ngẫu nhiên") || testName.contains("random")) {
-                            range = "70 - 140";
-                        }
                     }
 
                     if (simulatedResults.containsKey(testId)) {
                         Map<String, Object> simInfo = simulatedResults.get(testId);
                         value = BigDecimal.valueOf(Double.parseDouble(simInfo.get("val").toString()));
-                        flag = (String) simInfo.get("flag");
+                        
+                        // Backend calculations for flag safety
+                        if (dbMin != null && dbMax != null) {
+                            if (value.compareTo(dbMin) < 0) flag = "LOW";
+                            else if (value.compareTo(dbMax) > 0) flag = "HIGH";
+                            else flag = "NORMAL";
+                        } else {
+                            flag = "NORMAL";
+                        }
                     } else {
                         // Fallback generator in case JS submit didn't include it
                         Random rand = new Random();
-                        String testName = test.getTestName().toLowerCase();
                         if (dbMin != null && dbMax != null) {
                             boolean isHigh = rand.nextBoolean();
                             double minV = dbMin.doubleValue();
@@ -344,25 +348,8 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                                 flag = "NORMAL";
                             }
                         } else {
-                            if (testId.equals("LAB001") || testName.contains("fpg") || testName.contains("lúc đói") || testName.contains("fasting")) {
-                                value = BigDecimal.valueOf(Math.round((70.0 + rand.nextDouble() * 80.0) * 10.0) / 10.0);
-                                if (value.doubleValue() > 100.0) flag = "HIGH";
-                            } else if (testId.equals("LAB002") || testName.contains("hba1c")) {
-                                value = BigDecimal.valueOf(Math.round((4.0 + rand.nextDouble() * 4.0) * 10.0) / 10.0);
-                                if (value.doubleValue() > 5.6) flag = "HIGH";
-                            } else if (testId.equals("LAB003") || testName.contains("ogtt") || testName.contains("dung nạp")) {
-                                value = BigDecimal.valueOf(Math.round((75.0 + rand.nextDouble() * 100.0) * 10.0) / 10.0);
-                                if (value.doubleValue() >= 140.0) flag = "HIGH";
-                            } else if (testId.equals("LAB004") || testName.contains("ngẫu nhiên") || testName.contains("random")) {
-                                value = BigDecimal.valueOf(Math.round((75.0 + rand.nextDouble() * 100.0) * 10.0) / 10.0);
-                                if (value.doubleValue() >= 140.0) flag = "HIGH";
-                            } else if (testName.contains("creatinine")) {
-                                value = BigDecimal.valueOf(Math.round(60 + rand.nextInt(75)));
-                                if (value.doubleValue() > 115) flag = "HIGH";
-                            } else if (testName.contains("cholesterol")) {
-                                value = BigDecimal.valueOf(Math.round((4.0 + rand.nextDouble() * 2.5) * 10.0) / 10.0);
-                                if (value.doubleValue() >= 5.2) flag = "HIGH";
-                            }
+                            value = BigDecimal.valueOf(0.0);
+                            flag = "NORMAL";
                         }
                     }
 

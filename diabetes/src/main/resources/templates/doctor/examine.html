@@ -25,19 +25,25 @@
                 <!-- Left Panel: Patient Medical Card (320px) -->
                 <aside class="patient-medical-card">
                     <div class="patient-card-header">
-                        <div class="patient-avatar-large"><i class="fas fa-hospital-user"></i></div>
-                        <h2 class="patient-name-title" id="patName" th:text="${patient.fullName}">Nguyen Va</h2>
+                        <div class="patient-avatar-large">
+                            <img th:if="${patient.imageUrl != null}" 
+                                 th:src="${patient.imageUrl}" 
+                                 alt="Avatar" 
+                                 style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />
+                            <i th:unless="${patient.imageUrl != null}" class="fas fa-hospital-user"></i>
+                        </div>
+                        <h2 class="patient-name-title" id="patName" th:text="${patient.fullName}"></h2>
                         <span class="patient-id-badge" id="patId" style="display: none;" th:text="${patient.userId}">P012932</span>
                     </div>
 
                     <div class="patient-specs-grid">
                         <div class="spec-item">
                             <span class="spec-label">Tuổi</span>
-                            <span class="spec-val" id="patAge" th:text="${patient.dob != null ? (T(java.time.Period).between(patient.dob, T(java.time.LocalDate).now()).getYears() + ' tuổi') : 'N/A'}">45 tuổi</span>
+                            <span class="spec-val" id="patAge" th:text="${patient.dob != null ? (T(java.time.Period).between(patient.dob, T(java.time.LocalDate).now()).getYears() + ' tuổi') : 'N/A'}"></span>
                         </div>
                         <div class="spec-item">
                             <span class="spec-label">Giới tính</span>
-                            <span class="spec-val" id="patGender" th:text="${patient.gender != null ? (patient.gender ? 'Nữ' : 'Nam') : 'N/A'}">Nam</span>
+                            <span class="spec-val" id="patGender" th:text="${patient.gender != null ? (patient.gender ? 'Nữ' : 'Nam') : 'N/A'}"></span>
                         </div>
                         <div class="spec-item">
                             <span class="spec-label">Nhóm máu</span>
@@ -45,7 +51,7 @@
                         </div>
                         <div class="spec-item">
                             <span class="spec-label">BMI</span>
-                            <span class="spec-val" id="patBmi" th:with="h_m=${patient.height != null ? patient.height / 100.0 : 0.0}, bmi=${(patient.weight != null && h_m > 0) ? (patient.weight.doubleValue() / (h_m * h_m)) : 0.0}" th:text="${bmi > 0 ? #numbers.formatDecimal(bmi, 1, 1) + (bmi < 18.5 ? ' (Thiếu cân)' : (bmi < 25.0 ? ' (Bình thường)' : (bmi < 30.0 ? ' (Thừa cân)' : ' (Béo phì)'))) : 'N/A'}">24.2 (Bình thường)</span>
+                            <span class="spec-val" id="patBmi" th:with="h_m=${patient.height != null ? patient.height / 100.0 : 0.0}, bmi=${(patient.weight != null && h_m > 0) ? (patient.weight.doubleValue() / (h_m * h_m)) : 0.0}" th:text="${bmi > 0 ? #numbers.formatDecimal(bmi, 1, 1) + (bmi < 18.5 ? ' (Thiếu cân)' : (bmi < 25.0 ? ' (Bình thường)' : (bmi < 30.0 ? ' (Thừa cân)' : ' (Béo phì)'))) : 'N/A'}"></span>
                         </div>
                     </div>
 
@@ -53,10 +59,10 @@
                     <div class="medical-details-section">
                         <h4 class="section-title"><i class="fas fa-weight-scale"></i> Chỉ số cơ thể</h4>
                         <div class="detail-row">
-                            <span>Chiều cao:</span> <strong id="patHeight" th:text="${patient.height != null ? patient.height + ' cm' : 'N/A'}">172 cm</strong>
+                            <span>Chiều cao:</span> <strong id="patHeight" th:text="${patient.height != null ? patient.height + ' cm' : 'N/A'}"></strong>
                         </div>
                         <div class="detail-row">
-                            <span>Cân nặng:</span> <strong id="patWeight" th:text="${patient.weight != null ? patient.weight + ' kg' : 'N/A'}">71.5 kg</strong>
+                            <span>Cân nặng:</span> <strong id="patWeight" th:text="${patient.weight != null ? patient.weight + ' kg' : 'N/A'}"></strong>
                         </div>
                     </div>
 
@@ -64,38 +70,40 @@
                         <h4 class="section-title"><i class="fas fa-circle-exclamation"></i> Cảnh báo y tế</h4>
                         <div class="alert-box alert-danger">
                             <strong>Dị ứng:</strong>
-                            <p id="patAllergy" th:text="${patient.allergyNotes != null && !patient.allergyNotes.empty ? patient.allergyNotes : 'Không có dị ứng thuốc nào được ghi nhận'}">Không có dị ứng thuốc nào được ghi nhận</p>
+                            <p id="patAllergy" th:text="${patient.allergyNotes != null && !patient.allergyNotes.empty ? patient.allergyNotes : 'Không có dị ứng thuốc nào được ghi nhận'}"></p>
                         </div>
                         <div class="alert-box alert-info">
                             <strong>Tiền sử bệnh án:</strong>
-                            <p id="patHistory" th:text="${patient.permanentMedicalHistory != null && !patient.permanentMedicalHistory.empty ? patient.permanentMedicalHistory : 'Không có tiền sử bệnh án được ghi nhận'}">Type 2 Diabetes diagnosed 3 years ago. Hypertension.</p>
+                            <p id="patHistory" th:text="${patient.permanentMedicalHistory != null && !patient.permanentMedicalHistory.empty ? patient.permanentMedicalHistory : 'Không có tiền sử bệnh án được ghi nhận'}"></p>
                         </div>
                     </div>
 
                     <div class="medical-details-section">
                         <h4 class="section-title"><i class="fas fa-clock"></i> Sinh hoạt hàng ngày</h4>
                         <div class="routine-item">
-                            <i class="fas fa-mug-saucer"></i> <span>Bữa sáng:</span> <strong id="patBreakfast" th:text="${routine != null && routine.breakfastTime != null ? #temporals.format(routine.breakfastTime, 'hh:mm a') : '07:30 AM'}">07:30 AM</strong>
+                            <i class="fas fa-mug-saucer"></i> <span>Bữa sáng:</span> <strong id="patBreakfast" th:text="${routine != null && routine.breakfastTime != null ? #temporals.format(routine.breakfastTime, 'hh:mm a') : 'N/A'}"></strong>
                         </div>
                         <div class="routine-item">
-                            <i class="fas fa-utensils"></i> <span>Bữa trưa:</span> <strong id="patLunch" th:text="${routine != null && routine.lunchTime != null ? #temporals.format(routine.lunchTime, 'hh:mm a') : '12:15 PM'}">12:15 PM</strong>
+                            <i class="fas fa-utensils"></i> <span>Bữa trưa:</span> <strong id="patLunch" th:text="${routine != null && routine.lunchTime != null ? #temporals.format(routine.lunchTime, 'hh:mm a') : 'N/A'}"></strong>
                         </div>
                         <div class="routine-item">
-                            <i class="fas fa-bowl-food"></i> <span>Bữa tối:</span> <strong id="patDinner" th:text="${routine != null && routine.dinnerTime != null ? #temporals.format(routine.dinnerTime, 'hh:mm a') : '07:00 PM'}">07:00 PM</strong>
+                            <i class="fas fa-bowl-food"></i> <span>Bữa tối:</span> <strong id="patDinner" th:text="${routine != null && routine.dinnerTime != null ? #temporals.format(routine.dinnerTime, 'hh:mm a') : 'N/A'}"></strong>
                         </div>
                         <div class="routine-item">
-                            <i class="fas fa-bed"></i> <span>Ngủ / Thức dậy:</span> <strong id="patSleep" th:text="${(routine != null && routine.sleepTime != null ? #temporals.format(routine.sleepTime, 'hh:mm a') : '10:00 PM') + ' / ' + (routine != null && routine.wakeUpTime != null ? #temporals.format(routine.wakeUpTime, 'hh:mm a') : '06:00 AM')}">10:00 PM / 06:00 AM</strong>
+                            <i class="fas fa-bed"></i> <span>Ngủ / Thức dậy:</span> <strong id="patSleep" th:text="${(routine != null && routine.sleepTime != null ? #temporals.format(routine.sleepTime, 'hh:mm a') : 'N/A') + ' / ' + (routine != null && routine.wakeUpTime != null ? #temporals.format(routine.wakeUpTime, 'hh:mm a') : 'N/A')}"></strong>
                         </div>
                     </div>
 
                     <button type="button" class="btn btn-secondary btn-sm" id="viewHistoryBtn" onclick="goToHistory()"
                         style="width: 100%; margin: 12px 0 0 0; justify-content: center; gap: 8px;">
-                        <i class="fas fa-clock-rotate-left"></i> Xem lịch sử bệnh án
+                        <i class="fas fa-clock-rotate-left"></i> Lịch sử bệnh án
                     </button>
                 </aside>
 
                 <!-- Right/Main Workspace Container -->
-                <form th:action="@{/doctor/examine/{id}/submit(id=${patient.userId})}" method="POST" id="examineForm" th:object="${examForm}" class="examination-workspace">
+                <form th:action="@{/doctor/examine/{id}/submit(id=${patient.userId})}" method="POST" id="examineForm" th:object="${examForm}" 
+                      class="examination-workspace" 
+                      th:classappend="${activeExam != null && activeExam.status == 'Pending' ? 'exam-pending' : ''}">
                     <input type="hidden" id="prescriptionJson" name="prescriptionJson" value="">
                     <input type="hidden" id="symptomCommentsJson" name="symptomCommentsJson" value="">
                     <input type="hidden" id="labResultsJson" name="labResultsJson" value="">
@@ -123,48 +131,51 @@
                         </button>
                     </div>
 
-                    <!-- Horizontal Diagnostic Tabs -->
-                    <div class="diagnostic-tabs">
-                        <button type="button" class="tab-btn active" onclick="switchTab(event, 'symptoms-tab')"><i
-                                class="fas fa-notes-medical"></i> Triệu chứng & Lịch sử bệnh </button>
-                        <button type="button" class="tab-btn" onclick="switchTab(event, 'labs-tab')"><i class="fas fa-flask"></i>
-                            Chỉ định xét nghiệm </button>
-                        <button type="button" class="tab-btn" onclick="switchTab(event, 'prescription-tab')"><i
-                                class="fas fa-pills"></i> Phác đồ & Kê đơn</button>
-                    </div>
-
-                    <!-- TAB CONTENT 1: Symptoms Checklist -->
-                    <div class="tab-content active" id="symptoms-tab">
+                    <!-- SECTION 1: Symptoms Checklist -->
+                    <div class="workspace-section" id="symptoms-section">
                         <div class="form-section">
                             <p class="section-description">Chọn triệu chứng của bệnh nhân và ghi chú tiền sử/bệnh sử lâm sàng</p>
 
+                            <!-- Pregnant classification checkbox for Female patients -->
+                            <div th:if="${patient.gender}" class="pregnant-toggle-container" style="margin: 12px 0 16px 0; padding: 10px 14px; background: rgba(220, 38, 38, 0.05); border-radius: 8px; border: 1px dashed rgba(220, 38, 38, 0.2); display: flex; align-items: center; gap: 8px; width: fit-content;">
+                                <input type="checkbox" id="isPregnant" th:field="*{isPregnant}" style="width: 18px; height: 18px; cursor: pointer;" />
+                                <label for="isPregnant" style="font-weight: 600; margin-bottom: 0; color: var(--doctor-danger); cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-person-pregnant"></i> Bệnh nhân đang mang thai
+                                </label>
+                            </div>
+
                             <div class="form-grid-columns-2">
                                 <div class="form-group full-width">
-                                    <label>Lý do khám & Bệnh sử hiện tại</label>
-                                    <textarea id="examHistory" name="medicalHistory" rows="3"
-                                        placeholder="Nhập mô tả của bệnh nhân về triệu chứng, thời gian và hoàn cảnh xuất hiện..."></textarea>
+                                    <label for="examHistory">Lý do khám & Bệnh sử hiện tại <span class="required">*</span></label>
+                                    <textarea id="examHistory" th:field="*{medicalHistory}" rows="3"
+                                        placeholder="Nhập mô tả của bệnh nhân về triệu chứng, thời gian và hoàn cảnh xuất hiện..."
+                                        th:classappend="${#fields.hasErrors('medicalHistory')} ? 'is-invalid' : ''"></textarea>
+                                    <div class="error-feedback" th:if="${#fields.hasErrors('medicalHistory')}" th:errors="*{medicalHistory}"></div>
                                 </div>
                                 <div class="form-group full-width">
-                                    <label>Ghi chú chẩn đoán lâm sàng</label>
-                                    <textarea id="examDiagnosis" name="diagnosisNote" rows="3"
-                                        placeholder="Nhập chẩn đoán lâm sàng và ghi chú..."></textarea>
+                                    <label for="examDiagnosis">Ghi chú chẩn đoán lâm sàng <span class="required">*</span></label>
+                                    <textarea id="examDiagnosis" th:field="*{diagnosisNote}" rows="3"
+                                        placeholder="Nhập chẩn đoán lâm sàng và ghi chú..."
+                                        th:classappend="${#fields.hasErrors('diagnosisNote')} ? 'is-invalid' : ''"></textarea>
+                                    <div class="error-feedback" th:if="${#fields.hasErrors('diagnosisNote')}" th:errors="*{diagnosisNote}"></div>
                                 </div>
                                 <div class="form-group">
-                                    <label>Hẹn ngày tái khám</label>
-                                    <input type="date" id="examNextDate" name="nextAppointment">
+                                    <label for="examNextDate">Hẹn ngày tái khám</label>
+                                    <input type="date" id="examNextDate" th:field="*{nextAppointment}">
                                 </div>
                             </div>
                         </div>
 
                         <div class="form-section" style="margin-top: 20px;">
-                            <h3 class="section-header-title">Danh mục phân loại triệu chứng</h3>
+                            <h3 class="section-header-title">Danh mục phân loại triệu chứng <span class="required">*</span></h3>
+                            <div class="error-feedback" th:if="${#fields.hasErrors('symptomIds')}" th:errors="*{symptomIds}"></div>
                             <div class="symptoms-selection-grid" id="symptomsGrid">
                             </div>
                         </div>
                     </div>
 
-                    <!-- TAB CONTENT 2: Lab Orders -->
-                    <div class="tab-content" id="labs-tab">
+                    <!-- SECTION 2: Lab Orders -->
+                    <div class="workspace-section" id="labs-section">
                         <div class="form-section">
                             <div class="prescription-header">
                                 <div class="prescription-titles">
@@ -212,32 +223,35 @@
                     </div>
 
                     <!-- TAB CONTENT 3: Treatment & Prescription -->
-                    <div class="tab-content" id="prescription-tab">
+                    <!-- SECTION 3: Treatment & Prescription -->
+                    <div class="workspace-section" id="prescription-section">
                         <!-- Treatment Plan Form Section -->
                         <div class="form-section" style="margin-bottom: 20px;">
                             <h3 class="section-header-title"><i class="fas fa-notes-medical"
-                                    style="color: var(--doctor-primary);"></i> Kế hoạch & Phác đồ điều trị</h3>
+                                    style="color: var(--doctor-primary);"></i> Kế hoạch & Phác đồ điều trị <span class="required">*</span></h3>
                             <p class="section-description" style="margin-bottom: 15px;">Kế hoạch điều trị bao gồm mục tiêu, dinh dưỡng, vận động, tự theo dõi và hướng dẫn sử dụng thuốc (yêu cầu ít nhất 1 trường)</p>
 
                             <div class="form-grid-columns-2">
                                 <div class="form-group full-width">
-                                    <label>Mục tiêu điều trị</label>
-                                    <input type="text" id="planGoal" name="treatmentGoal"
-                                        placeholder="Ví dụ: Giảm đường huyết lúc đói < 5.6 mmol/L và HbA1c < 6.5%">
+                                    <label for="planGoal">Mục tiêu điều trị</label>
+                                    <input type="text" id="planGoal" th:field="*{treatmentGoal}"
+                                        placeholder="Ví dụ: Giảm đường huyết lúc đói < 5.6 mmol/L và HbA1c < 6.5%"
+                                        th:classappend="${#fields.hasErrors('treatmentGoal')} ? 'is-invalid' : ''">
+                                    <div class="error-feedback" th:if="${#fields.hasErrors('treatmentGoal')}" th:errors="*{treatmentGoal}"></div>
                                 </div>
                                 <div class="form-group">
-                                    <label>Chế độ dinh dưỡng</label>
-                                    <textarea id="planDiet" name="dietPlan" rows="3"
+                                    <label for="planDiet">Chế độ dinh dưỡng</label>
+                                    <textarea id="planDiet" th:field="*{dietPlan}" rows="3"
                                         placeholder="Ví dụ: Hạn chế đường, tinh bột, ăn nhiều thực phẩm giàu chất xơ..."></textarea>
                                 </div>
                                 <div class="form-group">
-                                    <label>Chế độ vận động & Tập luyện</label>
-                                    <textarea id="planExercise" name="exercisePlan" rows="3"
+                                    <label for="planExercise">Chế độ vận động & Tập luyện</label>
+                                    <textarea id="planExercise" th:field="*{exercisePlan}" rows="3"
                                         placeholder="Ví dụ: Đi bộ hoặc chạy bộ 30 phút mỗi ngày, 5 lần một tuần..."></textarea>
                                 </div>
                                 <div class="form-group">
-                                    <label>Tần suất tự theo dõi đường huyết</label>
-                                    <textarea id="planGlucose" name="glucoseMonitoringPlan" rows="3"
+                                    <label for="planGlucose">Tần suất tự theo dõi đường huyết</label>
+                                    <textarea id="planGlucose" th:field="*{glucoseMonitoringPlan}" rows="3"
                                         placeholder="Ví dụ: Đo đường huyết lúc đói vào buổi sáng và 2 giờ sau khi ăn trưa..."></textarea>
                                 </div>
 
@@ -247,7 +261,8 @@
                         <!-- Medication Prescription Section -->
                         <div class="form-section">
                             <h3 class="section-header-title"><i class="fas fa-prescription-bottle-medical"
-                                    style="color: var(--doctor-primary);"></i> Đơn thuốc điều trị</h3>
+                                    style="color: var(--doctor-primary);"></i> Đơn thuốc điều trị <span class="required">*</span></h3>
+                            <div class="error-feedback" th:if="${#fields.hasErrors('prescriptionJson')}" th:errors="*{prescriptionJson}"></div>
                             <div class="prescription-header"
                                 style="border-bottom: none; margin-bottom: 0; padding-bottom: 0; margin-top: 10px;">
                                 <div class="prescription-titles">
@@ -447,61 +462,7 @@
         </div>
     </div>
 
-    <!-- SKIP LAB CONFIRMATION MODAL -->
-    <div class="modal-overlay" id="skipLabConfirmModal">
-        <div class="modal" style="max-width: 500px; padding: 25px; border-radius: 12px; border: 1px solid rgba(217, 119, 6, 0.2); box-shadow: 0 10px 25px -5px rgba(217, 119, 6, 0.1), 0 8px 10px -6px rgba(217, 119, 6, 0.1);">
-            <div class="modal-header" style="border-bottom: none; padding-bottom: 0; display: flex; justify-content: space-between; align-items: center;">
-                <h3 style="font-size: 1.3rem; color: #d97706; display: flex; align-items: center; gap: 8px;">
-                    <i class="fas fa-exclamation-triangle"></i> Chú ý
-                </h3>
-                <button type="button" class="close-btn" onclick="closeSkipLabModal()" style="background: none; border: none; font-size: 1.3rem; color: var(--doctor-text-muted); cursor: pointer;"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body" style="text-align: center; padding: 20px 10px;">
-                <div style="background: rgba(217, 119, 6, 0.05); color: #d97706; width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2.5rem; box-shadow: 0 0 15px rgba(217, 119, 6, 0.15);">
-                    <i class="fas fa-microscope"></i>
-                </div>
-                <p style="font-size: 1.15rem; font-weight: 700; color: var(--doctor-text-main); margin-bottom: 10px;">
-                    Bỏ qua chỉ định xét nghiệm?
-                </p>
-                <p style="font-size: 0.88rem; color: var(--doctor-text-muted); line-height: 1.5; margin: 0;">
-                    Bạn có chắc chắn muốn bỏ qua giai đoạn chỉ định xét nghiệm cận lâm sàng không?
-                </p>
-            </div>
-            <div class="modal-footer" style="justify-content: center; gap: 12px; padding-top: 15px; border-top: none;">
-                <button type="button" class="btn btn-secondary" onclick="closeSkipLabModal()"
-                    style="font-size: 0.85rem; padding: 8px 20px; border-radius: 6px; border: 1px solid var(--doctor-border); cursor: pointer;">Quay lại</button>
-                <button type="button" class="btn btn-primary" onclick="confirmSkipLab()"
-                    style="background: #d97706; border: none; color: white; font-size: 0.85rem; padding: 8px 20px; border-radius: 6px; font-weight: 600; cursor: pointer;">Bỏ qua và tiếp tục</button>
-            </div>
-        </div>
-    </div>
 
-    <!-- NAVIGATION BLOCKED MODAL -->
-    <div class="modal-overlay" id="navigationBlockedModal">
-        <div class="modal" style="max-width: 500px; padding: 25px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.2); box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.1), 0 8px 10px -6px rgba(239, 68, 68, 0.1);">
-            <div class="modal-header" style="border-bottom: none; padding-bottom: 0; display: flex; justify-content: space-between; align-items: center;">
-                <h3 style="font-size: 1.3rem; color: var(--doctor-danger); display: flex; align-items: center; gap: 8px;">
-                    <i class="fas fa-hand-paper"></i> Hành động bị chặn
-                </h3>
-                <button type="button" class="close-btn" onclick="closeNavigationBlockedModal()" style="background: none; border: none; font-size: 1.3rem; color: var(--doctor-text-muted); cursor: pointer;"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body" style="text-align: center; padding: 20px 10px;">
-                <div style="background: rgba(239, 68, 68, 0.05); color: var(--doctor-danger); width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2.5rem; box-shadow: 0 0 15px rgba(239, 68, 68, 0.1);">
-                    <i class="fas fa-user-lock"></i>
-                </div>
-                <p style="font-size: 1.15rem; font-weight: 700; color: var(--doctor-text-main); margin-bottom: 10px;">
-                    Ca khám đang được thực hiện
-                </p>
-                <p style="font-size: 0.88rem; color: var(--doctor-text-muted); line-height: 1.5; margin: 0;">
-                    Bạn phải hoàn thành hoặc hủy ca khám này trước khi rời khỏi phòng khám.
-                </p>
-            </div>
-            <div class="modal-footer" style="justify-content: center; gap: 12px; padding-top: 15px; border-top: none;">
-                <button type="button" class="btn btn-primary" onclick="closeNavigationBlockedModal()"
-                    style="background: var(--doctor-primary); border: none; color: white; font-size: 0.85rem; padding: 8px 20px; border-radius: 6px; font-weight: 600; cursor: pointer;">Đã hiểu</button>
-            </div>
-        </div>
-    </div>
 
     <!-- LABORATORY TEST DIALOG MODAL -->
     <div class="modal-overlay" id="labTestModal">
@@ -549,7 +510,8 @@
         const thLastExamPrescriptionDetails = /*[[${lastExamPrescriptionDetailsData}]]*/ [];
         const rawSymptomsCatalog = /*[[${symptomsCatalog}]]*/ [];
         const rawLabTestsCatalog = /*[[${labTestsCatalogData}]]*/ [];
-        const rawMedicationsCatalog = /*[[${medications}]]*/ [];
+        const rawLabTestsPregnantCatalog = /*[[${labTestsPregnantCatalogData}]]*/ [];
+        const rawMedicationsCatalog = /*[[${medicationsCatalogData}]]*/ [];
         /*]]>*/
     </script>
     <script th:src="@{/js/doctor/examine.js}"></script>

@@ -25,15 +25,21 @@
                         <!-- Top Details Header -->
                         <div class="history-profile-header">
                             <div class="profile-header-meta">
-                                <div class="profile-avatar"><i class="fas fa-hospital-user"></i></div>
+                                <div class="profile-avatar">
+                                    <img th:if="${patient.imageUrl != null}" 
+                                         th:src="${patient.imageUrl}" 
+                                         alt="Avatar" 
+                                         style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />
+                                    <i th:unless="${patient.imageUrl != null}" class="fas fa-hospital-user"></i>
+                                </div>
                                 <div>
                                     <h2 class="profile-name" id="detName" th:text="${patient.fullName}">Nguyen Van A</h2>
                                     <span class="profile-id" id="detId" style="display: none;" th:text="${patient.userId}">P012932</span>
                                 </div>
                             </div>
                             <div class="profile-header-actions">
-                                <a id="backBtn" th:href="@{/doctor/examine}" class="btn btn-secondary btn-sm">
-                                    <i class="fas fa-arrow-left"></i> Quay lại ca khám
+                                <a id="backBtn" th:href="${'examine'.equals(from) ? '/doctor/examine' : '/doctor/dashboard'}" class="btn btn-secondary btn-sm">
+                                    <i class="fas fa-arrow-left"></i> Quay lại
                                 </a>
                             </div>
                         </div>
@@ -58,24 +64,6 @@
                             </div>
                         </div>
 
-                        <!-- Historical Blood Sugar Trend Chart -->
-                        <div class="history-section-card">
-                            <h3 class="section-title-label"><i class="fas fa-chart-line"></i> Xu hướng đường huyết lúc đói</h3>
-                            <div class="chart-wrapper" id="chartWrapper">
-                                <!-- Canvas used to draw blood sugar trend graph dynamically without external dependencies -->
-                                <canvas id="glucoseTrendChart" width="800" height="220"></canvas>
-                            </div>
-                            <div class="chart-legend" id="chartLegend">
-                                <span class="legend-item"><span class="legend-color normal"></span> Khoảng bình thường (3.9 - 5.6 mmol/L)</span>
-                                <span class="legend-item"><span class="legend-color patient-line"></span> Chỉ số của bệnh nhân (mmol/L)</span>
-                            </div>
-                            <div id="noChartDataMessage" style="display: none; padding: 30px 20px; text-align: center; color: var(--doctor-text-muted); background: var(--doctor-bg); border-radius: var(--radius-sm); border: 1px dashed var(--doctor-border); margin-top: 10px;">
-                                <i class="fas fa-chart-area fa-3x" style="margin-bottom: 12px; color: var(--doctor-text-muted); opacity: 0.6;"></i>
-                                <h4 style="margin: 0 0 6px 0; color: var(--doctor-text-main); font-size: 0.9rem;">Chưa có xu hướng đường huyết</h4>
-                                <p style="margin: 0; font-size: 0.8rem; line-height: 1.4;">Cần tối thiểu 4 ca khám hoàn thành có kết quả xét nghiệm Đường huyết lúc đói để vẽ biểu đồ xu hướng.</p>
-                            </div>
-                        </div>
-
                         <!-- Patient Diagnostics History Timeline -->
                         <div class="history-section-card" style="margin-top: 20px;">
                             <div class="timeline-header-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -92,12 +80,12 @@
                                 </div>
                             </div>
                             <div class="timeline-trail" id="consultationTimeline">
-                                <div th:each="t, iterStat : ${timeline}" class="timeline-item" th:classappend="${iterStat.first} ? 'active' : ''" th:data-date="${t.examDate != null ? #temporals.format(t.examDate, 'MMMM yyyy') : ''}" th:data-exam-date="${t.examDate != null ? #temporals.format(t.examDate, 'yyyy-MM-dd') : ''}">
+                                <div th:each="t, iterStat : ${timeline}" class="timeline-item" th:classappend="${iterStat.first} ? 'active' : 'N/A'" th:data-date="${t.examDate != null ? #temporals.format(t.examDate, 'MMMM yyyy') : 'N/A'}" th:data-exam-date="${t.examDate != null ? #temporals.format(t.examDate, 'yyyy-MM-dd') : ''}">
                                     <div class="timeline-node"></div>
                                     <div class="timeline-content-card">
                                         <div class="timeline-header-meta" style="margin-bottom: 6px;">
-                                            <span class="timeline-date" th:text="${t.examDate != null ? #temporals.format(t.examDate, 'dd/MM/yyyy') : ''}">May 12, 2026</span>
-                                            <span class="timeline-doc" th:text="${'Bác sĩ khám: ' + (t.doctor.profile != null ? t.doctor.profile.fullName : t.doctor.userId)}">Examiner: Dr. Harrison</span>
+                                            <span class="timeline-date" th:text="${t.examDate != null ? #temporals.format(t.examDate, 'dd/MM/yyyy') : 'N/A'}"></span>
+                                            <span class="timeline-doc" th:text="${'Bác sĩ khám: ' + (t.doctor.profile != null ? t.doctor.profile.fullName : 'N/A')}"></span>
                                         </div>
                                         <div class="timeline-diagnosis" style="margin-bottom: 12px; font-size: 0.85rem;">
                                             <strong>Chẩn đoán:</strong> <span th:text="${t.diagnosisNote}">Diagnosis note</span>
@@ -130,7 +118,7 @@
                 <div class="history-grid-info">
                     <div class="history-info-box">
                         <span class="lbl">Ngày khám</span>
-                        <strong class="val" id="modalDate" th:text="${exam != null && exam.examDate != null ? #temporals.format(exam.examDate, 'dd/MM/yyyy') : ''}"></strong>
+                        <strong class="val" id="modalDate" th:text="${exam != null && exam.examDate != null ? #temporals.format(exam.examDate, 'dd/MM/yyyy') : 'N/A'}"></strong>
                     </div>
                     <div class="history-info-box">
                         <span class="lbl">Bác sĩ khám</span>
@@ -145,7 +133,7 @@
                 <!-- Final Diagnosis -->
                 <div class="notes-card diagnosis">
                     <span class="lbl" style="font-size: 0.68rem; color: var(--doctor-primary); font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 6px; letter-spacing: 0.5px;"><i class="fas fa-file-medical"></i> Chẩn đoán cuối cùng</span>
-                    <h4 class="notes-content" id="modalDiagnosis" style="font-weight: 700; color: var(--green-900);" th:text="${exam != null ? exam.diagnosisNote : ''}"></h4>
+                    <h4 class="notes-content" id="modalDiagnosis" style="font-weight: 700; color: var(--green-900);" th:text="${exam != null ? exam.diagnosisNote : 'N/A'}"></h4>
                 </div>
 
                 <!-- Symptoms & Observations -->

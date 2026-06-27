@@ -45,6 +45,9 @@ public class Profile {
     @Column(name = "Specialty", length = 50, columnDefinition = "NVARCHAR(50)")
     private String specialty;
 
+    @Column(name = "ImageURL", length = 255, columnDefinition = "NVARCHAR(255)")
+    private String imageUrl;
+
     public Profile() {
     }
 
@@ -118,6 +121,14 @@ public class Profile {
 
     public void setSpecialty(String specialty) {
         this.specialty = specialty;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }
 
