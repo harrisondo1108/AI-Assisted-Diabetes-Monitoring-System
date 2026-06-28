@@ -11,4 +11,8 @@ public interface PromptTemplateService {
     PromptTemplate update(Integer id, PromptTemplate entity);
     void deleteById(Integer id);
     boolean existsById(Integer id);
+
+    Optional<PromptTemplate> findActiveTemplate();
+    Optional<String> getActiveSystemPrompt();
+    List<PromptTemplate> findAllActive();
 }

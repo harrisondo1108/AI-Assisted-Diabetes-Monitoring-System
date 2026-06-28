@@ -6,23 +6,51 @@
   <component name="ChangeListManager">
     <list default="true" id="35d4ee31-efef-433e-940d-fdb413c90a79" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/config/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/auth/AuthenticationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/auth/AuthenticationController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/impl/AdminUserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/impl/AdminUserServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/landing.js" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/auth/landing.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientChatController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientChatController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/AIAssistantRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/AIAssistantRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/AIConversationRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/AIConversationRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/AIMessageRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/AIMessageRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/PromptTemplateRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/PromptTemplateRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/AIAssistantService.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/AIAssistantService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/AIConversationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/AIConversationService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/AIMessageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/AIMessageService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AIAssistantServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AIAssistantServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AIConversationServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AIConversationServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AIMessageServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AIMessageServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/masterdata/PromptTemplateService.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/masterdata/PromptTemplateService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/masterdata/impl/PromptTemplateServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/masterdata/impl/PromptTemplateServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/chat.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/chat.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="CopilotPersistence">
+    <persistenceIdMap>
+      <entry key="_C:/Users/Acer/Downloads/AI-Assisted-Diabetes-Monitoring-System-F" value="3ErZXWT4L2S9rpmKGdNf43hA6CE" />
+    </persistenceIdMap>
+  </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="159" />
+    <option name="cachedIndexableFilesCount" value="221" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "TheAnhh7805"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/harrisondo1108/AI-Assisted-Diabetes-Monitoring-System.git",
+    "accountId": "11efc543-4507-4df6-bce4-65b8e51c1555"
+  }
+}]]></component>
   <component name="MavenImportPreferences">
     <option name="generalSettings">
       <MavenGeneralSettings>
@@ -34,6 +62,65 @@
     <commands />
     <urls />
   </component>
+  <component name="NextEditCompletionFeaturesState">
+    <decayedCancelled>
+      <entry key="MS100" value="1.0000011031038132" />
+      <entry key="MS500" value="1.064346255214625" />
+      <entry key="S2" value="1.5038085310177824" />
+      <entry key="S5" value="1.8107633975025446" />
+      <entry key="S10" value="2.252153145924515" />
+      <entry key="S30" value="3.7673127735710183" />
+      <entry key="S60" value="5.46082631512937" />
+      <entry key="M2" value="7.631588607312346" />
+      <entry key="M5" value="11.013722893160516" />
+      <entry key="M10" value="13.323454490111347" />
+      <entry key="M15" value="14.357347359174865" />
+      <entry key="M30" value="15.570282399637145" />
+      <entry key="H1" value="16.255378506988045" />
+      <entry key="H2" value="16.619885608272227" />
+      <entry key="H4" value="16.80794451057877" />
+      <entry key="D1" value="16.967709092148596" />
+      <entry key="W1" value="16.99538006100118" />
+    </decayedCancelled>
+    <decayedSelected>
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="0.0" />
+      <entry key="S2" value="0.0" />
+      <entry key="S5" value="1.652337647773731E-132" />
+      <entry key="S10" value="1.2854328639698505E-66" />
+      <entry key="S30" value="1.0873010306444399E-22" />
+      <entry key="S60" value="1.042737277862665E-11" />
+      <entry key="M2" value="3.2291442796237283E-6" />
+      <entry key="M5" value="0.006362605257044532" />
+      <entry key="M10" value="0.07976594045734395" />
+      <entry key="M15" value="0.1853012404750523" />
+      <entry key="M30" value="0.43046630585337614" />
+      <entry key="H1" value="0.6560993109685272" />
+      <entry key="H2" value="0.8099995746718187" />
+      <entry key="H4" value="0.8999997637065349" />
+      <entry key="D1" value="0.9825931508563235" />
+      <entry key="W1" value="0.9974945539250442" />
+    </decayedSelected>
+    <decayedShown>
+      <entry key="MS100" value="8.740479886245158E-4" />
+      <entry key="MS500" value="0.2537679903294414" />
+      <entry key="S2" value="1.0134486397151594" />
+      <entry key="S5" value="1.5375594902381733" />
+      <entry key="S10" value="2.070945243999449" />
+      <entry key="S30" value="3.6590470591649367" />
+      <entry key="S60" value="5.381770949528282" />
+      <entry key="M2" value="7.577059464075748" />
+      <entry key="M5" value="10.989636525627347" />
+      <entry key="M10" value="13.385009315486268" />
+      <entry key="M15" value="14.529505104085628" />
+      <entry key="M30" value="15.993488590017817" />
+      <entry key="H1" value="16.907616814053874" />
+      <entry key="H2" value="17.42788610082015" />
+      <entry key="H4" value="17.70692592121593" />
+      <entry key="D1" value="17.95012974564707" />
+      <entry key="W1" value="17.992849902359705" />
+    </decayedShown>
+  </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 0
@@ -43,30 +130,53 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.Unnamed.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;CSon&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.Unnamed.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "Spring Boot.DiabetesApplication.executor": "Run",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "main",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/Acer/Downloads/AI-Assisted-Diabetes-Monitoring-System-F/diabetes/src/main/resources/static/css/patient",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
-  <component name="RunManager">
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Acer\Downloads\AI-Assisted-Diabetes-Monitoring-System-F\diabetes\src\main\resources\static\css\patient" />
+      <recent name="C:\Users\Acer\Downloads\AI-Assisted-Diabetes-Monitoring-System-F\diabetes\src\main\resources\static\js\patient" />
+      <recent name="C:\Users\Acer\Downloads\AI-Assisted-Diabetes-Monitoring-System-F\diabetes\src\main\java\com\quan\diabetes\dto\AIChat" />
+      <recent name="C:\Users\Acer\Downloads\AI-Assisted-Diabetes-Monitoring-System-F\diabetes\src\main\java\com\quan\diabetes\config" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.quan.diabetes.service.ai.impl" />
+      <recent name="com.quan.diabetes.service.ai" />
+      <recent name="com.quan.diabetes.controller.AIChat" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Spring Boot.DiabetesApplication">
     <configuration name="Unnamed" type="Application" factoryName="Application" nameIsGenerated="true">
-      <option name="ALTERNATIVE_JRE_PATH" value="C:/Program Files/Java/jdk-21.0.11" />
+      <option name="ALTERNATIVE_JRE_PATH" value="$PROJECT_DIR$/../../../../Program Files/Java/jdk-21.0.11" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
       <option name="MAIN_CLASS_NAME" value="com.quan.diabetes.DiabetesApplication" />
       <module name="diabetes" />
@@ -74,6 +184,33 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="DiabetesApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+      <module name="diabetes" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.quan.diabetes.DiabetesApplication" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.quan.diabetes.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Spring Boot.DiabetesApplication" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-37e91769500f-intellij.indexing.shared.core-IU-261.25134.95" />
+        <option value="bundled-js-predefined-d6986cc7102b-31caf2ab9e3c-JavaScript-IU-261.25134.95" />
+      </set>
+    </attachedChunks>
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -82,6 +219,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1780938695397</updated>
+      <workItem from="1782616965127" duration="7374000" />
     </task>
     <servers />
   </component>
