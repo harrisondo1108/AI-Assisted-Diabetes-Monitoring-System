@@ -22,4 +22,6 @@ public interface UserService {
     boolean existsById(String id);
 
     Optional<User> findByPhoneNumber(String phoneNumber);
+
+    String getNewID(String roleId);
 }

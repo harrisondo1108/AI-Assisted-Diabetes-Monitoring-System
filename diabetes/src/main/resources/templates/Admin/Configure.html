@@ -6,60 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/css/pages/configure-page.css}">
+    <link rel="stylesheet" th:href="@{/css/admin/configure.css}">
+    <link rel="stylesheet" href="/static/css/admin/configure.css">
 </head>
 <body>
-<div class="page-layout">
+<div class="admin-layout">
 
-    <!-- SIDEBAR (same as LabTest) -->
-    <aside class="sidebar">
-        <div>
-            <div class="brand">
-                <h1>Diabetes Care</h1>
-                <p>Admin Console</p>
-            </div>
-            <nav class="nav-menu">
-                <a href="#"                          class="nav-link"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a>
-                <a href="#"                          class="nav-link"><i class="fa-solid fa-users"></i><span>User Management</span></a>
-                <a href="#"                          class="nav-link"><i class="fa-solid fa-pills"></i><span>Medicine Management</span></a>
-                <a th:href="@{/admin/lab-tests}"     class="nav-link"><i class="fa-solid fa-flask"></i><span>Medical Tests</span></a>
-                <a href="#"                          class="nav-link"><i class="fa-solid fa-sliders"></i><span>Threshold Config</span></a>
-                <a href="#"                          class="nav-link"><i class="fa-solid fa-desktop"></i><span>Monitoring</span></a>
-                <a th:href="@{/admin/configure}"     class="nav-link active"><i class="fa-solid fa-gear"></i><span>Configuration</span></a>
-            </nav>
-        </div>
-        <div class="sidebar-footer">
-            <button type="button" class="new-report-btn"><i class="fa-solid fa-plus"></i><span>New Report</span></button>
-            <a href="#" class="footer-link"><i class="fa-solid fa-gear"></i><span>Settings</span></a>
-            <a href="#" class="footer-link"><i class="fa-regular fa-circle-question"></i><span>Support</span></a>
-        </div>
-    </aside>
+    <!-- SIDEBAR -->
+    <div th:replace="~{layout/sidebar :: sidebar('configure')}"></div>
 
     <!-- MAIN -->
-    <div class="main-content">
+    <div class="admin-main">
 
-        <!-- Topbar -->
-        <header class="topbar">
-            <div></div>
-            <div class="user-area">
-                <button type="button" class="icon-btn" title="Notifications">
-                    <i class="fa-solid fa-bell"></i>
-                    <span class="notif-dot"></span>
-                </button>
-                <button type="button" class="icon-btn" title="Help">
-                    <i class="fa-solid fa-circle-question"></i>
-                </button>
-                <div class="topbar-divider"></div>
-                <div class="admin-info">
-                    <span class="admin-name">Quản trị viên</span>
-                    <span class="admin-role">Chief Administrator</span>
-                </div>
-                <img src="https://i.pravatar.cc/100?img=12" alt="Avatar" class="avatar">
-            </div>
-        </header>
+        <!-- Header -->
+        <div th:replace="~{layout/header :: header('System Configuration')}"></div>
 
         <!-- Content -->
-        <section class="content">
+        <main class="admin-content">
 
             <!-- Error -->
             <div th:if="${errorMessage != null}" class="alert-error" th:text="${errorMessage}"></div>
@@ -86,7 +49,7 @@
                             <i class="fa-solid fa-magnifying-glass"></i>
                             <input type="text" id="roomSearch" placeholder="Search by room name...">
                         </div>
-                        <button type="button" class="btn-add" id="btnAddRoom" style="margin:0">
+                        <button type="button" class="btn btn-primary" id="btnAddRoom" style="margin:0">
                             <i class="fa-solid fa-plus"></i> Add Room
                         </button>
                     </div>
@@ -153,7 +116,7 @@
                             <i class="fa-solid fa-magnifying-glass"></i>
                             <input type="text" id="timingSearch" placeholder="Search by timing name...">
                         </div>
-                        <button type="button" class="btn-add" id="btnAddTiming" style="margin:0">
+                        <button type="button" class="btn btn-primary" id="btnAddTiming" style="margin:0">
                             <i class="fa-solid fa-plus"></i> Add Timing
                         </button>
                     </div>
@@ -211,19 +174,13 @@
                 </div>
 
             </div><!-- /.table-card -->
-        </section>
+        </main>
 
         <!-- Footer -->
-        <footer class="site-footer">
-            <span>© 2024 Diabetes Care System</span>
-            <div class="footer-links">
-                <a href="#">Legal</a>
-                <a href="#">Privacy Policy</a>
-            </div>
-        </footer>
+        <div th:replace="~{layout/footer :: footer}"></div>
 
-    </div><!-- /.main-content -->
-</div><!-- /.page-layout -->
+    </div><!-- /.admin-main -->
+</div><!-- /.admin-layout -->
 
 
 <!-- ADD ROOM MODAL -->

@@ -65,6 +65,15 @@ public class AuthenticationController {
         return "auth/register-otp";
     }
 
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        if (session != null) {
+            session.invalidate();
+        }
+        SecurityContextHolder.clearContext();
+        return "redirect:/login";
+    }
+
     // ==================== POST ====================
 
     @PostMapping("/login")
@@ -79,6 +88,10 @@ public class AuthenticationController {
             return "auth/login";
         }
         User user = userOptional.get();
+        if (User.STATUS_LOCKED.equalsIgnoreCase(user.getStatus())) {
+            model.addAttribute("errorMsg", "Your account has been blocked. Please contact the administrator.");
+            return "auth/login";
+        }
         List<SimpleGrantedAuthority> authorities = Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_" + user.getRole().getRoleId())
         );

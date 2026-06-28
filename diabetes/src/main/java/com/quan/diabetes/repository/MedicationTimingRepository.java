@@ -25,4 +25,7 @@ public interface MedicationTimingRepository
             @Param("clinicalExamId") String clinicalExamId
     );
 
+    boolean existsByTimingName(String timingName);
+
+    boolean existsByTimingNameAndTimingIDNot(String timingName, Integer timingID);
 }

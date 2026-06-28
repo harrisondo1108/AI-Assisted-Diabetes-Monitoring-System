@@ -6,84 +6,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/css/pages/lab-test-page.css}">
+    <link rel="stylesheet" th:href="@{/css/admin/lab-tests.css}">
+    <link rel="stylesheet" href="/static/css/admin/lab-tests.css">
 </head>
 <body>
-<div class="page-layout">
+<div class="admin-layout">
 
     <!-- SIDEBAR -->
-    <aside class="sidebar">
-        <div>
-            <div class="brand">
-                <h1>Diabetes Care</h1>
-                <p>Admin Console</p>
-            </div>
-            <nav class="nav-menu">
-                <a href="#" class="nav-link"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a>
-                <a href="#" class="nav-link"><i class="fa-solid fa-users"></i><span>User Management</span></a>
-                <a href="#" class="nav-link"><i class="fa-solid fa-pills"></i><span>Medicine Management</span></a>
-                <a th:href="@{/admin/lab-tests}" class="nav-link active"><i class="fa-solid fa-flask"></i><span>Medical Tests</span></a>
-                <a href="#" class="nav-link"><i class="fa-solid fa-sliders"></i><span>Threshold Config</span></a>
-                <a href="#" class="nav-link"><i class="fa-solid fa-desktop"></i><span>Monitoring</span></a>
-            </nav>
-        </div>
-        <div class="sidebar-footer">
-            <button type="button" class="new-report-btn"><i class="fa-solid fa-plus"></i><span>New Report</span></button>
-            <a href="#" class="footer-link"><i class="fa-solid fa-gear"></i><span>Settings</span></a>
-            <a href="#" class="footer-link"><i class="fa-regular fa-circle-question"></i><span>Support</span></a>
-        </div>
-    </aside>
+    <div th:replace="~{layout/sidebar :: sidebar('lab')}"></div>
 
     <!-- MAIN -->
-    <div class="main-content">
+    <div class="admin-main">
 
-        <!-- Top bar -->
-        <header class="topbar">
-            <div></div>
-            <div class="user-area">
-                <button type="button" class="icon-btn" title="Notifications">
-                    <i class="fa-solid fa-bell"></i>
-                    <span class="notif-dot"></span>
-                </button>
-                <button type="button" class="icon-btn" title="Help">
-                    <i class="fa-solid fa-circle-question"></i>
-                </button>
-                <div class="topbar-divider"></div>
-                <div class="admin-info">
-                    <span class="admin-name">Quản trị viên</span>
-                    <span class="admin-role">Chief Administrator</span>
-                </div>
-                <img src="https://i.pravatar.cc/100?img=12" alt="Avatar" class="avatar">
-            </div>
-        </header>
+        <!-- Header -->
+        <div th:replace="~{layout/header :: header('Medical Tests')}"></div>
 
         <!-- Content -->
-        <section class="content">
+        <main class="admin-content">
 
             <div th:if="${errorMessage != null}" class="alert-error" th:text="${errorMessage}">
                 Tên xét nghiệm đã tồn tại.
             </div>
 
             <!-- STAT CARDS -->
-            <div class="stat-row">
+            <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-icon stat-icon--teal"><i class="fa-solid fa-flask"></i></div>
-                    <div><p class="stat-label">Total Tests</p><p class="stat-value" id="statTotal">0</p></div>
+                    <div class="stat-icon"><i class="fas fa-flask"></i></div>
+                    <div class="stat-label">Total Tests</div>
+                    <div class="stat-value" id="statTotal">0</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon stat-icon--green"><i class="fa-solid fa-circle-check"></i></div>
-                    <div><p class="stat-label">Active Tests</p><p class="stat-value" id="statActive">0</p></div>
+                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-label">Active Tests</div>
+                    <div class="stat-value" id="statActive">0</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon stat-icon--gray"><i class="fa-solid fa-circle-xmark"></i></div>
-                    <div><p class="stat-label">Inactive Tests</p><p class="stat-value" id="statInactive">0</p></div>
+                    <div class="stat-icon"><i class="fas fa-ban"></i></div>
+                    <div class="stat-label">Inactive Tests</div>
+                    <div class="stat-value" id="statInactive">0</div>
                 </div>
             </div>
 
             <!-- ACTION BAR -->
-            <div class="action-bar">
-                <button type="button" class="btn-add" id="btnDefineTest">
-                    <i class="fa-solid fa-plus"></i> Define New Test
+            <div class="page-header">
+                <button type="button" class="btn btn-primary" id="btnDefineTest">
+                    <i class="fas fa-plus"></i> Define New Test
                 </button>
             </div>
 
@@ -175,19 +142,13 @@
 
             </div><!-- /.table-card -->
 
-        </section>
+        </main>
 
         <!-- Footer -->
-        <footer class="site-footer">
-            <span>© 2024 Diabetes Care System</span>
-            <div class="footer-links">
-                <a href="#">Legal</a>
-                <a href="#">Privacy Policy</a>
-            </div>
-        </footer>
+        <div th:replace="~{layout/footer :: footer}"></div>
 
-    </div><!-- /.main-content -->
-</div><!-- /.page-layout -->
+    </div><!-- /.admin-main -->
+</div><!-- /.admin-layout -->
 
 
 <!-- CREATE MODAL -->

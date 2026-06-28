@@ -3,9 +3,11 @@ package com.quan.diabetes.service.impl;
 import com.quan.diabetes.entity.MedicationTiming;
 import com.quan.diabetes.repository.MedicationTimingRepository;
 import com.quan.diabetes.service.MedicationTimingService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class MedicationTimingServiceImpl
@@ -24,23 +26,48 @@ public class MedicationTimingServiceImpl
     }
 
     @Override
+    public MedicationTiming create(MedicationTiming timing) {
+        return repository.save(timing);
+    }
+
+    @Override
     public MedicationTiming update(MedicationTiming timing) {
         return repository.save(timing);
     }
 
     @Override
+    public MedicationTiming update(Integer id, MedicationTiming timing) {
+        if (!repository.existsById(id)) {
+            throw new EntityNotFoundException("MedicationTiming not found with id: " + id);
+        }
+        return repository.save(timing);
+    }
+
+    @Override
     public void deleteById(Integer timingId) {
+        if (!repository.existsById(timingId)) {
+            throw new EntityNotFoundException("MedicationTiming not found with id: " + timingId);
+        }
         repository.deleteById(timingId);
     }
 
     @Override
-    public MedicationTiming findById(Integer timingId) {
-        return repository.findById(timingId)
-                .orElse(null);
+    public Optional<MedicationTiming> findById(Integer timingId) {
+        return repository.findById(timingId);
     }
 
     @Override
     public List<MedicationTiming> findAll() {
         return repository.findAll();
+    }
+
+    @Override
+    public boolean existsByTimingName(String timingName) {
+        return repository.existsByTimingName(timingName);
+    }
+
+    @Override
+    public boolean existsByTimingNameAndTimingIdNot(String timingName, Integer timingId) {
+        return repository.existsByTimingNameAndTimingIDNot(timingName, timingId);
     }
 }

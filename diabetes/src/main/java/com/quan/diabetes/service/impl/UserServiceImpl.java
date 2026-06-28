@@ -65,4 +65,22 @@ public class UserServiceImpl implements UserService {
     public Optional<User> findByPhoneNumber(String phoneNumber) {
         return userRepository.findByPhoneNumber(phoneNumber);
     }
+
+    @Override
+    public String getNewID(String roleId) {
+        String prefix = "USR-";
+        if (roleId != null) {
+            String roleUpper = roleId.toUpperCase().trim();
+            if (roleUpper.startsWith("PAT")) {
+                prefix = "PAT-";
+            } else if (roleUpper.startsWith("DOC")) {
+                prefix = "DOC-";
+            } else if (roleUpper.startsWith("AD")) {
+                prefix = "AD-";
+            } else {
+                prefix = roleUpper + "-";
+            }
+        }
+        return prefix + java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
+    }
 }
