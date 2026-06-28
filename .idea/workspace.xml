@@ -4,29 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="35d4ee31-efef-433e-940d-fdb413c90a79" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="35d4ee31-efef-433e-940d-fdb413c90a79" name="Changes" comment="luan_ha&#10;thêm phần upload ảnh profile cho patient">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/CreateTable.sql" beforeDir="false" afterPath="$PROJECT_DIR$/database/CreateTable.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/DiabetesApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/DiabetesApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientNotificationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientNotificationController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorProfileController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorProfileController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientProfileController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientProfileController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/entity/AIReminder.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/entity/AIReminder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/entity/Patient.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/entity/Patient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/entity/Profile.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/entity/Profile.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/AIReminderRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/AIReminderRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/reminder/AppointmentSchedule.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/reminder/AppointmentSchedule.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/reminder/MedicationRescheduleService.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/reminder/MedicationRescheduleService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/reminder/MedicationSchedualeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/reminder/MedicationSchedualeService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/reminder/ReminderScheduledTask.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/reminder/ReminderScheduledTask.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/patient-header.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/patient-header.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/history-detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/history-detail.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/profile.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/profile.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/progress.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/progress.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/DiabetesApplicationTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/DiabetesApplicationTests.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -73,23 +54,23 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.0000000000094058" />
-      <entry key="MS500" value="1.0082254191366453" />
-      <entry key="S2" value="1.9584647867995395" />
-      <entry key="S5" value="4.064969707458329" />
-      <entry key="S10" value="5.608572110642514" />
-      <entry key="S30" value="7.082818908465784" />
-      <entry key="S60" value="7.524435596772126" />
-      <entry key="M2" value="7.762352033113408" />
-      <entry key="M5" value="8.017796399560552" />
-      <entry key="M10" value="8.291072158174902" />
-      <entry key="M15" value="8.454547719218656" />
-      <entry key="M30" value="8.681686248858579" />
-      <entry key="H1" value="8.82731329905451" />
-      <entry key="H2" value="8.90996380754409" />
-      <entry key="H4" value="8.954016777090747" />
-      <entry key="D1" value="8.992198371102383" />
-      <entry key="W1" value="8.998882058410548" />
+      <entry key="MS100" value="1.0" />
+      <entry key="MS500" value="1.0000007772697115" />
+      <entry key="S2" value="1.0440548382937171" />
+      <entry key="S5" value="1.6724275863972435" />
+      <entry key="S10" value="3.2990436614186316" />
+      <entry key="S30" value="10.00960178403888" />
+      <entry key="S60" value="15.942525120561985" />
+      <entry key="M2" value="20.905979359313637" />
+      <entry key="M5" value="25.760196307351226" />
+      <entry key="M10" value="29.186889025942374" />
+      <entry key="M15" value="31.021928747054236" />
+      <entry key="M30" value="33.50802735739813" />
+      <entry key="H1" value="35.098525821681434" />
+      <entry key="H2" value="36.00578248370686" />
+      <entry key="H4" value="36.491376724522915" />
+      <entry key="D1" value="36.913571964787806" />
+      <entry key="W1" value="36.98761176132706" />
     </decayedCancelled>
     <decayedSelected>
       <entry key="MS100" value="0.0" />
@@ -111,23 +92,23 @@
       <entry key="W1" value="0.0" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.04869778622878433" />
-      <entry key="MS500" value="0.5489666759996538" />
-      <entry key="S2" value="1.6599037149395135" />
-      <entry key="S5" value="3.8206803589152605" />
-      <entry key="S10" value="5.443754970446532" />
-      <entry key="S30" value="7.014699894954905" />
-      <entry key="S60" value="7.488430327898433" />
-      <entry key="M2" value="7.743830612905946" />
-      <entry key="M5" value="8.01019401767057" />
-      <entry key="M10" value="8.287181436469343" />
-      <entry key="M15" value="8.45191934056826" />
-      <entry key="M30" value="8.680348327357107" />
-      <entry key="H1" value="8.826636781293475" />
-      <entry key="H2" value="8.909623410252742" />
-      <entry key="H4" value="8.95384600929752" />
-      <entry key="D1" value="8.9921698276508" />
-      <entry key="W1" value="8.99887797872101" />
+      <entry key="MS100" value="6.937949991194583E-28" />
+      <entry key="MS500" value="4.466647279600341E-6" />
+      <entry key="S2" value="0.08774817078473676" />
+      <entry key="S5" value="0.9554160515944093" />
+      <entry key="S10" value="2.815351775284001" />
+      <entry key="S30" value="9.783743656225344" />
+      <entry key="S60" value="15.813254430668295" />
+      <entry key="M2" value="20.83579819312221" />
+      <entry key="M5" value="25.729715847125203" />
+      <entry key="M10" value="29.170479844252494" />
+      <entry key="M15" value="31.010526222810647" />
+      <entry key="M30" value="33.502000325472835" />
+      <entry key="H1" value="35.095406091027286" />
+      <entry key="H2" value="36.00419212298577" />
+      <entry key="H4" value="36.490573362052686" />
+      <entry key="D1" value="36.91343688382957" />
+      <entry key="W1" value="36.98759243428569" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
@@ -153,38 +134,39 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.DiabetesApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Application.Unnamed.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
-    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
-    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
-    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;Spring Boot.DiabetesApplication.executor&quot;: &quot;Run&quot;,
-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;copilot.chat.legacySessionMetadata.migrated&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;luan__ha&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/LuHan/IdeaProjects/AI-Assisted-Diabetes-Monitoring-System&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.project.maven.repository.indices&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.DiabetesApplication.executor": "Run",
+    "Application.Unnamed.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "SONARLINT_PRECOMMIT_ANALYSIS": "true",
+    "Spring Boot.DiabetesApplication.executor": "Run",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "copilot.chat.legacySessionMetadata.migrated": "true",
+    "git-widget-placeholder": "luan__ha",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/LuHan/IdeaProjects/AI-Assisted-Diabetes-Monitoring-System",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "reference.settings.project.maven.repository.indices",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="DiabetesApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <option name="ALTERNATIVE_JRE_PATH" value="21" />
@@ -228,11 +210,24 @@
       <workItem from="1782523535537" duration="442000" />
       <workItem from="1782526845740" duration="1648000" />
       <workItem from="1782624697624" duration="1516000" />
-      <workItem from="1782633506621" duration="2558000" />
+      <workItem from="1782633506621" duration="3500000" />
     </task>
+    <task id="LOCAL-00001" summary="luan_ha&#10;thêm phần upload ảnh profile cho patient">
+      <option name="closed" value="true" />
+      <created>1782636397384</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1782636397385</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="luan_ha&#10;thêm phần upload ảnh profile cho patient" />
+    <option name="LAST_COMMIT_MESSAGE" value="luan_ha&#10;thêm phần upload ảnh profile cho patient" />
   </component>
 </project>

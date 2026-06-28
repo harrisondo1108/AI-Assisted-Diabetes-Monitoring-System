@@ -80,6 +80,56 @@ public class PatientProfileController extends BasePatientController {
             return "redirect:/patient/profile";
         }
 
+        if (fullName.trim().length() < 2 || fullName.trim().length() > 60) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Họ và tên phải từ 2 đến 60 ký tự.");
+            return "redirect:/patient/profile";
+        }
+
+        if (!fullName.trim().matches("^[A-Za-zÀ-ỹ\\s]+$")) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Họ và tên chỉ được chứa chữ cái và khoảng trắng.");
+            return "redirect:/patient/profile";
+        }
+
+        if (address != null && address.trim().length() > 200) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Địa chỉ không được vượt quá 200 ký tự.");
+            return "redirect:/patient/profile";
+        }
+
+        if (bloodgroup != null && !bloodgroup.trim().isEmpty()) {
+            if (!java.util.List.of("O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-").contains(bloodgroup.trim().toUpperCase())) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Nhóm máu không hợp lệ.");
+                return "redirect:/patient/profile";
+            }
+        }
+
+        if (supervisorName != null && !supervisorName.trim().isEmpty()) {
+            if (supervisorName.trim().length() > 90) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tên người giám hộ không được vượt quá 90 ký tự.");
+                return "redirect:/patient/profile";
+            }
+            if (!supervisorName.trim().matches("^[A-Za-zÀ-ỹ\\s]+$")) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tên người giám hộ chỉ được chứa chữ cái và khoảng trắng.");
+                return "redirect:/patient/profile";
+            }
+        }
+
+        if (supervisorPhone != null && !supervisorPhone.trim().isEmpty()) {
+            if (!supervisorPhone.trim().matches("^[0-9]{10,15}$")) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Số điện thoại người giám hộ phải chứa từ 10 đến 15 chữ số.");
+                return "redirect:/patient/profile";
+            }
+        }
+
+        if (height != null && (height < 50 || height > 250)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Chiều cao phải từ 50 đến 250 cm.");
+            return "redirect:/patient/profile";
+        }
+
+        if (weight != null && (weight.compareTo(java.math.BigDecimal.ONE) < 0 || weight.compareTo(new java.math.BigDecimal("300")) > 0)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Cân nặng phải từ 1 đến 300 kg.");
+            return "redirect:/patient/profile";
+        }
+
         String normalizedPhone = currentUser.getPhoneNumber();
         String userId = currentUser.getUserId();
 
