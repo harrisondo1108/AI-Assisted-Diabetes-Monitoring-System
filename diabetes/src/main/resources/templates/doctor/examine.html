@@ -70,11 +70,11 @@
                         <h4 class="section-title"><i class="fas fa-circle-exclamation"></i> Cảnh báo y tế</h4>
                         <div class="alert-box alert-danger">
                             <strong>Dị ứng:</strong>
-                            <p id="patAllergy" th:text="${patient.allergyNotes != null && !patient.allergyNotes.empty ? patient.allergyNotes : 'Không có dị ứng thuốc nào được ghi nhận'}"></p>
+                            <p id="patAllergy" th:text="${patient.allergyNotes != null ? patient.allergyNotes : 'Không có dị ứng thuốc nào được ghi nhận'}"></p>
                         </div>
                         <div class="alert-box alert-info">
                             <strong>Tiền sử bệnh án:</strong>
-                            <p id="patHistory" th:text="${patient.permanentMedicalHistory != null && !patient.permanentMedicalHistory.empty ? patient.permanentMedicalHistory : 'Không có tiền sử bệnh án được ghi nhận'}"></p>
+                            <p id="patHistory" th:text="${patient.permanentMedicalHistory != null  ? patient.permanentMedicalHistory : 'Không có tiền sử bệnh án được ghi nhận'}"></p>
                         </div>
                     </div>
 
@@ -101,7 +101,7 @@
                 </aside>
 
                 <!-- Right/Main Workspace Container -->
-                <form th:action="@{/doctor/examine/{id}/submit(id=${patient.userId})}" method="POST" id="examineForm" th:object="${examForm}" 
+                <form th:action="${isEditMode} ? @{/doctor/examine/update/{examId}(examId=${lastExam.clinicalExamId})} : @{/doctor/examine/{id}/submit(id=${patient.userId})}" method="POST" id="examineForm" th:object="${examForm}" 
                       class="examination-workspace" 
                       th:classappend="${activeExam != null && activeExam.status == 'Pending' ? 'exam-pending' : ''}">
                     <input type="hidden" id="prescriptionJson" name="prescriptionJson" value="">
@@ -152,13 +152,6 @@
                                         th:classappend="${#fields.hasErrors('medicalHistory')} ? 'is-invalid' : ''"></textarea>
                                     <div class="error-feedback" th:if="${#fields.hasErrors('medicalHistory')}" th:errors="*{medicalHistory}"></div>
                                 </div>
-                                <div class="form-group full-width">
-                                    <label for="examDiagnosis">Ghi chú chẩn đoán lâm sàng <span class="required">*</span></label>
-                                    <textarea id="examDiagnosis" th:field="*{diagnosisNote}" rows="3"
-                                        placeholder="Nhập chẩn đoán lâm sàng và ghi chú..."
-                                        th:classappend="${#fields.hasErrors('diagnosisNote')} ? 'is-invalid' : ''"></textarea>
-                                    <div class="error-feedback" th:if="${#fields.hasErrors('diagnosisNote')}" th:errors="*{diagnosisNote}"></div>
-                                </div>
                                 <div class="form-group">
                                     <label for="examNextDate">Hẹn ngày tái khám</label>
                                     <input type="date" id="examNextDate" th:field="*{nextAppointment}">
@@ -181,15 +174,8 @@
                                 <div class="prescription-titles">
                                     <p class="section-description">Chỉ định các xét nghiệm cận lâm sàng cho bệnh nhân</p>
                                 </div>
-                                <button type="button" class="btn btn-secondary btn-sm" onclick="showLabTestModal()"><i
-                                        class="fas fa-plus"></i> Yêu cầu chỉ định xét nghiệm</button>
-                            </div>
-
-                            <div class="ordered-labs-summary" id="orderedLabsSummary">
-                                <div class="no-medications-message" id="emptyLabs">
-                                    <i class="fas fa-vial-circle-check"></i>
-                                    <p>Chưa có chỉ định xét nghiệm nào</p>
-                                </div>
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="assignAllLabTests()"><i
+                                        class="fas fa-flask"></i> Chỉ định nhanh toàn bộ xét nghiệm</button>
                             </div>
                         </div>
 
@@ -218,6 +204,20 @@
                                         </tbody>
                                     </table>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION: Diagnosis Note -->
+                    <div class="workspace-section" id="diagnosis-section">
+                        <div class="form-section">
+                            <h3 class="section-header-title"><i class="fas fa-comment-medical"></i> Chẩn đoán lâm sàng <span class="required">*</span></h3>
+                            <p class="section-description">Nhập chẩn đoán lâm sàng và ghi chú chi tiết cho ca khám này</p>
+                            <div class="form-group full-width" style="margin-top: 15px;">
+                                <textarea id="examDiagnosis" th:field="*{diagnosisNote}" rows="3"
+                                    placeholder="Nhập chẩn đoán lâm sàng và ghi chú..."
+                                    th:classappend="${#fields.hasErrors('diagnosisNote')} ? 'is-invalid' : ''"></textarea>
+                                <div class="error-feedback" th:if="${#fields.hasErrors('diagnosisNote')}" th:errors="*{diagnosisNote}"></div>
                             </div>
                         </div>
                     </div>
@@ -391,15 +391,15 @@
                                              <label th:for="${'timing-' + t.timingID}" th:text="${t.timingName}" onclick="event.stopPropagation()"></label>
                                          </div>
                                          <!-- Fallbacks if empty -->
-                                         <div th:if="${medicationTimings == null || medicationTimings.empty}" class="custom-multiselect-option" data-value="Breakfast Time (07:30 AM)" onclick="selectTimingOption(this, event)">
+                                         <div th:if="${medicationTimings == null }" class="custom-multiselect-option" data-value="Breakfast Time (07:30 AM)" onclick="selectTimingOption(this, event)">
                                              <input type="checkbox" id="timing-fb1" value="Breakfast Time (07:30 AM)" onclick="event.stopPropagation(); updateTimingPlaceholder();">
                                              <label for="timing-fb1" onclick="event.stopPropagation()">Thời điểm ăn sáng (07:30 AM)</label>
                                          </div>
-                                         <div th:if="${medicationTimings == null || medicationTimings.empty}" class="custom-multiselect-option" data-value="Lunch Time (12:15 PM)" onclick="selectTimingOption(this, event)">
+                                         <div th:if="${medicationTimings == null }" class="custom-multiselect-option" data-value="Lunch Time (12:15 PM)" onclick="selectTimingOption(this, event)">
                                              <input type="checkbox" id="timing-fb2" value="Lunch Time (12:15 PM)" onclick="event.stopPropagation(); updateTimingPlaceholder();">
                                              <label for="timing-fb2" onclick="event.stopPropagation()">Thời điểm ăn trưa (12:15 PM)</label>
                                          </div>
-                                         <div th:if="${medicationTimings == null || medicationTimings.empty}" class="custom-multiselect-option" data-value="Dinner Time (07:00 PM)" onclick="selectTimingOption(this, event)">
+                                         <div th:if="${medicationTimings == null }" class="custom-multiselect-option" data-value="Dinner Time (07:00 PM)" onclick="selectTimingOption(this, event)">
                                              <input type="checkbox" id="timing-fb3" value="Dinner Time (07:00 PM)" onclick="event.stopPropagation(); updateTimingPlaceholder();">
                                              <label for="timing-fb3" onclick="event.stopPropagation()">Thời điểm ăn tối (07:00 PM)</label>
                                          </div>
@@ -464,35 +464,7 @@
 
 
 
-    <!-- LABORATORY TEST DIALOG MODAL -->
-    <div class="modal-overlay" id="labTestModal">
-        <div class="modal modal-prescription">
-            <div class="modal-header">
-                <h2>Chỉ định xét nghiệm cận lâm sàng</h2>
-                <button type="button" class="modal-close" onclick="closeLabTestModal()"><i
-                        class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group" style="margin-bottom: 15px; position: relative;">
-                    <label>Tìm kiếm xét nghiệm cận lâm sàng</label>
-                    <div class="custom-select-autocomplete">
-                        <i class="fas fa-search"
-                            style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--doctor-text-muted); font-size: 0.8rem;"></i>
-                        <input type="text" id="labSearch" placeholder="Nhập để tìm kiếm xét nghiệm..."
-                            onkeyup="filterLabTestsInModal()" style="padding-left: 32px; width: 100%;">
-                    </div>
-                </div>
 
-                <div class="lab-checklist-container" id="labChecklist">
-                    <!-- Checkbox items populated dynamically -->
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeLabTestModal()">Hủy</button>
-                <button type="button" class="btn btn-primary" onclick="confirmLabOrders()">Chỉ định</button>
-            </div>
-        </div>
-    </div>
 
 
 
@@ -503,6 +475,7 @@
         const thRoutine = /*[[${routineData}]]*/ null;
         const thActiveExam = /*[[${activeExamData}]]*/ null;
         const thViewOnly = /*[[${viewOnly}]]*/ false;
+        const thIsEditMode = /*[[${isEditMode != null ? isEditMode : false}]]*/ false;
         const thLastExam = /*[[${lastExamData}]]*/ null;
         const thChosenSymptomIds = /*[[${chosenSymptomIds}]]*/ [];
         const thChosenSymptomNotes = /*[[${chosenSymptomNotes}]]*/ {};

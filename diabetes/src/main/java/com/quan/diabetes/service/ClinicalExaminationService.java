@@ -29,4 +29,6 @@ public interface ClinicalExaminationService {
     void startExamination(String patientId, String doctorId);
 
     void createAutoPendingExamination(String patientId);
+
+    void updateExamination(String examId, com.quan.diabetes.dto.ClinicalExamForm form);
 }

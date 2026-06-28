@@ -127,10 +127,16 @@
                                                     th:text="${p.status == 'Pending' ? 'Bắt đầu' : 'Khám tiếp'}">Bắt
                                                     đầu</span>
                                             </a>
-                                            <button th:if="${p.status == 'Completed' || p.status == 'Cancelled'}"
-                                                class="btn btn-secondary btn-sm" th:data-exam-id="${p.clinicalExamId}"
-                                                onclick="viewCompletedExam(this.getAttribute('data-exam-id'))"><i
-                                                    class="fas fa-eye"></i> Xem</button>
+                                            <div th:if="${p.status == 'Completed' || p.status == 'Cancelled'}" style="display: inline-flex; gap: 6px;">
+                                                <button class="btn btn-secondary btn-sm" th:data-exam-id="${p.clinicalExamId}"
+                                                    onclick="viewCompletedExam(this.getAttribute('data-exam-id'))"><i
+                                                        class="fas fa-eye"></i> Xem</button>
+                                                <a th:if="${p.status == 'Completed'}"
+                                                   th:href="@{/doctor/examine/edit/{id}(id=${p.clinicalExamId})}"
+                                                   class="btn btn-primary btn-sm" style="color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                                                    <i class="fas fa-edit"></i> Sửa
+                                                </a>
+                                            </div>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -178,13 +184,22 @@
                     </div>
                 </div>
 
-                <!-- Final Diagnosis -->
-                <div class="notes-card diagnosis">
+                <!-- Final Diagnosis (Only show if NOT Cancelled) -->
+                <div class="notes-card diagnosis" th:if="${exam != null && !'Cancelled'.equalsIgnoreCase(exam.status)}">
                     <span class="lbl"
                         style="font-size: 0.68rem; color: var(--doctor-primary); font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 6px; letter-spacing: 0.5px;"><i
                             class="fas fa-file-medical"></i> Chẩn đoán cuối cùng</span>
                     <h4 class="notes-content" id="modalExamDiagnosis" style="font-weight: 700; color: var(--green-900);"
-                        th:text="${exam != null ? exam.diagnosisNote : ''}"></h4>
+                        th:text="${exam.diagnosisNote != null && !exam.diagnosisNote.empty ? exam.diagnosisNote : 'N/A'}"></h4>
+                </div>
+
+                <!-- Cancel Reason (Only show if Cancelled) -->
+                <div class="notes-card diagnosis" th:if="${exam != null && 'Cancelled'.equalsIgnoreCase(exam.status)}" style="border-left: 4px solid var(--doctor-danger); background-color: rgba(220, 38, 38, 0.05);">
+                    <span class="lbl"
+                        style="font-size: 0.68rem; color: var(--doctor-danger); font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 6px; letter-spacing: 0.5px;"><i
+                            class="fas fa-ban"></i> Lý do hủy ca khám</span>
+                    <h4 class="notes-content" style="font-weight: 700; color: var(--doctor-danger);"
+                        th:text="${exam.cancelReason != null && !exam.cancelReason.empty ? exam.cancelReason : 'Không có lý do hủy'}"></h4>
                 </div>
 
                 <!-- Symptoms & Observations -->
@@ -287,46 +302,35 @@
                     </div>
                 </div>
 
-                <!-- Prescription table -->
+                <!-- Prescription details list with dropdown cards (view only) -->
                 <div class="history-detail-card">
                     <h3 class="history-section-title"><i class="fas fa-pills"></i> Đơn thuốc điều trị đã kê</h3>
-                    <div style="overflow-x: auto;">
-                        <table class="clinical-table" style="width: 100%; border-collapse: collapse;">
-                            <thead>
-                                <tr>
-                                    <th>Tên thuốc</th>
-                                    <th>Liều dùng</th>
-                                    <th>Thời điểm dùng</th>
-                                    <th>Thời gian / Số lượng</th>
-                                </tr>
-                            </thead>
-                            <tbody id="modalExamPrescriptionTableBody">
-                                <tr th:each="p : ${prescriptionDetails}">
-                                    <td>
-                                        <strong th:text="${p.medication.medicationName + ' (' + p.medication.concentration + ')'}"></strong>
-                                        
-                                        <!-- Liệu trình ngày sử dụng (đặt dưới tên thuốc cho thoáng và đẹp) -->
-                                        <div th:if="${p.startDate != null && p.endDate != null}" class="med-history-date-range">
-                                            <i class="far fa-calendar-alt"></i> Liệu trình: Từ <span th:text="${#temporals.format(p.startDate, 'dd/MM/yyyy')}"></span> đến <span th:text="${#temporals.format(p.endDate, 'dd/MM/yyyy')}"></span>
-                                        </div>
-                                        
-                                        <div th:if="${p.medicationPlan != null && !p.medicationPlan.empty}" class="med-history-item-desc">
-                                            <i class="fas fa-info-circle"></i> <span th:text="${p.medicationPlan}"></span>
-                                        </div>
-                                    </td>
-                                    <td th:text="${p.dosage}"></td>
-                                    <td style="font-style: italic; color: var(--doctor-primary); font-weight: 500;">
-                                        <span th:each="t, iter : ${p.prescriptionTimings}" th:text="${t.timing.timingName + (iter.last ? '' : ', ')}"></span>
-                                    </td>
-                                    <td th:text="${p.durationDays + ' ngày / ' + p.totalQuantity + ' viên'}"></td>
-                                </tr>
-                                <tr th:if="${prescriptionDetails == null || prescriptionDetails.empty}">
-                                    <td colspan="4"
-                                        style="text-align: center; color: var(--doctor-text-muted); padding: 15px;">
-                                        Không có thuốc nào được kê trong ca khám này</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div id="modalPrescriptionContainer" style="display: flex; flex-direction: column; gap: 10px;">
+                        <div th:each="p, iterStat : ${prescriptionDetails}" class="prescription-line" style="padding: 0; border: 1px solid var(--doctor-border); border-radius: 8px; margin-bottom: 10px; overflow: hidden; background-color: var(--doctor-card-bg);">
+                            <div class="presc-card-main" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 16px;">
+                                <div class="presc-med-info" style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
+                                    <span style="font-size: 1.25rem; color: var(--doctor-primary);"><i class="fas fa-pills"></i></span>
+                                    <div class="presc-med-name" style="font-weight: 700; color: var(--doctor-text-main); font-size: 0.95rem;">
+                                        <span th:text="${p.medication.medicationName}"></span> <span class="presc-med-conc" style="font-weight: 500; color: var(--doctor-text-muted); font-size: 0.85rem;" th:text="${'(' + p.medication.concentration + ')'}"></span>
+                                    </div>
+                                </div>
+                                <div class="presc-card-actions" style="display: flex; gap: 8px;">
+                                    <button type="button" class="btn-presc-action detail-btn" th:onclick="'toggleDashboardPrescDetail(' + ${iterStat.index} + ')'" title="Chi tiết" style="background-color: #f3f4f6; color: #4b5563; border: 1px solid #d1d5db; border-radius: 6px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;"><i class="fas fa-eye"></i></button>
+                                </div>
+                            </div>
+                            <div class="presc-card-dropdown" th:id="${'presc-dashboard-dropdown-' + iterStat.index}" style="display: none; padding: 12px 16px; background-color: #f9fafb; border-top: 1px solid #e5e7eb; font-size: 0.85rem; color: #374151; line-height: 1.6;">
+                                <div style="margin-bottom: 6px;"><strong style="color: var(--doctor-text-muted);"><i class="fas fa-cubes"></i> Dạng bào chế:</strong> <span th:text="${p.medication.form}"></span></div>
+                                <div th:if="${p.startDate != null && p.endDate != null}" style="margin-bottom: 6px;"><strong style="color: var(--doctor-text-muted);"><i class="far fa-calendar-alt"></i> Liệu trình:</strong> Từ <span th:text="${#temporals.format(p.startDate, 'dd/MM/yyyy')}"></span> đến <span th:text="${#temporals.format(p.endDate, 'dd/MM/yyyy')}"></span></div>
+                                <div style="margin-bottom: 6px;"><strong style="color: var(--doctor-text-muted);"><i class="fas fa-prescription-bottle"></i> Liều dùng:</strong> <span th:text="${p.dosage}"></span></div>
+                                <div style="margin-bottom: 6px;"><strong style="color: var(--doctor-text-muted);"><i class="far fa-calendar-days"></i> Thời gian sử dụng:</strong> <span th:text="${p.durationDays + ' ngày'}"></span></div>
+                                <div style="margin-bottom: 6px;"><strong style="color: var(--doctor-text-muted);"><i class="fas fa-calculator"></i> Số lượng:</strong> <span th:text="${p.totalQuantity + ' ' + (p.medication.form != null ? p.medication.form : 'viên')}"></span></div>
+                                <div style="margin-bottom: 6px;"><strong style="color: var(--doctor-text-muted);"><i class="far fa-clock"></i> Thời điểm sử dụng:</strong> 
+                                    <span th:each="t, iter : ${p.prescriptionTimings}" th:text="${t.timing.timingName + (iter.last ? '' : ', ')}"></span>
+                                </div>
+                                <div th:if="${p.medicationPlan != null && !p.medicationPlan.empty}" style="margin-bottom: 0;"><strong style="color: var(--doctor-text-muted);"><i class="fas fa-info-circle"></i> Hướng dẫn:</strong> <span th:text="${p.medicationPlan}"></span></div>
+                            </div>
+                        </div>
+                        <div th:if="${prescriptionDetails == null || prescriptionDetails.empty}" style="text-align: center; color: var(--doctor-text-muted); padding: 15px;">Không có thuốc nào được kê trong ca khám này</div>
                     </div>
                 </div>
             </div>

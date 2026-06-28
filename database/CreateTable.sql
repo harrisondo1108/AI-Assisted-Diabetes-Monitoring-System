@@ -87,6 +87,7 @@ CREATE TABLE [ClinicalExamination] (
     ExamDate DATETIME DEFAULT GETDATE(),
     MedicalHistory NVARCHAR(MAX), -- tiền sử bệnh
     DiagnosisNote NVARCHAR(MAX), -- chẩn đoán
+    CancelReason NVARCHAR(MAX), -- lý do hủy
     NextAppointment DATETIME, -- lịch tái khám
     Status NVARCHAR(20) DEFAULT 'Pending'
         CHECK (Status IN ('Pending','InProgress','Completed','Cancelled')),

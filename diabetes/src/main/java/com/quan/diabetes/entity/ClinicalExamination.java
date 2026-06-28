@@ -27,6 +27,9 @@ public class ClinicalExamination {
     @Column(name = "Status", length = 20, columnDefinition = "NVARCHAR(20)")
     private String status;
 
+    @Column(name = "CancelReason", columnDefinition = "NVARCHAR(MAX)")
+    private String cancelReason;
+
     @ManyToOne
     @JoinColumn(name = "PatientID", nullable = false)
     private Patient patient;
@@ -111,6 +114,14 @@ public class ClinicalExamination {
 
     public void setTreatmentPlan(TreatmentPlan treatmentPlan) {
         this.treatmentPlan = treatmentPlan;
+    }
+
+    public String getCancelReason() {
+        return cancelReason;
+    }
+
+    public void setCancelReason(String cancelReason) {
+        this.cancelReason = cancelReason;
     }
 }
 

@@ -56,6 +56,7 @@ public class DoctorPatientController {
         if (loggedInUser == null || !"DOC".equalsIgnoreCase(loggedInUser.getRole().getRoleId())) {
             return "redirect:/login";
         }
+        model.addAttribute("loggedInUser", loggedInUser);
 
         String doctorId = loggedInUser.getUserId();
         Profile profile = profileService.findById(doctorId).orElse(null);

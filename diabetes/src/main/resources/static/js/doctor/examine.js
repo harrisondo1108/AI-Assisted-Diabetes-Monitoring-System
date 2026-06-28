@@ -38,8 +38,6 @@ let simulatedResults = {};
 document.addEventListener('DOMContentLoaded', () => {
     loadSessionPatient();
     renderSymptomsGrid();
-    initLabTestChecklist();
-    renderOrderedLabsList();
     setupNextAppointmentMinDate();
     restoreExamineDraft();
 
@@ -88,6 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
         dosageInput.addEventListener('change', calculateTotalQuantity);
     }
     
+    const isEditMode = (typeof thIsEditMode !== 'undefined' ? thIsEditMode : false);
     if (viewOnlyMode) {
         simulateLabResults();
         renderPrescriptionLines();
@@ -101,6 +100,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 el.disabled = true;
             }
         });
+    } else if (isEditMode) {
+        renderPrescriptionLines();
     }
 
     // Handle cancel form submission to clear draft
@@ -122,7 +123,13 @@ document.addEventListener('DOMContentLoaded', () => {
             updateLabCatalog(e.target.checked);
         });
         // Initial sync on page load or draft restore
-        updateLabCatalog(isPregnantCheckbox.checked);
+        updateLabCatalog(isPregnantCheckbox.checked, true);
+    }
+
+    // Check for warning query parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('warning') === 'in-progress') {
+        showToast('Bạn đang có một ca khám chưa hoàn thành! Vui lòng tiếp tục ca khám.', 'warning');
     }
 });
 
@@ -187,8 +194,9 @@ function loadSessionPatient() {
         };
     }
 
-    // Load active exam / view only properties
-    if (viewOnlyMode && typeof thLastExam !== 'undefined' && thLastExam) {
+    const isEditMode = (typeof thIsEditMode !== 'undefined' ? thIsEditMode : false);
+    // Load active exam / view only / edit properties
+    if ((viewOnlyMode || isEditMode) && typeof thLastExam !== 'undefined' && thLastExam) {
         document.getElementById('examDiagnosis').value = thLastExam.diagnosisNote || '';
         document.getElementById('examHistory').value = thLastExam.medicalHistory || '';
         document.getElementById('examNextDate').value = thLastExam.nextAppointment ? thLastExam.nextAppointment.substring(0, 10) : '';
@@ -208,11 +216,16 @@ function loadSessionPatient() {
         }
 
         orderedLabs = {};
+        simulatedResults = {};
         if (typeof thLastExamLabResults !== 'undefined' && thLastExamLabResults) {
             thLastExamLabResults.forEach(res => {
                 const test = labTestsCatalog.find(l => l.name === res.labTest.testName);
                 if (test) {
                     orderedLabs[test.id] = true;
+                    simulatedResults[test.id] = {
+                        val: res.resultValue,
+                        flag: res.flag
+                    };
                 }
             });
         }
@@ -303,133 +316,7 @@ function toggleSymptom(id) {
     }
 }
 
-// Initialize lab checklist inside modal
-function initLabTestChecklist() {
-    const checklist = document.getElementById('labChecklist');
-    if (!checklist) return;
 
-    checklist.innerHTML = '';
-    labTestsCatalog.forEach(l => {
-        const div = document.createElement('div');
-        div.className = 'lab-checkbox-item';
-        div.setAttribute('data-id', l.id);
-        div.setAttribute('data-name', l.name.toLowerCase());
-
-        div.onclick = (e) => {
-            if (e.target.tagName !== 'INPUT') {
-                const chk = document.getElementById(`modal-chk-${l.id}`);
-                if (chk) chk.checked = !chk.checked;
-            }
-        };
-
-        div.innerHTML = `
-            <input type="checkbox" id="modal-chk-${l.id}" value="${l.id}">
-            <label for="modal-chk-${l.id}" onclick="event.stopPropagation()">
-                <span class="lab-checkbox-name">${l.name}</span>
-                <span class="lab-checkbox-room">${l.room}</span>
-            </label>
-        `;
-        checklist.appendChild(div);
-    });
-}
-
-// Show/Hide Laboratory Test Modal
-function showLabTestModal() {
-    if (viewOnlyMode) return;
-
-    document.getElementById('labSearch').value = '';
-    filterLabTestsInModal();
-
-    labTestsCatalog.forEach(l => {
-        const chk = document.getElementById(`modal-chk-${l.id}`);
-        if (chk) {
-            chk.checked = !!orderedLabs[l.id];
-        }
-    });
-
-    const modal = document.getElementById('labTestModal');
-    if (modal) modal.classList.add('open');
-}
-
-function closeLabTestModal() {
-    const modal = document.getElementById('labTestModal');
-    if (modal) modal.classList.remove('open');
-}
-
-// Filter lab checklist in modal in real-time
-function filterLabTestsInModal() {
-    const query = document.getElementById('labSearch').value.toLowerCase().trim();
-    const items = document.querySelectorAll('.lab-checkbox-item');
-
-    items.forEach(item => {
-        const name = item.getAttribute('data-name');
-        if (!query || name.includes(query)) {
-            item.style.display = 'flex';
-        } else {
-            item.style.display = 'none';
-        }
-    });
-}
-
-// Confirm Lab Orders on modal save
-function confirmLabOrders() {
-    if (viewOnlyMode) return;
-
-    orderedLabs = {};
-    labTestsCatalog.forEach(l => {
-        const chk = document.getElementById(`modal-chk-${l.id}`);
-        if (chk && chk.checked) {
-            orderedLabs[l.id] = true;
-        }
-    });
-
-    renderOrderedLabsList();
-    closeLabTestModal();
-    simulateLabResults();
-}
-
-// Render summary of ordered labs in page
-function renderOrderedLabsList() {
-    const container = document.getElementById('orderedLabsSummary');
-    if (!container) return;
-
-    const oldTags = container.querySelectorAll('.ordered-lab-tag');
-    oldTags.forEach(t => t.remove());
-
-    const selectedIds = Object.keys(orderedLabs);
-    const emptyMsg = document.getElementById('emptyLabs');
-
-    if (selectedIds.length === 0) {
-        if (emptyMsg) emptyMsg.style.display = 'flex';
-        return;
-    }
-
-    if (emptyMsg) emptyMsg.style.display = 'none';
-
-    selectedIds.forEach(id => {
-        const test = labTestsCatalog.find(l => l.id === id);
-        if (!test) return;
-
-        const div = document.createElement('div');
-        div.className = 'ordered-lab-tag';
-        div.innerHTML = `
-            <div class="lab-tag-info">
-                <i class="fas fa-flask" style="color: var(--doctor-primary);"></i>
-                <strong>${test.name}</strong>
-                <span class="lab-tag-room">${test.room}</span>
-            </div>
-            <button type="button" class="btn-remove-lab" onclick="removeLabOrder('${test.id}')" title="Xóa chỉ định"><i class="fas fa-times"></i></button>
-        `;
-        container.appendChild(div);
-    });
-}
-
-// Remove lab order from tag list on main page
-function removeLabOrder(id) {
-    delete orderedLabs[id];
-    renderOrderedLabsList();
-    simulateLabResults();
-}
 
 // Laboratory simulator mapping results
 function simulateLabResults() {
@@ -479,13 +366,13 @@ function simulateLabResults() {
 
             if (hasDbThreshold) {
                 const randType = rand.next();
-                if (randType < 0.15) { // 15% chance of LOW
+                if (randType < 0.30) { // 30% chance of LOW
                     val = parseFloat((minVal - 0.5 - rand.next() * (minVal * 0.15)).toFixed(1));
                     if (val < 0) val = 0;
-                } else if (randType > 0.85) { // 15% chance of HIGH
+                } else if (randType > 0.60) { // 40% chance of HIGH
                     const scale = maxVal > 20 ? (maxVal * 0.3) : 4.0;
                     val = parseFloat((maxVal + 0.1 + rand.next() * scale).toFixed(1));
-                } else { // 70% chance of NORMAL
+                } else { // 30% chance of NORMAL
                     val = parseFloat((minVal + rand.next() * (maxVal - minVal)).toFixed(1));
                 }
 
@@ -521,7 +408,9 @@ function simulateLabResults() {
     });
 }
 
-function updateLabCatalog(isPregnant) {
+function updateLabCatalog(isPregnant, isInitialLoad = false) {
+    const hasAssignedBefore = Object.keys(orderedLabs).length > 0;
+
     const rawCatalog = (isPregnant && typeof rawLabTestsPregnantCatalog !== 'undefined')
         ? rawLabTestsPregnantCatalog
         : (typeof rawLabTestsCatalog !== 'undefined' ? rawLabTestsCatalog : []);
@@ -536,15 +425,29 @@ function updateLabCatalog(isPregnant) {
         maxValue: l.maxValue
     }));
 
-    // Clear simulated results cache
-    simulatedResults = {};
+    if (!isInitialLoad) {
+        // Clear simulated results cache
+        simulatedResults = {};
 
-    // Refresh modal checklist and results table display
-    initLabTestChecklist();
-    const selectedIds = Object.keys(orderedLabs);
-    if (selectedIds.length > 0) {
+        if (hasAssignedBefore) {
+            // Automatically re-assign all matching tests in the new catalog and recalculate
+            orderedLabs = {};
+            labTestsCatalog.forEach(test => {
+                orderedLabs[test.id] = true;
+            });
+            simulateLabResults();
+        }
+    } else {
         simulateLabResults();
     }
+}
+
+function assignAllLabTests() {
+    orderedLabs = {};
+    labTestsCatalog.forEach(test => {
+        orderedLabs[test.id] = true;
+    });
+    simulateLabResults();
 }
 
 class RandomVal {
@@ -841,49 +744,53 @@ function renderPrescriptionLines() {
 
         const div = document.createElement('div');
         div.className = 'prescription-line';
-        const dateRangeBadge = line.startDate && line.endDate 
-            ? `<div class="presc-med-dates-badge"><i class="far fa-calendar-alt"></i> Liệu trình: Từ ${formatDateDMY(line.startDate)} đến ${formatDateDMY(line.endDate)}</div>` 
-            : '';
+        div.style.padding = '0';
+        div.style.border = '1px solid var(--doctor-border)';
+        div.style.borderRadius = '8px';
+        div.style.marginBottom = '10px';
+        div.style.overflow = 'hidden';
+        div.style.backgroundColor = 'var(--doctor-card-bg)';
+
         div.innerHTML = `
-            <div class="presc-card-main">
-                <div class="presc-med-info">
-                    <div class="presc-med-name">${line.name} <span class="presc-med-conc">(${line.concentration})</span></div>
-                    <div class="presc-med-form-badge">${line.form}</div>
-                    ${dateRangeBadge}
-                </div>
-                <div class="presc-card-details">
-                    <div class="presc-detail-item">
-                        <span class="presc-lbl">Liều dùng</span>
-                        <span class="presc-val">${line.dosage}</span>
-                    </div>
-                    <div class="presc-detail-item">
-                        <span class="presc-lbl">Thời gian sử dụng</span>
-                        <span class="presc-val">${line.duration} ngày</span>
-                    </div>
-                    <div class="presc-detail-item">
-                        <span class="presc-lbl">Số lượng</span>
-                        <span class="presc-val">${line.quantity} ${unit}</span>
-                    </div>
-                    <div class="presc-detail-item presc-timing-col">
-                        <span class="presc-lbl">Thời điểm sử dụng</span>
-                        <span class="presc-val"><i class="far fa-clock"></i> ${line.timingText}</span>
+            <div class="presc-card-main" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 16px;">
+                <div class="presc-med-info" style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.25rem; color: var(--doctor-primary);"><i class="fas fa-pills"></i></span>
+                    <div class="presc-med-name" style="font-weight: 700; color: var(--doctor-text-main); font-size: 0.95rem;">
+                        ${line.name} <span class="presc-med-conc" style="font-weight: 500; color: var(--doctor-text-muted); font-size: 0.85rem;">(${line.concentration})</span>
                     </div>
                 </div>
-                <div class="presc-card-actions">
-                    <button type="button" class="btn-presc-action edit-btn" onclick="editPrescriptionLine(${index})" title="Sửa"><i class="fas fa-pen"></i></button>
-                    <button type="button" class="btn-presc-action delete-btn" onclick="removePrescriptionLine(${index})" title="Xóa"><i class="fas fa-trash"></i></button>
+                <div class="presc-card-actions" style="display: flex; gap: 8px;">
+                    <button type="button" class="btn-presc-action detail-btn" onclick="togglePrescriptionDetail(${index})" title="Chi tiết" style="background-color: #f3f4f6; color: #4b5563; border: 1px solid #d1d5db; border-radius: 6px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;"><i class="fas fa-eye"></i></button>
+                    <button type="button" class="btn-presc-action edit-btn" onclick="editPrescriptionLine(${index})" title="Sửa" style="background-color: #f3f4f6; color: var(--doctor-primary); border: 1px solid #d1d5db; border-radius: 6px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;"><i class="fas fa-pen"></i></button>
+                    <button type="button" class="btn-presc-action delete-btn" onclick="if(confirm('Bạn có chắc chắn muốn xóa thuốc này khỏi đơn?')) removePrescriptionLine(${index})" title="Xóa" style="background-color: #f3f4f6; color: var(--doctor-danger); border: 1px solid #d1d5db; border-radius: 6px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;"><i class="fas fa-trash"></i></button>
                 </div>
             </div>
-            ${line.medicationPlan ? `
-            <div class="presc-card-instructions">
-                <span class="inst-icon"><i class="fas fa-info-circle"></i></span>
-                <div class="inst-text">
-                    <strong>Hướng dẫn:</strong> <span>${line.medicationPlan}</span>
-                </div>
-            </div>` : ''}
+            <div class="presc-card-dropdown" id="presc-dropdown-${index}" style="display: none; padding: 12px 16px; background-color: #f9fafb; border-top: 1px solid #e5e7eb; font-size: 0.85rem; color: #374151; line-height: 1.6;">
+                <div style="margin-bottom: 6px;"><strong style="color: var(--doctor-text-muted);"><i class="fas fa-cubes"></i> Dạng bào chế:</strong> ${line.form}</div>
+                ${line.startDate && line.endDate ? `<div style="margin-bottom: 6px;"><strong style="color: var(--doctor-text-muted);"><i class="far fa-calendar-alt"></i> Liệu trình:</strong> Từ ${formatDateDMY(line.startDate)} đến ${formatDateDMY(line.endDate)}</div>` : ''}
+                <div style="margin-bottom: 6px;"><strong style="color: var(--doctor-text-muted);"><i class="fas fa-prescription-bottle"></i> Liều dùng:</strong> ${line.dosage}</div>
+                <div style="margin-bottom: 6px;"><strong style="color: var(--doctor-text-muted);"><i class="far fa-calendar-days"></i> Thời gian sử dụng:</strong> ${line.duration} ngày</div>
+                <div style="margin-bottom: 6px;"><strong style="color: var(--doctor-text-muted);"><i class="fas fa-calculator"></i> Số lượng:</strong> ${line.quantity} ${unit}</div>
+                <div style="margin-bottom: 6px;"><strong style="color: var(--doctor-text-muted);"><i class="far fa-clock"></i> Thời điểm sử dụng:</strong> ${line.timingText}</div>
+                ${line.medicationPlan ? `<div style="margin-bottom: 0;"><strong style="color: var(--doctor-text-muted);"><i class="fas fa-info-circle"></i> Hướng dẫn:</strong> ${line.medicationPlan}</div>` : ''}
+            </div>
         `;
         list.appendChild(div);
     });
+}
+
+function togglePrescriptionDetail(index) {
+    const dropdown = document.getElementById(`presc-dropdown-${index}`);
+    if (dropdown) {
+        const btn = dropdown.previousElementSibling.querySelector('.detail-btn i');
+        if (dropdown.style.display === 'none') {
+            dropdown.style.display = 'block';
+            if (btn) btn.className = 'fas fa-eye-slash';
+        } else {
+            dropdown.style.display = 'none';
+            if (btn) btn.className = 'fas fa-eye';
+        }
+    }
 }
 
 // Complete Clinical Checkup
@@ -1316,11 +1223,10 @@ function restoreExamineDraft() {
             }
             if (draft.orderedLabs) {
                 orderedLabs = draft.orderedLabs;
-                initLabTestChecklist();
-                renderOrderedLabsList();
             }
             if (draft.simulatedResults) {
                 simulatedResults = draft.simulatedResults;
+                simulateLabResults();
             }
         } else {
             sessionStorage.removeItem('examineDraft');

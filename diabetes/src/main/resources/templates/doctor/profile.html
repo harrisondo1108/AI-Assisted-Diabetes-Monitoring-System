@@ -290,8 +290,6 @@
                     confirmFeedback.textContent = '';
                     confirmFeedback.className = 'validation-feedback';
                     confirmPassword.classList.remove('input-invalid');
-                    
-                    submitBtn.disabled = true;
                 }
             });
 
@@ -304,8 +302,8 @@
                 }
             }
 
-            // Password real-time validation
-            function validateForm() {
+            // Password validation on form submit
+            passwordForm.addEventListener('submit', (e) => {
                 let isValid = true;
 
                 // 1. Validate Current Password
@@ -359,16 +357,10 @@
                     confirmPassword.classList.remove('input-invalid');
                 }
 
-                submitBtn.disabled = !isValid;
-            }
-
-            // Listeners
-            currentPassword.addEventListener('input', validateForm);
-            newPassword.addEventListener('input', validateForm);
-            confirmPassword.addEventListener('input', validateForm);
-
-            // Initial state: Disable until valid inputs
-            submitBtn.disabled = true;
+                if (!isValid) {
+                    e.preventDefault(); // Prevent submit if invalid
+                }
+            });
         });
     </script>
 </body>
