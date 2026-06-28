@@ -3,6 +3,7 @@ package com.quan.diabetes.controller.patient;
 import com.quan.diabetes.entity.*;
 
 import com.quan.diabetes.service.user.UserService;
+import com.quan.diabetes.service.cloudinary.CloudinaryService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -11,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
@@ -22,6 +24,9 @@ public class PatientProfileController extends BasePatientController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     @GetMapping("/patient/profile")
     public String profile(Model model, HttpSession session) {
@@ -59,6 +64,7 @@ public class PatientProfileController extends BasePatientController {
                               @RequestParam(value = "allergyNotes", required = false) String allergyNotes,
                               @RequestParam(value = "supervisorName", required = false) String supervisorName,
                               @RequestParam(value = "supervisorPhone", required = false) String supervisorPhone,
+                              @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
                               HttpSession session,
                               RedirectAttributes redirectAttributes) {
 
@@ -93,6 +99,18 @@ public class PatientProfileController extends BasePatientController {
         patient.setAllergyNotes(clean(allergyNotes));
         patient.setSupervisorName(clean(supervisorName));
         patient.setSupervisorPhone(clean(supervisorPhone));
+
+        if (imageFile != null && !imageFile.isEmpty()) {
+            try {
+                String imageUrl = cloudinaryService.uploadImage(imageFile);
+                if (imageUrl != null) {
+                    patient.setImageUrl(imageUrl);
+                }
+            } catch (Exception e) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Không thể tải lên ảnh đại diện: " + e.getMessage());
+                return "redirect:/patient/profile";
+            }
+        }
 
         if (patientService.existsById(userId)) {
             patientService.update(userId, patient);

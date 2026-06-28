@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +81,6 @@ public class PatientNotificationController extends BasePatientController {
             r1.setMessage("Vui lòng uống 1 viên sau bữa ăn sáng để duy trì đường huyết ổn định.");
             r1.setScheduledTime(LocalDateTime.of(today.toLocalDate(), LocalTime.of(10, 30)));
             r1.setIsRead(false);
-            r1.setIsSent(true);
             r1.setPatient(patient);
             aiReminderService.create(r1);
 
@@ -89,7 +89,6 @@ public class PatientNotificationController extends BasePatientController {
             r2.setMessage("Lịch hẹn với BS. Lê Văn Anh vào 09:00 Thứ Tư (25/10) đã được xác nhận.");
             r2.setScheduledTime(LocalDateTime.of(yesterday.toLocalDate(), LocalTime.of(15, 45)));
             r2.setIsRead(true);
-            r2.setIsSent(true);
             r2.setPatient(patient);
             aiReminderService.create(r2);
 
@@ -98,7 +97,6 @@ public class PatientNotificationController extends BasePatientController {
             r3.setMessage("5 bí quyết cân bằng dinh dưỡng giúp kiểm soát đường huyết hiệu quả hơn.");
             r3.setScheduledTime(LocalDateTime.of(yesterday.toLocalDate(), LocalTime.of(9, 20)));
             r3.setIsRead(true);
-            r3.setIsSent(true);
             r3.setPatient(patient);
             aiReminderService.create(r3);
 
@@ -107,7 +105,6 @@ public class PatientNotificationController extends BasePatientController {
             r4.setMessage("Vui lòng uống 1 viên trước bữa ăn sáng để ổn định đường huyết.");
             r4.setScheduledTime(LocalDateTime.of(today.getYear(), 10, 18, 18, 10));
             r4.setIsRead(false);
-            r4.setIsSent(true);
             r4.setPatient(patient);
             aiReminderService.create(r4);
 
@@ -116,7 +113,6 @@ public class PatientNotificationController extends BasePatientController {
             r5.setMessage("Hẹn gặp BS. Nguyễn Thị Lan vào lúc 08:30 sáng Thứ Hai tuần tới.");
             r5.setScheduledTime(LocalDateTime.of(today.getYear(), 9, 25, 8, 30));
             r5.setIsRead(true);
-            r5.setIsSent(true);
             r5.setPatient(patient);
             aiReminderService.create(r5);
 
@@ -225,9 +221,19 @@ public class PatientNotificationController extends BasePatientController {
         String doctorName = "Bác sĩ điều trị";
         String doctorSpecialty = "Khoa Nội tiết";
         String examId = null;
+        ClinicalExamination exam = null;
+        if (patient != null) {
+            exam = clinicalExaminationService.findAll().stream()
+                    .filter(e -> e.getPatient() != null && e.getPatient().getUserId().equals(patient.getUserId()))
+                    .sorted(Comparator.comparing(
+                            ClinicalExamination::getExamDate,
+                            Comparator.nullsLast(Comparator.reverseOrder())
+                    ))
+                    .findFirst()
+                    .orElse(null);
+        }
 
-        if (reminder.getClinicalExamination() != null) {
-            ClinicalExamination exam = reminder.getClinicalExamination();
+        if (exam != null) {
             examId = exam.getClinicalExamId();
             if (exam.getDoctor() != null) {
                 User doctorUser = exam.getDoctor();
@@ -245,9 +251,10 @@ public class PatientNotificationController extends BasePatientController {
             }
 
             // Find prescription details for this clinical exam
+            final ClinicalExamination finalExam = exam;
             List<PrescriptionDetail> details = prescriptionDetailService.findAll().stream()
                     .filter(d -> d.getPrescription() != null && d.getPrescription().getClinicalExamination() != null)
-                    .filter(d -> d.getPrescription().getClinicalExamination().getClinicalExamId().equals(exam.getClinicalExamId()))
+                    .filter(d -> d.getPrescription().getClinicalExamination().getClinicalExamId().equals(finalExam.getClinicalExamId()))
                     .collect(Collectors.toList());
 
             if (reminder.getTiming() != null && !details.isEmpty()) {
@@ -322,8 +329,7 @@ public class PatientNotificationController extends BasePatientController {
                 || reminder.getTitle().contains("Xác nhận"))) {
             isAppointment = true;
             
-            if (reminder.getClinicalExamination() != null) {
-                ClinicalExamination exam = reminder.getClinicalExamination();
+            if (exam != null) {
                 LocalDateTime appt = exam.getNextAppointment();
                 if (appt != null) {
                     apptDayOfWeek = getVietnameseDayOfWeek(appt.getDayOfWeek());

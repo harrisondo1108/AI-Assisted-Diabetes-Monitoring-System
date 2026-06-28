@@ -41,9 +41,6 @@ public class MedicationRescheduleService {
         }
 
         for (AIReminder reminder : futureReminders) {
-            if (Boolean.FALSE.equals(reminder.getStatus())) {
-                continue; // Skip locked reminders
-            }
             if (reminder.getTiming() == null || reminder.getTiming().getTimingName() == null) {
                 continue;
             }

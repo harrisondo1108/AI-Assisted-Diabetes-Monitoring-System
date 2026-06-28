@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableScheduling
-@SpringBootApplication
+@SpringBootApplication(exclude = { org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration.class })
 public class DiabetesApplication {
 
     public static void main(String[] args) {

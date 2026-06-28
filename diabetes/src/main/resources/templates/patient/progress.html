@@ -238,9 +238,10 @@
                                         <th>Thuốc</th>
                                         <th>Liều lượng</th>
                                         <th>Dạng bào chế</th>
-                                        <th>Đường dùng</th>
-                                        <th>Tổng số lượng</th>
-                                        <th>Số ngày dùng</th>
+                                        <th>Cách sử dụng</th>
+                                        <th>Thời điểm dùng</th>
+                                        <th>Ngày bắt đầu</th>
+                                        <th>Ngày kết thúc</th>
                                         <th>Kế hoạch dùng thuốc</th>
                                     </tr>
                                     </thead>
@@ -250,8 +251,12 @@
                                         <td th:text="${detail.dosage}">500mg</td>
                                         <td th:text="${detail.medication != null ? detail.medication.form : ''}">Viên nén</td>
                                         <td th:text="${detail.medication != null ? detail.medication.administrationRoute : ''}">Uống</td>
-                                        <td th:text="${detail.totalQuantity}">30</td>
-                                        <td th:text="${detail.durationDays}">15</td>
+                                        <td>
+                                            <span th:each="t, iter : ${detail.prescriptionTimings}" th:text="${t.timing.timingName + (iter.last ? '' : ', ')}"></span>
+                                            <span th:if="${detail.prescriptionTimings == null || detail.prescriptionTimings.isEmpty()}">N/A</span>
+                                        </td>
+                                        <td th:text="${detail.startDate != null ? #temporals.format(detail.startDate, 'dd/MM/yyyy') : 'N/A'}">08/06/2026</td>
+                                        <td th:text="${detail.endDate != null ? #temporals.format(detail.endDate, 'dd/MM/yyyy') : 'N/A'}">22/06/2026</td>
                                         <td th:text="${detail.medicationPlan != null && !#strings.isEmpty(detail.medicationPlan) ? detail.medicationPlan : 'N/A'}">Kế hoạch dùng thuốc</td>
                                     </tr>
                                     </tbody>

@@ -136,8 +136,9 @@
                                 <tr style="background: var(--mint-50);">
                                     <th style="padding: 10px 14px;">Thuốc</th>
                                     <th style="padding: 10px 14px;">Liều lượng</th>
-                                    <th style="padding: 10px 14px;">Tổng số lượng</th>
-                                    <th style="padding: 10px 14px;">Số ngày dùng</th>
+                                    <th style="padding: 10px 14px;">Thời điểm dùng</th>
+                                    <th style="padding: 10px 14px;">Ngày bắt đầu</th>
+                                    <th style="padding: 10px 14px;">Ngày kết thúc dùng thuốc</th>
                                     <th style="padding: 10px 14px;">Kế hoạch dùng thuốc</th>
                                 </tr>
                             </thead>
@@ -145,8 +146,12 @@
                                 <tr th:each="detail : ${prescriptionDetails}">
                                     <td style="padding: 10px 14px; font-weight: 600;" th:text="${detail.medication != null ? detail.medication.medicationName : ''}"></td>
                                     <td style="padding: 10px 14px;" th:text="${detail.dosage}"></td>
-                                    <td style="padding: 10px 14px;" th:text="${detail.totalQuantity}"></td>
-                                    <td style="padding: 10px 14px;" th:text="${detail.durationDays}"></td>
+                                    <td style="padding: 10px 14px;">
+                                        <span th:each="t, iter : ${detail.prescriptionTimings}" th:text="${t.timing.timingName + (iter.last ? '' : ', ')}"></span>
+                                        <span th:if="${detail.prescriptionTimings == null || detail.prescriptionTimings.isEmpty()}">N/A</span>
+                                    </td>
+                                    <td style="padding: 10px 14px;" th:text="${detail.startDate != null ? #temporals.format(detail.startDate, 'dd/MM/yyyy') : 'N/A'}"></td>
+                                    <td style="padding: 10px 14px;" th:text="${detail.endDate != null ? #temporals.format(detail.endDate, 'dd/MM/yyyy') : 'N/A'}"></td>
                                     <td style="padding: 10px 14px;" th:text="${detail.medicationPlan != null ? detail.medicationPlan : 'N/A'}"></td>
                                 </tr>
                             </tbody>
