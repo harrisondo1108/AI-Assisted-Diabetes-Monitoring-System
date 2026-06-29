@@ -4,11 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="35d4ee31-efef-433e-940d-fdb413c90a79" name="Changes" comment="luan_ha&#10;thêm phần upload ảnh profile cho patient 2">
+    <list default="true" id="35d4ee31-efef-433e-940d-fdb413c90a79" name="Changes" comment="luan_ha&#10;thêm phần upload ảnh profile cho patient 3">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientMedicalHistoryController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientMedicalHistoryController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/history.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/history.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/progress.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/progress.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientProfileController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientProfileController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/patient/patient.js" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/patient/patient.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,23 +54,23 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.0" />
-      <entry key="MS500" value="1.0" />
-      <entry key="S2" value="1.0" />
-      <entry key="S5" value="1.0" />
-      <entry key="S10" value="1.0" />
-      <entry key="S30" value="1.000000001316279" />
-      <entry key="S60" value="1.0001828195847384" />
-      <entry key="M2" value="1.0707951198568917" />
-      <entry key="M5" value="3.647538534449941" />
-      <entry key="M10" value="10.35695126867846" />
-      <entry key="M15" value="15.531145003703896" />
-      <entry key="M30" value="23.933185377000104" />
-      <entry key="H1" value="30.036658449592288" />
-      <entry key="H2" value="33.74923303693672" />
-      <entry key="H4" value="35.802038931327154" />
-      <entry key="D1" value="37.6231035855393" />
-      <entry key="W1" value="37.94589214260693" />
+      <entry key="MS100" value="1.1975103279658443" />
+      <entry key="MS500" value="1.7229661472728737" />
+      <entry key="S2" value="1.922103117912631" />
+      <entry key="S5" value="1.968081222145753" />
+      <entry key="S10" value="1.9839111861066288" />
+      <entry key="S30" value="1.9946080423774748" />
+      <entry key="S60" value="1.9974827025914632" />
+      <entry key="M2" value="2.069348771240585" />
+      <entry key="M5" value="4.645567008235634" />
+      <entry key="M10" value="11.354151879358604" />
+      <entry key="M15" value="16.528346259867604" />
+      <entry key="M30" value="24.931028875566238" />
+      <entry key="H1" value="31.03530519144509" />
+      <entry key="H2" value="34.74847276696408" />
+      <entry key="H4" value="36.801635672260154" />
+      <entry key="D1" value="38.62303295674595" />
+      <entry key="W1" value="38.94588196620514" />
     </decayedCancelled>
     <decayedSelected>
       <entry key="MS100" value="0.0" />
@@ -93,23 +92,23 @@
       <entry key="W1" value="0.0" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.9265880618903709" />
-      <entry key="MS500" value="0.9848664428955506" />
-      <entry key="S2" value="0.9961949481330542" />
-      <entry key="S5" value="0.9984762383082793" />
-      <entry key="S10" value="0.9992378287015956" />
-      <entry key="S30" value="0.9997458796147564" />
-      <entry key="S60" value="1.0000542682746576" />
-      <entry key="M2" value="1.0704939248658512" />
-      <entry key="M5" value="3.6443804494217074" />
-      <entry key="M10" value="10.351677982816508" />
-      <entry key="M15" value="15.525795415515077" />
-      <entry key="M30" value="23.929056188036704" />
-      <entry key="H1" value="30.034075409758817" />
-      <entry key="H2" value="33.74778545770165" />
-      <entry key="H4" value="35.80127223036391" />
-      <entry key="D1" value="37.62296947926868" />
-      <entry key="W1" value="37.94587282475836" />
+      <entry key="MS100" value="0.38052103995904746" />
+      <entry key="MS500" value="1.4349912450714095" />
+      <entry key="S2" value="1.8406975856349326" />
+      <entry key="S5" value="1.9346873192107263" />
+      <entry key="S10" value="1.9670724633470282" />
+      <entry key="S30" value="1.9889633319580238" />
+      <entry key="S60" value="1.9946548748722763" />
+      <entry key="M2" value="2.067697259128617" />
+      <entry key="M5" value="4.641870121506384" />
+      <entry key="M10" value="11.348609727952391" />
+      <entry key="M15" value="16.52281743365682" />
+      <entry key="M30" value="24.926809953589945" />
+      <entry key="H1" value="31.032677214434944" />
+      <entry key="H2" value="34.74700269330904" />
+      <entry key="H4" value="36.80085771635446" />
+      <entry key="D1" value="38.62289697345524" />
+      <entry key="W1" value="38.94586238017984" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
@@ -213,7 +212,7 @@
       <workItem from="1782624697624" duration="1516000" />
       <workItem from="1782633506621" duration="4829000" />
       <workItem from="1782693548590" duration="392000" />
-      <workItem from="1782694029592" duration="4480000" />
+      <workItem from="1782694029592" duration="5979000" />
     </task>
     <task id="LOCAL-00001" summary="luan_ha&#10;thêm phần upload ảnh profile cho patient">
       <option name="closed" value="true" />
@@ -239,7 +238,15 @@
       <option name="project" value="LOCAL" />
       <updated>1782638504592</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="luan_ha&#10;thêm phần upload ảnh profile cho patient 3">
+      <option name="closed" value="true" />
+      <created>1782699529404</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1782699529404</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -248,6 +255,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="luan_ha&#10;thêm phần upload ảnh profile cho patient" />
     <MESSAGE value="luan_ha&#10;thêm phần upload ảnh profile cho patient 2" />
-    <option name="LAST_COMMIT_MESSAGE" value="luan_ha&#10;thêm phần upload ảnh profile cho patient 2" />
+    <MESSAGE value="luan_ha&#10;thêm phần upload ảnh profile cho patient 3" />
+    <option name="LAST_COMMIT_MESSAGE" value="luan_ha&#10;thêm phần upload ảnh profile cho patient 3" />
   </component>
 </project>

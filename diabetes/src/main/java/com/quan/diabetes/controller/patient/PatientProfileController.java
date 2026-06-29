@@ -151,6 +151,15 @@ public class PatientProfileController extends BasePatientController {
         patient.setSupervisorPhone(clean(supervisorPhone));
 
         if (imageFile != null && !imageFile.isEmpty()) {
+            if (imageFile.getSize() > 2 * 1024 * 1024) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Ảnh đại diện không được vượt quá 2MB.");
+                return "redirect:/patient/profile";
+            }
+            String contentType = imageFile.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Định dạng tệp không hợp lệ. Chỉ chấp nhận các tệp ảnh.");
+                return "redirect:/patient/profile";
+            }
             try {
                 String imageUrl = cloudinaryService.uploadImage(imageFile);
                 if (imageUrl != null) {
@@ -161,6 +170,7 @@ public class PatientProfileController extends BasePatientController {
                 return "redirect:/patient/profile";
             }
         }
+
 
         if (patientService.existsById(userId)) {
             patientService.update(userId, patient);
