@@ -25,7 +25,12 @@
 
             <!-- Date Search Filter Card -->
             <div class="patient-card search-filter-card">
-                <form method="get" th:action="@{/patient/history}" class="search-filter-form">
+                <div id="dateValidationError" class="alert alert-danger" 
+                     th:style="${errorMessage != null} ? 'display: block; margin-bottom: 15px; width: 100%;' : 'display: none; margin-bottom: 15px; width: 100%;'"
+                     th:text="${errorMessage}">
+                </div>
+
+                <form method="get" th:action="@{/patient/history}" class="search-filter-form" onsubmit="return validateDateFilter(this)">
                     <div class="search-filter-field">
                         <label for="startDate">Từ ngày</label>
                         <input type="date" id="startDate" name="startDate" th:value="${startDate}">
@@ -113,5 +118,30 @@
         <div th:replace="~{layout/footer :: footer}"></div>
     </div>
 </div>
+
+<script>
+    function validateDateFilter(form) {
+        const startVal = form.querySelector('#startDate').value;
+        const endVal = form.querySelector('#endDate').value;
+        const errorDiv = document.getElementById('dateValidationError');
+        if (startVal && endVal && startVal > endVal) {
+            if (errorDiv) {
+                errorDiv.textContent = 'Ngày bắt đầu (Từ ngày) không thể lớn hơn Ngày kết thúc (Đến ngày).';
+                errorDiv.style.display = 'block';
+            }
+            return false;
+        }
+        return true;
+    }
+
+    document.getElementById('startDate').addEventListener('change', () => {
+        const errorDiv = document.getElementById('dateValidationError');
+        if (errorDiv) errorDiv.style.display = 'none';
+    });
+    document.getElementById('endDate').addEventListener('change', () => {
+        const errorDiv = document.getElementById('dateValidationError');
+        if (errorDiv) errorDiv.style.display = 'none';
+    });
+</script>
 </body>
 </html>
