@@ -8,6 +8,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import com.quan.diabetes.service.CloudinaryService;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -21,18 +23,21 @@ public class DoctorProfileController {
     private final ClinicalExaminationRepository clinicalExaminationRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CloudinaryService cloudinaryService;
 
     public DoctorProfileController(
             ProfileRepository profileRepository,
             RoomRepository roomRepository,
             ClinicalExaminationRepository clinicalExaminationRepository,
             UserRepository userRepository,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            CloudinaryService cloudinaryService) {
         this.profileRepository = profileRepository;
         this.roomRepository = roomRepository;
         this.clinicalExaminationRepository = clinicalExaminationRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.cloudinaryService = cloudinaryService;
     }
 
     @GetMapping("/profile")
@@ -70,6 +75,7 @@ public class DoctorProfileController {
             @RequestParam("specialty") String specialty,
             @RequestParam("address") String address,
             @RequestParam("roomId") Integer roomId,
+            @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
             HttpSession session,
             RedirectAttributes redirectAttributes) {
         User loggedInUser = (User) session.getAttribute("loggedInUser");
@@ -90,8 +96,21 @@ public class DoctorProfileController {
         if (profile != null) {
             // Validate inputs
             if (fullName == null || fullName.trim().isEmpty()) {
-                redirectAttributes.addFlashAttribute("errorMsg", "Full Name is required.");
+                redirectAttributes.addFlashAttribute("errorMsg", "Họ và tên bắt buộc phải điền.");
                 return "redirect:/doctor/profile";
+            }
+
+            // Handle file upload to Cloudinary
+            if (avatarFile != null && !avatarFile.isEmpty()) {
+                try {
+                    String imageUrl = cloudinaryService.uploadFile(avatarFile);
+                    if (imageUrl != null) {
+                        profile.setImageUrl(imageUrl);
+                    }
+                } catch (Exception e) {
+                    redirectAttributes.addFlashAttribute("errorMsg", "Tải lên ảnh đại diện thất bại: " + e.getMessage());
+                    return "redirect:/doctor/profile";
+                }
             }
 
             profile.setFullName(fullName.trim());
@@ -119,7 +138,7 @@ public class DoctorProfileController {
             // Update session userProfile so changes reflect immediately in the header
             session.setAttribute("userProfile", profile);
 
-            redirectAttributes.addFlashAttribute("successMsg", "Profile updated successfully!");
+            redirectAttributes.addFlashAttribute("successMsg", "Cập nhật thông tin hồ sơ thành công!");
         }
 
         return "redirect:/doctor/profile";
@@ -150,38 +169,38 @@ public class DoctorProfileController {
         if (currentPassword == null || currentPassword.trim().isEmpty() ||
             newPassword == null || newPassword.trim().isEmpty() ||
             confirmPassword == null || confirmPassword.trim().isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMsg", "All fields are required and cannot be empty.");
+            redirectAttributes.addFlashAttribute("errorMsg", "Tất cả các trường mật khẩu bắt buộc phải điền và không được để trống.");
             return "redirect:/doctor/profile";
         }
 
         // Fetch latest User details
         User user = userRepository.findById(doctorId).orElse(null);
         if (user == null) {
-            redirectAttributes.addFlashAttribute("errorMsg", "User not found.");
+            redirectAttributes.addFlashAttribute("errorMsg", "Không tìm thấy tài khoản người dùng.");
             return "redirect:/doctor/profile";
         }
 
         // 2. Xác minh mật khẩu hiện tại bằng BCrypt matches
         if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
-            redirectAttributes.addFlashAttribute("errorMsg", "Current password is incorrect.");
+            redirectAttributes.addFlashAttribute("errorMsg", "Mật khẩu hiện tại không chính xác.");
             return "redirect:/doctor/profile";
         }
 
         // 3. Kiểm tra mật khẩu mới và xác nhận mật khẩu mới phải giống nhau
         if (!newPassword.equals(confirmPassword)) {
-            redirectAttributes.addFlashAttribute("errorMsg", "New password and confirmation password do not match.");
+            redirectAttributes.addFlashAttribute("errorMsg", "Mật khẩu mới và mật khẩu xác nhận không trùng khớp.");
             return "redirect:/doctor/profile";
         }
 
         // 4. Kiểm tra độ mạnh mật khẩu mới: Tối thiểu 6 ký tự
         if (newPassword.length() < 6) {
-            redirectAttributes.addFlashAttribute("errorMsg", "New password must be at least 6 characters.");
+            redirectAttributes.addFlashAttribute("errorMsg", "Mật khẩu mới phải có độ dài tối thiểu 6 ký tự.");
             return "redirect:/doctor/profile";
         }
 
         // 5. Không cho phép mật khẩu mới trùng với mật khẩu hiện tại
         if (passwordEncoder.matches(newPassword, user.getPasswordHash())) {
-            redirectAttributes.addFlashAttribute("errorMsg", "New password cannot be the same as current password.");
+            redirectAttributes.addFlashAttribute("errorMsg", "Mật khẩu mới không được trùng với mật khẩu hiện tại.");
             return "redirect:/doctor/profile";
         }
 
@@ -192,7 +211,7 @@ public class DoctorProfileController {
         // Đồng bộ lại loggedInUser
         session.setAttribute("loggedInUser", user);
 
-        redirectAttributes.addFlashAttribute("successMsg", "Password changed successfully.");
+        redirectAttributes.addFlashAttribute("successMsg", "Đổi mật khẩu thành công.");
         return "redirect:/doctor/profile";
     }
 }

@@ -12,6 +12,11 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
+import org.springframework.validation.BindingResult;
+import com.quan.diabetes.util.ParseUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.util.Collections;
 import java.util.List;
@@ -88,6 +93,13 @@ public class DoctorExamineController {
             return "redirect:/login";
         }
 
+        populateExamineModel(patientId, viewOnlyParam, session, model, loggedInUser);
+        model.addAttribute("examForm", new ClinicalExamForm());
+
+        return "doctor/examine";
+    }
+
+    private void populateExamineModel(String patientId, Boolean viewOnlyParam, HttpSession session, Model model, User loggedInUser) {
         String doctorId = loggedInUser.getUserId();
         Profile profile = profileService.findById(doctorId).orElse(null);
         model.addAttribute("doctorProfile", profile);
@@ -112,15 +124,14 @@ public class DoctorExamineController {
         // Lấy selectedPatientId từ session
         String selectedPatientId = (String) session.getAttribute("selectedPatientId");
         if (selectedPatientId == null) {
-            return "redirect:/doctor/dashboard";
+            return;
         }
 
         Patient patient = patientService.findById(selectedPatientId).orElse(null);
         if (patient == null) {
-            return "redirect:/doctor/dashboard";
+            return;
         }
         model.addAttribute("patient", patient);
-        model.addAttribute("examForm", new ClinicalExamForm());
 
         // Pre-populate JS inline variables with safe default objects
         model.addAttribute("patientData", null);
@@ -177,7 +188,7 @@ public class DoctorExamineController {
         }
         final int finalAge = age;
         PatientType matchedType = patientTypeRepository.findAll().stream()
-                .filter(t -> (t.getMinAge() == null || finalAge >= t.getMinAge()) && (t.getMaxAge() == null || finalAge <= t.getMaxAge()))
+                .filter(t -> t.getMinAge() != null && t.getMaxAge() != null && finalAge >= t.getMinAge() && finalAge <= t.getMaxAge())
                 .findFirst()
                 .orElse(null);
 
@@ -203,23 +214,12 @@ public class DoctorExamineController {
                     }
                 }
                 
-                String refRange = "0 - 5.2";
+                String refRange = "N/A";
                 if (thresholdOpt.isPresent()) {
                     refRange = thresholdOpt.get().getMinValue() + " - " + thresholdOpt.get().getMaxValue();
                     lMap.put("minValue", thresholdOpt.get().getMinValue());
                     lMap.put("maxValue", thresholdOpt.get().getMaxValue());
                 } else {
-                    String testName = l.getTestName().toLowerCase();
-                    String tId = l.getLabTestId();
-                    if (tId.equals("LAB003") || testName.contains("ogtt") || testName.contains("dung nạp")) {
-                        refRange = "70 - 140";
-                    } else if (tId.equals("LAB001") || testName.contains("fpg") || testName.contains("lúc đói") || testName.contains("fasting")) {
-                        refRange = "70 - 100";
-                    } else if (tId.equals("LAB002") || testName.contains("hba1c")) {
-                        refRange = "4.0 - 5.6";
-                    } else if (tId.equals("LAB004") || testName.contains("ngẫu nhiên") || testName.contains("random")) {
-                        refRange = "70 - 140";
-                    }
                     lMap.put("minValue", null);
                     lMap.put("maxValue", null);
                 }
@@ -230,73 +230,121 @@ public class DoctorExamineController {
         }
         model.addAttribute("labTestsCatalogData", labCatalogList);
 
-        // Lấy danh mục thuốc (Active) cho ô tìm kiếm autocomplete
-        List<Medication> medications = medicationRepository.findAllActiveList();
-        model.addAttribute("medications", medications);
+        // Map labTestsPregnantCatalogData for JS catalog to swap in real-time
+        PatientType pregnantType = patientTypeRepository.findAll().stream()
+                .filter(t -> t.getTypeName().equalsIgnoreCase("Pregnant"))
+                .findFirst()
+                .orElse(null);
+        
+        List<Map<String, Object>> labPregnantCatalogList = new ArrayList<>();
+        if (labTestsCatalog != null && pregnantType != null) {
+            for (LabTestCatalog l : labTestsCatalog) {
+                Map<String, Object> lMap = new HashMap<>();
+                lMap.put("testId", l.getLabTestId());
+                lMap.put("testName", l.getTestName());
+                lMap.put("unit", l.getUnit());
+                
+                Optional<IndicatorThreshold> thresholdOpt = indicatorThresholdRepository.findByLabTest_LabTestIdAndPatientType_PatientTypeId(
+                    l.getLabTestId(), pregnantType.getPatientTypeId()
+                );
+                
+                String refRange = "N/A";
+                if (thresholdOpt.isPresent()) {
+                    refRange = thresholdOpt.get().getMinValue() + " - " + thresholdOpt.get().getMaxValue();
+                    lMap.put("minValue", thresholdOpt.get().getMinValue());
+                    lMap.put("maxValue", thresholdOpt.get().getMaxValue());
+                } else {
+                    lMap.put("minValue", null);
+                    lMap.put("maxValue", null);
+                }
+                
+                lMap.put("referenceRange", refRange);
+                labPregnantCatalogList.add(lMap);
+            }
+        }
+        model.addAttribute("labTestsPregnantCatalogData", labPregnantCatalogList);
+
+        // Lấy danh mục thuốc (Active)
+        List<Medication> medicationsCatalog = medicationRepository.findAll().stream()
+                .filter(m -> m.getStatus() == null || "Active".equalsIgnoreCase(m.getStatus()))
+                .collect(Collectors.toList());
+        model.addAttribute("medicationsCatalog", medicationsCatalog);
+        
+        List<Map<String, Object>> medCatalogList = new ArrayList<>();
+        if (medicationsCatalog != null) {
+            for (Medication m : medicationsCatalog) {
+                Map<String, Object> mMap = new HashMap<>();
+                mMap.put("medicationId", m.getMedicationId());
+                mMap.put("medicationName", m.getMedicationName());
+                mMap.put("form", m.getForm());
+                mMap.put("concentration", m.getConcentration());
+                mMap.put("route", m.getAdministrationRoute());
+                medCatalogList.add(mMap);
+            }
+        }
+        model.addAttribute("medicationsCatalogData", medCatalogList);
 
         // Lấy danh mục intake timings từ DB
         model.addAttribute("medicationTimings", medicationTimingRepository.findAll());
 
-        // Kiểm tra xem ca khám có đang ở trạng thái Pending hoặc InProgress hay không
-        ClinicalExamination activeExam = clinicalExaminationRepository
-                .findFirstByPatient_UserIdAndDoctor_UserIdAndStatusIn(
-                        selectedPatientId, doctorId, List.of("Pending", "InProgress"))
-                .orElse(null);
-        model.addAttribute("activeExam", activeExam);
-
-        Map<String, Object> activeExamMap = null;
-        if (activeExam != null) {
-            activeExamMap = new HashMap<>();
-            activeExamMap.put("clinicalExamId", activeExam.getClinicalExamId());
-            activeExamMap.put("status", activeExam.getStatus());
+        // Kiểm tra xem ca khám (Pending hoặc InProgress) có đang diễn ra hay không
+        ClinicalExamination activeExam = null;
+        if (selectedPatientId != null) {
+            activeExam = clinicalExaminationRepository
+                    .findFirstByPatient_UserIdAndDoctor_UserIdAndStatusIn(selectedPatientId, doctorId, List.of("Pending", "InProgress"))
+                    .orElse(null);
         }
-        model.addAttribute("activeExamData", activeExamMap);
+        if (activeExam == null) {
+            activeExam = activeExamOpt.orElse(null);
+        }
 
-        boolean viewOnly = "true".equals(session.getAttribute("examineViewOnly"));
+        if (activeExam != null) {
+            model.addAttribute("activeExam", activeExam);
+            Map<String, Object> examMap = new HashMap<>();
+            examMap.put("clinicalExamId", activeExam.getClinicalExamId());
+            examMap.put("status", activeExam.getStatus());
+            model.addAttribute("activeExamData", examMap);
+        }
+
+        // Tải ca khám Completed/Cancelled cuối cùng của bệnh nhân
+        List<ClinicalExamination> patientExams = clinicalExaminationService.findByPatientId(selectedPatientId).stream()
+                .filter(e -> "Completed".equalsIgnoreCase(e.getStatus()) || "Cancelled".equalsIgnoreCase(e.getStatus()))
+                .sorted((e1, e2) -> e2.getExamDate().compareTo(e1.getExamDate()))
+                .collect(Collectors.toList());
+
+        boolean viewOnly = "true".equalsIgnoreCase((String) session.getAttribute("examineViewOnly"));
         model.addAttribute("viewOnly", viewOnly);
 
-        // Nếu là chế độ chỉ xem, nạp thông tin ca khám cũ
         if (viewOnly) {
-            // Lấy ca khám Completed/Cancelled gần nhất
-            ClinicalExamination lastExam = clinicalExaminationRepository.findByPatient_UserIdOrderByExamDateDesc(selectedPatientId).stream()
-                    .filter(e -> "Completed".equalsIgnoreCase(e.getStatus()) || "Cancelled".equalsIgnoreCase(e.getStatus()))
-                    .findFirst()
-                    .orElse(null);
+            // Trong chế độ ViewOnly, chúng ta hiển thị ca khám đang chọn qua url (nếu có), nếu không có thì lấy ca khám completed cuối cùng
+            ClinicalExamination lastExam = null;
+            if (activeExamOpt.isPresent()) {
+                lastExam = activeExamOpt.get();
+            } else if (!patientExams.isEmpty()) {
+                lastExam = patientExams.get(0);
+            }
 
             if (lastExam != null) {
+                final String lastExamId = lastExam.getClinicalExamId();
                 model.addAttribute("lastExam", lastExam);
-
-                Map<String, Object> lastExamMap = new HashMap<>();
-                lastExamMap.put("clinicalExamId", lastExam.getClinicalExamId());
-                lastExamMap.put("diagnosisNote", lastExam.getDiagnosisNote());
-                lastExamMap.put("medicalHistory", lastExam.getMedicalHistory());
-                lastExamMap.put("nextAppointment", lastExam.getNextAppointment() != null ? lastExam.getNextAppointment().toString() : null);
                 
-                if (lastExam.getTreatmentPlan() != null) {
-                    Map<String, Object> planMap = new HashMap<>();
-                    planMap.put("treatmentGoal", lastExam.getTreatmentPlan().getTreatmentGoal());
-                    planMap.put("dietPlan", lastExam.getTreatmentPlan().getDietPlan());
-                    planMap.put("exercisePlan", lastExam.getTreatmentPlan().getExercisePlan());
-                    planMap.put("glucoseMonitoringPlan", lastExam.getTreatmentPlan().getGlucoseMonitoringPlan());
-                    planMap.put("medicationPlan", "");
-                    lastExamMap.put("treatmentPlan", planMap);
-                }
-                model.addAttribute("lastExamData", lastExamMap);
+                Map<String, Object> examMap = new HashMap<>();
+                examMap.put("clinicalExamId", lastExamId);
+                examMap.put("medicalHistory", lastExam.getMedicalHistory());
+                examMap.put("diagnosisNote", lastExam.getDiagnosisNote());
+                examMap.put("nextAppointment", lastExam.getNextAppointment() != null ? lastExam.getNextAppointment().toString() : null);
+                examMap.put("status", lastExam.getStatus());
+                model.addAttribute("lastExamData", examMap);
 
-                // Nạp triệu chứng đã khám
-                List<ExamSymptom> chosenSymptoms = examSymptomRepository.findAll().stream()
-                        .filter(s -> lastExam.getClinicalExamId().equals(s.getId().getClinicalExamId()))
+                // Nạp triệu chứng liên quan dưới dạng Map note cho frontend
+                List<ExamSymptom> symptoms = examSymptomRepository.findAll().stream()
+                        .filter(s -> s.getId().getClinicalExamId().equals(lastExamId))
                         .collect(Collectors.toList());
-                List<String> chosenSymptomIds = chosenSymptoms.stream()
-                        .map(s -> s.getSymptom().getSymptomId())
-                        .collect(Collectors.toList());
-                model.addAttribute("chosenSymptomIds", chosenSymptomIds);
-
-                Map<String, String> chosenSymptomNotes = new HashMap<>();
-                for (ExamSymptom s : chosenSymptoms) {
-                    chosenSymptomNotes.put(s.getSymptom().getSymptomId(), s.getNote() != null ? s.getNote() : "");
+                Map<String, String> symptomNotes = new HashMap<>();
+                for (ExamSymptom s : symptoms) {
+                    symptomNotes.put(s.getSymptom().getSymptomId(), s.getNote() != null ? s.getNote() : "");
                 }
-                model.addAttribute("chosenSymptomNotes", chosenSymptomNotes);
+                model.addAttribute("chosenSymptomNotes", symptomNotes);
 
                 // Nạp kết quả xét nghiệm liên quan
                 List<LabResult> labResults = labResultRepository.findByLabOrder_ClinicalExamination_ClinicalExamId(lastExam.getClinicalExamId());
@@ -358,8 +406,6 @@ public class DoctorExamineController {
                 model.addAttribute("lastExamPrescriptionDetailsData", prescList);
             }
         }
-
-        return "doctor/examine";
     }
 
     @PostMapping("/examine/{patientId}/start")
@@ -392,14 +438,358 @@ public class DoctorExamineController {
     @PostMapping("/examine/{patientId}/submit")
     public String submitExam(
             @PathVariable("patientId") String patientId,
-            @ModelAttribute("examForm") ClinicalExamForm form,
-            HttpSession session) {
+            @Valid @ModelAttribute("examForm") ClinicalExamForm form,
+            BindingResult bindingResult,
+            HttpSession session,
+            Model model) {
         User loggedInUser = (User) session.getAttribute("loggedInUser");
         if (loggedInUser == null || !"DOC".equalsIgnoreCase(loggedInUser.getRole().getRoleId())) {
             return "redirect:/login";
         }
 
+        // Custom validation check 1: prescription must not be empty
+        if (form.getPrescriptionJson() == null || form.getPrescriptionJson().trim().isEmpty() || "[]".equals(form.getPrescriptionJson().trim())) {
+            bindingResult.rejectValue("prescriptionJson", "error.prescriptionJson", "Vui lòng kê đơn ít nhất một loại thuốc.");
+        }
+
+        // Custom validation check 2: treatment plan must have at least one field filled
+        if (ParseUtil.isBlank(form.getTreatmentGoal()) && ParseUtil.isBlank(form.getDietPlan()) &&
+            ParseUtil.isBlank(form.getExercisePlan()) && ParseUtil.isBlank(form.getGlucoseMonitoringPlan())) {
+            bindingResult.rejectValue("treatmentGoal", "error.treatmentGoal", "Yêu cầu điền ít nhất 1 trường của Kế hoạch & Phác đồ điều trị.");
+        }
+
+        if (bindingResult.hasErrors()) {
+            populateExamineModel(patientId, false, session, model, loggedInUser);
+            return "doctor/examine";
+        }
+
         clinicalExaminationService.submitExamination(patientId, form, loggedInUser.getUserId());
-        return "redirect:/doctor/dashboard";
+        return "redirect:/doctor/dashboard?toast=completed";
+    }
+
+    @GetMapping("/examine/edit/{examId}")
+    public String editExaminePage(
+            @PathVariable("examId") String examId,
+            HttpSession session,
+            Model model) {
+        User loggedInUser = (User) session.getAttribute("loggedInUser");
+        if (loggedInUser == null || !"DOC".equalsIgnoreCase(loggedInUser.getRole().getRoleId())) {
+            return "redirect:/login";
+        }
+
+        ClinicalExamination exam = clinicalExaminationRepository.findById(examId)
+                .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException("Không tìm thấy ca khám: " + examId));
+
+        if (!exam.getDoctor().getUserId().equalsIgnoreCase(loggedInUser.getUserId())) {
+            return "redirect:/doctor/dashboard";
+        }
+
+        String patientId = exam.getPatient().getUserId();
+        session.setAttribute("selectedPatientId", patientId);
+        session.setAttribute("examineViewOnly", "false");
+
+        populateExamineModel(patientId, false, session, model, loggedInUser);
+
+        // Prepopulate ClinicalExamForm with exam data
+        ClinicalExamForm form = new ClinicalExamForm();
+        form.setMedicalHistory(exam.getMedicalHistory());
+        form.setDiagnosisNote(exam.getDiagnosisNote());
+        if (exam.getNextAppointment() != null) {
+            form.setNextAppointment(exam.getNextAppointment().toLocalDate().toString());
+        }
+        if (exam.getTreatmentPlan() != null) {
+            form.setTreatmentGoal(exam.getTreatmentPlan().getTreatmentGoal());
+            form.setDietPlan(exam.getTreatmentPlan().getDietPlan());
+            form.setExercisePlan(exam.getTreatmentPlan().getExercisePlan());
+            form.setGlucoseMonitoringPlan(exam.getTreatmentPlan().getGlucoseMonitoringPlan());
+        }
+
+        // Set symptom checkboxed list
+        List<ExamSymptom> symptoms = examSymptomRepository.findAll().stream()
+                .filter(s -> s.getId().getClinicalExamId().equals(examId))
+                .collect(Collectors.toList());
+        List<String> symptomIds = symptoms.stream()
+                .map(s -> s.getSymptom().getSymptomId())
+                .collect(Collectors.toList());
+        form.setSymptomIds(symptomIds);
+
+        Map<String, String> symptomNotes = new HashMap<>();
+        for (ExamSymptom s : symptoms) {
+            symptomNotes.put(s.getSymptom().getSymptomId(), s.getNote() != null ? s.getNote() : "");
+        }
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            form.setSymptomCommentsJson(mapper.writeValueAsString(symptomNotes));
+        } catch (Exception e) {
+            // Ignore
+        }
+
+        // Load pregnancy flag if any lab results mapped under "Pregnant" type
+        boolean isPregnant = false;
+        List<LabResult> results = labResultRepository.findByLabOrder_ClinicalExamination_ClinicalExamId(examId);
+        if (!results.isEmpty()) {
+            // If any test threshold matches Pregnant, check pregnancy checkbox
+            Optional<PatientType> pregTypeOpt = patientTypeRepository.findAll().stream()
+                    .filter(t -> t.getTypeName().equalsIgnoreCase("Pregnant"))
+                    .findFirst();
+            if (pregTypeOpt.isPresent()) {
+                for (LabResult res : results) {
+                    String ref = res.getReferenceRange();
+                    if (ref != null) {
+                        isPregnant = true;
+                        break;
+                    }
+                }
+            }
+        }
+        form.setIsPregnant(isPregnant);
+
+        model.addAttribute("examForm", form);
+        model.addAttribute("isEditMode", true);
+        model.addAttribute("lastExam", exam);
+
+        Map<String, Object> examMap = new HashMap<>();
+        examMap.put("clinicalExamId", examId);
+        examMap.put("medicalHistory", exam.getMedicalHistory());
+        examMap.put("diagnosisNote", exam.getDiagnosisNote());
+        examMap.put("nextAppointment", exam.getNextAppointment() != null ? exam.getNextAppointment().toString() : null);
+        examMap.put("status", exam.getStatus());
+        if (exam.getTreatmentPlan() != null) {
+            Map<String, Object> planMap = new HashMap<>();
+            planMap.put("treatmentGoal", exam.getTreatmentPlan().getTreatmentGoal());
+            planMap.put("dietPlan", exam.getTreatmentPlan().getDietPlan());
+            planMap.put("exercisePlan", exam.getTreatmentPlan().getExercisePlan());
+            planMap.put("glucoseMonitoringPlan", exam.getTreatmentPlan().getGlucoseMonitoringPlan());
+            examMap.put("treatmentPlan", planMap);
+        }
+        model.addAttribute("lastExamData", examMap);
+
+        // Put chosenSymptomNotes to model so JS can populate selectedSymptoms
+        model.addAttribute("chosenSymptomNotes", symptomNotes);
+
+        // Load results to populate simulatedResults in JS
+        if (!results.isEmpty()) {
+            model.addAttribute("lastExamLabResults", results);
+            
+            List<Map<String, Object>> resultsList = new ArrayList<>();
+            for (LabResult r : results) {
+                Map<String, Object> rMap = new HashMap<>();
+                Map<String, Object> testMap = new HashMap<>();
+                testMap.put("testId", r.getLabTest().getLabTestId());
+                testMap.put("testName", r.getLabTest().getTestName());
+                testMap.put("unit", r.getLabTest().getUnit());
+                
+                rMap.put("labTest", testMap);
+                rMap.put("testId", r.getLabTest().getLabTestId());
+                rMap.put("referenceRange", r.getReferenceRange());
+                rMap.put("resultValue", r.getResultValue());
+                rMap.put("val", r.getResultValue());
+                rMap.put("flag", r.getFlag());
+                resultsList.add(rMap);
+            }
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                model.addAttribute("lastExamLabResultsData", resultsList);
+                form.setLabResultsJson(mapper.writeValueAsString(resultsList));
+            } catch (Exception e) {
+                // Ignore
+            }
+        }
+
+        // Put drug details to model
+        Prescription prescription = prescriptionRepository.findByClinicalExamination_ClinicalExamId(examId).orElse(null);
+        List<PrescriptionDetail> details = Collections.emptyList();
+        if (prescription != null) {
+            details = prescriptionDetailRepository.findByPrescription_PrescriptionId(prescription.getPrescriptionId());
+            model.addAttribute("lastExamPrescriptionDetails", details);
+            
+            List<Map<String, Object>> prescList = new ArrayList<>();
+            List<Map<String, Object>> flatPrescList = new ArrayList<>();
+            for (PrescriptionDetail p : details) {
+                Map<String, Object> pMap = new HashMap<>();
+                Map<String, Object> medMap = new HashMap<>();
+                medMap.put("medicationId", p.getMedication().getMedicationId());
+                medMap.put("medicationName", p.getMedication().getMedicationName());
+                medMap.put("concentration", p.getMedication().getConcentration());
+                medMap.put("form", p.getMedication().getForm());
+                
+                pMap.put("medication", medMap);
+                pMap.put("dosage", p.getDosage());
+                pMap.put("durationDays", p.getDurationDays());
+                pMap.put("totalQuantity", p.getTotalQuantity());
+                pMap.put("medicationPlan", p.getMedicationPlan());
+                pMap.put("startDate", p.getStartDate() != null ? p.getStartDate().toString() : "");
+                pMap.put("endDate", p.getEndDate() != null ? p.getEndDate().toString() : "");
+                
+                List<Map<String, Object>> timingsList = new ArrayList<>();
+                List<String> flatTimings = new ArrayList<>();
+                if (p.getPrescriptionTimings() != null) {
+                    for (PrescriptionTiming t : p.getPrescriptionTimings()) {
+                        Map<String, Object> tMap = new HashMap<>();
+                        Map<String, Object> timingNameMap = new HashMap<>();
+                        timingNameMap.put("timingName", t.getTiming().getTimingName());
+                        tMap.put("timing", timingNameMap);
+                        timingsList.add(tMap);
+                        flatTimings.add(t.getTiming().getTimingName());
+                    }
+                }
+                pMap.put("prescriptionTimings", timingsList);
+                prescList.add(pMap);
+
+                // Flat mapping for form action
+                Map<String, Object> flatLine = new HashMap<>();
+                flatLine.put("medId", p.getMedication().getMedicationId());
+                flatLine.put("name", p.getMedication().getMedicationName());
+                flatLine.put("concentration", p.getMedication().getConcentration());
+                flatLine.put("form", p.getMedication().getForm());
+                flatLine.put("dosage", p.getDosage());
+                flatLine.put("duration", p.getDurationDays());
+                flatLine.put("quantity", p.getTotalQuantity());
+                flatLine.put("medicationPlan", p.getMedicationPlan());
+                flatLine.put("startDate", p.getStartDate() != null ? p.getStartDate().toString() : "");
+                flatLine.put("endDate", p.getEndDate() != null ? p.getEndDate().toString() : "");
+                flatLine.put("timing", flatTimings);
+                flatLine.put("timingText", String.join(", ", flatTimings));
+                flatPrescList.add(flatLine);
+            }
+            model.addAttribute("lastExamPrescriptionDetailsData", prescList);
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                form.setPrescriptionJson(mapper.writeValueAsString(flatPrescList));
+            } catch (Exception e) {
+                // Ignore
+            }
+        } else {
+            model.addAttribute("lastExamPrescriptionDetails", Collections.emptyList());
+            model.addAttribute("lastExamPrescriptionDetailsData", Collections.emptyList());
+        }
+
+        return "doctor/examine";
+    }
+
+    @PostMapping("/examine/update/{examId}")
+    public String updateExaminationForm(
+            @PathVariable("examId") String examId,
+            @Valid @ModelAttribute("examForm") ClinicalExamForm form,
+            BindingResult bindingResult,
+            HttpSession session,
+            Model model) {
+        User loggedInUser = (User) session.getAttribute("loggedInUser");
+        if (loggedInUser == null || !"DOC".equalsIgnoreCase(loggedInUser.getRole().getRoleId())) {
+            return "redirect:/login";
+        }
+
+        // Custom validation check 1: prescription must not be empty
+        if (form.getPrescriptionJson() == null || form.getPrescriptionJson().trim().isEmpty() || "[]".equals(form.getPrescriptionJson().trim())) {
+            bindingResult.rejectValue("prescriptionJson", "error.prescriptionJson", "Vui lòng kê đơn ít nhất một loại thuốc.");
+        }
+
+        // Custom validation check 2: treatment plan must have at least one field filled
+        if (ParseUtil.isBlank(form.getTreatmentGoal()) && ParseUtil.isBlank(form.getDietPlan()) &&
+            ParseUtil.isBlank(form.getExercisePlan()) && ParseUtil.isBlank(form.getGlucoseMonitoringPlan())) {
+            bindingResult.rejectValue("treatmentGoal", "error.treatmentGoal", "Yêu cầu điền ít nhất 1 trường của Kế hoạch & Phác đồ điều trị.");
+        }
+
+        ClinicalExamination exam = clinicalExaminationRepository.findById(examId)
+                .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException("Không tìm thấy ca khám: " + examId));
+
+        if (bindingResult.hasErrors()) {
+            String patientId = exam.getPatient().getUserId();
+            populateExamineModel(patientId, false, session, model, loggedInUser);
+            model.addAttribute("isEditMode", true);
+            model.addAttribute("lastExam", exam);
+
+            // Re-populate all required lists to prevent UI crashing on validation failure
+            List<ExamSymptom> symptoms = examSymptomRepository.findAll().stream()
+                    .filter(s -> s.getId().getClinicalExamId().equals(examId))
+                    .collect(Collectors.toList());
+            Map<String, String> symptomNotes = new HashMap<>();
+            for (ExamSymptom s : symptoms) {
+                symptomNotes.put(s.getSymptom().getSymptomId(), s.getNote() != null ? s.getNote() : "");
+            }
+            model.addAttribute("chosenSymptomNotes", symptomNotes);
+
+            List<LabResult> results = labResultRepository.findByLabOrder_ClinicalExamination_ClinicalExamId(examId);
+            if (!results.isEmpty()) {
+                model.addAttribute("lastExamLabResults", results);
+                List<Map<String, Object>> resultsList = new ArrayList<>();
+                for (LabResult r : results) {
+                    Map<String, Object> rMap = new HashMap<>();
+                    Map<String, Object> testMap = new HashMap<>();
+                    testMap.put("testId", r.getLabTest().getLabTestId());
+                    testMap.put("testName", r.getLabTest().getTestName());
+                    testMap.put("unit", r.getLabTest().getUnit());
+                    rMap.put("labTest", testMap);
+                    rMap.put("testId", r.getLabTest().getLabTestId());
+                    rMap.put("referenceRange", r.getReferenceRange());
+                    rMap.put("resultValue", r.getResultValue());
+                    rMap.put("val", r.getResultValue());
+                    rMap.put("flag", r.getFlag());
+                    resultsList.add(rMap);
+                }
+                model.addAttribute("lastExamLabResultsData", resultsList);
+            }
+
+            Prescription prescription = prescriptionRepository.findByClinicalExamination_ClinicalExamId(examId).orElse(null);
+            List<PrescriptionDetail> details = Collections.emptyList();
+            if (prescription != null) {
+                details = prescriptionDetailRepository.findByPrescription_PrescriptionId(prescription.getPrescriptionId());
+                model.addAttribute("lastExamPrescriptionDetails", details);
+                List<Map<String, Object>> prescList = new ArrayList<>();
+                for (PrescriptionDetail p : details) {
+                    Map<String, Object> pMap = new HashMap<>();
+                    Map<String, Object> medMap = new HashMap<>();
+                    medMap.put("medicationId", p.getMedication().getMedicationId());
+                    medMap.put("medicationName", p.getMedication().getMedicationName());
+                    medMap.put("concentration", p.getMedication().getConcentration());
+                    medMap.put("form", p.getMedication().getForm());
+                    pMap.put("medication", medMap);
+                    pMap.put("dosage", p.getDosage());
+                    pMap.put("durationDays", p.getDurationDays());
+                    pMap.put("totalQuantity", p.getTotalQuantity());
+                    pMap.put("medicationPlan", p.getMedicationPlan());
+                    pMap.put("startDate", p.getStartDate() != null ? p.getStartDate().toString() : "");
+                    pMap.put("endDate", p.getEndDate() != null ? p.getEndDate().toString() : "");
+                    List<Map<String, Object>> timingsList = new ArrayList<>();
+                    if (p.getPrescriptionTimings() != null) {
+                        for (PrescriptionTiming t : p.getPrescriptionTimings()) {
+                            Map<String, Object> tMap = new HashMap<>();
+                            Map<String, Object> timingNameMap = new HashMap<>();
+                            timingNameMap.put("timingName", t.getTiming().getTimingName());
+                            tMap.put("timing", timingNameMap);
+                            timingsList.add(tMap);
+                        }
+                    }
+                    pMap.put("prescriptionTimings", timingsList);
+                    prescList.add(pMap);
+                }
+                model.addAttribute("lastExamPrescriptionDetailsData", prescList);
+            } else {
+                model.addAttribute("lastExamPrescriptionDetails", Collections.emptyList());
+                model.addAttribute("lastExamPrescriptionDetailsData", Collections.emptyList());
+            }
+
+            Map<String, Object> examMap = new HashMap<>();
+            examMap.put("clinicalExamId", examId);
+            examMap.put("medicalHistory", exam.getMedicalHistory());
+            examMap.put("diagnosisNote", exam.getDiagnosisNote());
+            examMap.put("nextAppointment", exam.getNextAppointment() != null ? exam.getNextAppointment().toString() : null);
+            examMap.put("status", exam.getStatus());
+            if (exam.getTreatmentPlan() != null) {
+                Map<String, Object> planMap = new HashMap<>();
+                planMap.put("treatmentGoal", exam.getTreatmentPlan().getTreatmentGoal());
+                planMap.put("dietPlan", exam.getTreatmentPlan().getDietPlan());
+                planMap.put("exercisePlan", exam.getTreatmentPlan().getExercisePlan());
+                planMap.put("glucoseMonitoringPlan", exam.getTreatmentPlan().getGlucoseMonitoringPlan());
+                examMap.put("treatmentPlan", planMap);
+            }
+            model.addAttribute("lastExamData", examMap);
+
+            return "doctor/examine";
+        }
+
+        clinicalExaminationService.updateExamination(examId, form);
+
+        return "redirect:/doctor/dashboard?toast=updated";
     }
 }
