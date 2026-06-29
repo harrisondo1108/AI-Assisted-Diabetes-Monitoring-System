@@ -101,10 +101,29 @@ public class PatientDashboardController extends BasePatientController {
         model.addAttribute("bmi", calculateBmi(patient));
         model.addAttribute("bmiStatus", evaluateBmiStatus(patient));
 
+        List<LabResult> highAbnormalResults = abnormalResults.stream()
+                .filter(result -> {
+                    if (result.getFlag() == null) return false;
+                    String flag = result.getFlag().toLowerCase();
+                    return flag.contains("high") || flag.contains("cao");
+                })
+                .limit(5)
+                .collect(Collectors.toList());
+
+        List<LabResult> recentLabResults = List.of();
+        if (latestExam != null) {
+            String latestExamId = latestExam.getClinicalExamId();
+            recentLabResults = labResults.stream()
+                    .filter(result -> result.getLabOrder() != null
+                            && result.getLabOrder().getClinicalExamination() != null
+                            && latestExamId.equals(result.getLabOrder().getClinicalExamination().getClinicalExamId()))
+                    .collect(Collectors.toList());
+        }
+
         model.addAttribute("examinationCount", examinations.size());
         model.addAttribute("abnormalResultCount", abnormalResults.size());
-        model.addAttribute("abnormalResults", abnormalResults);
-        model.addAttribute("recentLabResults", labResults.stream().limit(6).collect(Collectors.toList()));
+        model.addAttribute("abnormalResults", highAbnormalResults);
+        model.addAttribute("recentLabResults", recentLabResults);
         model.addAttribute("latestTreatmentPlan", latestTreatmentPlan);
 
         return "patient/risk";

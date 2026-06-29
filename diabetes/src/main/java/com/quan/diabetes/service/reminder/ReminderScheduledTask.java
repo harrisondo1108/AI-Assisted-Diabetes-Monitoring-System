@@ -22,15 +22,7 @@ public class ReminderScheduledTask {
     @Scheduled(fixedRate = 60_000)
     @Transactional
     public void scanDueReminders() {
-        List<AIReminder> reminders = aiReminderRepository.findDueUnsentReminders(LocalDateTime.now());
-
-        for (AIReminder reminder : reminders) {
-            sendReminder(reminder);
-            emailService.sendSimpleEmail("lequan13112005@gmail.com", reminder.getTitle(), reminder.getMessage());
-            reminder.setIsSent(true);
-        }
-
-        aiReminderRepository.saveAll(reminders);
+        // Vô hiệu hóa do các cột IsSent, Status đã bị xóa trong database mới.
     }
 
     private void sendReminder(AIReminder reminder) {
