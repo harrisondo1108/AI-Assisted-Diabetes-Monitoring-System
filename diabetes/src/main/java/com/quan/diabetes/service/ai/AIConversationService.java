@@ -6,15 +6,14 @@ import java.util.Optional;
 
 public interface AIConversationService {
 
-    public List<AIConversation> findAll();
-
-    public Optional<AIConversation> findById(String id);
-
-    public AIConversation create(AIConversation entity);
-
-    public AIConversation update(String id, AIConversation entity);
-
-    public void deleteById(String id);
-
-    public boolean existsById(String id);
+    List<AIConversation> findAll();
+    Optional<AIConversation> findById(String id);
+    List<AIConversation> findByPatientId(String patientId);
+    List<AIConversation> findByAssistantId(Integer assistantId);
+    List<AIConversation> findByPatientIdAndAssistantId(String patientId, Integer assistantId);
+    AIConversation create(AIConversation entity);
+    AIConversation update(String id, AIConversation entity);
+    void deleteById(String id);
+    boolean existsById(String id);
+    long countByPatientId(String patientId);
 }

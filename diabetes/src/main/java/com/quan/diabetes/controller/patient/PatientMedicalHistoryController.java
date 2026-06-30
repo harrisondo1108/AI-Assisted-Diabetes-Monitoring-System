@@ -27,15 +27,20 @@ public class PatientMedicalHistoryController extends BasePatientController {
         Patient patient = addCommonData(model, session, "progress");
 
         List<ClinicalExamination> allExams = findExaminationsByPatient(patient);
-        if (startDate != null) {
-            allExams = allExams.stream()
-                    .filter(exam -> exam.getExamDate() != null && !exam.getExamDate().isBefore(startDate.atStartOfDay()))
-                    .collect(Collectors.toList());
-        }
-        if (endDate != null) {
-            allExams = allExams.stream()
-                    .filter(exam -> exam.getExamDate() != null && !exam.getExamDate().isAfter(endDate.atTime(23, 59, 59)))
-                    .collect(Collectors.toList());
+        if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
+            model.addAttribute("errorMessage", "Ngày bắt đầu (Từ ngày) không thể lớn hơn Ngày kết thúc (Đến ngày).");
+            allExams = List.of();
+        } else {
+            if (startDate != null) {
+                allExams = allExams.stream()
+                        .filter(exam -> exam.getExamDate() != null && !exam.getExamDate().isBefore(startDate.atStartOfDay()))
+                        .collect(Collectors.toList());
+            }
+            if (endDate != null) {
+                allExams = allExams.stream()
+                        .filter(exam -> exam.getExamDate() != null && !exam.getExamDate().isAfter(endDate.atTime(23, 59, 59)))
+                        .collect(Collectors.toList());
+            }
         }
 
         List<LabOrder> allLabOrders = findLabOrdersByPatient(patient);
@@ -116,16 +121,23 @@ public class PatientMedicalHistoryController extends BasePatientController {
             Model model, HttpSession session) {
         Patient patient = addCommonData(model, session, "history");
 
-        List<ClinicalExamination> allExams = findExaminationsByPatient(patient);
-        if (startDate != null) {
-            allExams = allExams.stream()
-                    .filter(exam -> exam.getExamDate() != null && !exam.getExamDate().isBefore(startDate.atStartOfDay()))
-                    .collect(Collectors.toList());
-        }
-        if (endDate != null) {
-            allExams = allExams.stream()
-                    .filter(exam -> exam.getExamDate() != null && !exam.getExamDate().isAfter(endDate.atTime(23, 59, 59)))
-                    .collect(Collectors.toList());
+        List<ClinicalExamination> allExams = findExaminationsByPatient(patient).stream()
+                .filter(exam -> exam.getStatus() != null && "completed".equalsIgnoreCase(exam.getStatus()))
+                .collect(Collectors.toList());
+        if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
+            model.addAttribute("errorMessage", "Ngày bắt đầu (Từ ngày) không thể lớn hơn Ngày kết thúc (Đến ngày).");
+            allExams = List.of();
+        } else {
+            if (startDate != null) {
+                allExams = allExams.stream()
+                        .filter(exam -> exam.getExamDate() != null && !exam.getExamDate().isBefore(startDate.atStartOfDay()))
+                        .collect(Collectors.toList());
+            }
+            if (endDate != null) {
+                allExams = allExams.stream()
+                        .filter(exam -> exam.getExamDate() != null && !exam.getExamDate().isAfter(endDate.atTime(23, 59, 59)))
+                        .collect(Collectors.toList());
+            }
         }
 
         int totalItems = allExams.size();
@@ -167,6 +179,9 @@ public class PatientMedicalHistoryController extends BasePatientController {
 
         ClinicalExamination exam = clinicalExaminationService.findById(examId).orElse(null);
         if (exam == null || exam.getPatient() == null || !patient.getUserId().equals(exam.getPatient().getUserId())) {
+            return "redirect:/patient/history";
+        }
+        if (exam.getStatus() == null || !"completed".equalsIgnoreCase(exam.getStatus())) {
             return "redirect:/patient/history";
         }
 

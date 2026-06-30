@@ -1,7 +1,7 @@
 package com.quan.diabetes.service.ai;
 
 
-import com.quan.diabetes.dto.PrescriptionReminderDto;
+import com.quan.diabetes.dto.reminder.PrescriptionReminderDto;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;

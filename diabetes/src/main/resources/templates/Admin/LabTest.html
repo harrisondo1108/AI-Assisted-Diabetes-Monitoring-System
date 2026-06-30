@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Medical Tests Management – Diabetes Care System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/admin/lab-tests.css}">
+    <link rel="stylesheet" href="/static/css/admin/lab-tests.css">
+</head>
+<body>
+<div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <div th:replace="~{layout/sidebar :: sidebar('lab')}"></div>
+
+    <!-- MAIN -->
+    <div class="admin-main">
+
+        <!-- Header -->
+        <div th:replace="~{layout/header :: header('Medical Tests')}"></div>
+
+        <!-- Content -->
+        <main class="admin-content">
+
+            <div th:if="${errorMessage != null}" class="alert-error" th:text="${errorMessage}">
+                Tên xét nghiệm đã tồn tại.
+            </div>
+
+            <!-- STAT CARDS -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-flask"></i></div>
+                    <div class="stat-label">Total Tests</div>
+                    <div class="stat-value" id="statTotal">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-label">Active Tests</div>
+                    <div class="stat-value" id="statActive">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-ban"></i></div>
+                    <div class="stat-label">Inactive Tests</div>
+                    <div class="stat-value" id="statInactive">0</div>
+                </div>
+            </div>
+
+            <!-- ACTION BAR -->
+            <div class="page-header">
+                <button type="button" class="btn btn-primary" id="btnDefineTest">
+                    <i class="fas fa-plus"></i> Define New Test
+                </button>
+            </div>
+
+            <!-- TABLE CARD -->
+            <div class="table-card">
+
+                <!-- Toolbar: tabs + search -->
+                <div class="table-toolbar">
+                    <div class="tab-group">
+                        <button type="button" class="tab active" id="tabAll">Test Catalog</button>
+                        <button type="button" class="tab" id="tabActive">Active</button>
+                        <button type="button" class="tab" id="tabInactive">Inactive</button>
+                    </div>
+                    <div class="table-search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="tableSearch" placeholder="Search by test name, unit or room...">
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>TEST NAME</th>
+                        <th>UNIT</th>
+                        <th>ROOM</th>
+                        <th>STATUS</th>
+                        <th class="col-center">ACTIONS</th>
+                    </tr>
+                    </thead>
+                    <tbody id="labTestTableBody">
+
+                    <tr th:each="test : ${testList}" class="data-row">
+                        <td>
+                            <div class="test-info">
+                                <div class="test-icon"><i class="fa-solid fa-vial"></i></div>
+                                <strong th:text="${test.testName}">HbA1c</strong>
+                            </div>
+                        </td>
+                        <td th:text="${test.unit}">%</td>
+                        <td th:text="${test.roomId}">1</td>
+                        <td>
+                            <span th:class="${test.status} ? 'badge badge--active' : 'badge badge--inactive'"
+                                  th:text="${test.status} ? 'Active' : 'Inactive'">Active</span>
+                        </td>
+                        <td class="col-center">
+                            <div class="row-actions">
+                                <button type="button" class="action-btn btn-view" title="View detail"
+                                        th:attr="data-id=${test.labTestId},data-name=${test.testName},
+                                                 data-unit=${test.unit},data-min=${test.minValue},
+                                                 data-max=${test.maxValue},data-room=${test.roomId},
+                                                 data-status=${test.status},data-description=${test.description}">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                                <button type="button" class="action-btn btn-edit" title="Edit"
+                                        th:attr="data-id=${test.labTestId},data-name=${test.testName},
+                                                 data-unit=${test.unit},data-min=${test.minValue},
+                                                 data-max=${test.maxValue},data-room=${test.roomId},
+                                                 data-description=${test.description}">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <form th:action="@{/admin/lab-tests/toggle-status/{id}(id=${test.labTestId})}"
+                                      method="post" class="inline-form">
+                                    <button type="submit" class="action-btn btn-lock"
+                                            th:title="${test.status} ? 'Deactivate' : 'Activate'">
+                                        <i th:class="${test.status} ? 'fa-solid fa-lock-open' : 'fa-solid fa-lock'"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${testList == null || testList.isEmpty()}">
+                        <td colspan="5" class="empty-row">Chưa có dữ liệu xét nghiệm.</td>
+                    </tr>
+
+                    </tbody>
+                </table>
+
+                <!-- Pagination -->
+                <div class="pagination-bar">
+                    <span class="pagination-info" id="paginationInfo">Hiển thị 0 – 0 / 0 xét nghiệm</span>
+                    <div class="pagination-btns">
+                        <button type="button" id="prevPageBtn">Previous</button>
+                        <div id="pageNumbers"></div>
+                        <button type="button" id="nextPageBtn">Next</button>
+                    </div>
+                </div>
+
+            </div><!-- /.table-card -->
+
+        </main>
+
+        <!-- Footer -->
+        <div th:replace="~{layout/footer :: footer}"></div>
+
+    </div><!-- /.admin-main -->
+</div><!-- /.admin-layout -->
+
+
+<!-- CREATE MODAL -->
+<div class="modal-overlay" id="defineTestModal">
+    <div class="modal-box large-modal-box">
+        <div class="modal-header">
+            <h2>Define New Test</h2>
+            <button type="button" class="modal-close" id="btnCloseModal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form th:action="@{/admin/lab-tests/create}" method="post" class="modal-form" id="createTestForm">
+            <div class="form-group">
+                <label>Test Name</label>
+                <input type="text" name="testName" maxlength="100" placeholder="VD: Fasting Blood Sugar" required>
+            </div>
+            <div class="form-row two-col">
+                <div class="form-group">
+                    <label>Unit</label>
+                    <input type="text" name="unit" maxlength="20" placeholder="VD: mg/dL" required>
+                </div>
+                <div class="form-group">
+                    <label>Room</label>
+                    <select name="roomId" required>
+                        <option value="">-- Chọn phòng xét nghiệm --</option>
+                        <option th:each="room : ${roomList}" th:value="${room.roomId}" th:text="${room.roomName}">Room 1</option>
+                    </select>
+                </div>
+            </div>
+            <div class="threshold-input-section">
+                <label class="section-label">Config Min – Max theo từng nhóm bệnh nhân</label>
+                <div class="threshold-input-grid">
+                    <div class="threshold-input-card">
+                        <h4>Người trẻ</h4>
+                        <div class="form-row two-col">
+                            <div class="form-group"><label>Min</label><input type="number" id="createYoungMin" min="0" required></div>
+                            <div class="form-group"><label>Max</label><input type="number" id="createYoungMax" min="0" required></div>
+                        </div>
+                    </div>
+                    <div class="threshold-input-card">
+                        <h4>Trung niên</h4>
+                        <div class="form-row two-col">
+                            <div class="form-group"><label>Min</label><input type="number" id="createMiddleMin" min="0" required></div>
+                            <div class="form-group"><label>Max</label><input type="number" id="createMiddleMax" min="0" required></div>
+                        </div>
+                    </div>
+                    <div class="threshold-input-card">
+                        <h4>Cao tuổi</h4>
+                        <div class="form-row two-col">
+                            <div class="form-group"><label>Min</label><input type="number" id="createElderMin" min="0" required></div>
+                            <div class="form-group"><label>Max</label><input type="number" id="createElderMax" min="0" required></div>
+                        </div>
+                    </div>
+                    <div class="threshold-input-card">
+                        <h4>Người có bầu</h4>
+                        <div class="form-row two-col">
+                            <div class="form-group"><label>Min</label><input type="number" id="createPregnantMin" min="0" required></div>
+                            <div class="form-group"><label>Max</label><input type="number" id="createPregnantMax" min="0" required></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" name="minValue" id="createMainMinValue">
+            <input type="hidden" name="maxValue" id="createMainMaxValue">
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="description" rows="4" placeholder="Enter description..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" id="btnCancelModal">Cancel</button>
+                <button type="submit" class="btn-save">Save Test</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editTestModal">
+    <div class="modal-box large-modal-box">
+        <div class="modal-header">
+            <h2>Edit Medical Test</h2>
+            <button type="button" class="modal-close" id="btnCloseEditModal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="editTestForm" method="post" class="modal-form">
+            <div class="form-group">
+                <label>Lab Test ID</label>
+                <input type="text" id="editLabTestId" disabled>
+            </div>
+            <div class="form-group">
+                <label>Test Name</label>
+                <input type="text" id="editTestName" name="testName" maxlength="100" required>
+            </div>
+            <div class="form-row two-col">
+                <div class="form-group">
+                    <label>Unit</label>
+                    <input type="text" id="editUnit" name="unit" maxlength="20" required>
+                </div>
+                <div class="form-group">
+                    <label>Room</label>
+                    <select id="editRoomId" name="roomId" required>
+                        <option value="">-- Chọn phòng xét nghiệm --</option>
+                        <option th:each="room : ${roomList}" th:value="${room.roomId}" th:text="${room.roomName}">Room 1</option>
+                    </select>
+                </div>
+            </div>
+            <div class="threshold-input-section">
+                <label class="section-label">Config Min – Max theo từng nhóm bệnh nhân</label>
+                <div class="threshold-input-grid">
+                    <div class="threshold-input-card">
+                        <h4>Người trẻ</h4>
+                        <div class="form-row two-col">
+                            <div class="form-group"><label>Min</label><input type="number" id="editYoungMin" min="0" required></div>
+                            <div class="form-group"><label>Max</label><input type="number" id="editYoungMax" min="0" required></div>
+                        </div>
+                    </div>
+                    <div class="threshold-input-card">
+                        <h4>Trung niên</h4>
+                        <div class="form-row two-col">
+                            <div class="form-group"><label>Min</label><input type="number" id="editMiddleMin" min="0" required></div>
+                            <div class="form-group"><label>Max</label><input type="number" id="editMiddleMax" min="0" required></div>
+                        </div>
+                    </div>
+                    <div class="threshold-input-card">
+                        <h4>Cao tuổi</h4>
+                        <div class="form-row two-col">
+                            <div class="form-group"><label>Min</label><input type="number" id="editElderMin" min="0" required></div>
+                            <div class="form-group"><label>Max</label><input type="number" id="editElderMax" min="0" required></div>
+                        </div>
+                    </div>
+                    <div class="threshold-input-card">
+                        <h4>Người có bầu</h4>
+                        <div class="form-row two-col">
+                            <div class="form-group"><label>Min</label><input type="number" id="editPregnantMin" min="0" required></div>
+                            <div class="form-group"><label>Max</label><input type="number" id="editPregnantMax" min="0" required></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" name="minValue" id="editMainMinValue">
+            <input type="hidden" name="maxValue" id="editMainMaxValue">
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="editDescription" name="description" rows="4"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" id="btnCancelEditModal">Cancel</button>
+                <button type="submit" class="btn-save">Update Test</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- VIEW DETAIL MODAL -->
+<div class="modal-overlay" id="viewDetailModal">
+    <div class="modal-box detail-modal-box">
+        <div class="modal-header">
+            <h2>Medical Test Detail</h2>
+            <button type="button" class="modal-close" id="btnCloseViewModal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="detail-container">
+            <div class="detail-row">
+                <div class="detail-item"><label>Lab Test ID</label><p id="detailId">---</p></div>
+                <div class="detail-item"><label>Test Name</label><p id="detailName">---</p></div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-item"><label>Unit</label><p id="detailUnit">---</p></div>
+                <div class="detail-item"><label>Room ID</label><p id="detailRoom">---</p></div>
+                <div class="detail-item"><label>Status</label><p id="detailStatus">---</p></div>
+            </div>
+            <div class="detail-item">
+                <label>Diabetes Threshold by Group</label>
+                <div class="threshold-grid">
+                    <div class="threshold-card"><h4>Người trẻ</h4><p>Min: <b id="youngMin">---</b></p><p>Max: <b id="youngMax">---</b></p></div>
+                    <div class="threshold-card"><h4>Trung niên</h4><p>Min: <b id="middleMin">---</b></p><p>Max: <b id="middleMax">---</b></p></div>
+                    <div class="threshold-card"><h4>Cao tuổi</h4><p>Min: <b id="elderMin">---</b></p><p>Max: <b id="elderMax">---</b></p></div>
+                    <div class="threshold-card"><h4>Người có bầu</h4><p>Min: <b id="pregnantMin">---</b></p><p>Max: <b id="pregnantMax">---</b></p></div>
+                </div>
+            </div>
+            <div class="detail-item">
+                <label>Description</label>
+                <div class="description-box" id="detailDescription">---</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script th:src="@{/js/lab-tests.js}"></script>
+<script>
+    (function () {
+        const rows = document.querySelectorAll('#labTestTableBody tr.data-row');
+        let active = 0, inactive = 0;
+        rows.forEach(function(r) {
+            if (r.querySelector('.badge--active')) active++;
+            else inactive++;
+        });
+        document.getElementById('statTotal').textContent    = rows.length;
+        document.getElementById('statActive').textContent   = active;
+        document.getElementById('statInactive').textContent = inactive;
+    })();
+</script>
+
+</body>
+</html>

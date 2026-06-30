@@ -22,7 +22,13 @@
                     <div class="profile-card">
                         <div class="profile-header-banner">
                             <div class="avatar-container">
-                                <div class="avatar-large"><i class="fas fa-user-md"></i></div>
+                                <div class="avatar-large">
+                                    <img th:if="${doctorProfile.imageUrl != null}" 
+                                         th:src="${doctorProfile.imageUrl}" 
+                                         alt="Avatar" 
+                                         style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />
+                                    <i th:unless="${doctorProfile.imageUrl != null}" class="fas fa-user-md"></i>
+                                </div>
                             </div>
                             <div class="header-meta">
                                 <h2 th:text="${doctorProfile.fullName}">BS. Harrison</h2>
@@ -34,7 +40,7 @@
                         <div th:if="${successMsg != null}" id="success-message-data" th:data-message="${successMsg}" style="display: none;"></div>
                         <div th:if="${errorMsg != null}" id="error-message-data" th:data-message="${errorMsg}" style="display: none;"></div>
 
-                        <form th:action="@{/doctor/profile/update}" method="POST" class="profile-form">
+                        <form th:action="@{/doctor/profile/update}" method="POST" enctype="multipart/form-data" class="profile-form">
                             <div class="form-section-title">
                                 <i class="fas fa-user-gear"></i> Chi tiết Cá nhân & Chuyên môn
                             </div>
@@ -46,6 +52,15 @@
                                         <i class="fas fa-user"></i>
                                         <input type="text" id="fullName" name="fullName" th:value="${doctorProfile.fullName}" required placeholder="VD: Bác sĩ Nguyễn Văn A">
                                     </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="avatarFile">Ảnh đại diện mới</label>
+                                    <div class="input-with-icon">
+                                        <i class="fas fa-image"></i>
+                                        <input type="file" id="avatarFile" name="avatarFile" accept="image/*">
+                                    </div>
+                                    <span class="field-hint">Chọn file ảnh (.png, .jpg, .jpeg) để cập nhật.</span>
                                 </div>
 
                                 <div class="form-group">
@@ -275,8 +290,6 @@
                     confirmFeedback.textContent = '';
                     confirmFeedback.className = 'validation-feedback';
                     confirmPassword.classList.remove('input-invalid');
-                    
-                    submitBtn.disabled = true;
                 }
             });
 
@@ -289,8 +302,8 @@
                 }
             }
 
-            // Password real-time validation
-            function validateForm() {
+            // Password validation on form submit
+            passwordForm.addEventListener('submit', (e) => {
                 let isValid = true;
 
                 // 1. Validate Current Password
@@ -344,16 +357,10 @@
                     confirmPassword.classList.remove('input-invalid');
                 }
 
-                submitBtn.disabled = !isValid;
-            }
-
-            // Listeners
-            currentPassword.addEventListener('input', validateForm);
-            newPassword.addEventListener('input', validateForm);
-            confirmPassword.addEventListener('input', validateForm);
-
-            // Initial state: Disable until valid inputs
-            submitBtn.disabled = true;
+                if (!isValid) {
+                    e.preventDefault(); // Prevent submit if invalid
+                }
+            });
         });
     </script>
 </body>

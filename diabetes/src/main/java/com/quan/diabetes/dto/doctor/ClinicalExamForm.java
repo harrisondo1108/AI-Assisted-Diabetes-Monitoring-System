@@ -1,15 +1,20 @@
-package com.quan.diabetes.dto;
+package com.quan.diabetes.dto.doctor;
 
 import java.util.List;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 
 /**
  * Form backing object to bind clinical examination form fields from Thymeleaf views.
  */
 public class ClinicalExamForm {
 
+    @NotBlank(message = "Lý do khám & bệnh sử không được để trống")
     private String medicalHistory;
+    @NotBlank(message = "Ghi chú chẩn đoán lâm sàng không được để trống")
     private String diagnosisNote;
     private String nextAppointment; // Receives yyyy-MM-dd date string
+    @NotEmpty(message = "Vui lòng chọn ít nhất một triệu chứng")
     private List<String> symptomIds;
     private List<String> labTestIds;
     private String prescriptionJson; // Receives serialized JSON string of medications
@@ -20,6 +25,7 @@ public class ClinicalExamForm {
     private String exercisePlan;
     private String glucoseMonitoringPlan;
     private String medicationPlan;
+    private Boolean isPregnant;
 
     // Getters and Setters
     public String getMedicalHistory() {
@@ -127,6 +133,14 @@ public class ClinicalExamForm {
 
     public void setLabResultsJson(String labResultsJson) {
         this.labResultsJson = labResultsJson;
+    }
+
+    public Boolean getIsPregnant() {
+        return isPregnant;
+    }
+
+    public void setIsPregnant(Boolean isPregnant) {
+        this.isPregnant = isPregnant;
     }
 
     @Override

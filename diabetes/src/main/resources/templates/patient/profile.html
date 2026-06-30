@@ -58,8 +58,13 @@
                 </div>
 
                 <div class="profile-summary">
-                    <div class="profile-avatar-large">
-                        <span th:text="${patient != null && patient.fullName != null && !patient.fullName.isEmpty() ? #strings.substring(patient.fullName,0,1) : 'P'}">
+                    <div class="profile-avatar-large" style="overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                        <img th:if="${patient != null && patient.imageUrl != null}"
+                             th:src="${patient.imageUrl}"
+                             alt="Avatar"
+                             style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                        <span th:if="${patient == null || patient.imageUrl == null}"
+                              th:text="${patient != null && patient.fullName != null && !patient.fullName.isEmpty() ? #strings.substring(patient.fullName,0,1) : 'P'}">
                             P
                         </span>
                     </div>
@@ -254,7 +259,7 @@
             </button>
         </div>
 
-        <form th:action="@{/patient/profile/save}" method="post" id="profileForm" novalidate>
+        <form th:action="@{/patient/profile/save}" method="post" id="profileForm" enctype="multipart/form-data" novalidate>
             <div id="profileValidationMessage" class="client-validation-message"></div>
             <div class="patient-modal-body">
                 <div class="modal-form-grid">
@@ -281,6 +286,14 @@
                                name="phoneNumber"
                                readonly
                                th:value="${patient != null ? patient.phoneNumber : (currentUser != null ? currentUser.phoneNumber : '')}">
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label>Ảnh đại diện (Avatar)</label>
+                        <input type="file"
+                               name="imageFile"
+                               accept="image/*"
+                               class="form-control-file">
                     </div>
 
                     <div class="modal-form-group">

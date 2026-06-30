@@ -1,0 +1,251 @@
+'use strict';
+
+let currentPage  = 1;
+const PAGE_SIZE  = 8;
+let activeFilter = 'all';
+let searchKeyword = '';
+
+document.addEventListener('DOMContentLoaded', function () {
+    markAllRowsVisible();
+    initTabs();
+    initSearch();
+    initCreateModal();
+    initEditModal();
+    initViewModal();
+    renderPagination();
+});
+
+/* ── Modal helpers ── */
+function openModal(modal)  { modal.classList.add('show');    document.body.style.overflow = 'hidden'; }
+function closeModal(modal) { modal.classList.remove('show'); document.body.style.overflow = ''; }
+
+function addCloseHandlers(modal, ...triggers) {
+    triggers.forEach(function(el) { if (el) el.addEventListener('click', function() { closeModal(modal); }); });
+    modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(modal); });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && modal.classList.contains('show')) closeModal(modal); });
+}
+
+/* ── LocalStorage ── */
+function saveThreshold(id, data) { localStorage.setItem('threshold_' + id, JSON.stringify(data)); }
+function getThreshold(id)        { const r = localStorage.getItem('threshold_' + id); return r ? JSON.parse(r) : null; }
+
+function buildThresholdData(p) {
+    return {
+        young:    { min: val(p+'YoungMin'),    max: val(p+'YoungMax') },
+        middle:   { min: val(p+'MiddleMin'),   max: val(p+'MiddleMax') },
+        elder:    { min: val(p+'ElderMin'),    max: val(p+'ElderMax') },
+        pregnant: { min: val(p+'PregnantMin'), max: val(p+'PregnantMax') }
+    };
+}
+
+function fillThresholdInputs(p, data, fbMin, fbMax) {
+    setVal(p+'YoungMin',    data?.young?.min    ?? fbMin ?? 0);
+    setVal(p+'YoungMax',    data?.young?.max    ?? fbMax ?? 0);
+    setVal(p+'MiddleMin',   data?.middle?.min   ?? fbMin ?? 0);
+    setVal(p+'MiddleMax',   data?.middle?.max   ?? fbMax ?? 0);
+    setVal(p+'ElderMin',    data?.elder?.min    ?? fbMin ?? 0);
+    setVal(p+'ElderMax',    data?.elder?.max    ?? fbMax ?? 0);
+    setVal(p+'PregnantMin', data?.pregnant?.min ?? fbMin ?? 0);
+    setVal(p+'PregnantMax', data?.pregnant?.max ?? fbMax ?? 0);
+}
+
+function val(id)        { const el = document.getElementById(id); return el ? el.value : ''; }
+function setVal(id, v)  { const el = document.getElementById(id); if (el) el.value = v; }
+function setText(id, v) { const el = document.getElementById(id); if (el) el.textContent = v ?? '---'; }
+
+/* ── Validation ── */
+function validateBaseForm(form) {
+    const testName = form.querySelector('[name="testName"]');
+    const unit     = form.querySelector('[name="unit"]');
+    const roomId   = form.querySelector('[name="roomId"]');
+    if (!testName?.value.trim())           return alert('Vui lòng nhập Test Name'), false;
+    if (testName.value.trim().length > 100) return alert('Test Name tối đa 100 ký tự'), false;
+    if (!unit?.value.trim())               return alert('Vui lòng nhập Unit'), false;
+    if (unit.value.trim().length > 20)     return alert('Unit tối đa 20 ký tự'), false;
+    if (!roomId?.value)                    return alert('Vui lòng chọn phòng xét nghiệm'), false;
+    return true;
+}
+
+function validateThresholdData(data) {
+    for (const g of ['young','middle','elder','pregnant']) {
+        const min = Number(data[g].min), max = Number(data[g].max);
+        if (data[g].min === '' || data[g].max === '') return alert('Vui lòng nhập đầy đủ Min/Max'), false;
+        if (min < 0 || max < 0) return alert('Min/Max không được nhỏ hơn 0'), false;
+        if (min > max)          return alert('Min không được lớn hơn Max'), false;
+    }
+    return true;
+}
+
+/* ── CREATE MODAL ── */
+function initCreateModal() {
+    const modal = document.getElementById('defineTestModal');
+    const form  = document.getElementById('createTestForm');
+    if (!modal) return;
+    document.getElementById('btnDefineTest')?.addEventListener('click', function() { form?.reset(); openModal(modal); });
+    addCloseHandlers(modal, document.getElementById('btnCloseModal'), document.getElementById('btnCancelModal'));
+    form?.addEventListener('submit', function(e) {
+        const data = buildThresholdData('create');
+        if (!validateBaseForm(form) || !validateThresholdData(data)) { e.preventDefault(); return; }
+        setVal('createMainMinValue', data.young.min);
+        setVal('createMainMaxValue', data.young.max);
+        localStorage.setItem('pending_create_threshold', JSON.stringify(data));
+    });
+}
+
+/* ── EDIT MODAL ── */
+function initEditModal() {
+    const modal = document.getElementById('editTestModal');
+    const form  = document.getElementById('editTestForm');
+    if (!modal || !form) return;
+    addCloseHandlers(modal, document.getElementById('btnCloseEditModal'), document.getElementById('btnCancelEditModal'));
+    document.querySelectorAll('.btn-edit').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const id = btn.dataset.id || '';
+            setVal('editLabTestId',   id);
+            setVal('editTestName',    btn.dataset.name        || '');
+            setVal('editUnit',        btn.dataset.unit        || '');
+            setVal('editRoomId',      btn.dataset.room        || '');
+            setVal('editDescription', btn.dataset.description || '');
+            fillThresholdInputs('edit', getThreshold(id), btn.dataset.min, btn.dataset.max);
+            form.action = '/admin/lab-tests/update/' + id;
+            openModal(modal);
+        });
+    });
+    form.addEventListener('submit', function(e) {
+        const data = buildThresholdData('edit');
+        const id   = val('editLabTestId');
+        if (!validateBaseForm(form) || !validateThresholdData(data)) { e.preventDefault(); return; }
+        setVal('editMainMinValue', data.young.min);
+        setVal('editMainMaxValue', data.young.max);
+        saveThreshold(id, data);
+    });
+}
+
+/* ── VIEW MODAL ── */
+function initViewModal() {
+    const modal = document.getElementById('viewDetailModal');
+    if (!modal) return;
+    addCloseHandlers(modal, document.getElementById('btnCloseViewModal'));
+    document.querySelectorAll('.btn-view').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const id = btn.dataset.id;
+            if (!id) return;
+            fillViewFromDataset(btn.dataset, getThreshold(id));
+            openModal(modal);
+            fetch('/admin/lab-tests/detail/' + id)
+                .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+                .then(function(d) { fillViewFromApi(d, getThreshold(id)); })
+                .catch(function(err) { console.error('detail error', err); });
+        });
+    });
+}
+
+function fillViewFromDataset(ds, thr) {
+    setText('detailId',          ds.id);
+    setText('detailName',        ds.name);
+    setText('detailUnit',        ds.unit);
+    setText('detailRoom',        ds.room);
+    setText('detailStatus',      ds.status === 'true' ? 'Active' : 'Inactive');
+    setText('detailDescription', ds.description || '---');
+    const t = thr || { young:{min:ds.min??0,max:ds.max??0}, middle:{min:ds.min??0,max:ds.max??0}, elder:{min:ds.min??0,max:ds.max??0}, pregnant:{min:ds.min??0,max:ds.max??0} };
+    setText('youngMin',t.young.min); setText('youngMax',t.young.max);
+    setText('middleMin',t.middle.min); setText('middleMax',t.middle.max);
+    setText('elderMin',t.elder.min); setText('elderMax',t.elder.max);
+    setText('pregnantMin',t.pregnant.min); setText('pregnantMax',t.pregnant.max);
+}
+
+function fillViewFromApi(d, thr) {
+    setText('detailId',          d.labTestId);
+    setText('detailName',        d.testName);
+    setText('detailUnit',        d.unit);
+    setText('detailRoom',        d.roomId);
+    setText('detailStatus',      d.status === true ? 'Active' : 'Inactive');
+    setText('detailDescription', d.description || '---');
+    const t = thr || { young:{min:d.minValue??0,max:d.maxValue??0}, middle:{min:d.minValue??0,max:d.maxValue??0}, elder:{min:d.minValue??0,max:d.maxValue??0}, pregnant:{min:d.minValue??0,max:d.maxValue??0} };
+    setText('youngMin',t.young.min); setText('youngMax',t.young.max);
+    setText('middleMin',t.middle.min); setText('middleMax',t.middle.max);
+    setText('elderMin',t.elder.min); setText('elderMax',t.elder.max);
+    setText('pregnantMin',t.pregnant.min); setText('pregnantMax',t.pregnant.max);
+}
+
+/* ── TABS ── */
+function initTabs() {
+    const tabs = { all: document.getElementById('tabAll'), active: document.getElementById('tabActive'), inactive: document.getElementById('tabInactive') };
+    if (!tabs.all) return;
+    Object.entries(tabs).forEach(function([filter, tab]) {
+        if (!tab) return;
+        tab.addEventListener('click', function() {
+            Object.values(tabs).forEach(function(t) { if (t) t.classList.remove('active'); });
+            tab.classList.add('active');
+            activeFilter = filter;
+            currentPage  = 1;
+            applyFilters();
+        });
+    });
+}
+
+/* ── SEARCH ── */
+function initSearch() {
+    function onSearch(e) {
+        searchKeyword = e.target.value.toLowerCase().trim();
+        const other = document.getElementById(e.target.id === 'tableSearch' ? 'topbarSearch' : 'tableSearch');
+        if (other) other.value = e.target.value;
+        currentPage = 1;
+        applyFilters();
+    }
+    document.getElementById('tableSearch')?.addEventListener('input',  onSearch);
+    document.getElementById('topbarSearch')?.addEventListener('input', onSearch);
+}
+
+/* ── FILTER ENGINE ── */
+function markAllRowsVisible() {
+    document.querySelectorAll('#labTestTableBody tr').forEach(function(r) { r.dataset.filtered = 'visible'; });
+}
+
+function applyFilters() {
+    document.querySelectorAll('#labTestTableBody tr').forEach(function(row) {
+        if (!row.classList.contains('data-row')) { row.dataset.filtered = 'hidden'; return; }
+        const kwOk  = searchKeyword === '' || row.innerText.toLowerCase().includes(searchKeyword);
+        const tabOk = activeFilter === 'all'
+            || (activeFilter === 'active'   && !!row.querySelector('.badge--active'))
+            || (activeFilter === 'inactive' && !!row.querySelector('.badge--inactive'));
+        row.dataset.filtered = (kwOk && tabOk) ? 'visible' : 'hidden';
+    });
+    renderPagination();
+}
+
+/* ── PAGINATION ── */
+function renderPagination() {
+    const all     = Array.from(document.querySelectorAll('#labTestTableBody tr'));
+    const visible = all.filter(function(r) { return r.dataset.filtered !== 'hidden'; });
+    const total   = visible.length;
+    const pages   = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    if (currentPage > pages) currentPage = pages;
+    all.forEach(function(r) { r.style.display = 'none'; });
+    visible.slice((currentPage-1)*PAGE_SIZE, currentPage*PAGE_SIZE).forEach(function(r) { r.style.display = ''; });
+    updateUI(total, pages);
+}
+
+function updateUI(total, pages) {
+    const info = document.getElementById('paginationInfo');
+    const prev = document.getElementById('prevPageBtn');
+    const next = document.getElementById('nextPageBtn');
+    const nums = document.getElementById('pageNumbers');
+    if (!info||!prev||!next||!nums) return;
+    const s = total === 0 ? 0 : (currentPage-1)*PAGE_SIZE+1;
+    const e = Math.min(currentPage*PAGE_SIZE, total);
+    info.textContent = 'Hiển thị ' + s + ' – ' + e + ' / ' + total + ' xét nghiệm';
+    prev.disabled = currentPage <= 1;
+    next.disabled = currentPage >= pages;
+    prev.onclick = function() { if (currentPage > 1)     { currentPage--; renderPagination(); } };
+    next.onclick = function() { if (currentPage < pages) { currentPage++; renderPagination(); } };
+    nums.innerHTML = '';
+    for (let i = 1; i <= pages; i++) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'page-number' + (i === currentPage ? ' active' : '');
+        b.textContent = i;
+        b.addEventListener('click', (function(p) { return function() { currentPage = p; renderPagination(); }; })(i));
+        nums.appendChild(b);
+    }
+}

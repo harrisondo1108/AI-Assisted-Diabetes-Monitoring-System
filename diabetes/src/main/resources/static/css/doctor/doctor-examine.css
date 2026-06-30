@@ -260,7 +260,7 @@
 
 .exam-start-overlay {
     position: absolute;
-    top: 61px; /* Just below the workspace-header which is around 61px */
+    top: 0;
     left: 0;
     right: 0;
     bottom: 0;
@@ -1419,3 +1419,40 @@
     user-select: none;
 }
 
+/* Custom Single Page & Validation Styles */
+.examination-workspace {
+    overflow-y: auto !important;
+}
+
+.examination-workspace.exam-pending {
+    overflow: hidden !important;
+}
+
+.examination-workspace.exam-pending .workspace-section {
+    display: none !important;
+}
+
+.workspace-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px;
+    border-bottom: 1.5px solid var(--doctor-border);
+}
+
+.workspace-section:last-of-type {
+    border-bottom: none;
+}
+
+.error-feedback {
+    color: var(--doctor-danger, #ef4444);
+    font-size: 0.72rem;
+    font-weight: 600;
+    margin-top: 4px;
+    display: block;
+}
+
+.is-invalid {
+    border-color: var(--doctor-danger, #ef4444) !important;
+    background-color: #fdf2f2 !important;
+}

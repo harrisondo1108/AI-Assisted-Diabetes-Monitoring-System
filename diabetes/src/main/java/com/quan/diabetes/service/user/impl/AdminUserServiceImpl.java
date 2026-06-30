@@ -1,12 +1,11 @@
 package com.quan.diabetes.service.user.impl;
 
-import com.quan.diabetes.dto.UserManagementDTO;
+import com.quan.diabetes.dto.user.UserManagementDTO;
 import com.quan.diabetes.entity.Patient;
 import com.quan.diabetes.entity.Profile;
 import com.quan.diabetes.entity.Role;
 import com.quan.diabetes.entity.Room;
 import com.quan.diabetes.entity.User;
-import com.quan.diabetes.entity.ClinicalExamination;
 import com.quan.diabetes.repository.PatientRepository;
 import com.quan.diabetes.repository.ProfileRepository;
 import com.quan.diabetes.repository.RoleRepository;

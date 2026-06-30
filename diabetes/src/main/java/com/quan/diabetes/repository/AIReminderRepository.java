@@ -11,12 +11,11 @@ import java.util.List;
 
 @Repository
 public interface AIReminderRepository extends JpaRepository<AIReminder, Long> {
-    boolean existsByPatient_UserIdAndScheduledTimeAndTitleAndTiming_TimingIDAndStatus(
+    boolean existsByPatient_UserIdAndScheduledTimeAndTitleAndTiming_TimingID(
             String userId,
             LocalDateTime scheduledTime,
             String title,
-            Integer timingId,
-            boolean status
+            Integer timingId
     );
 
     List<AIReminder> findByPatient_UserIdAndScheduledTimeGreaterThanEqualAndTitleOrderByScheduledTimeAsc(
@@ -24,28 +23,18 @@ public interface AIReminderRepository extends JpaRepository<AIReminder, Long> {
             LocalDateTime scheduledTime,
             String title
     );
-    List<AIReminder> findByClinicalExamination_ClinicalExamId(String clinicalExamId);
+    
+    List<AIReminder> findByPatient_UserIdAndTitle(String userId, String title);
 
     @Query("""
             SELECT reminder
             FROM AIReminder reminder
             WHERE reminder.patient.userId = :patientUserId
               AND reminder.scheduledTime <= :scheduledTimeIsLessThan
-              AND (reminder.status = true OR reminder.status IS NULL)
             ORDER BY reminder.scheduledTime DESC
             """)
     List<AIReminder> findByPatient_UserIdAndScheduledTimeLessThanEqualOrderByScheduledTimeDesc(
             @Param("patientUserId") String patientUserId,
             @Param("scheduledTimeIsLessThan") LocalDateTime scheduledTimeIsLessThan
     );
-
-    @Query("""
-            SELECT reminder
-            FROM AIReminder reminder
-            WHERE reminder.scheduledTime <= :now
-              AND (reminder.isSent = false OR reminder.isSent IS NULL)
-              AND (reminder.status = true OR reminder.status IS NULL)
-            ORDER BY reminder.scheduledTime ASC
-            """)
-    List<AIReminder> findDueUnsentReminders(@Param("now") LocalDateTime now);
 }

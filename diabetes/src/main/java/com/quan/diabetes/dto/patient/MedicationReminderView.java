@@ -1,4 +1,4 @@
-package com.quan.diabetes.dto;
+package com.quan.diabetes.dto.patient;
 
 import java.time.LocalDateTime;
 

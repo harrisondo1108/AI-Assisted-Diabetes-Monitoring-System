@@ -2,6 +2,7 @@ package com.quan.diabetes.service.user.impl;
 
 import com.quan.diabetes.entity.User;
 import com.quan.diabetes.repository.UserRepository;
+
 import com.quan.diabetes.service.user.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -68,7 +69,14 @@ public class UserServiceImpl implements UserService {
         newUser.setUserId(entity.getUserId());
         newUser.setPhoneNumber(entity.getPhoneNumber());
         newUser.setRole(entity.getRole());
-        newUser.setPasswordHash(passwordEncoder.encode(entity.getPasswordHash()));
+        
+        String pwd = entity.getPasswordHash();
+        if (pwd != null && (pwd.startsWith("$2a$") || pwd.startsWith("$2b$") || pwd.startsWith("$2y$"))) {
+            newUser.setPasswordHash(pwd);
+        } else if (pwd != null) {
+            newUser.setPasswordHash(passwordEncoder.encode(pwd));
+        }
+        
         return userRepository.save(newUser);
     }
 
@@ -85,6 +93,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.existsById(id);
     }
 
+
     @Override
     public String getNewID(String roleId) {
         String userId = null;
@@ -94,6 +103,14 @@ public class UserServiceImpl implements UserService {
                     String number = "00000" + new Random().nextInt(1000000);
                     userId = "P" + number.substring(number.length() - 6);
                 }while(this.existsById(userId));
+                break;
+            }
+            case "DOC":{
+                do{
+                    String number = "00000" + new Random().nextInt(1000000);
+                    userId = "D" + number.substring(number.length() - 6);
+                }while(this.existsById(userId));
+                break;
             }
         }
         return userId;

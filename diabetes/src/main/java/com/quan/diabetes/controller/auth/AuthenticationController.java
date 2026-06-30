@@ -87,6 +87,15 @@ public class AuthenticationController {
         return "auth/register-otp";
     }
 
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        if (session != null) {
+            session.invalidate();
+        }
+        SecurityContextHolder.clearContext();
+        return "redirect:/login";
+    }
+
     // ==================== POST ====================
 
     @PostMapping("/login")
@@ -102,6 +111,10 @@ public class AuthenticationController {
         }
         User user = userOptional.get();
         // Sau khi xác thực thành công (user hợp lệ)
+        if (User.STATUS_LOCKED.equalsIgnoreCase(user.getStatus())) {
+            model.addAttribute("errorMsg", "Your account has been blocked. Please contact the administrator.");
+            return "auth/login";
+        }
         List<SimpleGrantedAuthority> authorities = Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_" + user.getRole().getRoleId())
         );
@@ -309,12 +322,11 @@ public class AuthenticationController {
             patientService.create(patient);
             // Tạo patientRoutine
             PatientRoutine patientRoutine = new PatientRoutine();
-            patientRoutine.setUserId(userId);
+            patientRoutine.setPatient(patient);
             patientRoutineService.create(patientRoutine);
             clinicalExaminationService.createAutoPendingExamination(patient.getUserId());
         } else {
             Profile profile = new Profile();
-            profile.setUserId(userId);
             profile.setUser(user);
             profile.setFullName(fullName);
             profile.setPhoneNumber(phoneNumber);
@@ -322,5 +334,4 @@ public class AuthenticationController {
             profileService.create(profile);
         }
     }
-
 }

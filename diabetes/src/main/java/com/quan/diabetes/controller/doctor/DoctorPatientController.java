@@ -48,15 +48,17 @@ public class DoctorPatientController {
         this.clinicalExaminationRepository = clinicalExaminationRepository;
     }
 
-    @GetMapping("/examine/patients")
+    @GetMapping("/history")
     public String patientHistoryPage(
             @RequestParam(value = "patientId", required = false) String patientId,
+            @RequestParam(value = "from", required = false) String from,
             HttpSession session,
             Model model) {
         User loggedInUser = (User) session.getAttribute("loggedInUser");
         if (loggedInUser == null || !"DOC".equalsIgnoreCase(loggedInUser.getRole().getRoleId())) {
             return "redirect:/login";
         }
+        model.addAttribute("loggedInUser", loggedInUser);
 
         String doctorId = loggedInUser.getUserId();
         Profile profile = profileService.findById(doctorId).orElse(null);
@@ -92,32 +94,12 @@ public class DoctorPatientController {
                 .filter(e -> "Completed".equalsIgnoreCase(e.getStatus()) || "Cancelled".equalsIgnoreCase(e.getStatus()))
                 .collect(Collectors.toList());
         model.addAttribute("timeline", timeline);
-
-        // Nạp chỉ số glucose các ca khám để vẽ biểu đồ Canvas
-        List<LabResult> glucoseResults = labResultRepository
-                .findByLabOrder_ClinicalExamination_Patient_UserIdAndLabTest_TestNameContainingIgnoreCaseOrderByLabOrder_ClinicalExamination_ExamDateAsc(
-                        selectedPatientId, "Đường huyết lúc đói");
-
-        // Lấy tối đa 4 kết quả gần nhất, nếu không đủ 4 kết quả thì truyền danh sách rỗng (không vẽ biểu đồ)
-        List<Map<String, Object>> glucoseTrend = new ArrayList<>();
-        if (glucoseResults.size() >= 4) {
-            List<LabResult> recentResults = glucoseResults.subList(glucoseResults.size() - 4, glucoseResults.size());
-            for (LabResult res : recentResults) {
-                Map<String, Object> map = new HashMap<>();
-                map.put("val", res.getResultValue());
-                String dateStr = res.getLabOrder().getClinicalExamination().getExamDate() != null
-                        ? res.getLabOrder().getClinicalExamination().getExamDate().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM"))
-                        : "";
-                map.put("date", dateStr);
-                glucoseTrend.add(map);
-            }
-        }
-        model.addAttribute("glucoseTrend", glucoseTrend);
+        model.addAttribute("from", from);
 
         return "doctor/patients";
     }
 
-    @GetMapping("/examine/patients/view-exam/{examId}")
+    @GetMapping("/history/view-exam/{examId}")
     public String viewTimelineExamDetail(@PathVariable("examId") String examId, Model model) {
         ClinicalExamination exam = clinicalExaminationService.findById(examId).orElse(null);
         if (exam == null) {

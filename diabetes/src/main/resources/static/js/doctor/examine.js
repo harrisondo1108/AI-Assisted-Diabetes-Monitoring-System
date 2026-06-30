@@ -8,7 +8,7 @@ const symptomsCatalog = (typeof rawSymptomsCatalog !== 'undefined' && rawSymptom
     name: s.symptomName
 }));
 
-const labTestsCatalog = (typeof rawLabTestsCatalog !== 'undefined' && rawLabTestsCatalog ? rawLabTestsCatalog : []).map(l => ({
+let labTestsCatalog = (typeof rawLabTestsCatalog !== 'undefined' && rawLabTestsCatalog ? rawLabTestsCatalog : []).map(l => ({
     id: l.testId,
     name: l.testName,
     unit: l.unit,
@@ -38,8 +38,6 @@ let simulatedResults = {};
 document.addEventListener('DOMContentLoaded', () => {
     loadSessionPatient();
     renderSymptomsGrid();
-    initLabTestChecklist();
-    renderOrderedLabsList();
     setupNextAppointmentMinDate();
     restoreExamineDraft();
 
@@ -65,63 +63,50 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Real-time validation mapping on input events
-    const medInputs = ['medDosage', 'medDuration', 'medQuantity', 'medStartDate'];
-    medInputs.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-            el.addEventListener('input', () => {
-                validateMedicationFields();
-            });
-            if (id === 'medStartDate') {
-                el.addEventListener('change', () => {
-                    validateMedicationFields();
-                });
-            }
-        }
-    });
-
-    // Update End Date when Start Date or Duration changes
+    // Update End Date & quantity when inputs change
     const startDateInput = document.getElementById('medStartDate');
     const durationInput = document.getElementById('medDuration');
+    const dosageInput = document.getElementById('medDosage');
+
     if (startDateInput) {
         startDateInput.addEventListener('change', updateEndDate);
     }
     if (durationInput) {
-        durationInput.addEventListener('input', updateEndDate);
-        durationInput.addEventListener('change', updateEndDate);
+        durationInput.addEventListener('input', () => {
+            updateEndDate();
+            calculateTotalQuantity();
+        });
+        durationInput.addEventListener('change', () => {
+            updateEndDate();
+            calculateTotalQuantity();
+        });
+    }
+    if (dosageInput) {
+        dosageInput.addEventListener('input', calculateTotalQuantity);
+        dosageInput.addEventListener('change', calculateTotalQuantity);
     }
     
+    const isEditMode = (typeof thIsEditMode !== 'undefined' ? thIsEditMode : false);
     if (viewOnlyMode) {
         simulateLabResults();
         renderPrescriptionLines();
         
         // In view only mode, disable all interactable form inputs
         document.querySelectorAll('textarea, input, select, button').forEach(el => {
-            // Keep common navigation, tabs, close/logout and close modal buttons active
-            if (!el.classList.contains('tab-btn') && 
-                !el.classList.contains('modal-close') && 
+            // Keep common navigation, close/logout and close modal buttons active
+            if (!el.classList.contains('modal-close') && 
                 !el.classList.contains('logout-link-btn') && 
                 el.id !== 'viewHistoryBtn') {
                 el.disabled = true;
             }
         });
+    } else if (isEditMode) {
+        renderPrescriptionLines();
     }
 
-    // Intercept navigation if checkup is InProgress
+    // Handle cancel form submission to clear draft
     const isInProgress = thActiveExam && thActiveExam.status === 'InProgress';
     if (isInProgress) {
-        const navLinks = document.querySelectorAll('.header-nav-item, .logout-link-btn, .doctor-profile-block');
-        navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                const href = link.getAttribute('href');
-                if (href && (href.includes('dashboard') || href.includes('login') || href.includes('profile') || href === '/')) {
-                    e.preventDefault();
-                    showNavigationBlockedModal();
-                }
-            });
-        });
-
         const cancelForm = document.getElementById('cancelForm');
         if (cancelForm) {
             cancelForm.addEventListener('submit', () => {
@@ -129,6 +114,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 sessionStorage.removeItem('examineDraft');
             });
         }
+    }
+
+    // Handle isPregnant checkbox change dynamically
+    const isPregnantCheckbox = document.getElementById('isPregnant');
+    if (isPregnantCheckbox) {
+        isPregnantCheckbox.addEventListener('change', (e) => {
+            updateLabCatalog(e.target.checked);
+        });
+        // Initial sync on page load or draft restore
+        updateLabCatalog(isPregnantCheckbox.checked, true);
+    }
+
+    // Check for warning query parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('warning') === 'in-progress') {
+        showToast('Bạn đang có một ca khám chưa hoàn thành! Vui lòng tiếp tục ca khám.', 'warning');
     }
 });
 
@@ -193,8 +194,9 @@ function loadSessionPatient() {
         };
     }
 
-    // Load active exam / view only properties
-    if (viewOnlyMode && typeof thLastExam !== 'undefined' && thLastExam) {
+    const isEditMode = (typeof thIsEditMode !== 'undefined' ? thIsEditMode : false);
+    // Load active exam / view only / edit properties
+    if ((viewOnlyMode || isEditMode) && typeof thLastExam !== 'undefined' && thLastExam) {
         document.getElementById('examDiagnosis').value = thLastExam.diagnosisNote || '';
         document.getElementById('examHistory').value = thLastExam.medicalHistory || '';
         document.getElementById('examNextDate').value = thLastExam.nextAppointment ? thLastExam.nextAppointment.substring(0, 10) : '';
@@ -214,11 +216,16 @@ function loadSessionPatient() {
         }
 
         orderedLabs = {};
+        simulatedResults = {};
         if (typeof thLastExamLabResults !== 'undefined' && thLastExamLabResults) {
             thLastExamLabResults.forEach(res => {
                 const test = labTestsCatalog.find(l => l.name === res.labTest.testName);
                 if (test) {
                     orderedLabs[test.id] = true;
+                    simulatedResults[test.id] = {
+                        val: res.resultValue,
+                        flag: res.flag
+                    };
                 }
             });
         }
@@ -236,6 +243,7 @@ function loadSessionPatient() {
                     concentration: p.medication.concentration,
                     form: p.medication.form,
                     dosage: p.dosage,
+                    dosagePerDose: parseDosagePerDose(p.dosage),
                     duration: p.durationDays,
                     quantity: p.totalQuantity,
                     timing: tNames, // standard timing mapped to options
@@ -308,174 +316,7 @@ function toggleSymptom(id) {
     }
 }
 
-// Initialize lab checklist inside modal
-function initLabTestChecklist() {
-    const checklist = document.getElementById('labChecklist');
-    if (!checklist) return;
 
-    checklist.innerHTML = '';
-    labTestsCatalog.forEach(l => {
-        const div = document.createElement('div');
-        div.className = 'lab-checkbox-item';
-        div.setAttribute('data-id', l.id);
-        div.setAttribute('data-name', l.name.toLowerCase());
-
-        div.onclick = (e) => {
-            if (e.target.tagName !== 'INPUT') {
-                const chk = document.getElementById(`modal-chk-${l.id}`);
-                if (chk) chk.checked = !chk.checked;
-            }
-        };
-
-        div.innerHTML = `
-            <input type="checkbox" id="modal-chk-${l.id}" value="${l.id}">
-            <label for="modal-chk-${l.id}" onclick="event.stopPropagation()">
-                <span class="lab-checkbox-name">${l.name}</span>
-                <span class="lab-checkbox-room">${l.room}</span>
-            </label>
-        `;
-        checklist.appendChild(div);
-    });
-}
-
-// Show/Hide Laboratory Test Modal
-function showLabTestModal() {
-    if (viewOnlyMode) return;
-
-    document.getElementById('labSearch').value = '';
-    filterLabTestsInModal();
-
-    labTestsCatalog.forEach(l => {
-        const chk = document.getElementById(`modal-chk-${l.id}`);
-        if (chk) {
-            chk.checked = !!orderedLabs[l.id];
-        }
-    });
-
-    const modal = document.getElementById('labTestModal');
-    if (modal) modal.classList.add('open');
-}
-
-function closeLabTestModal() {
-    const modal = document.getElementById('labTestModal');
-    if (modal) modal.classList.remove('open');
-}
-
-// Filter lab checklist in modal in real-time
-function filterLabTestsInModal() {
-    const query = document.getElementById('labSearch').value.toLowerCase().trim();
-    const items = document.querySelectorAll('.lab-checkbox-item');
-
-    items.forEach(item => {
-        const name = item.getAttribute('data-name');
-        if (!query || name.includes(query)) {
-            item.style.display = 'flex';
-        } else {
-            item.style.display = 'none';
-        }
-    });
-}
-
-// Confirm Lab Orders on modal save
-function confirmLabOrders() {
-    if (viewOnlyMode) return;
-
-    orderedLabs = {};
-    labTestsCatalog.forEach(l => {
-        const chk = document.getElementById(`modal-chk-${l.id}`);
-        if (chk && chk.checked) {
-            orderedLabs[l.id] = true;
-        }
-    });
-
-    renderOrderedLabsList();
-    closeLabTestModal();
-    simulateLabProcessing();
-}
-
-// Render summary of ordered labs in page
-function renderOrderedLabsList() {
-    const container = document.getElementById('orderedLabsSummary');
-    if (!container) return;
-
-    const oldTags = container.querySelectorAll('.ordered-lab-tag');
-    oldTags.forEach(t => t.remove());
-
-    const selectedIds = Object.keys(orderedLabs);
-    const emptyMsg = document.getElementById('emptyLabs');
-
-    if (selectedIds.length === 0) {
-        if (emptyMsg) emptyMsg.style.display = 'flex';
-        return;
-    }
-
-    if (emptyMsg) emptyMsg.style.display = 'none';
-
-    selectedIds.forEach(id => {
-        const test = labTestsCatalog.find(l => l.id === id);
-        if (!test) return;
-
-        const div = document.createElement('div');
-        div.className = 'ordered-lab-tag';
-        div.innerHTML = `
-            <div class="lab-tag-info">
-                <i class="fas fa-flask" style="color: var(--doctor-primary);"></i>
-                <strong>${test.name}</strong>
-                <span class="lab-tag-room">${test.room}</span>
-            </div>
-            <button type="button" class="btn-remove-lab" onclick="removeLabOrder('${test.id}')" title="Xóa chỉ định"><i class="fas fa-times"></i></button>
-        `;
-        container.appendChild(div);
-    });
-}
-
-// Remove lab order from tag list on main page
-function removeLabOrder(id) {
-    if (viewOnlyMode) return;
-    delete orderedLabs[id];
-    renderOrderedLabsList();
-
-    if (!isLabProcessing) {
-        simulateLabResults();
-    }
-}
-
-let isLabProcessing = false;
-
-// Simulate the waiting time for the lab
-function simulateLabProcessing() {
-    const tbody = document.getElementById('labResultsTableBody');
-    if (!tbody) return;
-
-    const selectedIds = Object.keys(orderedLabs);
-    if (selectedIds.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--doctor-text-muted); padding: 30px;">Vui lòng chỉ định một hoặc nhiều xét nghiệm từ danh mục phía trên để xem kết quả</td></tr>`;
-        return;
-    }
-
-    isLabProcessing = true;
-
-    tbody.innerHTML = `
-        <tr>
-            <td colspan="4" style="text-align: center; padding: 40px 20px;">
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px;">
-                    <i class="fa-solid fa-spinner fa-spin fa-2x" style="color: var(--doctor-primary);"></i>
-                    <strong style="color: var(--doctor-text-main); font-size: 1.1rem;">Đang xử lý mẫu tại Phòng xét nghiệm...</strong>
-                    <span style="color: var(--doctor-text-muted); font-size: 0.9rem;">Vui lòng đợi trong giây lát</span>
-                </div>
-            </td>
-        </tr>
-    `;
-
-    setTimeout(() => {
-        isLabProcessing = false;
-        if (Object.keys(orderedLabs).length > 0) {
-            simulateLabResults();
-        } else {
-            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--doctor-text-muted); padding: 30px;">Vui lòng chỉ định một hoặc nhiều xét nghiệm từ danh mục phía trên để xem kết quả</td></tr>`;
-        }
-    }, 2000); // reduced processing time to 2s for premium UI responsiveness
-}
 
 // Laboratory simulator mapping results
 function simulateLabResults() {
@@ -524,37 +365,27 @@ function simulateLabResults() {
             let hasDbThreshold = !isNaN(minVal) && !isNaN(maxVal);
 
             if (hasDbThreshold) {
-                const isHigh = rand.next() > 0.5;
-                if (isHigh) {
-                    const scale = maxVal > 20 ? (maxVal * 0.4) : 4.0;
-                    val = parseFloat((maxVal + rand.next() * scale).toFixed(1));
-                } else {
+                const randType = rand.next();
+                if (randType < 0.30) { // 30% chance of LOW
+                    val = parseFloat((minVal - 0.5 - rand.next() * (minVal * 0.15)).toFixed(1));
+                    if (val < 0) val = 0;
+                } else if (randType > 0.60) { // 40% chance of HIGH
+                    const scale = maxVal > 20 ? (maxVal * 0.3) : 4.0;
+                    val = parseFloat((maxVal + 0.1 + rand.next() * scale).toFixed(1));
+                } else { // 30% chance of NORMAL
                     val = parseFloat((minVal + rand.next() * (maxVal - minVal)).toFixed(1));
                 }
-                if (val > maxVal) {
+
+                if (val < minVal) {
+                    flag = 'LOW';
+                } else if (val > maxVal) {
                     flag = 'HIGH';
+                } else {
+                    flag = 'NORMAL';
                 }
             } else {
-                const testName = test.name.toLowerCase();
-                if (test.id === 'LAB001' || testName.includes("fasting blood glucose") || testName.includes("lúc đói") || testName.includes("fpg")) {
-                    val = parseFloat((70.0 + rand.next() * 80.0).toFixed(1));
-                    if (val > 100.0) { flag = 'HIGH'; }
-                } else if (test.id === 'LAB002' || testName.includes("hba1c")) {
-                    val = parseFloat((4.0 + rand.next() * 4.0).toFixed(1));
-                    if (val > 5.6) { flag = 'HIGH'; }
-                } else if (test.id === 'LAB003' || testName.includes("ogtt") || testName.includes("dung nạp")) {
-                    val = parseFloat((75.0 + rand.next() * 100.0).toFixed(1));
-                    if (val >= 140.0) { flag = 'HIGH'; }
-                } else if (test.id === 'LAB004' || testName.includes("ngẫu nhiên") || testName.includes("random")) {
-                    val = parseFloat((75.0 + rand.next() * 100.0).toFixed(1));
-                    if (val >= 140.0) { flag = 'HIGH'; }
-                } else if (testName.includes("creatinine")) {
-                    val = Math.round(60 + rand.next() * 75);
-                    if (val > 115) { flag = 'HIGH'; }
-                } else if (testName.includes("cholesterol")) {
-                    val = parseFloat((4.0 + rand.next() * 2.5).toFixed(1));
-                    if (val >= 5.2) { flag = 'HIGH'; }
-                }
+                val = 0.0;
+                flag = 'NORMAL';
             }
             
             val = parseFloat(val);
@@ -563,17 +394,60 @@ function simulateLabResults() {
 
         val = simulatedResults[id].val;
         flag = simulatedResults[id].flag;
-        flagClass = flag === 'HIGH' ? 'flag-high' : 'flag-normal';
+        flagClass = flag === 'HIGH' ? 'flag-high' : (flag === 'LOW' ? 'flag-low' : 'flag-normal');
+        const flagText = flag === 'HIGH' ? 'CAO' : (flag === 'LOW' ? 'THẤP' : 'BÌNH THƯỜNG');
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td><strong>${test.name}</strong></td>
             <td><span style="font-weight:500; color: var(--doctor-text-muted);">${test.range} ${test.unit}</span></td>
             <td><strong>${val} ${test.unit}</strong></td>
-            <td><span class="flag-badge ${flagClass}">${flag === 'HIGH' ? 'CAO' : (flag === 'NORMAL' ? 'BÌNH THƯỜNG' : flag)}</span></td>
+            <td><span class="flag-badge ${flagClass}">${flagText}</span></td>
         `;
         tbody.appendChild(tr);
     });
+}
+
+function updateLabCatalog(isPregnant, isInitialLoad = false) {
+    const hasAssignedBefore = Object.keys(orderedLabs).length > 0;
+
+    const rawCatalog = (isPregnant && typeof rawLabTestsPregnantCatalog !== 'undefined')
+        ? rawLabTestsPregnantCatalog
+        : (typeof rawLabTestsCatalog !== 'undefined' ? rawLabTestsCatalog : []);
+
+    labTestsCatalog = rawCatalog.map(l => ({
+        id: l.testId,
+        name: l.testName,
+        unit: l.unit,
+        range: l.referenceRange,
+        room: 'Phòng xét nghiệm',
+        minValue: l.minValue,
+        maxValue: l.maxValue
+    }));
+
+    if (!isInitialLoad) {
+        // Clear simulated results cache
+        simulatedResults = {};
+
+        if (hasAssignedBefore) {
+            // Automatically re-assign all matching tests in the new catalog and recalculate
+            orderedLabs = {};
+            labTestsCatalog.forEach(test => {
+                orderedLabs[test.id] = true;
+            });
+            simulateLabResults();
+        }
+    } else {
+        simulateLabResults();
+    }
+}
+
+function assignAllLabTests() {
+    orderedLabs = {};
+    labTestsCatalog.forEach(test => {
+        orderedLabs[test.id] = true;
+    });
+    simulateLabResults();
 }
 
 class RandomVal {
@@ -586,92 +460,6 @@ class RandomVal {
     }
 }
 
-let pendingTabTransition = null;
-
-// Diagnostic Switch Tab Logic
-function switchTab(evt, tabId) {
-    if (!viewOnlyMode) {
-        if (tabId === 'labs-tab' || tabId === 'prescription-tab') {
-            const history = document.getElementById('examHistory').value.trim();
-            const diagnosis = document.getElementById('examDiagnosis').value.trim();
-            const checkedSymptoms = document.querySelectorAll('#symptomsGrid input:checked').length;
-            if (!history || !diagnosis || checkedSymptoms === 0) {
-                showToast('Vui lòng không để trống hoặc mỗi phím cách Triệu chứng, Lý do khám & chẩn đoán.', 'warning');
-                return;
-            }
-        }
-
-        if (tabId === 'prescription-tab') {
-            const orderedCount = Object.keys(orderedLabs).length;
-            if (orderedCount === 0) {
-                pendingTabTransition = {
-                    tabId: tabId,
-                    targetBtn: evt ? evt.currentTarget : null
-                };
-                const skipModal = document.getElementById('skipLabConfirmModal');
-                if (skipModal) {
-                    skipModal.classList.add('open');
-                }
-                return;
-            }
-            if (isLabProcessing) {
-                showToast('Vui lòng đợi kết quả xét nghiệm được xử lý xong.', 'warning');
-                return;
-            }
-        }
-    }
-
-    executeTabSwitch(evt ? evt.currentTarget : null, tabId);
-}
-
-const tabIndexMap = {
-    'symptoms-tab': 0,
-    'labs-tab': 1,
-    'prescription-tab': 2
-};
-
-function executeTabSwitch(targetBtn, tabId) {
-    const tabcontents = document.getElementsByClassName('tab-content');
-    for (let i = 0; i < tabcontents.length; i++) {
-        tabcontents[i].classList.remove('active');
-    }
-
-    const tablinks = document.getElementsByClassName('tab-btn');
-    for (let i = 0; i < tablinks.length; i++) {
-        tablinks[i].classList.remove('active');
-    }
-
-    document.getElementById(tabId).classList.add('active');
-    if (targetBtn) {
-        targetBtn.classList.add('active');
-    } else {
-        const btns = document.querySelectorAll('.tab-btn');
-        const idx = tabIndexMap[tabId];
-        if (btns[idx]) {
-            btns[idx].classList.add('active');
-        }
-    }
-}
-
-function closeSkipLabModal() {
-    const skipModal = document.getElementById('skipLabConfirmModal');
-    if (skipModal) skipModal.classList.remove('open');
-    pendingTabTransition = null;
-}
-
-function confirmSkipLab() {
-    if (pendingTabTransition) {
-        const targetTabId = pendingTabTransition.tabId;
-        const targetBtn = pendingTabTransition.targetBtn;
-        pendingTabTransition = null;
-
-        const skipModal = document.getElementById('skipLabConfirmModal');
-        if (skipModal) skipModal.classList.remove('open');
-
-        executeTabSwitch(targetBtn, targetTabId);
-    }
-}
-
 let editingMedIndex = -1;
 
 function showMedicationModal() {
@@ -680,13 +468,7 @@ function showMedicationModal() {
     document.getElementById('medSearch').value = '';
 
     // Clear error spans
-    document.getElementById('error-medDosage').style.display = 'none';
-    document.getElementById('error-medDuration').style.display = 'none';
-    document.getElementById('error-medQuantity').style.display = 'none';
-    const startDateErr = document.getElementById('error-medStartDate');
-    if (startDateErr) startDateErr.style.display = 'none';
-    const timingErr = document.getElementById('error-medTiming');
-    if (timingErr) timingErr.style.display = 'none';
+    clearMedicationErrors();
 
     // Deselect all timings by default
     const timingContainer = document.getElementById('medTimingContainer');
@@ -703,10 +485,11 @@ function showMedicationModal() {
     const btn = document.getElementById('addMedBtn');
     if (btn) btn.textContent = 'Thêm vào đơn thuốc';
 
-    document.getElementById('medDosage').value = 'Auto';
+    document.getElementById('medDosage').value = '1';
     document.getElementById('medDuration').value = '30';
-    document.getElementById('medQuantity').value = '30';
+    document.getElementById('medQuantity').value = '0';
     document.getElementById('medPlan').value = '';
+    calculateTotalQuantity();
 
     // Mặc định ngày bắt đầu khi mở modal là ngày hiện tại
     const today = new Date();
@@ -792,44 +575,43 @@ function addMedicationLine() {
     const quantity = parseInt(document.getElementById('medQuantity').value.trim());
     const startDate = document.getElementById('medStartDate').value;
     const endDate = document.getElementById('medEndDate').value;
+    const dosageVal = parseFloat(document.getElementById('medDosage').value.trim()) || 1;
 
-    let dosage = "Auto";
-    if (duration > 0 && quantity > 0) {
-        const rate = (quantity / duration).toFixed(1);
-        const rateClean = parseFloat(rate) === Math.round(rate) ? Math.round(rate) : rate;
-        
-        let unit = "viên";
-        if (selectedMed && selectedMed.form) {
-            const formLower = selectedMed.form.toLowerCase();
-            if (formLower.includes("viên") || formLower.includes("nén") || formLower.includes("nang")) {
-                unit = "viên";
-            } else if (formLower.includes("gói")) {
-                unit = "gói";
-            } else if (formLower.includes("chai")) {
-                unit = "chai";
-            } else if (formLower.includes("ống")) {
-                unit = "ống";
-            } else if (formLower.includes("tablet")) {
-                unit = "tablet";
-            } else if (formLower.includes("capsule")) {
-                unit = "capsule";
-            } else if (formLower.trim().length > 0) {
-                unit = formLower.trim();
-            }
-        }
-        dosage = `${rateClean} ${unit}/ngày`;
-    }
     const timingContainer = document.getElementById('medTimingContainer');
     let timing = [];
     let timingText = '';
+    let timingsCount = 0;
     if (timingContainer) {
         const checkedOptions = Array.from(timingContainer.querySelectorAll('.custom-multiselect-option input[type="checkbox"]')).filter(cb => cb.checked);
         timing = checkedOptions.map(cb => cb.value);
+        timingsCount = checkedOptions.length;
         timingText = checkedOptions.map(cb => {
             const label = cb.parentNode.querySelector('label');
             return label ? label.textContent.trim() : cb.value;
         }).join(', ');
     }
+
+    let unit = "viên";
+    if (selectedMed && selectedMed.form) {
+        const formLower = selectedMed.form.toLowerCase();
+        if (formLower.includes("viên") || formLower.includes("nén") || formLower.includes("nang")) {
+            unit = "viên";
+        } else if (formLower.includes("gói")) {
+            unit = "gói";
+        } else if (formLower.includes("chai")) {
+            unit = "chai";
+        } else if (formLower.includes("ống")) {
+            unit = "ống";
+        } else if (formLower.includes("tablet")) {
+            unit = "tablet";
+        } else if (formLower.includes("capsule")) {
+            unit = "capsule";
+        } else if (formLower.trim().length > 0) {
+            unit = formLower.trim();
+        }
+    }
+    const dosage = `${dosageVal} ${unit}/lần, ${timingsCount} lần/ngày`;
+
     const medPlan = document.getElementById('medPlan').value.trim();
 
     const line = {
@@ -838,6 +620,7 @@ function addMedicationLine() {
         concentration: selectedMed.concentration,
         form: selectedMed.form,
         dosage: dosage,
+        dosagePerDose: dosageVal,
         duration: duration,
         quantity: quantity,
         timing: timing,
@@ -868,6 +651,9 @@ function editPrescriptionLine(index) {
     const line = prescriptionLines[index];
     if (!line) return;
 
+    // Clear error spans
+    clearMedicationErrors();
+
     selectedMed = medicationsCatalog.find(m => m.id === line.medId);
     editingMedIndex = index;
 
@@ -877,7 +663,7 @@ function editPrescriptionLine(index) {
     document.getElementById('medSearch').value = selectedMed ? `${selectedMed.name} (${selectedMed.concentration})` : line.name;
     document.getElementById('medAutocompleteList').style.display = 'none';
 
-    document.getElementById('medDosage').value = line.dosage;
+    document.getElementById('medDosage').value = line.dosagePerDose || parseDosagePerDose(line.dosage);
     document.getElementById('medDuration').value = line.duration;
     document.getElementById('medQuantity').value = line.quantity;
     
@@ -958,49 +744,53 @@ function renderPrescriptionLines() {
 
         const div = document.createElement('div');
         div.className = 'prescription-line';
-        const dateRangeBadge = line.startDate && line.endDate 
-            ? `<div class="presc-med-dates-badge"><i class="far fa-calendar-alt"></i> Liệu trình: Từ ${formatDateDMY(line.startDate)} đến ${formatDateDMY(line.endDate)}</div>` 
-            : '';
+        div.style.padding = '0';
+        div.style.border = '1px solid var(--doctor-border)';
+        div.style.borderRadius = '8px';
+        div.style.marginBottom = '10px';
+        div.style.overflow = 'hidden';
+        div.style.backgroundColor = 'var(--doctor-card-bg)';
+
         div.innerHTML = `
-            <div class="presc-card-main">
-                <div class="presc-med-info">
-                    <div class="presc-med-name">${line.name} <span class="presc-med-conc">(${line.concentration})</span></div>
-                    <div class="presc-med-form-badge">${line.form}</div>
-                    ${dateRangeBadge}
-                </div>
-                <div class="presc-card-details">
-                    <div class="presc-detail-item">
-                        <span class="presc-lbl">Liều dùng</span>
-                        <span class="presc-val">${line.dosage}</span>
-                    </div>
-                    <div class="presc-detail-item">
-                        <span class="presc-lbl">Thời gian sử dụng</span>
-                        <span class="presc-val">${line.duration} ngày</span>
-                    </div>
-                    <div class="presc-detail-item">
-                        <span class="presc-lbl">Số lượng</span>
-                        <span class="presc-val">${line.quantity} ${unit}</span>
-                    </div>
-                    <div class="presc-detail-item presc-timing-col">
-                        <span class="presc-lbl">Thời điểm sử dụng</span>
-                        <span class="presc-val"><i class="far fa-clock"></i> ${line.timingText}</span>
+            <div class="presc-card-main" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 16px;">
+                <div class="presc-med-info" style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.25rem; color: var(--doctor-primary);"><i class="fas fa-pills"></i></span>
+                    <div class="presc-med-name" style="font-weight: 700; color: var(--doctor-text-main); font-size: 0.95rem;">
+                        ${line.name} <span class="presc-med-conc" style="font-weight: 500; color: var(--doctor-text-muted); font-size: 0.85rem;">(${line.concentration})</span>
                     </div>
                 </div>
-                <div class="presc-card-actions">
-                    <button type="button" class="btn-presc-action edit-btn" onclick="editPrescriptionLine(${index})" title="Sửa"><i class="fas fa-pen"></i></button>
-                    <button type="button" class="btn-presc-action delete-btn" onclick="removePrescriptionLine(${index})" title="Xóa"><i class="fas fa-trash"></i></button>
+                <div class="presc-card-actions" style="display: flex; gap: 8px;">
+                    <button type="button" class="btn-presc-action detail-btn" onclick="togglePrescriptionDetail(${index})" title="Chi tiết" style="background-color: #f3f4f6; color: #4b5563; border: 1px solid #d1d5db; border-radius: 6px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;"><i class="fas fa-eye"></i></button>
+                    <button type="button" class="btn-presc-action edit-btn" onclick="editPrescriptionLine(${index})" title="Sửa" style="background-color: #f3f4f6; color: var(--doctor-primary); border: 1px solid #d1d5db; border-radius: 6px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;"><i class="fas fa-pen"></i></button>
+                    <button type="button" class="btn-presc-action delete-btn" onclick="if(confirm('Bạn có chắc chắn muốn xóa thuốc này khỏi đơn?')) removePrescriptionLine(${index})" title="Xóa" style="background-color: #f3f4f6; color: var(--doctor-danger); border: 1px solid #d1d5db; border-radius: 6px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;"><i class="fas fa-trash"></i></button>
                 </div>
             </div>
-            ${line.medicationPlan ? `
-            <div class="presc-card-instructions">
-                <span class="inst-icon"><i class="fas fa-info-circle"></i></span>
-                <div class="inst-text">
-                    <strong>Hướng dẫn:</strong> <span>${line.medicationPlan}</span>
-                </div>
-            </div>` : ''}
+            <div class="presc-card-dropdown" id="presc-dropdown-${index}" style="display: none; padding: 12px 16px; background-color: #f9fafb; border-top: 1px solid #e5e7eb; font-size: 0.85rem; color: #374151; line-height: 1.6;">
+                <div style="margin-bottom: 6px;"><strong style="color: var(--doctor-text-muted);"><i class="fas fa-cubes"></i> Dạng bào chế:</strong> ${line.form}</div>
+                ${line.startDate && line.endDate ? `<div style="margin-bottom: 6px;"><strong style="color: var(--doctor-text-muted);"><i class="far fa-calendar-alt"></i> Liệu trình:</strong> Từ ${formatDateDMY(line.startDate)} đến ${formatDateDMY(line.endDate)}</div>` : ''}
+                <div style="margin-bottom: 6px;"><strong style="color: var(--doctor-text-muted);"><i class="fas fa-prescription-bottle"></i> Liều dùng:</strong> ${line.dosage}</div>
+                <div style="margin-bottom: 6px;"><strong style="color: var(--doctor-text-muted);"><i class="far fa-calendar-days"></i> Thời gian sử dụng:</strong> ${line.duration} ngày</div>
+                <div style="margin-bottom: 6px;"><strong style="color: var(--doctor-text-muted);"><i class="fas fa-calculator"></i> Số lượng:</strong> ${line.quantity} ${unit}</div>
+                <div style="margin-bottom: 6px;"><strong style="color: var(--doctor-text-muted);"><i class="far fa-clock"></i> Thời điểm sử dụng:</strong> ${line.timingText}</div>
+                ${line.medicationPlan ? `<div style="margin-bottom: 0;"><strong style="color: var(--doctor-text-muted);"><i class="fas fa-info-circle"></i> Hướng dẫn:</strong> ${line.medicationPlan}</div>` : ''}
+            </div>
         `;
         list.appendChild(div);
     });
+}
+
+function togglePrescriptionDetail(index) {
+    const dropdown = document.getElementById(`presc-dropdown-${index}`);
+    if (dropdown) {
+        const btn = dropdown.previousElementSibling.querySelector('.detail-btn i');
+        if (dropdown.style.display === 'none') {
+            dropdown.style.display = 'block';
+            if (btn) btn.className = 'fas fa-eye-slash';
+        } else {
+            dropdown.style.display = 'none';
+            if (btn) btn.className = 'fas fa-eye';
+        }
+    }
 }
 
 // Complete Clinical Checkup
@@ -1009,39 +799,6 @@ function saveExam() {
     if (viewOnlyMode) {
         showToast('Ca khám này ở chế độ chỉ đọc. Đang quay lại trang tổng quan.', 'warning');
         setTimeout(() => window.location.href = '/doctor/dashboard', 1500);
-        return;
-    }
-
-    const diagnosis = document.getElementById('examDiagnosis').value.trim();
-    if (!diagnosis) {
-        showToast('Vui lòng điền ghi chú Chẩn đoán trước khi hoàn thành ca khám.', 'error');
-        isSubmitting = false;
-        return;
-    }
-
-    // Validate that at least one field of the Treatment Plan is filled
-    const planGoal = document.getElementById('planGoal').value.trim();
-    const planDiet = document.getElementById('planDiet').value.trim();
-    const planExercise = document.getElementById('planExercise').value.trim();
-    const planGlucose = document.getElementById('planGlucose').value.trim();
-
-    if (!planGoal && !planDiet && !planExercise && !planGlucose) {
-        showToast('Yêu cầu điền ít nhất 1 trường của Kế hoạch & Phác đồ điều trị để hoàn thành.', 'error');
-        isSubmitting = false;
-        if (!document.getElementById('prescription-tab').classList.contains('active')) {
-             switchTab({currentTarget: document.querySelectorAll('.tab-btn')[2]}, 'prescription-tab');
-        }
-        return;
-    }
-
-    // Validate if Prescription is filled
-    const prescribedCount = prescriptionLines.length;
-    if (prescribedCount === 0) {
-        showToast('Vui lòng kê ít nhất 1 loại thuốc trước khi hoàn thành.', 'warning');
-        isSubmitting = false;
-        if (!document.getElementById('prescription-tab').classList.contains('active')) {
-             switchTab({currentTarget: document.querySelectorAll('.tab-btn')[2]}, 'prescription-tab');
-        }
         return;
     }
 
@@ -1181,6 +938,7 @@ function goToHistory() {
         // Collect current state
         const draft = {
             patientId: currentPatient.id,
+            isPregnant: document.getElementById('isPregnant') ? document.getElementById('isPregnant').checked : false,
             examDiagnosis: document.getElementById('examDiagnosis') ? document.getElementById('examDiagnosis').value : '',
             examHistory: document.getElementById('examHistory') ? document.getElementById('examHistory').value : '',
             examNextDate: document.getElementById('examNextDate') ? document.getElementById('examNextDate').value : '',
@@ -1202,20 +960,11 @@ function goToHistory() {
         });
 
         sessionStorage.setItem('examineDraft', JSON.stringify(draft));
-        sessionStorage.setItem('fromExamineRoom', 'true');
-        window.location.href = `/doctor/examine/patients?patientId=${currentPatient.id}`;
+        window.location.href = `/doctor/history?patientId=${currentPatient.id}&from=examine`;
     }
 }
 
-function showNavigationBlockedModal() {
-    const modal = document.getElementById('navigationBlockedModal');
-    if (modal) modal.classList.add('open');
-}
-
-function closeNavigationBlockedModal() {
-    const modal = document.getElementById('navigationBlockedModal');
-    if (modal) modal.classList.remove('open');
-}
+// Navigation blocked modals removed
 
 // Warn when leaving page with unsaved changes
 window.addEventListener('beforeunload', (e) => {
@@ -1249,6 +998,27 @@ function validateMedicationFields() {
     if (quantityErr) quantityErr.style.display = 'none';
     if (startDateErr) startDateErr.style.display = 'none';
 
+    // Validate Dosage
+    if (dosageInput) {
+        const dosageVal = dosageInput.value.trim();
+        if (!dosageVal) {
+            if (dosageErr) {
+                dosageErr.textContent = 'Vui lòng nhập liều lượng mỗi lần dùng';
+                dosageErr.style.display = 'block';
+            }
+            isValid = false;
+        } else {
+            const num = Number(dosageVal);
+            if (isNaN(num) || num <= 0) {
+                if (dosageErr) {
+                    dosageErr.textContent = 'Liều lượng phải là số dương';
+                    dosageErr.style.display = 'block';
+                }
+                isValid = false;
+            }
+        }
+    }
+
     // Validate Duration
     if (durationInput) {
         const durationVal = durationInput.value;
@@ -1264,27 +1034,6 @@ function validateMedicationFields() {
                 if (durationErr) {
                     durationErr.textContent = 'Số ngày sử dụng phải là số nguyên dương';
                     durationErr.style.display = 'block';
-                }
-                isValid = false;
-            }
-        }
-    }
-
-    // Validate Quantity
-    if (quantityInput) {
-        const quantityVal = quantityInput.value;
-        if (!quantityVal) {
-            if (quantityErr) {
-                quantityErr.textContent = 'Vui lòng nhập tổng số lượng cấp';
-                quantityErr.style.display = 'block';
-            }
-            isValid = false;
-        } else {
-            const num = Number(quantityVal);
-            if (isNaN(num) || !Number.isInteger(num) || num <= 0) {
-                if (quantityErr) {
-                    quantityErr.textContent = 'Tổng số lượng cấp phải là số nguyên dương';
-                    quantityErr.style.display = 'block';
                 }
                 isValid = false;
             }
@@ -1349,7 +1098,7 @@ function updateEndDate() {
     }
 
     const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + durationDays);
+    endDate.setDate(startDate.getDate() + durationDays - 1);
 
     const yyyy = endDate.getFullYear();
     const mm = String(endDate.getMonth() + 1).padStart(2, '0');
@@ -1411,6 +1160,7 @@ function updateTimingPlaceholder() {
             placeholder.style.color = '#888';
         }
     }
+    calculateTotalQuantity();
 }
 
 // Close dropdown on click outside
@@ -1428,6 +1178,12 @@ function restoreExamineDraft() {
     try {
         const draft = JSON.parse(draftStr);
         if (currentPatient && draft.patientId === currentPatient.id) {
+            if (draft.isPregnant !== undefined) {
+                const chk = document.getElementById('isPregnant');
+                if (chk) {
+                    chk.checked = draft.isPregnant;
+                }
+            }
             if (draft.examDiagnosis) {
                 const el = document.getElementById('examDiagnosis');
                 if (el) el.value = draft.examDiagnosis;
@@ -1467,11 +1223,10 @@ function restoreExamineDraft() {
             }
             if (draft.orderedLabs) {
                 orderedLabs = draft.orderedLabs;
-                initLabTestChecklist();
-                renderOrderedLabsList();
             }
             if (draft.simulatedResults) {
                 simulatedResults = draft.simulatedResults;
+                simulateLabResults();
             }
         } else {
             sessionStorage.removeItem('examineDraft');
@@ -1479,6 +1234,40 @@ function restoreExamineDraft() {
     } catch (e) {
         console.error('Error restoring examine draft:', e);
     }
+}
+
+function calculateTotalQuantity() {
+    const dosageInput = document.getElementById('medDosage');
+    const durationInput = document.getElementById('medDuration');
+    const quantityInput = document.getElementById('medQuantity');
+    const timingContainer = document.getElementById('medTimingContainer');
+
+    if (!dosageInput || !durationInput || !quantityInput || !timingContainer) return;
+
+    const dosageVal = parseFloat(dosageInput.value) || 0;
+    const durationVal = parseInt(durationInput.value, 10) || 0;
+    const checkedTimings = timingContainer.querySelectorAll('.custom-multiselect-option input[type="checkbox"]:checked').length;
+
+    const total = Math.ceil(dosageVal * checkedTimings * durationVal);
+    quantityInput.value = total;
+}
+
+function parseDosagePerDose(dosageStr) {
+    if (!dosageStr || dosageStr === 'Auto') return 1;
+    const match = dosageStr.match(/^([\d.]+)/);
+    if (match) {
+        const val = parseFloat(match[1]);
+        return isNaN(val) ? 1 : val;
+    }
+    return 1;
+}
+
+function clearMedicationErrors() {
+    const ids = ['error-medDosage', 'error-medDuration', 'error-medQuantity', 'error-medStartDate', 'error-medTiming'];
+    ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
 }
 
 

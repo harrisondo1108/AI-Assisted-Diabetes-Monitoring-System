@@ -1,6 +1,6 @@
 package com.quan.diabetes.service.user;
 
-import com.quan.diabetes.dto.UserManagementDTO;
+import com.quan.diabetes.dto.user.UserManagementDTO;
 import org.springframework.data.domain.Page;
 import java.util.List;
 

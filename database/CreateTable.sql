@@ -1,4 +1,4 @@
-﻿--DROP trước
+--DROP trước
 --IF DB_ID('Diabetes') IS NOT NULL
 --   DROP DATABASE Diabetes;
 --GO
@@ -43,6 +43,7 @@ CREATE TABLE [Profile] (
     Gender BIT, -- 0 -> male; 1 -> female
 	[RoomID] INT NULL,
 	Specialty NVARCHAR(60),
+	ImageURL NVARCHAR(255) NULL,
     FOREIGN KEY (UserID) REFERENCES [Account](UserID) ON DELETE CASCADE  ON UPDATE CASCADE,
 	FOREIGN KEY ([RoomID]) REFERENCES [Room]([RoomID]) ON DELETE SET NULL ON UPDATE CASCADE
 );
@@ -62,6 +63,7 @@ CREATE TABLE [Patient] (
     AllergyNotes NVARCHAR(MAX),
     SupervisorName NVARCHAR(90),
     SupervisorPhone VARCHAR(15),
+	ImageURL NVARCHAR(255) NULL,
     FOREIGN KEY (UserID) REFERENCES [Account](UserID) ON DELETE CASCADE ON UPDATE CASCADE,
     CHECK (Bloodgroup IN ('A+','A-','B+','B-','AB+','AB-','O+','O-'))
 );
@@ -85,6 +87,7 @@ CREATE TABLE [ClinicalExamination] (
     ExamDate DATETIME DEFAULT GETDATE(),
     MedicalHistory NVARCHAR(MAX), -- tiền sử bệnh
     DiagnosisNote NVARCHAR(MAX), -- chẩn đoán
+    CancelReason NVARCHAR(MAX), -- lý do hủy
     NextAppointment DATETIME, -- lịch tái khám
     Status NVARCHAR(20) DEFAULT 'Pending'
         CHECK (Status IN ('Pending','InProgress','Completed','Cancelled')),
