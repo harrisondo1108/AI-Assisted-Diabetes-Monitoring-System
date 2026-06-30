@@ -1,8 +1,8 @@
-package com.quan.diabetes.service.impl;
+package com.quan.diabetes.service.cloudinary.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import com.quan.diabetes.service.CloudinaryService;
+import com.quan.diabetes.service.cloudinary.CloudinaryService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 

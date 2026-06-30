@@ -1,4 +1,4 @@
-package com.quan.diabetes.dto;
+package com.quan.diabetes.dto.doctor;
 
 import java.util.List;
 import jakarta.validation.constraints.NotBlank;

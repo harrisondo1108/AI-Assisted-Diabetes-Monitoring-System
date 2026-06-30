@@ -1,26 +1,27 @@
 package com.quan.diabetes.service.user;
 
 import com.quan.diabetes.entity.User;
+
 import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
 
-    public List<User> findAll();
+    List<User> findAll();
 
-    public Optional<User> findById(String id);
+    Optional<User> findById(String id);
 
-    public Optional<User> findByUsernameAndPassword(String username, String password);
+    Optional<User> findByUsernameAndPassword(String username, String password);
 
-    public Optional<User> findByPhoneNumber(String phoneNumber);
+    User create(User entity);
 
-    public User create(User entity);
+    User update(String id, User entity);
 
-    public User update(String id, User entity);
+    void deleteById(String id);
 
-    public void deleteById(String id);
+    boolean existsById(String id);
 
-    public boolean existsById(String id);
+    Optional<User> findByPhoneNumber(String phoneNumber);
 
-    public String getNewID(String roleId);
+    String getNewID(String roleId);
 }

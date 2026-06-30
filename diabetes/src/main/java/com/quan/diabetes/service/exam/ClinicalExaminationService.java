@@ -1,5 +1,6 @@
 package com.quan.diabetes.service.exam;
 
+import com.quan.diabetes.dto.doctor.ClinicalExamForm;
 import com.quan.diabetes.entity.ClinicalExamination;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +26,7 @@ public interface ClinicalExaminationService {
 
     List<ClinicalExamination> findByPatientId(String patientId);
 
-    void submitExamination(String patientId, com.quan.diabetes.dto.ClinicalExamForm form, String doctorId);
+    void submitExamination(String patientId, ClinicalExamForm form, String doctorId);
 
     void cancelExamination(String patientId, String reason, String doctorId);
 
@@ -33,5 +34,5 @@ public interface ClinicalExaminationService {
 
     void createAutoPendingExamination(String patientId);
 
-    void updateExamination(String examId, com.quan.diabetes.dto.ClinicalExamForm form);
+    void updateExamination(String examId, ClinicalExamForm form);
 }

@@ -1,6 +1,6 @@
 package com.quan.diabetes.service.reminder;
 
-import com.quan.diabetes.dto.PrescriptionReminderDto;
+import com.quan.diabetes.dto.reminder.PrescriptionReminderDto;
 import com.quan.diabetes.entity.AIReminder;
 import com.quan.diabetes.entity.ClinicalExamination;
 import com.quan.diabetes.entity.MedicationTiming;
@@ -68,10 +68,7 @@ public class MedicationSchedualeService {
                 now,
                 MEDICATION_REMINDER_TITLE
         );
-        for (AIReminder oldReminder : futureReminders) {
-            oldReminder.setStatus(false); // false = lock
-            aiReminderRepo.save(oldReminder);
-        }
+        aiReminderRepo.deleteAll(futureReminders);
 
         String name = patient.getFullName();
         PatientRoutine patientRoutine = patientRoutineRepo.findById(patient.getUserId()).orElse(new PatientRoutine());
@@ -171,12 +168,11 @@ public class MedicationSchedualeService {
         while (currentDate.isBefore(endDateExclusive)) {
             LocalDateTime reminderDateTime = LocalDateTime.of(currentDate, reminderTime);
 
-            if (!aiReminderRepo.existsByPatient_UserIdAndScheduledTimeAndTitleAndTiming_TimingIDAndStatus(
+            if (!aiReminderRepo.existsByPatient_UserIdAndScheduledTimeAndTitleAndTiming_TimingID(
                     patient.getUserId(),
                     reminderDateTime,
                     MEDICATION_REMINDER_TITLE,
-                    timing.getTimingID(),
-                    true)) {
+                    timing.getTimingID())) {
                 AIReminder reminder = new AIReminder();
                 reminder.setTitle(MEDICATION_REMINDER_TITLE);
                 reminder.setMessage(message);
@@ -184,9 +180,6 @@ public class MedicationSchedualeService {
                 reminder.setPatient(patient);
                 reminder.setTiming(timing);
                 reminder.setIsRead(false);
-                reminder.setIsSent(false);
-                reminder.setStatus(true); // true = unlock
-                reminder.setClinicalExamination(clinicalExamination);
 
                 aiReminderRepo.save(reminder);
             }

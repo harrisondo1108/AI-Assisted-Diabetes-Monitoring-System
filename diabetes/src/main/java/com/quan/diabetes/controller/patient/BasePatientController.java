@@ -2,7 +2,7 @@ package com.quan.diabetes.controller.patient;
 
 import com.quan.diabetes.entity.*;
 
-import com.quan.diabetes.dto.MedicationReminderView;
+import com.quan.diabetes.dto.patient.MedicationReminderView;
 import com.quan.diabetes.service.ai.AIConversationService;
 import com.quan.diabetes.service.ai.AIMessageService;
 import com.quan.diabetes.service.ai.AIReminderService;
@@ -641,70 +641,4 @@ public abstract class BasePatientController {
                 isPast
         );
     }
-
-//    protected LocalTime resolveMedicationTime(String timingName, PatientRoutine routine) {
-//        if (timingName == null || timingName.trim().isEmpty()) {
-//            return null;
-//        }
-//
-//        String normalizedTiming = timingName.toLowerCase();
-//
-//        LocalTime breakfastTime = routine != null && routine.getBreakfastTime() != null
-//                ? routine.getBreakfastTime()
-//                : LocalTime.of(7, 0);
-//
-//        LocalTime lunchTime = routine != null && routine.getLunchTime() != null
-//                ? routine.getLunchTime()
-//                : LocalTime.of(12, 0);
-//
-//        LocalTime dinnerTime = routine != null && routine.getDinnerTime() != null
-//                ? routine.getDinnerTime()
-//                : LocalTime.of(18, 30);
-//
-//        LocalTime sleepTime = routine != null && routine.getSleepTime() != null
-//                ? routine.getSleepTime()
-//                : LocalTime.of(22, 30);
-//
-//        LocalTime wakeUpTime = routine != null && routine.getWakeUpTime() != null
-//                ? routine.getWakeUpTime()
-//                : LocalTime.of(6, 0);
-//
-//        if (normalizedTiming.contains("breakfast") || normalizedTiming.contains("sáng")) {
-//            return adjustByMealTiming(normalizedTiming, breakfastTime);
-//        }
-//
-//        if (normalizedTiming.contains("lunch") || normalizedTiming.contains("trưa")) {
-//            return adjustByMealTiming(normalizedTiming, lunchTime);
-//        }
-//
-//        if (normalizedTiming.contains("dinner") || normalizedTiming.contains("tối")) {
-//            return adjustByMealTiming(normalizedTiming, dinnerTime);
-//        }
-//
-//        if (normalizedTiming.contains("sleep")
-//                || normalizedTiming.contains("bed")
-//                || normalizedTiming.contains("ngủ")) {
-//            return sleepTime;
-//        }
-//
-//        if (normalizedTiming.contains("wake")
-//                || normalizedTiming.contains("morning")
-//                || normalizedTiming.contains("thức")) {
-//            return wakeUpTime;
-//        }
-//
-//        return null;
-//    }
-//
-//    protected LocalTime adjustByMealTiming(String timingName, LocalTime mealTime) {
-//        if (timingName.contains("before") || timingName.contains("trước")) {
-//            return mealTime.minusMinutes(30);
-//        }
-//
-//        if (timingName.contains("after") || timingName.contains("sau")) {
-//            return mealTime.plusMinutes(30);
-//        }
-//
-//        return mealTime;
-//    }
 }

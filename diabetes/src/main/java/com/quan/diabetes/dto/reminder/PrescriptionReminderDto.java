@@ -1,4 +1,4 @@
-package com.quan.diabetes.dto;
+package com.quan.diabetes.dto.reminder;
 
 import com.quan.diabetes.entity.TreatmentPlan;
 

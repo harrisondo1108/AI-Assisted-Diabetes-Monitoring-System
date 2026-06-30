@@ -1,15 +1,11 @@
-package com.quan.diabetes.dto;
+package com.quan.diabetes.dto.AIChat;
 
-public class AiChatResponse {
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class RAGPythonAiResponse {
     private String status;
     private String content;
-
-    public AiChatResponse() {}
-
-    public AiChatResponse(String status, String content) {
-        this.status = status;
-        this.content = content;
-    }
 
     public String getStatus() {
         return status;

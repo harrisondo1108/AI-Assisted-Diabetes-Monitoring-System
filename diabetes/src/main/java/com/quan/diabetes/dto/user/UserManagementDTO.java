@@ -1,4 +1,4 @@
-package com.quan.diabetes.dto;
+package com.quan.diabetes.dto.user;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

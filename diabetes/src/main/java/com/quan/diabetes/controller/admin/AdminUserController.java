@@ -1,6 +1,6 @@
 package com.quan.diabetes.controller.admin;
 
-import com.quan.diabetes.dto.UserManagementDTO;
+import com.quan.diabetes.dto.user.UserManagementDTO;
 import com.quan.diabetes.service.user.AdminUserService;
 import com.quan.diabetes.service.masterdata.RoomService;
 import jakarta.validation.Valid;

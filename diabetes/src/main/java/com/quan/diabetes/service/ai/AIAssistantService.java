@@ -17,4 +17,13 @@ public interface AIAssistantService {
     public void deleteById(Integer id);
 
     public boolean existsById(Integer id);
+
+
+    List<AIAssistant> findByStatus(String status);
+
+    Optional<AIAssistant> findByModelName(String modelName);
+
+    AIAssistant getDefaultAssistant();
+
+    AIAssistant getOrCreateDefaultAssistant();
 }

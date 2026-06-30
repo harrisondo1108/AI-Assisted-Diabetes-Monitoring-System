@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class LabTestCatalogServiceImpl implements LabTestCatalogService {
@@ -52,5 +53,20 @@ public class LabTestCatalogServiceImpl implements LabTestCatalogService {
     @Override
     public boolean existsById(String id) {
         return labTestCatalogRepository.existsById(id);
+    }
+
+    @Override
+    public boolean existsByTestName(String testName) {
+        return labTestCatalogRepository.existsByTestName(testName);
+    }
+
+    @Override
+    public boolean existsByTestNameAndLabTestIdNot(String testName, String labTestId) {
+        return labTestCatalogRepository.existsByTestNameAndLabTestIdNot(testName, labTestId);
+    }
+
+    @Override
+    public String generateLabTestId() {
+        return "LT-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 }

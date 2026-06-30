@@ -6,15 +6,15 @@ import java.util.Optional;
 
 public interface AIMessageService {
 
-    public List<AIMessage> findAll();
-
-    public Optional<AIMessage> findById(Long id);
-
-    public AIMessage create(AIMessage entity);
-
-    public AIMessage update(Long id, AIMessage entity);
-
-    public void deleteById(Long id);
-
-    public boolean existsById(Long id);
+    List<AIMessage> findAll();
+    Optional<AIMessage> findById(Long id);
+    List<AIMessage> findByConversationId(String conversationId);
+    List<AIMessage> findByConversationIdAndSender(String conversationId, String sender);
+    long countByConversationId(String conversationId);
+    AIMessage create(AIMessage entity);
+    AIMessage update(Long id, AIMessage entity);
+    void deleteById(Long id);
+    void deleteByConversationId(String conversationId);
+    boolean existsById(Long id);
+    List<AIMessage> searchByContent(String keyword);
 }

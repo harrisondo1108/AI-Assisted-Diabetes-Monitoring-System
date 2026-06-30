@@ -3,6 +3,7 @@ package com.quan.diabetes.controller.patient;
 import com.quan.diabetes.entity.*;
 
 import com.quan.diabetes.service.user.UserService;
+import com.quan.diabetes.service.cloudinary.CloudinaryService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -11,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
@@ -22,6 +24,9 @@ public class PatientProfileController extends BasePatientController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     @GetMapping("/patient/profile")
     public String profile(Model model, HttpSession session) {
@@ -59,6 +64,7 @@ public class PatientProfileController extends BasePatientController {
                               @RequestParam(value = "allergyNotes", required = false) String allergyNotes,
                               @RequestParam(value = "supervisorName", required = false) String supervisorName,
                               @RequestParam(value = "supervisorPhone", required = false) String supervisorPhone,
+                              @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
                               HttpSession session,
                               RedirectAttributes redirectAttributes) {
 
@@ -71,6 +77,56 @@ public class PatientProfileController extends BasePatientController {
 
         if (fullName == null || fullName.trim().isEmpty()) {
             redirectAttributes.addFlashAttribute("errorMessage", "Yêu cầu nhập họ và tên.");
+            return "redirect:/patient/profile";
+        }
+
+        if (fullName.trim().length() < 2 || fullName.trim().length() > 60) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Họ và tên phải từ 2 đến 60 ký tự.");
+            return "redirect:/patient/profile";
+        }
+
+        if (!fullName.trim().matches("^[A-Za-zÀ-ỹ\\s]+$")) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Họ và tên chỉ được chứa chữ cái và khoảng trắng.");
+            return "redirect:/patient/profile";
+        }
+
+        if (address != null && address.trim().length() > 200) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Địa chỉ không được vượt quá 200 ký tự.");
+            return "redirect:/patient/profile";
+        }
+
+        if (bloodgroup != null && !bloodgroup.trim().isEmpty()) {
+            if (!java.util.List.of("O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-").contains(bloodgroup.trim().toUpperCase())) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Nhóm máu không hợp lệ.");
+                return "redirect:/patient/profile";
+            }
+        }
+
+        if (supervisorName != null && !supervisorName.trim().isEmpty()) {
+            if (supervisorName.trim().length() > 90) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tên người giám hộ không được vượt quá 90 ký tự.");
+                return "redirect:/patient/profile";
+            }
+            if (!supervisorName.trim().matches("^[A-Za-zÀ-ỹ\\s]+$")) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tên người giám hộ chỉ được chứa chữ cái và khoảng trắng.");
+                return "redirect:/patient/profile";
+            }
+        }
+
+        if (supervisorPhone != null && !supervisorPhone.trim().isEmpty()) {
+            if (!supervisorPhone.trim().matches("^[0-9]{10,15}$")) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Số điện thoại người giám hộ phải chứa từ 10 đến 15 chữ số.");
+                return "redirect:/patient/profile";
+            }
+        }
+
+        if (height != null && (height < 50 || height > 250)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Chiều cao phải từ 50 đến 250 cm.");
+            return "redirect:/patient/profile";
+        }
+
+        if (weight != null && (weight.compareTo(java.math.BigDecimal.ONE) < 0 || weight.compareTo(new java.math.BigDecimal("300")) > 0)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Cân nặng phải từ 1 đến 300 kg.");
             return "redirect:/patient/profile";
         }
 
@@ -93,6 +149,18 @@ public class PatientProfileController extends BasePatientController {
         patient.setAllergyNotes(clean(allergyNotes));
         patient.setSupervisorName(clean(supervisorName));
         patient.setSupervisorPhone(clean(supervisorPhone));
+
+        if (imageFile != null && !imageFile.isEmpty()) {
+            try {
+                String imageUrl = cloudinaryService.uploadFile(imageFile);
+                if (imageUrl != null) {
+                    patient.setImageUrl(imageUrl);
+                }
+            } catch (Exception e) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Không thể tải lên ảnh đại diện: " + e.getMessage());
+                return "redirect:/patient/profile";
+            }
+        }
 
         if (patientService.existsById(userId)) {
             patientService.update(userId, patient);

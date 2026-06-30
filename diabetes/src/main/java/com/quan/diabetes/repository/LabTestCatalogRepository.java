@@ -6,5 +6,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface LabTestCatalogRepository extends JpaRepository<LabTestCatalog, String> {
+
+    boolean existsByTestName(String testName);
+
+    boolean existsByTestNameAndLabTestIdNot(String testName, String labTestId);
 }
 

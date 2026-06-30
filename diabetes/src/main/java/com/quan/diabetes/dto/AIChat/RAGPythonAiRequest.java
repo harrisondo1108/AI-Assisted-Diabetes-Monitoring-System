@@ -1,8 +1,8 @@
-package com.quan.diabetes.dto;
+package com.quan.diabetes.dto.AIChat;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class PythonAiRequest {
+public class RAGPythonAiRequest {
     @JsonProperty("patient_id")
     private String patientId;
 
@@ -11,10 +11,10 @@ public class PythonAiRequest {
     @JsonProperty("context_data")
     private String contextData;
 
-    public PythonAiRequest() {
+    public RAGPythonAiRequest() {
     }
 
-    public PythonAiRequest(String patientId, String message, String contextData) {
+    public RAGPythonAiRequest(String patientId, String message, String contextData) {
         this.patientId = patientId;
         this.message = message;
         this.contextData = contextData;

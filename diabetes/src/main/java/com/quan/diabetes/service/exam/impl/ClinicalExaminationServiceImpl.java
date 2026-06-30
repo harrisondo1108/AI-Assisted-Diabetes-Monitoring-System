@@ -1,5 +1,6 @@
 package com.quan.diabetes.service.exam.impl;
 
+import com.quan.diabetes.dto.doctor.ClinicalExamForm;
 import com.quan.diabetes.service.exam.ClinicalExaminationService;
 import com.quan.diabetes.service.reminder.MedicationSchedualeService;
 import tools.jackson.core.type.TypeReference;
@@ -173,7 +174,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
 
     @Override
     @Transactional
-    public void submitExamination(String patientId, com.quan.diabetes.dto.ClinicalExamForm form, String doctorId) {
+    public void submitExamination(String patientId, ClinicalExamForm form, String doctorId) {
         ClinicalExamination exam = clinicalExaminationRepository
                 .findFirstByPatient_UserIdAndDoctor_UserIdAndStatusIn(
                         patientId, doctorId, List.of("Pending", "InProgress"))
@@ -516,7 +517,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
 
     @Override
     @Transactional
-    public void updateExamination(String examId, com.quan.diabetes.dto.ClinicalExamForm form) {
+    public void updateExamination(String examId, ClinicalExamForm form) {
         ClinicalExamination exam = clinicalExaminationRepository.findById(examId)
                 .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException("Không tìm thấy ca khám để cập nhật: " + examId));
 

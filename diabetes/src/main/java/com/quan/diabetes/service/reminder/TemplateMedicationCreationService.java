@@ -1,6 +1,6 @@
 package com.quan.diabetes.service.reminder;
 
-import com.quan.diabetes.dto.PrescriptionReminderDto;
+import com.quan.diabetes.dto.reminder.PrescriptionReminderDto;
 import com.quan.diabetes.entity.TreatmentPlan;
 import org.springframework.stereotype.Service;
 

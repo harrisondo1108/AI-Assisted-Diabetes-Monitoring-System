@@ -1,6 +1,6 @@
-package com.quan.diabetes.dto;
+package com.quan.diabetes.dto.AIChat;
 
-public class AiChatRequest {
+public class RAGAiChatRequest {
     private String patientId;
     private String message;
 

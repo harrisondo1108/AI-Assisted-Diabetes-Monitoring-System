@@ -1,7 +1,7 @@
 package com.quan.diabetes.repository;
 
 import com.quan.diabetes.entity.PrescriptionTiming;
-import com.quan.diabetes.dto.PrescriptionReminderDto;
+import com.quan.diabetes.dto.reminder.PrescriptionReminderDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,7 +26,7 @@ public interface PrescriptionTimingRepository
             Integer timingID
     );
 
-    @Query("SELECT new com.quan.diabetes.dto.PrescriptionReminderDto("
+    @Query("SELECT new com.quan.diabetes.dto.reminder.PrescriptionReminderDto("
             + "p.clinicalExamination.patient.userId, "
             + "p.clinicalExamination.clinicalExamId, "
             + "pd.medication.medicationName, "

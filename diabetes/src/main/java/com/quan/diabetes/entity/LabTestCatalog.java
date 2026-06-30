@@ -1,6 +1,9 @@
 package com.quan.diabetes.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "Lab_Test_Catalog")
@@ -16,15 +19,20 @@ public class LabTestCatalog {
     @Column(name = "Unit", length = 20, columnDefinition = "NVARCHAR(20)")
     private String unit;
 
+    @Column(name = "MinValue")
+    private Integer minValue;
+
+    @Column(name = "MaxValue")
+    private Integer maxValue;
+
     @Column(name = "Description", columnDefinition = "NVARCHAR(MAX)")
     private String description;
 
-    @ManyToOne
-    @JoinColumn(name="RoomID")
-    private Room room;
+    @Column(name = "RoomID")
+    private Integer roomId;
 
-    @Column(name = "Status", columnDefinition = "BIT")
-    private Boolean status = true; // true: unlock  false: lock
+    @Column(name = "Status")
+    private Boolean status;
 
     public LabTestCatalog() {
     }
@@ -53,20 +61,20 @@ public class LabTestCatalog {
         this.unit = unit;
     }
 
-    public Room getRoom() {
-        return room;
+    public Integer getMinValue() {
+        return minValue;
     }
 
-    public Boolean getStatus() {
-        return status;
+    public void setMinValue(Integer minValue) {
+        this.minValue = minValue;
     }
 
-    public void setStatus(Boolean status) {
-        this.status = status;
+    public Integer getMaxValue() {
+        return maxValue;
     }
 
-    public void setRoom(Room room) {
-        this.room = room;
+    public void setMaxValue(Integer maxValue) {
+        this.maxValue = maxValue;
     }
 
     public String getDescription() {
@@ -75,6 +83,22 @@ public class LabTestCatalog {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Integer getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(Integer roomId) {
+        this.roomId = roomId;
+    }
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
     }
 }
 
