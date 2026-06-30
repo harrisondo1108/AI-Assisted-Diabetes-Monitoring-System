@@ -71,14 +71,14 @@
                                 <div class="card-search-box">
                                     <i class="fas fa-search"></i>
                                     <input type="text" id="queueSearchInput" placeholder="Tìm theo tên..."
-                                        oninput="handleQueueSearch()">
+                                        th:value="${currentSearch}" oninput="handleQueueSearch()">
                                 </div>
                                 <div class="filter-pills">
-                                    <button class="pill active" onclick="filterQueue('all')">Tất cả</button>
-                                    <button class="pill" onclick="filterQueue('Pending')">Đang chờ</button>
-                                    <button class="pill" onclick="filterQueue('InProgress')">Đang khám</button>
-                                    <button class="pill" onclick="filterQueue('Completed')">Hoàn thành</button>
-                                    <button class="pill" onclick="filterQueue('Cancelled')">Đã hủy</button>
+                                    <button class="pill" th:classappend="${currentStatus == 'all' || currentStatus == null} ? 'active' : ''" data-status="all" onclick="filterQueue('all')">Tất cả</button>
+                                    <button class="pill" th:classappend="${currentStatus == 'Pending'} ? 'active' : ''" data-status="Pending" onclick="filterQueue('Pending')">Đang chờ</button>
+                                    <button class="pill" th:classappend="${currentStatus == 'InProgress'} ? 'active' : ''" data-status="InProgress" onclick="filterQueue('InProgress')">Đang khám</button>
+                                    <button class="pill" th:classappend="${currentStatus == 'Completed'} ? 'active' : ''" data-status="Completed" onclick="filterQueue('Completed')">Hoàn thành</button>
+                                    <button class="pill" th:classappend="${currentStatus == 'Cancelled'} ? 'active' : ''" data-status="Cancelled" onclick="filterQueue('Cancelled')">Đã hủy</button>
                                 </div>
                             </div>
                         </div>
@@ -143,8 +143,25 @@
                             </table>
                         </div>
                         <div class="card-footer">
-                            <div class="pagination" id="queuePagination">
-                                <!-- Dynamic pagination buttons via JS -->
+                            <div class="pagination" id="queuePagination" th:if="${totalPages > 1}">
+                                <!-- Prev Button -->
+                                <button th:disabled="${currentPage == 1}"
+                                        th:onclick="'navigatePage(' + (${currentPage - 1}) + ')'">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                
+                                <!-- Page Numbers -->
+                                <button th:each="i : ${#numbers.sequence(1, totalPages)}"
+                                        th:text="${i}"
+                                        th:classappend="${i == currentPage} ? 'active' : ''"
+                                        th:onclick="'navigatePage(' + ${i} + ')'">
+                                </button>
+                                
+                                <!-- Next Button -->
+                                <button th:disabled="${currentPage == totalPages}"
+                                        th:onclick="'navigatePage(' + (${currentPage + 1}) + ')'">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
