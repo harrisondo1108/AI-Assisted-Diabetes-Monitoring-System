@@ -7,7 +7,6 @@
     <link rel="stylesheet" th:href="@{/css/pages/auth.css}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
 </head>
 <body>
 <div class="container">
@@ -17,18 +16,18 @@
                 <i class="fas fa-droplet"></i>
                 <span>Diabetes Care System</span>
             </div>
-            <h1>Hệ thống Quản lý Bệnh Tiểu đường</h1>
-            <h2>Chào mừng trở lại</h2>
-            <p class="subtitle">Đăng nhập để quản lý hồ sơ bệnh nhân và theo dõi điều trị.</p>
+            <h1>Hệ thống Quản lý Tiểu đường</h1>
+            <h2>Chào mừng quay trở lại</h2>
+            <p class="subtitle">Đăng nhập để quản lý hồ sơ bệnh nhân và theo dõi tiến trình điều trị.</p>
 
             <div class="feature-card">
                 <h3><i class="fas fa-stethoscope"></i> Tính năng chính</h3>
                 <ul>
-                    <li><i class="fas fa-user-md"></i> Quản lý bệnh nhân</li>
-                    <li><i class="fas fa-flask"></i> Xét nghiệm & Chỉ số</li>
+                    <li><i class="fas fa-user-md"></i> Quản lý Bệnh nhân</li>
+                    <li><i class="fas fa-flask"></i> Xét nghiệm &amp; Chỉ số Lâm sàng</li>
                     <li><i class="fas fa-prescription-bottle"></i> Kê đơn thuốc</li>
-                    <li><i class="fas fa-robot"></i> Trợ lý AI thông minh</li>
-                    <li><i class="fas fa-calendar-check"></i> Nhắc lịch tái khám</li>
+                    <li><i class="fas fa-robot"></i> Trợ lý AI Thông minh</li>
+                    <li><i class="fas fa-calendar-check"></i> Nhắc nhở Tái khám</li>
                 </ul>
             </div>
         </div>
@@ -36,11 +35,18 @@
         <div class="right-panel">
             <div class="login-form">
                 <h2>Đăng nhập</h2>
-                <div id="errorMsg" class="error-message" style="display: none;"></div>
-                <form id="loginForm" th:action="@{/login}" th:method="post">
+                <div id="errorMsg" class="error-message"
+                     th:classappend="${errorMsg != null} ? '' : ''"
+                     th:text="${errorMsg}" >
+                </div>
+                <div id="successMsg" class="success-message"
+                     th:if="${successMsg != null}" th:text="${successMsg}">
+                </div>
+
+                <form id="loginForm" th:action="@{/login}" method="post">
                     <div class="input-group">
                         <label for="phoneNumber">Số điện thoại</label>
-                        <input type="tel" id="phoneNumber" name="username" placeholder="0912 345 678" required>
+                        <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="0912 345 678" required>
                         <i class="fas fa-phone input-icon"></i>
                     </div>
                     <div class="input-group">
@@ -48,19 +54,23 @@
                         <input type="password" id="password" name="password" placeholder="••••••••" required>
                         <i class="fas fa-lock input-icon"></i>
                     </div>
+                    <div></div>
                     <button type="submit" class="btn-primary">
                         <i class="fas fa-sign-in-alt"></i> Đăng nhập
                     </button>
                 </form>
                 <p class="register-link">
-                    Chưa có tài khoản? <a href="/templates/auth/register.html">Đăng ký ngay</a>
+                    Chưa có tài khoản? <a th:href="@{/register}">Đăng ký ngay</a>
+                </p>
+                <p class="register-link">
+                    <a th:href="@{/forgot-password}">Quên mật khẩu?</a>
                 </p>
             </div>
             <footer>
-                <p>© 2024 Diabetes Care System - Giải pháp quản lý bệnh tiểu đường</p>
+                <p>© 2024 Diabetes Care System - Giải pháp Quản lý Tiểu đường</p>
                 <div class="footer-links">
                     <a href="#">Chính sách bảo mật</a> |
-                    <a href="#">Điều khoản sử dụng</a> |
+                    <a href="#">Điều khoản dịch vụ</a> |
                     <a href="#">Hỗ trợ</a>
                 </div>
             </footer>
@@ -68,6 +78,15 @@
     </div>
 </div>
 
-<script src="/static/js/login.js"></script>
+<script th:src="@{/js/auth/login.js}"></script>
+<script th:inline="javascript">
+    // Hiển thị errorMsg từ server nếu có
+    const serverError = /*[[${errorMsg}]]*/ null;
+    if (serverError) {
+        const el = document.getElementById('errorMsg');
+        el.textContent = serverError;
+        el.style.display = 'block';
+    }
+</script>
 </body>
 </html>

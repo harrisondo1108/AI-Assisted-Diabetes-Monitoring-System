@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diabetes Care System - Hệ thống Chăm sóc Tiểu đường AI</title>
+  
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" th:href="@{/css/pages/landing.css}">
+</head>
+<body>
+
+  <!-- Background Decorative Glowing Orbs -->
+  <div class="bg-glowing-dots">
+    <div class="glowing-orb orb-1"></div>
+    <div class="glowing-orb orb-2"></div>
+    <div class="glowing-orb orb-3"></div>
+  </div>
+  
+  <!-- Particles Animation Container -->
+  <div class="particles-container" id="particles-container"></div>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="#" class="logo-wrapper">
+        <i class="fas fa-droplet"></i>
+        <span>Diabetes Care</span>
+      </a>
+      
+      <ul class="nav-links">
+        <li><a href="#features" class="nav-link">Tính năng</a></li>
+        <li><a href="#benefits" class="nav-link">Lợi ích</a></li>
+        <li><a href="#doctors" class="nav-link">Đội ngũ Bác sĩ</a></li>
+        <li><a href="#faq" class="nav-link">Câu hỏi thường gặp</a></li>
+      </ul>
+      
+      <div class="nav-actions">
+        <a th:href="@{/login}" class="btn btn-text">Đăng nhập</a>
+        <a th:href="@{/register}" class="btn btn-primary">Đăng ký ngay</a>
+      </div>
+      
+      <button class="menu-toggle" aria-label="Toggle menu">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="hero">
+    <div class="container hero-grid">
+      <!-- Hero Left: Content -->
+      <div class="hero-content reveal active">
+        <div class="badge-pill">
+          <i class="fas fa-robot"></i>
+          <span>Trợ lý Y tế AI Thông minh Thế hệ mới</span>
+        </div>
+        <h1 class="hero-title">Kiểm soát Tiểu đường Thông minh cùng Công nghệ AI</h1>
+        <p class="hero-description">
+          Đồng bộ lịch trình sinh hoạt, theo dõi chỉ số đường huyết tự động, nhận dự đoán và nhắc nhở y tế cá nhân hóa từ trợ lý AI, đồng thời liên kết trực tiếp tới bác sĩ điều trị và người giám hộ của bạn.
+        </p>
+        
+        <div class="hero-cta">
+          <a th:href="@{/register}" class="btn btn-primary btn-lg">
+            <i class="fas fa-user-plus"></i> Bắt đầu Theo dõi Sức khỏe
+          </a>
+          <a href="#features" class="btn btn-secondary btn-lg">
+            Tìm hiểu thêm <i class="fas fa-arrow-down"></i>
+          </a>
+        </div>
+        
+        <div class="hero-stats-row">
+          <div class="hero-stat-item">
+            <h3>98.5%</h3>
+            <p>Độ chính xác nhắc thuốc</p>
+          </div>
+          <div class="hero-stat-item">
+            <h3>24/7</h3>
+            <p>Hỗ trợ phân tích AI</p>
+          </div>
+          <div class="hero-stat-item">
+            <h3>< 3 giây</h3>
+            <p>Cảnh báo khẩn cấp tức thì</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Hero Right: Interactive Dashboard Mockup -->
+      <div class="hero-visual reveal active">
+        <div class="dashboard-preview glass-card">
+          
+          <!-- Mockup Header -->
+          <div class="dash-header">
+            <div class="dash-user">
+              <div class="user-avatar">A</div>
+              <div class="user-info-text">
+                <h4>Nguyễn Văn An</h4>
+                <span>Bệnh nhân #P00492 • 56 tuổi (Trung niên)</span>
+              </div>
+            </div>
+            <div class="dash-badge stable">
+              <i class="fas fa-check-circle"></i> Chỉ số Ổn định
+            </div>
+          </div>
+          
+          <!-- Mockup Content Grid -->
+          <div class="dash-grid">
+            
+            <!-- Left Side: Interactive Routine Toggles -->
+            <div class="dash-col">
+              <!-- Routine Card -->
+              <div class="preview-card">
+                <h5><i class="fas fa-clock"></i> Lịch Sinh hoạt</h5>
+                <div class="routine-box">
+                  <div class="routine-item active" data-routine="breakfast">
+                    <span>Ăn sáng</span>
+                    <span class="routine-time">07:30</span>
+                  </div>
+                  <div class="routine-item" data-routine="lunch">
+                    <span>Ăn trưa</span>
+                    <span class="routine-time">12:00</span>
+                  </div>
+                  <div class="routine-item" data-routine="dinner">
+                    <span>Ăn tối</span>
+                    <span class="routine-time">19:00</span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Medication Card (dynamic based on toggle) -->
+              <div class="preview-card">
+                <h5><i class="fas fa-prescription-bottle-medical"></i> Thuốc Đồng bộ</h5>
+                <div class="med-info">
+                  <strong id="med-name" style="font-size: 0.9rem; color: var(--text-dark);">Metformin 500mg</strong>
+                  <p id="med-dosage" class="preview-subtext" style="color: var(--primary); font-weight: 600;">Liều dùng: 1 viên</p>
+                  <p id="med-instruction" class="preview-subtext" style="font-style: italic; margin-top: 4px;">Uống sau bữa ăn sáng 30 phút. Tránh uống lúc đói.</p>
+                  <span id="routine-desc" class="preview-subtext" style="display: block; margin-top: 8px; border-top: 1px solid var(--border-color); padding-top: 4px;">Đồng bộ lúc: 07:30 (Giờ ăn sáng)</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Right Side: Mini Chat Assistant -->
+            <div class="dash-col">
+              <div class="preview-card ai-chat-preview">
+                <h5><i class="fas fa-robot"></i> Trợ lý AI Tư vấn</h5>
+                <div class="chat-history" id="chat-history">
+                  <div class="chat-msg patient">
+                    Chào trợ lý, đường huyết đói hôm nay của tôi là bao nhiêu?
+                  </div>
+                </div>
+                <div class="chat-input-area">
+                  <input type="text" id="chat-input" placeholder="Hỏi AI về đường huyết, chế độ ăn..." aria-label="AI message input">
+                  <button type="button" id="chat-send-btn" aria-label="Send to AI"><i class="fas fa-paper-plane"></i></button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Bottom Span: Glucose Chart -->
+            <div class="preview-card trend-card">
+              <h5>
+                <span><i class="fas fa-chart-line"></i> Đường huyết Gần đây (mmol/L)</span>
+                <span class="preview-subtext" style="color: var(--accent);">Mục tiêu: 4.4 - 7.2</span>
+              </h5>
+              <div class="chart-container">
+                <svg class="chart-svg" viewBox="0 0 400 120">
+                  <defs>
+                    <linearGradient id="chart-gradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="var(--primary)" stop-opacity="0.3"/>
+                      <stop offset="100%" stop-color="var(--primary)" stop-opacity="0.0"/>
+                    </linearGradient>
+                  </defs>
+                  
+                  <!-- Reference safe range shaded block -->
+                  <rect x="0" y="45" width="400" height="40" fill="rgba(16, 185, 129, 0.08)" />
+                  <line x1="0" y1="45" x2="400" y2="45" stroke="rgba(16, 185, 129, 0.2)" stroke-dasharray="4,4" />
+                  <line x1="0" y1="85" x2="400" y2="85" stroke="rgba(16, 185, 129, 0.2)" stroke-dasharray="4,4" />
+                  
+                  <!-- Area chart -->
+                  <path class="chart-area" d="M 0 100 L 80 85 L 160 55 L 240 68 L 320 62 L 400 65 L 400 120 L 0 120 Z" />
+                  <!-- Line chart -->
+                  <path class="chart-line" d="M 0 100 L 80 85 L 160 55 L 240 68 L 320 62 L 400 65" />
+                  
+                  <!-- Data points -->
+                  <circle class="chart-dot" cx="80" cy="85" r="4.5" />
+                  <circle class="chart-dot" cx="160" cy="55" r="4.5" />
+                  <circle class="chart-dot" cx="240" cy="68" r="4.5" />
+                  <circle class="chart-dot" cx="320" cy="62" r="4.5" />
+                  <circle class="chart-dot" cx="400" cy="65" r="4.5" />
+                </svg>
+                <div class="chart-tooltip" id="chart-tooltip">6.8 mmol/L (Ăn sáng)</div>
+              </div>
+            </div>
+            
+          </div>
+          
+          <!-- Floating notification cards -->
+          <div class="floating-overlay-card floating-1">
+            <div class="float-icon"><i class="fas fa-check"></i></div>
+            <div class="float-info">
+              <h6>Ngưỡng An toàn Thiết lập</h6>
+              <span>Cá nhân hóa: Người cao tuổi</span>
+            </div>
+          </div>
+          
+          <div class="floating-overlay-card floating-2">
+            <div class="float-icon"><i class="fas fa-bell"></i></div>
+            <div class="float-info">
+              <h6>Cảnh báo Người Giám hộ</h6>
+              <span>Đồng bộ: SMS đã gửi cho Con trai</span>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Core Features Section -->
+  <section class="section" id="features">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag">Hệ sinh thái thông minh</span>
+        <h2 class="section-title">Giải pháp Chăm sóc Bệnh nhân Tiểu đường Toàn diện</h2>
+        <p class="section-subtitle">
+          Ứng dụng các nghiên cứu nội tiết lâm sàng kết hợp với AI để thiết lập hệ thống phòng ngừa nguy cơ biến chứng tiểu đường hiệu quả nhất.
+        </p>
+      </div>
+      
+      <div class="features-grid">
+        <!-- Feature 1: AI Analysis -->
+        <div class="feature-card glass-card reveal">
+          <div class="feature-icon-wrapper icon-blue">
+            <i class="fas fa-brain"></i>
+          </div>
+          <h3>Phân tích Sức khỏe AI</h3>
+          <p>Thuật toán học máy liên tục thu thập chỉ số lâm sàng, dự đoán biến động đường huyết và đưa ra các khuyến nghị chế độ ăn, tập luyện tức thì.</p>
+        </div>
+        
+        <!-- Feature 2: Glucose Tracking & Thresholds -->
+        <div class="feature-card glass-card reveal">
+          <div class="feature-icon-wrapper icon-cyan">
+            <i class="fas fa-droplet"></i>
+          </div>
+          <h3>Ngưỡng Chỉ số Cá nhân hóa</h3>
+          <p>Tự động điều chỉnh khoảng chỉ số an toàn dựa trên loại bệnh nhân (Bà bầu, Người già, Thanh niên) theo tiêu chuẩn xét nghiệm chuẩn y khoa.</p>
+        </div>
+        
+        <!-- Feature 3: Routine Syncing -->
+        <div class="feature-card glass-card reveal">
+          <div class="feature-icon-wrapper icon-emerald">
+            <i class="fas fa-business-time"></i>
+          </div>
+          <h3>Đồng bộ hóa Lịch trình</h3>
+          <p>Tích hợp giờ ăn uống và ngủ nghỉ vào phác đồ điều trị, đảm bảo các lời nhắc uống thuốc, đo đường huyết khớp chính xác với nhịp sinh học của bạn.</p>
+        </div>
+        
+        <!-- Feature 4: Caregiver Alerts -->
+        <div class="feature-card glass-card reveal">
+          <div class="feature-icon-wrapper icon-blue">
+            <i class="fas fa-shield-heart"></i>
+          </div>
+          <h3>Cảnh báo Người giám hộ</h3>
+          <p>Tự động gửi thông tin cập nhật hoặc thông báo SOS qua điện thoại/SMS cho người thân hoặc người bảo hộ khi chỉ số vượt ngưỡng nguy hiểm.</p>
+        </div>
+        
+        <!-- Feature 5: Clinical Connection -->
+        <div class="feature-card glass-card reveal">
+          <div class="feature-icon-wrapper icon-cyan">
+            <i class="fas fa-hospital-user"></i>
+          </div>
+          <h3>Liên kết Bác sĩ chuyên khoa</h3>
+          <p>Dữ liệu chỉ số lâm sàng được số hóa trực tiếp gửi tới Bác sĩ nội tiết điều trị giúp bác sĩ có cơ sở điều chỉnh phác đồ kê đơn kịp thời.</p>
+        </div>
+        
+        <!-- Feature 6: Medication & Prescriptions -->
+        <div class="feature-card glass-card reveal">
+          <div class="feature-icon-wrapper icon-emerald">
+            <i class="fas fa-capsules"></i>
+          </div>
+          <h3>Quản lý Đơn thuốc Số</h3>
+          <p>Theo dõi hạn dùng, lưu trữ chi tiết liều dùng thuốc hàng ngày do bác sĩ kê đơn và quản lý lịch sử điều trị dễ dàng trên một giao diện.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits Section -->
+  <section class="section section-bg-white" id="benefits">
+    <div class="container benefits-row">
+      <!-- Left: Mockup Graphic -->
+      <div class="benefits-visual reveal">
+        <div class="benefits-image-mockup glass-card" style="padding: 30px; background: linear-gradient(135deg, var(--bg-light), #fff);">
+          <div style="border-bottom: 2px solid var(--border-color); padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+            <strong style="color: var(--primary); font-family: 'Outfit'; font-size: 1.1rem;"><i class="fas fa-file-waveform"></i> Phác đồ Y tế Cá nhân</strong>
+            <span class="preview-subtext" style="background: var(--primary-glow); padding: 4px 8px; border-radius: 4px; color: var(--primary); font-weight: 600;">Active</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div style="background: #fff; border: 1px solid var(--border-color); padding: 12px; border-radius: 8px;">
+              <span class="preview-subtext" style="color: var(--text-light); text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 4px;">Chẩn đoán lâm sàng</span>
+              <p style="font-weight: 600; font-size: 0.9rem; color: var(--text-dark);">Tiểu đường Type 2 - Đề kháng Insulin nhẹ</p>
+            </div>
+            <div style="background: #fff; border: 1px solid var(--border-color); padding: 12px; border-radius: 8px;">
+              <span class="preview-subtext" style="color: var(--text-light); text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 4px;">Ngưỡng chỉ định (Glucose)</span>
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600; color: var(--text-dark); margin-top: 2px;">
+                <span>Tối thiểu: 4.4 mmol/L</span>
+                <span>Tối đa: 7.2 mmol/L</span>
+              </div>
+            </div>
+            <div style="background: #fff; border: 1px solid var(--border-color); padding: 12px; border-radius: 8px;">
+              <span class="preview-subtext" style="color: var(--text-light); text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 4px;">Danh sách đơn thuốc</span>
+              <ul style="list-style: none; font-size: 0.8rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 4px; margin-top: 4px;">
+                <li><i class="fas fa-circle-chevron-right" style="color: var(--accent); margin-right: 4px;"></i> Metformin 500mg (Sáng, Tối)</li>
+                <li><i class="fas fa-circle-chevron-right" style="color: var(--accent); margin-right: 4px;"></i> Gliclazide 80mg (Trưa)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right: Benefits Details -->
+      <div class="reveal">
+        <span class="section-tag">Tại sao chọn chúng tôi?</span>
+        <h2 class="section-title">An tâm Tuyệt đối Cho Cả Gia đình</h2>
+        <p class="section-subtitle" style="margin-bottom: 30px;">
+          Bệnh tiểu đường cần một quá trình kiểm soát liên tục. Hệ thống chăm sóc của chúng tôi là giải pháp công nghệ duy nhất kết nối liền mạch giữa bệnh nhân, nhân viên y tế và người chăm sóc.
+        </p>
+        
+        <div class="benefits-list">
+          <div class="benefit-item">
+            <div class="benefit-num">01</div>
+            <div class="benefit-info">
+              <h3>Phát hiện sớm nguy cơ biến chứng</h3>
+              <p>Trợ lý AI phân tích các xu hướng chỉ số xét nghiệm lâm sàng, cảnh báo các thời kỳ tăng/giảm đường huyết nguy hại trước khi triệu chứng xuất hiện.</p>
+            </div>
+          </div>
+          
+          <div class="benefit-item">
+            <div class="benefit-num">02</div>
+            <div class="benefit-info">
+              <h3>Đồng hành cùng Người cao tuổi</h3>
+              <p>Thiết kế tinh gọn, cỡ chữ lớn cùng trợ lý AI đàm thoại giúp người lớn tuổi dễ dàng theo dõi sức khỏe và đồng bộ hóa giờ giấc sinh hoạt tự động.</p>
+            </div>
+          </div>
+          
+          <div class="benefit-item">
+            <div class="benefit-num">03</div>
+            <div class="benefit-info">
+              <h3>Giảm thiểu tối đa việc nhập viện cấp cứu</h3>
+              <p>Bác sĩ điều trị theo dõi sát sao phác đồ từ xa, can thiệp y khoa và điều chỉnh đơn thuốc kịp thời trước khi tình trạng chuyển biến xấu.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Doctor Section -->
+  <section class="section" id="doctors">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag">Đội ngũ y tế chuyên môn</span>
+        <h2 class="section-title">Kết nối trực tiếp tới các Bác sĩ Nội tiết Đầu ngành</h2>
+        <p class="section-subtitle">
+          Hệ thống quy tụ các bác sĩ chuyên khoa có nhiều năm kinh nghiệm, luôn túc trực theo dõi phác đồ và hỗ trợ khám chữa bệnh cho bạn.
+        </p>
+      </div>
+      
+      <div class="doctors-grid">
+        <!-- Doctor 1 -->
+        <div class="doctor-card glass-card reveal">
+          <div class="doc-photo-wrapper">
+            <i class="fas fa-user-md"></i>
+            <span class="doc-room-badge">Phòng Nội tiết Chuyên sâu</span>
+          </div>
+          <div class="doc-info">
+            <h3 class="doc-name">ThS. BS. Nguyễn Thị Lan</h3>
+            <p class="doc-specialty">Chuyên khoa Nội tiết & Đái tháo đường</p>
+            <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; height: 60px; overflow: hidden;">
+              Hơn 12 năm công tác tại Bệnh viện Nội tiết Trung ương, chuyên trị các ca đái tháo đường thai kỳ và biến chứng mạch máu.
+            </p>
+            <div class="doc-meta-row">
+              <span><i class="fas fa-graduation-cap"></i> Thạc sĩ Y khoa</span>
+              <span><i class="fas fa-briefcase"></i> 12 năm kinh nghiệm</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Doctor 2 -->
+        <div class="doctor-card glass-card reveal">
+          <div class="doc-photo-wrapper">
+            <i class="fas fa-user-md"></i>
+            <span class="doc-room-badge">Phòng Xét nghiệm Hóa sinh</span>
+          </div>
+          <div class="doc-info">
+            <h3 class="doc-name">BSCKI. Trần Hoàng Nam</h3>
+            <p class="doc-specialty">Chẩn đoán Lâm sàng & Chỉ số Hóa sinh</p>
+            <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; height: 60px; overflow: hidden;">
+              Chuyên gia phân tích ngưỡng dung nạp đường huyết và thiết lập các chỉ số cảnh báo sớm cho bệnh nhân tiểu đường Type 1 và 2.
+            </p>
+            <div class="doc-meta-row">
+              <span><i class="fas fa-graduation-cap"></i> Bác sĩ CKI</span>
+              <span><i class="fas fa-briefcase"></i> 10 năm kinh nghiệm</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Doctor 3 -->
+        <div class="doctor-card glass-card reveal">
+          <div class="doc-photo-wrapper">
+            <i class="fas fa-user-md"></i>
+            <span class="doc-room-badge">Phòng Nội tiết Tổng hợp</span>
+          </div>
+          <div class="doc-info">
+            <h3 class="doc-name">PGS. TS. BS. Lê Minh Triết</h3>
+            <p class="doc-specialty">Cố vấn Phác đồ & Kiểm soát Biến chứng</p>
+            <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; height: 60px; overflow: hidden;">
+              Nguyên trưởng khoa Nội tiết bệnh viện lớn, giảng viên cao cấp chuyên ngành đái tháo đường và nội tiết tổng hợp.
+            </p>
+            <div class="doc-meta-row">
+              <span><i class="fas fa-graduation-cap"></i> Phó Giáo sư, Tiến sĩ</span>
+              <span><i class="fas fa-briefcase"></i> 25 năm kinh nghiệm</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Statistics Counters Banner -->
+  <section class="stats-banner">
+    <div class="container stats-grid-row">
+      <div class="stats-item">
+        <h2 class="stat-number" data-target="15000" data-suffix="+">0</h2>
+        <p>Bệnh nhân Đăng ký</p>
+      </div>
+      <div class="stats-item">
+        <h2 class="stat-number" data-target="120" data-suffix="+">0</h2>
+        <p>Bác sĩ Hoạt động</p>
+      </div>
+      <div class="stats-item">
+        <h2 class="stat-number" data-target="450000" data-suffix="+">0</h2>
+        <p>Chỉ số Xét nghiệm Số</p>
+      </div>
+      <div class="stats-item">
+        <h2 class="stat-number" data-target="99" data-suffix="%">0</h2>
+        <p>Cảnh báo Gửi Đúng hạn</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Accordions Section -->
+  <section class="section" id="faq">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag">Giải đáp thắc mắc</span>
+        <h2 class="section-title">Câu hỏi Thường gặp</h2>
+        <p class="section-subtitle">
+          Những câu hỏi phổ biến nhất từ bệnh nhân và người nhà về cách thức hoạt động của hệ thống chăm sóc tiểu đường AI.
+        </p>
+      </div>
+      
+      <div class="faq-list reveal">
+        <!-- FAQ 1 -->
+        <div class="faq-item">
+          <div class="faq-header">
+            Trợ lý AI Y tế tư vấn có an toàn và thay thế được Bác sĩ không?
+            <i class="fas fa-chevron-down faq-icon-toggle"></i>
+          </div>
+          <div class="faq-body">
+            Trợ lý AI đóng vai trò là người đồng hành hỗ trợ ghi nhận chỉ số, giải đáp thắc mắc cơ bản về chế độ ăn uống, lối sống và nhắc nhở lịch uống thuốc theo phác đồ. Trợ lý AI không đưa ra chẩn đoán lâm sàng thay thế bác sĩ mà hoạt động như một kênh kết nối dữ liệu liên tục để bác sĩ điều chỉnh điều trị tốt nhất.
+          </div>
+        </div>
+        
+        <!-- FAQ 2 -->
+        <div class="faq-item">
+          <div class="faq-header">
+            Hệ thống phân chia các ngưỡng chỉ số glucose an toàn như thế nào?
+            <i class="fas fa-chevron-down faq-icon-toggle"></i>
+          </div>
+          <div class="faq-body">
+            Hệ thống có cơ sở dữ liệu phân nhóm thể trạng bệnh nhân chuẩn xác (Adult, Middle-aged, Elderly, Pregnant). Mỗi nhóm bệnh nhân có các ngưỡng giới hạn tối đa và tối thiểu khác nhau cho từng chỉ số lab-test. Khi kết quả xét nghiệm được đẩy lên hệ thống, nếu chỉ số vượt ngưỡng cảnh báo (ví dụ đường huyết đói vượt quá 7.2 mmol/L), hệ thống sẽ lập tức gắn cờ bất thường để bác sĩ và người nhà biết.
+          </div>
+        </div>
+        
+        <!-- FAQ 3 -->
+        <div class="faq-item">
+          <div class="faq-header">
+            Tính năng Cảnh báo Người giám hộ hoạt động như thế nào?
+            <i class="fas fa-chevron-down faq-icon-toggle"></i>
+          </div>
+          <div class="faq-body">
+            Khi đăng ký tài khoản Bệnh nhân, bạn có thể điền thông tin của người giám hộ (họ tên và số điện thoại liên lạc). Trong trường hợp chỉ số đo đường huyết hoặc kết quả xét nghiệm lâm sàng của bạn có dấu hiệu chuyển biến xấu đột ngột ngoài ngưỡng an toàn, hệ thống sẽ tự động kích hoạt gửi cảnh báo SMS/thông báo đến số điện thoại của người giám hộ được liên kết để hỗ trợ kịp thời.
+          </div>
+        </div>
+        
+        <!-- FAQ 4 -->
+        <div class="faq-item">
+          <div class="faq-header">
+            Đồng bộ hóa nhịp sinh học hoạt động ra sao?
+            <i class="fas fa-chevron-down faq-icon-toggle"></i>
+          </div>
+          <div class="faq-body">
+            Bệnh nhân có thể cập nhật Lịch trình sinh hoạt cá nhân (giờ thức dậy, thời gian ăn sáng, ăn trưa, ăn tối và giờ đi ngủ). Các nhắc nhở uống thuốc do bác sĩ kê đơn trong đơn thuốc sẽ tự động khớp thời gian dựa trên các mốc ăn uống sinh hoạt này để đảm bảo việc uống thuốc đạt hiệu quả sinh khả dụng cao nhất và hạn chế việc quên thuốc.
+          </div>
+        </div>
+        
+        <!-- FAQ 5 -->
+        <div class="faq-item">
+          <div class="faq-header">
+            Dữ liệu bệnh án của tôi có được bảo mật không?
+            <i class="fas fa-chevron-down faq-icon-toggle"></i>
+          </div>
+          <div class="faq-body">
+            Chúng tôi cam kết bảo mật tuyệt đối hồ sơ sức khỏe và thông tin cá nhân của bệnh nhân. Mọi dữ liệu đường huyết, phác đồ điều trị, kết quả hóa sinh hay cuộc hội thoại với AI đều được mã hóa trên đường truyền dữ liệu và tuân thủ các chính sách bảo mật y tế nghiêm ngặt nhất.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Call To Action Section -->
+  <section class="cta-section">
+    <div class="container cta-box reveal">
+      <h2>Bắt đầu Hành trình Sống Khỏe ngay Hôm nay</h2>
+      <p>
+        Đăng ký tài khoản để đồng bộ hóa chỉ số sức khỏe của bạn, nhận tư vấn đàm thoại AI thông minh và thiết lập cầu nối chăm sóc liên tục với đội ngũ bác sĩ chuyên khoa giỏi nhất.
+      </p>
+      <div class="cta-buttons">
+        <a th:href="@{/register}" class="btn btn-primary btn-lg"><i class="fas fa-user-plus"></i> Đăng ký Tài khoản Bệnh nhân</a>
+        <a th:href="@{/login}" class="btn btn-secondary btn-lg"><i class="fas fa-sign-in-alt"></i> Cổng đăng nhập Bác sĩ</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Footer -->
+  <footer class="main-footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand-col">
+          <div class="footer-brand-title">
+            <i class="fas fa-droplet"></i>
+            <span>Diabetes Care System</span>
+          </div>
+          <p>
+            Giải pháp số hóa phác đồ điều trị bệnh tiểu đường toàn diện, ứng dụng công nghệ trí tuệ nhân tạo và đồng bộ sinh hoạt giúp bệnh nhân sống vui khỏe mỗi ngày.
+          </p>
+        </div>
+        
+        <div class="footer-links-col">
+          <h4>Về Hệ Thống</h4>
+          <ul class="footer-links-list">
+            <li><a href="#features">Tính năng chính</a></li>
+            <li><a href="#benefits">Lợi ích phác đồ</a></li>
+            <li><a href="#doctors">Đội ngũ bác sĩ</a></li>
+            <li><a href="#faq">Câu hỏi thường gặp</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-links-col">
+          <h4>Dành cho Người Dùng</h4>
+          <ul class="footer-links-list">
+            <li><a th:href="@{/login}">Đăng nhập Bệnh nhân</a></li>
+            <li><a th:href="@{/register}">Đăng ký Tài khoản</a></li>
+            <li><a th:href="@{/login}">Cổng làm việc Bác sĩ</a></li>
+            <li><a href="#">Hỗ trợ kỹ thuật</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-links-col">
+          <h4>Liên Hệ</h4>
+          <ul class="footer-links-list">
+            <li><span><i class="fas fa-phone" style="margin-right: 8px;"></i> Hotline: 1900 6868</span></li>
+            <li><span><i class="fas fa-envelope" style="margin-right: 8px;"></i> support@diabetescare.vn</span></li>
+            <li><span><i class="fas fa-location-dot" style="margin-right: 8px;"></i> Khu Công nghệ cao, Q.9, TP. HCM</span></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>© 2026 Diabetes Care System. Tất cả các quyền được bảo hộ.</p>
+        <div class="social-links">
+          <a href="#" class="social-link" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="social-link" aria-label="Youtube"><i class="fab fa-youtube"></i></a>
+          <a href="#" class="social-link" aria-label="Linkedin"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Page Logic Script -->
+  <script th:src="@{/js/auth/landing.js}"></script>
+</body>
+</html>

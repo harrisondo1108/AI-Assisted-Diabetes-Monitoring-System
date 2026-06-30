@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đặt lại mật khẩu - Diabetes Care System</title>
-    <link rel="stylesheet" href="/static/css/pages/auth.css">
+    <link rel="stylesheet" th:href="@{/css/pages/auth.css}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -17,12 +17,12 @@
                 <span>Diabetes Care System</span>
             </div>
             <h1>Tạo mật khẩu mới</h1>
-            <p class="subtitle">Đảm bảo mật khẩu của bạn đủ mạnh để bảo vệ an toàn cho các dữ liệu y tế nhạy cảm.</p>
+            <p class="subtitle">Đảm bảo mật khẩu của bạn đủ mạnh để bảo vệ dữ liệu y tế nhạy cảm của bạn.</p>
 
             <div class="feature-card">
                 <h3><i class="fas fa-lightbulb"></i> Mật khẩu mạnh</h3>
                 <ul>
-                    <li><i class="fas fa-check-circle"></i> Có ít nhất 8 ký tự</li>
+                    <li><i class="fas fa-check-circle"></i> Chứa ít nhất 8 ký tự</li>
                     <li><i class="fas fa-check-circle"></i> Bao gồm chữ hoa và chữ thường</li>
                     <li><i class="fas fa-check-circle"></i> Chứa ít nhất một chữ số</li>
                     <li><i class="fas fa-check-circle"></i> Chứa ký tự đặc biệt (!@#$)</li>
@@ -35,11 +35,11 @@
                 <h2>Đặt lại mật khẩu</h2>
                 <div id="errorMsg" class="error-message" style="display: none;"></div>
                 <div id="successMsg" class="success-message" style="display: none;"></div>
-                
-                <form id="resetPasswordForm" action="/templates/auth/login.html" method="get">
+
+                <form id="resetPasswordForm" th:action="@{/forgot-password/reset}" method="post">
                     <div class="input-group">
                         <label for="newPassword">Mật khẩu mới <span class="required">*</span></label>
-                        <input type="password" id="newPassword" placeholder="••••••••" required>
+                        <input type="password" id="newPassword" name="newPassword" placeholder="••••••••" required>
                         <i class="fas fa-lock input-icon"></i>
                         <i class="fas fa-eye password-toggle" id="togglePswd" aria-label="Hiện mật khẩu" role="button"></i>
                         <div class="password-strength-container" id="strengthContainer">
@@ -50,27 +50,27 @@
                             </div>
                             <span class="strength-text" id="strengthText">Độ mạnh mật khẩu</span>
                         </div>
-                        <div class="error-hint" id="passwordHint">Mật khẩu phải có ít nhất 6 ký tự</div>
+                        <div class="error-hint" id="passwordHint">Mật khẩu phải chứa ít nhất 6 ký tự</div>
                     </div>
-                    
+
                     <div class="input-group">
                         <label for="confirmPassword">Xác nhận mật khẩu mới <span class="required">*</span></label>
-                        <input type="password" id="confirmPassword" placeholder="••••••••" required>
+                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="••••••••" required>
                         <i class="fas fa-check-circle input-icon"></i>
                         <i class="fas fa-eye password-toggle" id="toggleConfirm" aria-label="Hiện mật khẩu" role="button"></i>
                         <div class="error-hint" id="confirmHint">Mật khẩu xác nhận không khớp</div>
                     </div>
-                    
+
                     <button type="submit" class="btn-primary" style="margin-top: 10px;">
                         Cập nhật mật khẩu <i class="fas fa-save" style="margin-left: 8px;"></i>
                     </button>
                 </form>
             </div>
             <footer>
-                <p>© 2024 Diabetes Care System - Giải pháp quản lý bệnh tiểu đường</p>
+                <p>© 2024 Diabetes Care System - Giải pháp Quản lý Tiểu đường</p>
                 <div class="footer-links">
                     <a href="#">Chính sách bảo mật</a> |
-                    <a href="#">Điều khoản sử dụng</a> |
+                    <a href="#">Điều khoản dịch vụ</a> |
                     <a href="#">Hỗ trợ</a>
                 </div>
             </footer>
@@ -78,6 +78,14 @@
     </div>
 </div>
 
-<script src="/static/js/reset_pass.js"></script>
+<script th:src="@{/js/auth/reset_pass.js}"></script>
+<script th:inline="javascript">
+    const serverError = /*[[${errorMsg}]]*/ null;
+    if (serverError) {
+        const el = document.getElementById('errorMsg');
+        el.textContent = serverError;
+        el.style.display = 'block';
+    }
+</script>
 </body>
 </html>

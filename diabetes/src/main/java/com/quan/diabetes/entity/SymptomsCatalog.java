@@ -15,6 +15,8 @@ public class SymptomsCatalog {
 
     @Column(name = "SymptomName", length = 200, unique = true, columnDefinition = "NVARCHAR(200)")
     private String symptomName;
+    @Column(name = "Status", columnDefinition = "BIT")
+    private Boolean status = true; // true: unlock  false: lock
 
     public SymptomsCatalog() {
     }
@@ -33,6 +35,14 @@ public class SymptomsCatalog {
 
     public void setSymptomName(String symptomName) {
         this.symptomName = symptomName;
+    }
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
     }
 }
 

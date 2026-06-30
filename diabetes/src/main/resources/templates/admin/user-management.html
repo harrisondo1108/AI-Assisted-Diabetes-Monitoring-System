@@ -1,397 +1,540 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý người dùng - Admin | Diabetes Care System</title>
-    <link rel="stylesheet" href="/static/css/pages/admin-user-management.css">
+    <title>User Management - Admin | Diabetes Care System</title>
+    <link rel="stylesheet" th:href="@{/css/admin/user-management.css}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
-<div class="admin-layout">
-    <!-- Sidebar -->
-    <aside class="admin-sidebar">
-        <div class="sidebar-brand">
-            <div class="brand-name">Diabetes Care</div>
-            <div class="brand-sub">Admin Console</div>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <div th:replace="~{layout/sidebar :: sidebar('users')}"></div>
+
+        <div class="admin-main">
+            <!-- Header -->
+            <div th:replace="~{layout/header :: header('User Management')}"></div>
+
+            <main class="admin-content">
+
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-users"></i></div>
+                        <div class="stat-label">Total Users</div>
+                        <div class="stat-value" id="statTotal" th:text="${totalUsers}">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-user-injured"></i></div>
+                        <div class="stat-label">Total Patients</div>
+                        <div class="stat-value" id="statPatients" th:text="${totalPatients}">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-user-md"></i></div>
+                        <div class="stat-label">Total Doctors</div>
+                        <div class="stat-value" id="statDoctors" th:text="${totalDoctors}">0</div>
+                    </div>
+                </div>
+
+                <div class="page-header">
+                    <div class="header-buttons">
+                        <button type="button" class="btn btn-primary" id="btnAddUser"><i class="fas fa-plus"></i> Add
+                            New User</button>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="table-card">
+                    <div class="table-toolbar">
+                        <div class="filter-tabs">
+                            <a th:href="@{/admin/users(role='all', search=${currentSearch}, page=0)}"
+                                th:classappend="${currentRole == 'all' || currentRole == null} ? 'active' : ''"
+                                class="filter-tab">All Users</a>
+                            <a th:href="@{/admin/users(role='patient', search=${currentSearch}, page=0)}"
+                                th:classappend="${currentRole == 'patient'} ? 'active' : ''"
+                                class="filter-tab">Patients</a>
+                            <a th:href="@{/admin/users(role='doctor', search=${currentSearch}, page=0)}"
+                                th:classappend="${currentRole == 'doctor'} ? 'active' : ''"
+                                class="filter-tab">Doctor</a>
+                        </div>
+                        <form th:action="@{/admin/users}" method="get" class="toolbar-search">
+                            <input type="hidden" name="role" th:value="${currentRole}" />
+                            <i class="fas fa-search"></i>
+                            <input type="search" name="search" th:value="${currentSearch}" id="globalSearch"
+                                placeholder="Search by name, phone or role..." aria-label="Search users">
+                        </form>
+                    </div>
+
+                    <div class="table-wrap">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>User Info</th>
+                                    <th>Role</th>
+                                    <th>Gender</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTableBody">
+                                <tr th:each="user : ${users}" th:data-user-id="${user.userId}"
+                                    th:data-full-name="${user.fullName}" th:data-account-phone="${user.accountPhone}"
+                                    th:data-role="${user.role}" th:data-gender="${user.gender}"
+                                    th:data-status="${user.status}" th:data-dob="${user.dob}"
+                                    th:data-address="${user.address}" th:data-specialty="${user.specialty}"
+                                    th:data-room-name="${user.roomName}" th:data-height="${user.height}"
+                                    th:data-weight="${user.weight}" th:data-bloodgroup="${user.bloodgroup}"
+                                    th:data-permanent-medical-history="${user.permanentMedicalHistory}"
+                                    th:data-allergy-notes="${user.allergyNotes}"
+                                    th:data-supervisor-name="${user.supervisorName}"
+                                    th:data-supervisor-phone="${user.supervisorPhone}">
+
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="user-name" th:text="${user.fullName}"></div>
+                                            <div class="user-phone" th:text="${user.accountPhone}"></div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge"
+                                            th:classappend="${user.role != null && user.role.contains('doctor') ? 'badge-doctor' : (user.role != null && user.role.contains('patient') ? 'badge-patient' : 'badge-admin')}"
+                                            th:text="${user.role != null ? #strings.capitalize(user.role) : '—'}">
+                                        </span>
+                                    </td>
+                                    <td th:text="${user.gender == null ? 'Empty' : (user.gender ? 'Female' : 'Male')}">
+                                        Gender</td>
+                                    <td>
+                                        <span class="status-badge"
+                                            th:classappend="${user.status == 'Active' ? 'active' : 'clocked'}"
+                                            th:text="${user.status == 'Active' ? 'Active' : 'Clocked'}"></span>
+                                    </td>
+                                    <td>
+                                        <div class="action-group">
+                                            <button type="button" class="action-btn view" title="View details"
+                                                data-action="view" th:data-id="${user.userId}"><i
+                                                    class="fas fa-eye"></i></button>
+                                            <button type="button" class="action-btn edit" title="Edit"
+                                                data-action="edit" th:data-id="${user.userId}"
+                                                th:if="${user.role != 'patient' && user.role != 'PAT'}"><i
+                                                    class="fas fa-pen"></i></button>
+                                            <button type="button" class="action-btn"
+                                                th:classappend="${user.status == 'Active' ? 'lock' : 'unlock'}"
+                                                th:attr="data-id=${user.userId},data-status=${user.status},data-name=${user.fullName}"
+                                                onclick="showConfirmModal(this.getAttribute('data-id'), this.getAttribute('data-status'), this.getAttribute('data-name'))"
+                                                th:title="${user.status == 'Active' ? 'Clock account' : 'Unlock account'}">
+
+                                                <i class="fas"
+                                                    th:classappend="${user.status == 'Active' ? 'fa-lock' : 'fa-lock-open'}">
+                                                </i>
+
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="table-footer">
+                        <div class="pagination" id="pagination" th:if="${totalPages != null and totalPages > 1}">
+
+                            <a th:if="${currentPage > 0}"
+                                th:href="@{/admin/users(role=${currentRole}, search=${currentSearch}, page=${currentPage - 1})}"
+                                class="page-link">&laquo; Prev</a>
+
+                            <a th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                                th:href="@{/admin/users(role=${currentRole}, search=${currentSearch}, page=${i})}"
+                                th:classappend="${i == currentPage} ? 'active' : ''" th:text="${i + 1}"
+                                class="page-num"></a>
+
+                            <a th:if="${currentPage + 1 < totalPages}"
+                                th:href="@{/admin/users(role=${currentRole}, search=${currentSearch}, page=${currentPage + 1})}"
+                                class="page-link">Next &raquo;</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:replace="~{layout/footer :: footer}"></div>
+            </main>
         </div>
-        <nav class="sidebar-nav">
-            <a href="#" class="nav-item"><i class="fas fa-chart-line"></i> Dashboard</a>
-            <a href="#" class="nav-item active"><i class="fas fa-users"></i> User Management</a>
-            <a href="#" class="nav-item"><i class="fas fa-pills"></i> Medicine Management</a>
-            <a href="#" class="nav-item"><i class="fas fa-flask"></i> Lab Tests</a>
-            <a href="#" class="nav-item"><i class="fas fa-sliders"></i> Threshold Config</a>
-            <a href="#" class="nav-item"><i class="fas fa-desktop"></i> Monitoring</a>
-        </nav>
-        <div class="sidebar-footer">
-            <button type="button" class="btn-new-report"><i class="fas fa-plus"></i> New Report</button>
-            <div class="sidebar-footer-links">
-                <a href="#"><i class="fas fa-cog"></i> Settings</a>
-                <a href="#"><i class="fas fa-life-ring"></i> Support</a>
+    </div>
+
+    <!-- Detail drawer -->
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+    <aside class="detail-drawer" id="detailDrawer" aria-label="User Details">
+        <div class="drawer-header">
+            <h2>User Profile Overview</h2>
+            <button type="button" class="drawer-close" id="btnCloseDrawer" aria-label="Close"><i
+                    class="fas fa-times"></i></button>
+        </div>
+        <div class="drawer-body">
+            <div class="drawer-profile">
+                <h3 id="drawerName">—</h3>
+                <p class="meta" id="drawerMeta">—</p>
+            </div>
+
+            <div class="info-section">
+                <h4>Account Information</h4>
+                <div class="info-box">
+                    <div class="info-row"><span class="label">User ID</span><span class="value"
+                            id="drawerUserId">—</span></div>
+                    <div class="info-row"><span class="label">Login Phone</span><span class="value"
+                            id="drawerAccountPhone">—</span></div>
+                    <div class="info-row"><span class="label">Status</span><span class="value"
+                            id="drawerStatus">—</span></div>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h4>Personal Information</h4>
+                <div class="info-box">
+                    <div class="info-row"><span class="label">Full Name</span><span class="value"
+                            id="drawerFullName">—</span></div>
+                    <div class="info-row"><span class="label">Gender</span><span class="value"
+                            id="drawerGender">—</span></div>
+                    <div class="info-row"><span class="label">Date of Birth</span><span class="value"
+                            id="drawerDob">—</span></div>
+                    <div class="info-row"><span class="label">Address</span><span class="value"
+                            id="drawerAddress">—</span></div>
+                </div>
+            </div>
+
+            <div class="info-section doctor-only-section">
+                <h4>Clinical Placement</h4>
+                <div class="info-cards">
+                    <div class="info-mini-card">
+                        <div class="label">Current Role</div>
+                        <div class="value" id="drawerRole">Doctor</div>
+                    </div>
+                    <div class="info-mini-card">
+                        <div class="label">Assigned Room</div>
+                        <div class="value" id="drawerRoom">—</div>
+                    </div>
+                </div>
+                <div class="info-box" style="margin-top:10px">
+                    <div class="info-row"><span class="label">Specialty</span><span class="value"
+                            id="drawerSpecialty">—</span></div>
+                </div>
+            </div>
+
+            <div class="info-section patient-only-section">
+                <h4>Patient Profile</h4>
+                <div class="info-cards">
+                    <div class="info-mini-card">
+                        <div class="label">Height</div>
+                        <div class="value" id="drawerHeight">—</div>
+                    </div>
+                    <div class="info-mini-card">
+                        <div class="label">Weight</div>
+                        <div class="value" id="drawerWeight">—</div>
+                    </div>
+                </div>
+                <div class="info-box" style="margin-top:10px">
+                    <div class="info-row"><span class="label">Blood Group</span><span class="value"
+                            id="drawerBloodgroup">—</span></div>
+                    <div class="info-row"><span class="label">Medical History</span><span class="value"
+                            id="drawerHistory">—</span></div>
+                    <div class="info-row"><span class="label">Allergy Notes</span><span class="value"
+                            id="drawerAllergy">—</span></div>
+                    <div class="info-row"><span class="label">Supervisor</span><span class="value"
+                            id="drawerSupervisor">—</span></div>
+                    <div class="info-row"><span class="label">Supervisor Phone</span><span class="value"
+                            id="drawerSupervisorPhone">—</span></div>
+                </div>
             </div>
         </div>
     </aside>
 
-    <div class="admin-main">
-        <!-- Header -->
-        <header class="admin-header">
-            <div class="header-search">
-                <i class="fas fa-search"></i>
-                <input type="search" id="globalSearch" placeholder="Tìm theo tên, SĐT hoặc vai trò...">
+    <!-- CONFIRM MODAL -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal confirm-modal">
+            <div class="modal-header">
+                <h2 id="confirmModalTitle">
+                    <i class="fas fa-shield-alt" style="margin-right: 8px; color: #f59e0b;"></i>
+                    Confirm Action
+                </h2>
+                <button type="button" class="modal-close" id="closeConfirmModalBtn">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            <div class="header-actions">
-                <button type="button" class="icon-btn" title="Thông báo"><i class="fas fa-bell"></i></button>
-                <button type="button" class="icon-btn" title="Trợ giúp"><i class="fas fa-circle-question"></i></button>
-                <div class="admin-profile">
-                    <div class="admin-avatar-icon" aria-hidden="true"><i class="fas fa-user-shield"></i></div>
-                    <div class="profile-text">
-                        <div class="name">Quản trị viên</div>
-                        <div class="role">Chief Administrator</div>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <main class="admin-content">
-            <div class="page-header">
-                <div>
-                    <h1>User Management</h1>
-                    <p class="subtitle">Quản lý tài khoản bác sĩ và bệnh nhân — khớp use case Manage User Accounts, Lock/Unlock User Account.</p>
-                </div>
-                <div class="header-buttons">
-                    <button type="button" class="btn btn-primary" id="btnAddUser"><i class="fas fa-plus"></i> Add New User</button>
-                </div>
-            </div>
-
-            <!-- Stats -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-users"></i></div>
-                    <div class="stat-label">Total Users</div>
-                    <div class="stat-value" id="statTotal">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-user-injured"></i></div>
-                    <div class="stat-label">Total Patients</div>
-                    <div class="stat-value" id="statPatients">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-user-md"></i></div>
-                    <div class="stat-label">Total Doctors</div>
-                    <div class="stat-value" id="statDoctors">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-user-shield"></i></div>
-                    <div class="stat-label">Total Admins</div>
-                    <div class="stat-value" id="statAdmins">0</div>
-                </div>
-            </div>
-
-            <!-- Table -->
-            <div class="table-card">
-                <div class="table-toolbar">
-                    <div class="filter-tabs">
-                        <button type="button" class="filter-tab active" data-tab="all">All Users</button>
-                        <button type="button" class="filter-tab" data-tab="patient">Patients</button>
-                        <button type="button" class="filter-tab" data-tab="doctor">Doctor</button>
-                    </div>
-                    <div class="filter-dropdowns">
-                        <select class="filter-select" id="filterRole" aria-label="Lọc vai trò">
-                            <option value="">Role Type</option>
-                            <option value="doctor">Bác sĩ</option>
-                            <option value="patient">Bệnh nhân</option>
-                        </select>
-                        <select class="filter-select" id="filterGender" aria-label="Lọc giới tính">
-                            <option value="">Gender</option>
-                            <option value="0">Nam</option>
-                            <option value="1">Nữ</option>
-                        </select>
-                    </div>
-                    <div class="toolbar-icons">
-                        <button type="button" class="icon-btn" title="Bộ lọc"><i class="fas fa-filter"></i></button>
-                    </div>
-                </div>
-
-                <div class="table-wrap">
-                    <table class="data-table">
-                        <thead>
-                        <tr>
-                            <th>User Info</th>
-                            <th>Role</th>
-                            <th>Gender</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody id="userTableBody">
-                        <!-- Rendered by JS -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="table-footer">
-                    <span id="tableInfo">Hiển thị 0 kết quả</span>
-                    <div class="pagination" id="pagination"></div>
-                </div>
-            </div>
-
-            <footer class="admin-page-footer">
-                <span>© 2024 Diabetes Care System</span>
-                <span>
-                    <a href="#">Legal</a>
-                    <a href="#">Privacy Policy</a>
-                </span>
-                <span class="system-status"><span class="dot"></span> System Status: Operational</span>
-            </footer>
-        </main>
-    </div>
-</div>
-
-<!-- Detail drawer -->
-<div class="drawer-overlay" id="drawerOverlay"></div>
-<aside class="detail-drawer" id="detailDrawer" aria-label="Chi tiết người dùng">
-    <div class="drawer-header">
-        <h2>User Profile Overview</h2>
-        <button type="button" class="drawer-close" id="btnCloseDrawer" aria-label="Đóng"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="drawer-body">
-        <div class="drawer-profile">
-            <h3 id="drawerName">—</h3>
-            <p class="meta" id="drawerMeta">—</p>
-        </div>
-        <div class="drawer-actions">
-            <button type="button" class="btn btn-primary" id="drawerEditBtn">Edit User</button>
-            <button type="button" class="btn btn-outline" id="drawerLockBtn">Khóa tài khoản</button>
-        </div>
-
-        <div class="info-section">
-            <h4>Account — Account table</h4>
-            <div class="info-box">
-                <div class="info-row"><span class="label">User ID</span><span class="value" id="drawerUserId">—</span></div>
-                <div class="info-row"><span class="label">SĐT đăng nhập</span><span class="value" id="drawerAccountPhone">—</span></div>
-                <div class="info-row"><span class="label">Trạng thái</span><span class="value" id="drawerStatus">—</span></div>
-            </div>
-        </div>
-
-        <div class="info-section">
-            <h4>Thông tin cá nhân</h4>
-            <div class="info-box">
-                <div class="info-row"><span class="label">Họ và tên</span><span class="value" id="drawerFullName">—</span></div>
-                <div class="info-row"><span class="label">Giới tính</span><span class="value" id="drawerGender">—</span></div>
-                <div class="info-row"><span class="label">Ngày sinh</span><span class="value" id="drawerDob">—</span></div>
-                <div class="info-row"><span class="label">SĐT liên hệ</span><span class="value" id="drawerContactPhone">—</span></div>
-                <div class="info-row"><span class="label">Địa chỉ</span><span class="value" id="drawerAddress">—</span></div>
-            </div>
-        </div>
-
-        <div class="info-section doctor-only-section">
-            <h4>Clinical Placement — Profile (Bác sĩ)</h4>
-            <div class="info-cards">
-                <div class="info-mini-card">
-                    <div class="label">Current Role</div>
-                    <div class="value" id="drawerRole">Bác sĩ</div>
-                </div>
-                <div class="info-mini-card">
-                    <div class="label">Assigned Room</div>
-                    <div class="value" id="drawerRoom">—</div>
-                </div>
-            </div>
-            <div class="info-box" style="margin-top:10px">
-                <div class="info-row"><span class="label">Chuyên khoa</span><span class="value" id="drawerSpecialty">—</span></div>
-            </div>
-        </div>
-
-        <div class="info-section patient-only-section">
-            <h4>Hồ sơ bệnh nhân — Patient table</h4>
-            <div class="info-cards">
-                <div class="info-mini-card">
-                    <div class="label">Chiều cao</div>
-                    <div class="value" id="drawerHeight">—</div>
-                </div>
-                <div class="info-mini-card">
-                    <div class="label">Cân nặng</div>
-                    <div class="value" id="drawerWeight">—</div>
-                </div>
-            </div>
-            <div class="info-box" style="margin-top:10px">
-                <div class="info-row"><span class="label">Nhóm máu</span><span class="value" id="drawerBloodgroup">—</span></div>
-                <div class="info-row"><span class="label">Tiền sử bệnh</span><span class="value" id="drawerHistory">—</span></div>
-                <div class="info-row"><span class="label">Dị ứng / ghi chú</span><span class="value" id="drawerAllergy">—</span></div>
-                <div class="info-row"><span class="label">Người giám hộ</span><span class="value" id="drawerSupervisor">—</span></div>
-                <div class="info-row"><span class="label">SĐT giám hộ</span><span class="value" id="drawerSupervisorPhone">—</span></div>
-            </div>
-        </div>
-    </div>
-</aside>
-
-<!-- Add / Edit modal -->
-<div class="modal-overlay" id="userModalOverlay">
-    <div class="modal" role="dialog" aria-labelledby="modalTitle">
-        <div class="modal-header">
-            <h2 id="modalTitle">Thêm người dùng mới</h2>
-            <button type="button" class="drawer-close" id="btnCloseModal" aria-label="Đóng"><i class="fas fa-times"></i></button>
-        </div>
-        <form id="userForm">
             <div class="modal-body">
-                <p class="form-hint" style="margin-bottom:16px">
-                    Chọn loại tài khoản: <strong>Bác sĩ</strong> lưu vào bảng <code>Profile</code>;
-                    <strong>Bệnh nhân</strong> lưu vào bảng <code>Patient</code>. Cả hai dùng chung bảng <code>Account</code> để đăng nhập.
-                </p>
-
-                <div class="role-type-selector">
-                    <div class="role-type-option">
-                        <input type="radio" name="userRoleType" id="roleDoctor" value="doctor" checked>
-                        <label for="roleDoctor">
-                            <i class="fas fa-user-md"></i>
-                            <span>Bác sĩ (Doctor)</span>
-                            <small>Profile + Specialty, Room</small>
-                        </label>
-                    </div>
-                    <div class="role-type-option">
-                        <input type="radio" name="userRoleType" id="rolePatient" value="patient">
-                        <label for="rolePatient">
-                            <i class="fas fa-user-injured"></i>
-                            <span>Bệnh nhân (Patient)</span>
-                            <small>Patient — chiều cao, nhóm máu, tiền sử...</small>
-                        </label>
-                    </div>
+                <div class="confirm-icon">
+                    <i class="fas fa-question-circle"></i>
                 </div>
-
-                <div class="form-section-title">Tài khoản — Account</div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>User ID</label>
-                        <input type="text" id="formUserId" name="userId" placeholder="Tự sinh nếu để trống" maxlength="50">
-                    </div>
-                    <div class="form-group">
-                        <label>Số điện thoại đăng nhập <span class="required">*</span></label>
-                        <input type="tel" id="formAccountPhone" name="accountPhone" required maxlength="50" placeholder="PhoneNumber — unique">
-                    </div>
-                    <div class="form-group" id="passwordGroup">
-                        <label>Mật khẩu <span class="required">*</span></label>
-                        <input type="password" id="formPassword" name="password" placeholder="PasswordHash">
-                    </div>
-                </div>
-
-                <!-- Doctor → Profile (thông tin cá nhân + chuyên môn) -->
-                <div id="doctorFields" class="role-fields visible">
-                    <div class="form-section-title">Bác sĩ — Profile</div>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Họ và tên <span class="required">*</span></label>
-                            <input type="text" id="formFullName" name="fullName" maxlength="60">
-                        </div>
-                        <div class="form-group">
-                            <label>SĐT liên hệ (PhoneNumber)</label>
-                            <input type="tel" id="formContactPhone" name="contactPhone" maxlength="15">
-                        </div>
-                        <div class="form-group">
-                            <label>Ngày sinh (Dob)</label>
-                            <input type="date" id="formDob" name="dob">
-                        </div>
-                        <div class="form-group">
-                            <label>Giới tính (Gender)</label>
-                            <select id="formGender" name="gender">
-                                <option value="0">Nam (0)</option>
-                                <option value="1">Nữ (1)</option>
-                            </select>
-                        </div>
-                        <div class="form-group full-width">
-                            <label>Địa chỉ (Address)</label>
-                            <input type="text" id="formAddress" name="address" maxlength="200">
-                        </div>
-                        <div class="form-group">
-                            <label>Chuyên khoa (Specialty)</label>
-                            <input type="text" id="formSpecialty" name="specialty" maxlength="60" placeholder="VD: Nội tiết">
-                        </div>
-                        <div class="form-group">
-                            <label>Phòng khám (Room)</label>
-                            <select id="formRoom" name="roomId">
-                                <option value="">— Chọn phòng —</option>
-                                <option value="Phòng khám A">Phòng khám A</option>
-                                <option value="Phòng khám B">Phòng khám B</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Patient → bảng Patient (đầy đủ cột, không dùng Profile) -->
-                <div id="patientFields" class="role-fields">
-                    <div class="form-section-title">Bệnh nhân — Patient (toàn bộ hồ sơ)</div>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Họ và tên <span class="required">*</span></label>
-                            <input type="text" id="formPatFullName" name="patFullName" maxlength="60">
-                        </div>
-                        <div class="form-group">
-                            <label>SĐT liên hệ (PhoneNumber)</label>
-                            <input type="tel" id="formPatPhone" name="patPhone" maxlength="15">
-                        </div>
-                        <div class="form-group">
-                            <label>Ngày sinh (Dob)</label>
-                            <input type="date" id="formPatDob" name="patDob">
-                        </div>
-                        <div class="form-group">
-                            <label>Giới tính (Gender)</label>
-                            <select id="formPatGender" name="patGender">
-                                <option value="0">Nam (0)</option>
-                                <option value="1">Nữ (1)</option>
-                            </select>
-                        </div>
-                        <div class="form-group full-width">
-                            <label>Địa chỉ (Address)</label>
-                            <input type="text" id="formPatAddress" name="patAddress" maxlength="200">
-                        </div>
-                        <div class="form-group">
-                            <label>Chiều cao — Height (cm)</label>
-                            <input type="number" id="formHeight" name="height" min="0" max="300">
-                        </div>
-                        <div class="form-group">
-                            <label>Cân nặng — Weight (kg)</label>
-                            <input type="number" id="formWeight" name="weight" min="0" step="0.1">
-                        </div>
-                        <div class="form-group">
-                            <label>Nhóm máu — Bloodgroup</label>
-                            <select id="formBloodgroup" name="bloodgroup">
-                                <option value="">— Chọn —</option>
-                                <option value="A+">A+</option>
-                                <option value="A-">A-</option>
-                                <option value="B+">B+</option>
-                                <option value="B-">B-</option>
-                                <option value="AB+">AB+</option>
-                                <option value="AB-">AB-</option>
-                                <option value="O+">O+</option>
-                                <option value="O-">O-</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Người giám hộ — SupervisorName</label>
-                            <input type="text" id="formSupervisorName" name="supervisorName" maxlength="90">
-                        </div>
-                        <div class="form-group">
-                            <label>SĐT giám hộ — SupervisorPhone</label>
-                            <input type="tel" id="formSupervisorPhone" name="supervisorPhone" maxlength="15">
-                        </div>
-                        <div class="form-group full-width">
-                            <label>Tiền sử bệnh — PermanentMedicalHistory</label>
-                            <textarea id="formHistory" name="permanentMedicalHistory" rows="3"></textarea>
-                        </div>
-                        <div class="form-group full-width">
-                            <label>Dị ứng / ghi chú — AllergyNotes</label>
-                            <textarea id="formAllergy" name="allergyNotes" rows="3"></textarea>
-                        </div>
-                    </div>
-                </div>
+                <p id="confirmMessage">Are you sure you want to perform this action?</p>
+                <p class="confirm-submessage" id="confirmSubMessage">This action cannot be undone.</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline" id="btnCancelModal">Hủy</button>
-                <button type="submit" class="btn btn-primary">Lưu người dùng</button>
+                <button type="button" class="btn btn-secondary" id="cancelConfirmBtn">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="okConfirmBtn">
+                    <i class="fas fa-check"></i> Yes, Confirm
+                </button>
             </div>
-        </form>
+        </div>
     </div>
-</div>
 
-<script th:src="@{/js/admin-user-management.js}"></script>
+    <!-- Add / Edit modal -->
+    <div class="modal-overlay" th:classappend="${serverValidationError} ? 'open' : ''" id="userModalOverlay">
+        <div class="modal" role="dialog" aria-labelledby="modalTitle">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New User</h2>
+                <button type="button" class="drawer-close" id="btnCloseModal" aria-label="Close"><i
+                        class="fas fa-times"></i></button>
+            </div>
+            <form id="userForm" th:action="@{/admin/users/save}" th:object="${user}" method="post">
+                <input type="hidden" id="formUserId" name="userId" th:value="*{userId}">
+                <div class="modal-body">
+
+                    <div class="role-type-selector">
+                        <div class="role-type-option">
+                            <input type="radio" name="role" id="roleDoctor" value="DOC"
+                                th:checked="*{role == null || role == 'DOC' || role == 'doctor'}"
+                                th:disabled="*{userId != null}">
+                            <label for="roleDoctor">
+                                <i class="fas fa-user-md"></i>
+                                <span>Doctor</span>
+                            </label>
+                        </div>
+                        <div class="role-type-option" style="display: none;">
+                            <input type="radio" name="role" id="rolePatient" value="PAT"
+                                th:checked="*{role == 'PAT' || role == 'patient'}" th:disabled="*{userId != null}">
+                            <label for="rolePatient">
+                                <i class="fas fa-user-injured"></i>
+                                <span>Patient</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-section-title">Account Information</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Login Phone <span class="required">*</span></label>
+                            <input type="tel" id="formAccountPhone" name="accountPhone" th:value="*{accountPhone}"
+                                required maxlength="50" placeholder="Please enter login phone"
+                                th:classappend="${#fields.hasErrors('accountPhone')} ? 'is-invalid' : ''">
+                            <div class="error-feedback"><span th:if="${#fields.hasErrors('accountPhone')}"
+                                    th:errors="*{accountPhone}"></span></div>
+                        </div>
+                        <div class="form-group" id="passwordGroup" th:style="*{userId != null} ? 'display: none;' : ''">
+                            <label>Password <span class="required">*</span></label>
+                            <input type="password" id="formPassword" name="password" th:value="*{password}"
+                                placeholder="Please enter password" th:required="*{userId == null}"
+                                th:classappend="${#fields.hasErrors('password')} ? 'is-invalid' : ''">
+                            <div class="error-feedback"><span th:if="${#fields.hasErrors('password')}"
+                                    th:errors="*{password}"></span></div>
+                        </div>
+                    </div>
+                    <!-- Doctor Profile -->
+
+                    <div id="doctorFields" class="role-fields"
+                        th:classappend="${user == null || role == null || 'DOC'.equalsIgnoreCase(user.role) || 'doctor'.equalsIgnoreCase(user.role)} ? 'visible' : ''">
+                        <div class="form-section-title">Doctor Profile</div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Full Name <span class="required">*</span></label>
+                                <input type="text" id="formFullName" name="fullName" th:value="*{fullName}"
+                                    maxlength="60" placeholder="Please enter full name"
+                                    th:required="${user == null || role == null || 'DOC'.equalsIgnoreCase(user.role) || 'doctor'.equalsIgnoreCase(user.role)}"
+                                    th:classappend="${#fields.hasErrors('fullName') && (user?.role == null || 'DOC'.equalsIgnoreCase(user.role) || 'doctor'.equalsIgnoreCase(user.role))} ? 'is-invalid' : ''">
+                                <div class="error-feedback"><span
+                                        th:if="${#fields.hasErrors('fullName') && (user?.role == null || 'DOC'.equalsIgnoreCase(user.role) || 'doctor'.equalsIgnoreCase(user.role))}"
+                                        th:errors="*{fullName}"></span></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Date of Birth</label>
+                                <input type="date" id="formDob" name="dob" th:value="*{dob}"
+                                    th:required="${user == null || role == null || 'DOC'.equalsIgnoreCase(user.role) || 'doctor'.equalsIgnoreCase(user.role)}"
+                                    th:classappend="${#fields.hasErrors('dob') && ('DOC'.equalsIgnoreCase(user.role) || 'doctor'.equalsIgnoreCase(user.role))} ? 'is-invalid' : ''">
+                                <div class="error-feedback"><span
+                                        th:if="${#fields.hasErrors('dob') && ('DOC'.equalsIgnoreCase(user.role) || 'doctor'.equalsIgnoreCase(user.role))}"
+                                        th:errors="*{dob}"></span></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Gender</label>
+                                <select id="formGender" name="gender"
+                                    th:required="${user == null || role == null || 'DOC'.equalsIgnoreCase(user.role) || 'doctor'.equalsIgnoreCase(user.role)}"
+                                    th:classappend="${#fields.hasErrors('gender') && (user?.role == null || 'DOC'.equalsIgnoreCase(user.role) || 'doctor'.equalsIgnoreCase(user.role))} ? 'is-invalid' : ''">
+                                    <option value="0" th:selected="*{gender == false}">Male</option>
+                                    <option value="1" th:selected="*{gender == true}">Female</option>
+                                </select>
+                                <div class="error-feedback"><span
+                                        th:if="${#fields.hasErrors('gender') && (user?.role == null || 'DOC'.equalsIgnoreCase(user.role) || 'doctor'.equalsIgnoreCase(user.role))}"
+                                        th:errors="*{gender}"></span></div>
+                            </div>
+                            <div class="form-group full-width">
+                                <label>Address</label>
+                                <input type="text" id="formAddress" name="address" th:value="*{address}" maxlength="200"
+                                    placeholder="Please enter address"
+                                    th:classappend="${#fields.hasErrors('address') && (user?.role == null || 'DOC'.equalsIgnoreCase(user.role) || 'doctor'.equalsIgnoreCase(user.role))} ? 'is-invalid' : ''">
+                                <div class="error-feedback"><span
+                                        th:if="${#fields.hasErrors('address') && (user?.role == null || 'DOC'.equalsIgnoreCase(user.role) || 'doctor'.equalsIgnoreCase(user.role))}"
+                                        th:errors="*{address}"></span></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Specialty</label>
+                                <input type="text" id="formSpecialty" name="specialty" th:value="*{specialty}"
+                                    maxlength="60" placeholder="Please enter specialty"
+                                    th:classappend="${#fields.hasErrors('specialty')} ? 'is-invalid' : ''">
+                                <div class="error-feedback"><span th:if="${#fields.hasErrors('specialty')}"
+                                        th:errors="*{specialty}"></span></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Room</label>
+                                <select id="formRoom" name="roomName"
+                                    th:classappend="${#fields.hasErrors('roomName')} ? 'is-invalid' : ''">
+                                    <option value="">— Please select room —</option>
+                                    <option th:each="room : ${rooms}" th:value="${room.roomName}" th:text="${room.roomName}" th:selected="${user.roomName == room.roomName}"></option>
+                                </select>
+                                <div class="error-feedback"><span th:if="${#fields.hasErrors('roomName')}"
+                                        th:errors="*{roomName}"></span></div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <!-- Patient Profile -->
+                    <div id="patientFields" class="role-fields"
+                        th:classappend="${user != null && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))} ? 'visible' : ''">
+                        <div class="form-section-title">Patient Profile</div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Full Name <span class="required">*</span></label>
+                                <input type="text" id="formPatFullName" name="fullName" th:value="*{fullName}"
+                                    maxlength="60" placeholder="Please enter full name"
+                                    th:required="${user != null && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))}"
+                                    th:classappend="${#fields.hasErrors('fullName') && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))} ? 'is-invalid' : ''">
+                                <div class="error-feedback"><span
+                                        th:if="${#fields.hasErrors('fullName') && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))}"
+                                        th:errors="*{fullName}"></span></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Date of Birth</label>
+                                <input type="date" id="formPatDob" required name="dob" th:value="*{dob}"
+                                    th:required="${user != null && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))}"
+                                    th:classappend="${#fields.hasErrors('dob') && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))} ? 'is-invalid' : ''">
+                                <div class="error-feedback"><span
+                                        th:if="${#fields.hasErrors('dob') && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))}"
+                                        th:errors="*{dob}"></span></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Gender</label>
+                                <select id="formPatGender" name="gender"
+                                    th:required="${user != null && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))}"
+                                    th:classappend="${#fields.hasErrors('gender') && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))} ? 'is-invalid' : ''">
+                                    <option value="0" th:selected="*{gender == false}">Male</option>
+                                    <option value="1" th:selected="*{gender == true}">Female</option>
+                                </select>
+                                <div class="error-feedback"><span
+                                        th:if="${#fields.hasErrors('gender') && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))}"
+                                        th:errors="*{gender}"></span></div>
+                            </div>
+                            <div class="form-group full-width">
+                                <label>Address</label>
+                                <input type="text" id="formPatAddress" name="address" th:value="*{address}"
+                                    maxlength="200" placeholder="Please enter address"
+                                    th:required="${user != null && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))}"
+                                    th:classappend="${#fields.hasErrors('address') && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))} ? 'is-invalid' : ''">
+                                <div class="error-feedback"><span
+                                        th:if="${#fields.hasErrors('address') && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))}"
+                                        th:errors="*{address}"></span></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Height (cm)</label>
+                                <input type="number" id="formHeight" name="height" th:value="*{height}" min="0"
+                                    max="300" placeholder="Please enter height"
+                                    th:classappend="${#fields.hasErrors('height')} ? 'is-invalid' : ''">
+                                <div class="error-feedback"><span th:if="${#fields.hasErrors('height')}"
+                                        th:errors="*{height}"></span></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Weight (kg)</label>
+                                <input type="number" id="formWeight" name="weight" th:value="*{weight}" min="0"
+                                    step="0.1" placeholder="Please enter weight"
+                                    th:classappend="${#fields.hasErrors('weight')} ? 'is-invalid' : ''">
+                                <div class="error-feedback"><span th:if="${#fields.hasErrors('weight')}"
+                                        th:errors="*{weight}"></span></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Blood Group</label>
+                                <select id="formBloodgroup" name="bloodgroup"
+                                    th:classappend="${#fields.hasErrors('bloodgroup')} ? 'is-invalid' : ''">
+                                    <option value="">— Please select —</option>
+                                    <option value="A+" th:selected="*{bloodgroup == 'A+'}">A+</option>
+                                    <option value="A-" th:selected="*{bloodgroup == 'A-'}">A-</option>
+                                    <option value="B+" th:selected="*{bloodgroup == 'B+'}">B+</option>
+                                    <option value="B-" th:selected="*{bloodgroup == 'B-'}">B-</option>
+                                    <option value="AB+" th:selected="*{bloodgroup == 'AB+'}">AB+</option>
+                                    <option value="AB-" th:selected="*{bloodgroup == 'AB-'}">AB-</option>
+                                    <option value="O+" th:selected="*{bloodgroup == 'O+'}">O+</option>
+                                    <option value="O-" th:selected="*{bloodgroup == 'O-'}">O-</option>
+                                </select>
+                                <div class="error-feedback"><span th:if="${#fields.hasErrors('bloodgroup')}"
+                                        th:errors="*{bloodgroup}"></span></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Supervisor Name</label>
+                                <input type="text" id="formSupervisorName" name="supervisorName"
+                                    th:value="*{supervisorName}" maxlength="90"
+                                    placeholder="Please enter supervisor name"
+                                    th:classappend="${#fields.hasErrors('supervisorName')} ? 'is-invalid' : ''">
+                                <div class="error-feedback"><span th:if="${#fields.hasErrors('supervisorName')}"
+                                        th:errors="*{supervisorName}"></span></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Supervisor Phone</label>
+                                <input type="tel" id="formSupervisorPhone" name="supervisorPhone"
+                                    th:value="*{supervisorPhone}" maxlength="15"
+                                    placeholder="Please enter supervisor phone"
+                                    th:classappend="${#fields.hasErrors('supervisorPhone')} ? 'is-invalid' : ''">
+                                <div class="error-feedback"><span th:if="${#fields.hasErrors('supervisorPhone')}"
+                                        th:errors="*{supervisorPhone}"></span></div>
+                            </div>
+                            <div class="form-group full-width">
+                                <label>Medical History</label>
+                                <textarea id="formHistory" name="permanentMedicalHistory" rows="3"
+                                    placeholder="Please enter medical history" th:text="*{permanentMedicalHistory}"
+                                    th:classappend="${#fields.hasErrors('permanentMedicalHistory')} ? 'is-invalid' : ''"></textarea>
+                                <div class="error-feedback"><span
+                                        th:if="${#fields.hasErrors('permanentMedicalHistory')}"
+                                        th:errors="*{permanentMedicalHistory}"></span></div>
+                            </div>
+                            <div class="form-group full-width">
+                                <label>Allergy Notes</label>
+                                <textarea id="formAllergy" name="allergyNotes" rows="3"
+                                    placeholder="Please enter allergy notes" th:text="*{allergyNotes}"
+                                    th:classappend="${#fields.hasErrors('allergyNotes')} ? 'is-invalid' : ''"></textarea>
+                                <div class="error-feedback"><span th:if="${#fields.hasErrors('allergyNotes')}"
+                                        th:errors="*{allergyNotes}"></span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" id="btnCancelModal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script th:src="@{/js/admin/user-management.js}"></script>
+    <!-- Flash message popup -->
+    <div th:if="${successMessage}" id="flashMessage" class="toast toast-success">
+        <div class="toast-body" th:text="${successMessage}">Success</div>
+        <button type="button" class="toast-close" id="toastClose">×</button>
+    </div>
+    <div th:if="${errorMessage}" id="flashErrorMessage" class="toast toast-danger">
+        <div class="toast-body" th:text="${errorMessage}">Error</div>
+        <button type="button" class="toast-close" id="toastErrorClose">×</button>
+    </div>
 </body>
+
 </html>

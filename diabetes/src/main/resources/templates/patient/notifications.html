@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Nhắc nhở Dùng thuốc | Hệ thống Chăm sóc Tiểu đường</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/patient/patient.css}">
+    <link rel="stylesheet" th:href="@{/css/patient/notifications.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+<div class="admin-layout">
+    <div th:replace="~{layout/patient-sidebar :: patientSidebar('notifications')}"></div>
+
+    <div class="admin-main">
+        <div th:replace="~{layout/patient-header :: patientHeader('Thông báo')}"></div>
+
+        <main class="admin-content">
+            <div class="page-header dashboard-hero">
+                <div>
+                    <h1 id="page-title">
+                        <i class="fas fa-bell"></i>
+                        Nhắc nhở Dùng thuốc
+                    </h1>
+                    <p class="subtitle" id="page-subtitle">
+                        Hệ thống nhắc nhở bạn uống thuốc tiểu đường trước 30 phút trước mỗi liều lượng được lên lịch.
+                    </p>
+                </div>
+
+                <div class="dashboard-actions">
+                    <a th:href="@{/patient/notifications/history}" class="btn-primary-link" id="toggle-view-btn">
+                        <i class="fas fa-history"></i>
+                        Xem lịch sử thông báo
+                    </a>
+                </div>
+            </div>
+
+            <div id="dashboard-stats-cards" class="dashboard-stats diabetes-stats">
+                <div class="stat-card diabetes-stat-card">
+                    <div class="stat-icon warning-icon">
+                        <i class="fas fa-pills"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h4>Nhắc nhở dùng thuốc hôm nay</h4>
+                        <div class="stat-number" th:text="${medicationReminders != null ? medicationReminders.size() : 0}">
+                            0
+                        </div>
+                        <p>Nhắc nhở trước 30 phút</p>
+                    </div>
+                </div>
+
+                <div class="stat-card diabetes-stat-card">
+                    <div class="stat-icon danger-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h4>Uống ngay</h4>
+                        <div class="stat-number" th:text="${dueMedicationReminderCount}">
+                            0
+                        </div>
+                        <p>Nhắc nhở đang kích hoạt</p>
+                    </div>
+                </div>
+
+                <div class="stat-card diabetes-stat-card">
+                    <div class="stat-icon success-icon">
+                        <i class="fas fa-calendar-day"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h4>Sắp diễn ra</h4>
+                        <div class="stat-number" th:text="${upcomingMedicationReminderCount}">
+                            0
+                        </div>
+                        <p>Nhắc nhở còn lại hôm nay</p>
+                    </div>
+                </div>
+
+                <div class="stat-card diabetes-stat-card">
+                    <div class="stat-icon info-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h4>Thông báo AI</h4>
+                        <div class="stat-number" th:text="${aiReminders != null ? aiReminders.size() : 0}">
+                            0
+                        </div>
+                        <p>Thông báo sức khỏe</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="notification-alert-box" class="notification-alert-box">
+                <div>
+                    <h3>
+                        <i class="fas fa-circle-info"></i>
+                        Cách hoạt động của nhắc nhở dùng thuốc
+                    </h3>
+                    <p>
+                        Thời gian nhắc nhở được tính toán dựa trên lịch sinh hoạt hàng ngày và thời gian uống thuốc trong đơn thuốc của bạn.
+                        Ví dụ: Sau bữa sáng = giờ ăn sáng + 30 phút.
+                    </p>
+                </div>
+
+                <button type="button" class="btn-primary-link notification-enable-btn" onclick="requestBrowserNotificationPermission()">
+                    <i class="fas fa-bell"></i>
+                    Bật thông báo trình duyệt
+                </button>
+            </div>
+
+            <section id="medication-reminders-section" class="insight-card">
+                <div class="card-header">
+                    <i class="fas fa-pills" style="color: var(--green-600);"></i>
+                    <h3>Lịch nhắc nhở dùng thuốc hôm nay</h3>
+                </div>
+
+                <div class="medication-reminder-list"
+                     th:if="${medicationReminders != null && !medicationReminders.isEmpty()}">
+                    <div class="medication-reminder-card"
+                          th:each="reminder : ${medicationReminders}"
+                          th:classappend="${reminder.dueNow} ? ' reminder-due-now' : (${reminder.past} ? ' reminder-past' : '')"
+                          th:attr="data-reminder-time=${#temporals.format(reminder.reminderTime, 'yyyy-MM-dd''T''HH:mm:ss')},
+                                   data-medication-time=${#temporals.format(reminder.getEndTime(), 'yyyy-MM-dd''T''HH:mm:ss')},
+                                   data-title=${reminder.title},
+                                   data-message=${reminder.message}">
+
+                        <div class="reminder-time-box">
+                            <strong th:text="${#temporals.format(reminder.reminderTime, 'HH:mm')}">Empty</strong>
+                        </div>
+
+                        <div class="reminder-main-info">
+                            <div class="reminder-title-row">
+                                <h4 th:text="${reminder.medicationName}">Empty</h4>
+
+                                <span class="badge badge-danger" th:if="${reminder.dueNow}">
+                                    Uống ngay
+                                </span>
+
+                                <span class="badge badge-success" th:if="${!reminder.dueNow && !reminder.past}">
+                                    Sắp diễn ra
+                                </span>
+
+                                <span class="badge badge-info" th:if="${reminder.past}">
+                                    Đã qua
+                                </span>
+                            </div>
+
+                            <p>
+                                <strong>Liều lượng:</strong>
+                                <span th:text="${reminder.dosage}">Empty</span>
+                            </p>
+
+                            <p>
+                                <strong>Thời gian:</strong>
+                                <span th:text="${reminder.timingName}">Empty</span>
+                            </p>
+
+                            <p>
+                                <strong>Giờ uống thuốc:</strong>
+                                <span th:text="${#temporals.format(reminder.getReminderTime(), 'HH:mm')}">Empty</span>
+                            </p>
+
+                            <p th:if="${reminder.medicationPlan != null && !#strings.isEmpty(reminder.medicationPlan)}">
+                                <strong>Kế hoạch dùng thuốc:</strong>
+                                <span th:text="${reminder.medicationPlan}">Empty</span>
+                            </p>
+
+                            <p th:if="${reminder.instruction != null && !#strings.isEmpty(reminder.instruction)}">
+                                <strong>Hướng dẫn mặc định của thuốc:</strong>
+                                <span th:text="${reminder.instruction}">Empty</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="empty-message" th:if="${medicationReminders == null || medicationReminders.isEmpty()}">
+                    Không tìm thấy nhắc nhở dùng thuốc nào. Nhắc nhở sẽ xuất hiện sau khi bác sĩ tạo đơn thuốc và thời gian uống thuốc.
+                </div>
+            </section>
+
+        </main>
+
+        <div th:replace="~{layout/footer :: footer}"></div>
+    </div>
+</div>
+
+<script th:src="@{/js/patient/patient.js}"></script>
+<script th:src="@{/js/patient/notifications.js}"></script>
+</body>
+</html>

@@ -39,6 +39,10 @@ public class AIReminder {
     @JoinColumn(name = "PatientID")
     private Patient patient;
 
+    @ManyToOne
+    @JoinColumn(name = "TimingID")
+    private MedicationTiming timing;
+
     public AIReminder() {
     }
 
@@ -97,7 +101,13 @@ public class AIReminder {
     public void setPatient(Patient patient) {
         this.patient = patient;
     }
+
+    public MedicationTiming getTiming() {
+        return timing;
+    }
+
+    public void setTiming(MedicationTiming timing) {
+        this.timing = timing;
+    }
+
 }
-
-
-

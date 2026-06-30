@@ -1,11 +1,7 @@
 package com.quan.diabetes.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -31,6 +27,9 @@ public class ClinicalExamination {
     @Column(name = "Status", length = 20, columnDefinition = "NVARCHAR(20)")
     private String status;
 
+    @Column(name = "CancelReason", columnDefinition = "NVARCHAR(MAX)")
+    private String cancelReason;
+
     @ManyToOne
     @JoinColumn(name = "PatientID", nullable = false)
     private Patient patient;
@@ -38,6 +37,9 @@ public class ClinicalExamination {
     @ManyToOne
     @JoinColumn(name = "DoctorID", nullable = false)
     private User doctor;
+
+    @OneToOne(mappedBy = "clinicalExam", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private TreatmentPlan treatmentPlan;
 
     public ClinicalExamination() {
     }
@@ -104,6 +106,22 @@ public class ClinicalExamination {
 
     public void setDoctor(User doctor) {
         this.doctor = doctor;
+    }
+
+    public TreatmentPlan getTreatmentPlan() {
+        return treatmentPlan;
+    }
+
+    public void setTreatmentPlan(TreatmentPlan treatmentPlan) {
+        this.treatmentPlan = treatmentPlan;
+    }
+
+    public String getCancelReason() {
+        return cancelReason;
+    }
+
+    public void setCancelReason(String cancelReason) {
+        this.cancelReason = cancelReason;
     }
 }
 

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quên mật khẩu - Diabetes Care System</title>
-    <link rel="stylesheet" href="/static/css/pages/auth.css">
+    <link rel="stylesheet" th:href="@{/css/pages/auth.css}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -17,14 +17,14 @@
                 <span>Diabetes Care System</span>
             </div>
             <h1>Khôi phục quyền truy cập</h1>
-            <p class="subtitle">Chúng tôi sẽ giúp bạn lấy lại quyền truy cập vào hệ thống một cách bảo mật.</p>
+            <p class="subtitle">Chúng tôi sẽ giúp bạn khôi phục quyền truy cập hệ thống một cách an toàn.</p>
 
             <div class="feature-card">
-                <h3><i class="fas fa-shield-alt"></i> Bảo mật 2 lớp</h3>
+                <h3><i class="fas fa-shield-alt"></i> Bảo mật hai lớp</h3>
                 <ul>
                     <li><i class="fas fa-mobile-alt"></i> Xác thực qua số điện thoại</li>
                     <li><i class="fas fa-key"></i> Đặt lại mật khẩu an toàn</li>
-                    <li><i class="fas fa-user-check"></i> Bảo vệ dữ liệu bệnh án</li>
+                    <li><i class="fas fa-user-check"></i> Bảo vệ hồ sơ y tế</li>
                 </ul>
             </div>
         </div>
@@ -33,33 +33,33 @@
             <div class="login-form">
                 <h2>Nhập số điện thoại</h2>
                 <div id="errorMsg" class="error-message" style="display: none;"></div>
-                
-                <form id="forgotPhoneForm" action="/templates/auth/forgot-otp.html" method="get">
+
+                <form id="forgotPhoneForm" th:action="@{/forgot-password/send-otp}" method="post">
                     <p style="text-align: center; color: #64748b; margin-bottom: 25px; font-size: 14px;">
-                        Vui lòng nhập số điện thoại bạn đã dùng để đăng ký tài khoản. Chúng tôi sẽ gửi mã OTP xác thực qua SMS.
+                        Vui lòng nhập số điện thoại liên kết với tài khoản của bạn. Chúng tôi sẽ gửi mã xác thực OTP qua SMS.
                     </p>
-                    
+
                     <div class="input-group">
                         <label for="phoneNumber">Số điện thoại</label>
-                        <input type="tel" id="phoneNumber" placeholder="0912 345 678" required>
+                        <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="0912 345 678" required>
                         <i class="fas fa-phone input-icon"></i>
                         <div class="error-hint" id="phoneHint">Số điện thoại không hợp lệ</div>
                     </div>
-                    
+
                     <button type="submit" class="btn-primary">
                         Gửi mã OTP <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>
                     </button>
                 </form>
-                
+
                 <p class="login-link">
-                    <a href="/templates/auth/login.html"><i class="fas fa-arrow-left"></i> Quay lại đăng nhập</a>
+                    <a th:href="@{/login}"><i class="fas fa-arrow-left"></i> Quay lại đăng nhập</a>
                 </p>
             </div>
             <footer>
-                <p>© 2024 Diabetes Care System - Giải pháp quản lý bệnh tiểu đường</p>
+                <p>© 2024 Diabetes Care System - Giải pháp Quản lý Tiểu đường</p>
                 <div class="footer-links">
                     <a href="#">Chính sách bảo mật</a> |
-                    <a href="#">Điều khoản sử dụng</a> |
+                    <a href="#">Điều khoản dịch vụ</a> |
                     <a href="#">Hỗ trợ</a>
                 </div>
             </footer>
@@ -67,6 +67,14 @@
     </div>
 </div>
 
-<script src="/static/js/forgot_phone.js"></script>
+<script th:src="@{/js/auth/forgot_phone.js}"></script>
+<script th:inline="javascript">
+    const serverError = /*[[${errorMsg}]]*/ null;
+    if (serverError) {
+        const el = document.getElementById('errorMsg');
+        el.textContent = serverError;
+        el.style.display = 'block';
+    }
+</script>
 </body>
 </html>
