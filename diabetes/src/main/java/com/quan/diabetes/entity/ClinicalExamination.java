@@ -38,7 +38,7 @@ public class ClinicalExamination {
     @JoinColumn(name = "DoctorID", nullable = false)
     private User doctor;
 
-    @OneToOne(mappedBy = "clinicalExamination", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "clinicalExam", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private TreatmentPlan treatmentPlan;
 
     public ClinicalExamination() {

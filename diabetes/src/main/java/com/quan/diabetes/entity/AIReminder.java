@@ -109,7 +109,5 @@ public class AIReminder {
     public void setTiming(MedicationTiming timing) {
         this.timing = timing;
     }
+
 }
-
-
-

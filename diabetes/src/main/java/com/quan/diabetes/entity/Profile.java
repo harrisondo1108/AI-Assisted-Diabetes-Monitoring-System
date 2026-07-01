@@ -8,15 +8,38 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.persistence.PostPersist;
+import jakarta.persistence.PostLoad;
+import org.springframework.data.domain.Persistable;
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "Profile")
-public class Profile {
+public class Profile implements Persistable<String> {
 
     @Id
     @Column(name = "UserID", length = 50)
     private String userId;
+
+    @Transient
+    private boolean isNew = true;
+
+    @Override
+    public String getId() {
+        return this.userId;
+    }
+
+    @Override
+    public boolean isNew() {
+        return this.isNew;
+    }
+
+    @PostPersist
+    @PostLoad
+    protected void markNotNew() {
+        this.isNew = false;
+    }
 
     @OneToOne
     @MapsId
@@ -26,7 +49,7 @@ public class Profile {
     @Column(name = "FullName", nullable = false, length = 60, columnDefinition = "NVARCHAR(60)")
     private String fullName;
 
-    @Column(name = "PhoneNumber", length = 15, unique = true, columnDefinition = "NVARCHAR(15)")
+    @Column(name = "PhoneNumber", length = 15, unique = true)
     private String phoneNumber;
 
     @Column(name = "Address", length = 200, columnDefinition = "NVARCHAR(200)")
@@ -42,7 +65,7 @@ public class Profile {
     @JoinColumn(name = "RoomID")
     private Room room;
 
-    @Column(name = "Specialty", length = 50, columnDefinition = "NVARCHAR(50)")
+    @Column(name = "Specialty", length = 60, columnDefinition = "NVARCHAR(60)")
     private String specialty;
 
     @Column(name = "ImageURL", length = 255, columnDefinition = "NVARCHAR(255)")

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Đánh giá Nguy cơ | Hệ thống Chăm sóc Tiểu đường</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/patient/patient.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+<div class="admin-layout">
+    <div th:replace="~{layout/patient-sidebar :: patientSidebar('risk')}"></div>
+
+    <div class="admin-main">
+        <div th:replace="~{layout/patient-header :: patientHeader('Đánh giá Nguy cơ')}"></div>
+
+        <main class="admin-content">
+            <div class="page-header dashboard-hero">
+                <div>
+                    <h1>
+                        <i class="fas fa-shield-heart"></i>
+                        Đánh giá Nguy cơ Tiểu đường
+                    </h1>
+                    <p class="subtitle">
+                        Xem xét mức độ nguy cơ liên quan đến tiểu đường của bạn dựa trên chỉ số HbA1c, lượng đường huyết lúc đói, BMI,
+                        các kết quả bất thường và tiền sử bệnh án.
+                    </p>
+                </div>
+
+                <div class="dashboard-actions">
+                    <a th:href="@{/patient/progress}" class="btn-primary-link">
+                        <i class="fas fa-notes-medical"></i>
+                        Xem Tiến trình Y tế
+                    </a>
+                </div>
+            </div>
+
+            <div class="risk-overview-card">
+                <div class="risk-score-panel">
+                    <div class="risk-circle"
+                         th:classappend="${riskScore >= 70} ? ' high-risk-circle' : (${riskScore >= 40} ? ' medium-risk-circle' : ' low-risk-circle')">
+                        <span th:text="${riskScore}">0</span>
+                        <small>/100</small>
+                    </div>
+
+                    <div class="risk-summary">
+                        <span class="badge"
+                              th:classappend="${riskBadgeClass}"
+                              th:text="${riskLevel}">
+                            Nguy cơ thấp
+                        </span>
+
+                        <h2>Nguy cơ Tiểu đường Hiện tại của Bạn</h2>
+                        <p th:text="${riskDescription}">
+                            Các chỉ số hiện tại của bạn cho thấy nguy cơ thấp dựa trên dữ liệu hiện có.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="risk-advice-box">
+                    <h3>
+                        <i class="fas fa-circle-info"></i>
+                        Khuyến nghị
+                    </h3>
+                    <p th:text="${riskAdvice}">
+                        Tiếp tục ăn uống lành mạnh, hoạt động thể chất đều đặn và xét nghiệm định kỳ.
+                    </p>
+                </div>
+            </div>
+
+            <div class="dashboard-stats diabetes-stats">
+                <div class="stat-card diabetes-stat-card">
+                    <div class="stat-icon warning-icon">
+                        <i class="fas fa-droplet"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h4>HbA1c mới nhất</h4>
+                        <div class="stat-number">
+                            <span th:text="${latestHbA1c}">N/A</span>
+                            <small th:if="${latestHbA1c != 'N/A'}">%</small>
+                        </div>
+                        <p th:text="${latestHbA1cStatus}">Không có dữ liệu</p>
+                    </div>
+                </div>
+
+                <div class="stat-card diabetes-stat-card">
+                    <div class="stat-icon danger-icon">
+                        <i class="fas fa-vial"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h4>Đường huyết lúc đói</h4>
+                        <div class="stat-number">
+                            <span th:text="${latestGlucose}">N/A</span>
+                            <small th:if="${latestGlucose != 'N/A'}">mg/dL</small>
+                        </div>
+                        <p th:text="${latestGlucoseStatus}">Không có dữ liệu</p>
+                    </div>
+                </div>
+
+                <div class="stat-card diabetes-stat-card">
+                    <div class="stat-icon success-icon">
+                        <i class="fas fa-weight-scale"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h4>Chỉ số BMI</h4>
+                        <div class="stat-number" th:text="${bmi}">N/A</div>
+                        <p th:text="${bmiStatus}">Không có dữ liệu</p>
+                    </div>
+                </div>
+
+                <div class="stat-card diabetes-stat-card">
+                    <div class="stat-icon info-icon">
+                        <i class="fas fa-triangle-exclamation"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h4>Kết quả bất thường</h4>
+                        <div class="stat-number" th:text="${abnormalResultCount}">0</div>
+                        <p>Các kết quả cần lưu ý</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-grid dashboard-main-grid">
+                <section class="insight-card">
+                    <div class="card-header">
+                        <i class="fas fa-list-check" style="color: var(--green-600);"></i>
+                        <h3>Yếu tố nguy cơ</h3>
+                    </div>
+
+                    <div class="risk-factor-list">
+                        <div class="risk-factor-item">
+                            <div>
+                                <strong>Kiểm soát HbA1c</strong>
+                                <p th:text="${latestHbA1cStatus}">Không có dữ liệu</p>
+                            </div>
+                            <span class="badge"
+                                  th:classappend="${latestHbA1cStatus == 'Ngưỡng tiểu đường'} ? ' badge-danger' : (${latestHbA1cStatus == 'Ngưỡng tiền tiểu đường'} ? ' badge-warning' : ' badge-success')"
+                                  th:text="${latestHbA1cStatus}">
+                                Không có dữ liệu
+                            </span>
+                        </div>
+
+                        <div class="risk-factor-item">
+                            <div>
+                                <strong>Đường huyết lúc đói</strong>
+                                <p th:text="${latestGlucoseStatus}">Không có dữ liệu</p>
+                            </div>
+                            <span class="badge"
+                                  th:classappend="${latestGlucoseStatus == 'Cao'} ? ' badge-danger' : (${latestGlucoseStatus == 'Cận ranh giới'} ? ' badge-warning' : ' badge-success')"
+                                  th:text="${latestGlucoseStatus}">
+                                Không có dữ liệu
+                            </span>
+                        </div>
+
+                        <div class="risk-factor-item">
+                            <div>
+                                <strong>Chỉ số khối cơ thể (BMI)</strong>
+                                <p th:text="${bmiStatus}">Không có dữ liệu</p>
+                            </div>
+                            <span class="badge"
+                                  th:classappend="${bmiStatus == 'Béo phì'} ? ' badge-danger' : (${bmiStatus == 'Thừa cân'} ? ' badge-warning' : ' badge-success')"
+                                  th:text="${bmiStatus}">
+                                Không có dữ liệu
+                            </span>
+                        </div>
+
+                        <div class="risk-factor-item">
+                            <div>
+                                <strong>Theo dõi lâm sàng</strong>
+                                <p>Tổng số lượt khám đã ghi nhận</p>
+                            </div>
+                            <span class="badge badge-info" th:text="${examinationCount + ' lượt khám'}">0 lượt khám</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="insight-card">
+                    <div class="card-header">
+                        <i class="fas fa-heart-pulse" style="color: var(--green-600);"></i>
+                        <h3>Hướng dẫn chăm sóc</h3>
+                    </div>
+
+                    <div class="care-guide-list">
+                        <!-- Nếu có phác đồ điều trị được thiết lập -->
+                        <th:block th:if="${latestTreatmentPlan != null}">
+                            <div class="care-guide-item" th:if="${latestTreatmentPlan.treatmentGoal != null && !#strings.isEmpty(latestTreatmentPlan.treatmentGoal)}">
+                                <i class="fas fa-bullseye"></i>
+                                <div>
+                                    <strong>Mục tiêu điều trị</strong>
+                                    <p th:text="${latestTreatmentPlan.treatmentGoal}">Mục tiêu</p>
+                                </div>
+                            </div>
+
+                            <div class="care-guide-item" th:if="${latestTreatmentPlan.dietPlan != null && !#strings.isEmpty(latestTreatmentPlan.dietPlan)}">
+                                <i class="fas fa-utensils"></i>
+                                <div>
+                                    <strong>Dinh dưỡng</strong>
+                                    <p th:text="${latestTreatmentPlan.dietPlan}">Dinh dưỡng</p>
+                                </div>
+                            </div>
+
+                            <div class="care-guide-item" th:if="${latestTreatmentPlan.exercisePlan != null && !#strings.isEmpty(latestTreatmentPlan.exercisePlan)}">
+                                <i class="fas fa-person-walking"></i>
+                                <div>
+                                    <strong>Vận động</strong>
+                                    <p th:text="${latestTreatmentPlan.exercisePlan}">Vận động</p>
+                                </div>
+                            </div>
+
+                            <div class="care-guide-item" th:if="${latestTreatmentPlan.glucoseMonitoringPlan != null && !#strings.isEmpty(latestTreatmentPlan.glucoseMonitoringPlan)}">
+                                <i class="fas fa-droplet"></i>
+                                <div>
+                                    <strong>Theo dõi đường huyết</strong>
+                                    <p th:text="${latestTreatmentPlan.glucoseMonitoringPlan}">Theo dõi đường huyết</p>
+                                </div>
+                            </div>
+                            
+                            <div class="care-guide-item">
+                                <i class="fas fa-pills"></i>
+                                <div>
+                                    <strong>Dùng thuốc</strong>
+                                    <p>Uống thuốc đúng theo đơn và không tự ý thay đổi liều lượng nếu không có lời khuyên của bác sĩ.</p>
+                                </div>
+                            </div>
+                        </th:block>
+
+                        <!-- Nếu không có phác đồ điều trị, hiển thị hướng dẫn mặc định -->
+                        <th:block th:unless="${latestTreatmentPlan != null}">
+                            <div class="care-guide-item">
+                                <i class="fas fa-utensils"></i>
+                                <div>
+                                    <strong>Dinh dưỡng</strong>
+                                    <p>Hạn chế đồ uống có đường, carbohydrate tinh chế và các bữa ăn lớn vào ban đêm.</p>
+                                </div>
+                            </div>
+
+                            <div class="care-guide-item">
+                                <i class="fas fa-person-walking"></i>
+                                <div>
+                                    <strong>Vận động</strong>
+                                    <p>Duy trì hoạt động thể chất đều đặn phù hợp với tình trạng sức khỏe của bạn.</p>
+                                </div>
+                            </div>
+
+                            <div class="care-guide-item">
+                                <i class="fas fa-pills"></i>
+                                <div>
+                                    <strong>Dùng thuốc</strong>
+                                    <p>Uống thuốc đúng theo đơn và không tự ý thay đổi liều lượng nếu không có lời khuyên của bác sĩ.</p>
+                                </div>
+                            </div>
+
+                            <div class="care-guide-item">
+                                <i class="fas fa-calendar-check"></i>
+                                <div>
+                                    <strong>Tái khám</strong>
+                                    <p>Đi khám đúng lịch hẹn và thực hiện lại các xét nghiệm khi được yêu cầu.</p>
+                                </div>
+                            </div>
+                        </th:block>
+                    </div>
+                </section>
+            </div>
+
+            <div class="summary-grid dashboard-main-grid">
+                <section class="insight-card">
+                    <div class="card-header">
+                        <i class="fas fa-triangle-exclamation" style="color: var(--green-600);"></i>
+                        <h3>Kết quả xét nghiệm bất thường</h3>
+                    </div>
+
+                    <div class="table-wrapper" th:if="${abnormalResults != null && !abnormalResults.isEmpty()}">
+                        <table class="patient-table">
+                            <thead>
+                            <tr>
+                                <th>Xét nghiệm</th>
+                                <th>Giá trị</th>
+                                <th>Phạm vi tham chiếu</th>
+                                <th>Đánh giá</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="result : ${abnormalResults}">
+                                <td th:text="${result.labTest != null ? result.labTest.testName : 'Không rõ'}">HbA1c</td>
+                                <td>
+                                    <span th:text="${result.resultValue != null ? result.resultValue.stripTrailingZeros().toPlainString() : 'N/A'}">8.2</span>
+                                    <span th:text="${result.labTest != null && result.labTest.unit != null ? result.labTest.unit : ''}">%</span>
+                                </td>
+                                <td th:text="${result.referenceRange != null ? result.referenceRange : 'N/A'}">4.0 - 5.6</td>
+                                <td>
+                                    <span class="badge badge-danger"
+                                          th:text="${result.flag != null ? result.flag : 'Bất thường'}">
+                                        Cao
+                                    </span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="empty-message" th:if="${abnormalResults == null || abnormalResults.isEmpty()}">
+                        Không tìm thấy kết quả xét nghiệm bất thường nào.
+                    </div>
+                </section>
+
+                <section class="insight-card">
+                    <div class="card-header">
+                        <i class="fas fa-flask-vial" style="color: var(--green-600);"></i>
+                        <h3>Kết quả xét nghiệm gần đây</h3>
+                    </div>
+
+                    <div class="table-wrapper" th:if="${recentLabResults != null && !recentLabResults.isEmpty()}">
+                        <table class="patient-table">
+                            <thead>
+                            <tr>
+                                <th>Xét nghiệm</th>
+                                <th>Giá trị</th>
+                                <th>Đánh giá</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="result : ${recentLabResults}">
+                                <td th:text="${result.labTest != null ? result.labTest.testName : 'Không rõ'}">HbA1c</td>
+                                <td>
+                                    <span th:text="${result.resultValue != null ? result.resultValue.stripTrailingZeros().toPlainString() : 'N/A'}">7.2</span>
+                                    <span th:text="${result.labTest != null && result.labTest.unit != null ? result.labTest.unit : ''}">%</span>
+                                </td>
+                                <td>
+                                    <span class="badge"
+                                          th:classappend="${result.flag != null && (#strings.contains(#strings.toLowerCase(result.flag), 'high') || #strings.contains(#strings.toLowerCase(result.flag), 'low') || #strings.contains(#strings.toLowerCase(result.flag), 'abnormal') || #strings.contains(#strings.toLowerCase(result.flag), 'cao') || #strings.contains(#strings.toLowerCase(result.flag), 'thấp'))} ? ' badge-danger' : ' badge-success'"
+                                          th:text="${result.flag != null ? result.flag : 'Bình thường'}">
+                                        Bình thường
+                                    </span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="empty-message" th:if="${recentLabResults == null || recentLabResults.isEmpty()}">
+                        Không tìm thấy kết quả xét nghiệm nào.
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <div th:replace="~{layout/footer :: footer}"></div>
+    </div>
+</div>
+
+<script th:src="@{/js/patient/patient.js}"></script>
+</body>
+</html>

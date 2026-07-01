@@ -1,0 +1,249 @@
+/* ============================================================
+   notifications-history.css – Lịch sử Thông báo page styles
+   ============================================================ */
+
+/* Modern Premium Notification Styling */
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.history-tabs-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #ffffff;
+    border-radius: var(--radius);
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-sm);
+}
+
+.filter-tabs {
+    display: flex;
+    gap: 8px;
+}
+
+.filter-tab {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.filter-tab.active {
+    background-color: var(--mint-200);
+    color: var(--green-900);
+}
+
+.tab-count {
+    font-size: 11px;
+    background-color: rgba(10, 61, 50, 0.1);
+    color: var(--green-900);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 700;
+}
+
+.filter-tab.active .tab-count {
+    background-color: var(--green-700);
+    color: #ffffff;
+}
+
+.mark-read-btn {
+    background: transparent;
+    border: none;
+    color: var(--green-700);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s ease;
+}
+
+.mark-read-btn:hover {
+    background-color: var(--mint-50);
+    color: var(--green-900);
+}
+
+.notification-group {
+    margin-bottom: 32px;
+}
+
+.group-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+    padding-left: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.group-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background-color: var(--border);
+}
+
+.notification-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.notification-card {
+    background: #ffffff;
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    text-decoration: none;
+    color: inherit;
+}
+
+.notification-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--mint-400);
+}
+
+.notification-card.unread {
+    background-color: #f4fbf8;
+    border-left: 4px solid var(--green-700);
+}
+
+.card-main-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+}
+
+.notif-icon-wrapper {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.notif-icon-medication {
+    background-color: #fff1f1;
+    color: #d32f2f;
+}
+
+.notif-icon-checkup {
+    background-color: #e8f7f0;
+    color: #2e7d32;
+}
+
+.notif-icon-knowledge {
+    background-color: #f0f2f5;
+    color: #5c6bc0;
+}
+
+.notif-text-block {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.notif-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.notification-card.unread .notif-title {
+    color: #0f172a;
+}
+
+.notif-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--danger);
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.notif-message {
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.4;
+    max-width: 700px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-time-block {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-align: right;
+    min-width: 80px;
+}
+
+.empty-history-state {
+    background: #ffffff;
+    border-radius: var(--radius);
+    padding: 48px;
+    border: 1px solid var(--border);
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    margin-top: 16px;
+}
+
+.empty-icon {
+    font-size: 48px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    opacity: 0.6;
+}
+
+.empty-history-state h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.empty-history-state p {
+    color: var(--text-secondary);
+    font-size: 14px;
+    max-width: 400px;
+    margin: 0 auto;
+}

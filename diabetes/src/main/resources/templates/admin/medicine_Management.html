@@ -265,15 +265,15 @@
                                 th:href="@{/admin/medicines(page=${totalPages - 1}, size=${pageSize}, status=${selectedStatus}, form=${selectedForm}, route=${selectedRoute}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection})}"
                                 class="pagination-btn">Last <i class="fas fa-chevron-right"></i></a>
                         </div>
-                        <!--                        <div class="page-size-selector">-->
-                        <!--                            <label>Items per page: </label>-->
-                        <!--                            <select id="pageSizeSelect" onchange="changePageSize()">-->
-                        <!--                                <option value="5" th:selected="${pageSize == 5}">5</option>-->
-                        <!--                                <option value="10" th:selected="${pageSize == 10}">10</option>-->
-                        <!--                                <option value="20" th:selected="${pageSize == 20}">20</option>-->
-                        <!--                                <option value="50" th:selected="${pageSize == 50}">50</option>-->
-                        <!--                            </select>-->
-                        <!--                        </div>-->
+                        <div class="page-size-selector" style="display: flex; align-items: center; gap: 8px; font-size: 0.875rem; color: #5a6f68;">
+                            <label>Hiển thị: </label>
+                            <select id="pageSizeSelect" style="padding: 6px 12px; border: 1px solid #e2ebe7; border-radius: 8px; background-color: #fff; color: #0f2e26; font-size: 0.875rem; font-weight: 500; cursor: pointer;" onchange="changePageSize()">
+                                <option value="5" th:selected="${pageSize == 5}">5 hàng / trang</option>
+                                <option value="10" th:selected="${pageSize == 10}">10 hàng / trang</option>
+                                <option value="20" th:selected="${pageSize == 20}">20 hàng / trang</option>
+                                <option value="50" th:selected="${pageSize == 50}">50 hàng / trang</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </main>

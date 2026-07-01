@@ -20,6 +20,10 @@ public class MedicationTiming {
     public MedicationTiming() {
     }
 
+    public MedicationTiming(String timingName) {
+        this.timingName = timingName;
+    }
+
     public Integer getTimingID() {
         return timingID;
     }

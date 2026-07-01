@@ -8,7 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import com.quan.diabetes.service.CloudinaryService;
+import com.quan.diabetes.service.cloudinary.CloudinaryService;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
@@ -111,6 +111,26 @@ public class DoctorProfileController {
                     redirectAttributes.addFlashAttribute("errorMsg", "Tải lên ảnh đại diện thất bại: " + e.getMessage());
                     return "redirect:/doctor/profile";
                 }
+            }
+
+            if (fullName.trim().length() < 2 || fullName.trim().length() > 60) {
+                redirectAttributes.addFlashAttribute("errorMsg", "Full Name must be between 2 and 60 characters.");
+                return "redirect:/doctor/profile";
+            }
+
+            if (!fullName.trim().matches("^[A-Za-zÀ-ỹ\\s]+$")) {
+                redirectAttributes.addFlashAttribute("errorMsg", "Full Name can only contain letters and spaces.");
+                return "redirect:/doctor/profile";
+            }
+
+            if (address != null && address.trim().length() > 200) {
+                redirectAttributes.addFlashAttribute("errorMsg", "Address cannot exceed 200 characters.");
+                return "redirect:/doctor/profile";
+            }
+
+            if (specialty != null && specialty.trim().length() > 60) {
+                redirectAttributes.addFlashAttribute("errorMsg", "Specialty cannot exceed 60 characters.");
+                return "redirect:/doctor/profile";
             }
 
             profile.setFullName(fullName.trim());

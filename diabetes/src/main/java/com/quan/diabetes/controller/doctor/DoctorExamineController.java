@@ -1,12 +1,13 @@
 package com.quan.diabetes.controller.doctor;
 
-import com.quan.diabetes.dto.ClinicalExamForm;
+import com.quan.diabetes.dto.doctor.ClinicalExamForm;
 import com.quan.diabetes.entity.*;
 import com.quan.diabetes.repository.*;
-import com.quan.diabetes.service.ClinicalExaminationService;
-import com.quan.diabetes.service.PatientService;
-import com.quan.diabetes.service.ProfileService;
-import com.quan.diabetes.service.PatientRoutineService;
+
+import com.quan.diabetes.service.exam.ClinicalExaminationService;
+import com.quan.diabetes.service.user.PatientRoutineService;
+import com.quan.diabetes.service.user.PatientService;
+import com.quan.diabetes.service.user.ProfileService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,7 +16,6 @@ import jakarta.validation.Valid;
 import org.springframework.validation.BindingResult;
 import com.quan.diabetes.util.ParseUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.util.Collections;
 import java.util.List;

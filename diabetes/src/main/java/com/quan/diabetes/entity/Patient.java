@@ -7,16 +7,39 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.persistence.PostPersist;
+import jakarta.persistence.PostLoad;
+import org.springframework.data.domain.Persistable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "Patient")
-public class Patient {
+public class Patient implements Persistable<String> {
 
     @Id
     @Column(name = "UserID", length = 50)
     private String userId;
+
+    @Transient
+    private boolean isNew = true;
+
+    @Override
+    public String getId() {
+        return this.userId;
+    }
+
+    @Override
+    public boolean isNew() {
+        return this.isNew;
+    }
+
+    @PostPersist
+    @PostLoad
+    protected void markNotNew() {
+        this.isNew = false;
+    }
 
     @OneToOne
     @MapsId
@@ -26,7 +49,7 @@ public class Patient {
     @Column(name = "FullName", nullable = false, length = 60, columnDefinition = "NVARCHAR(60)")
     private String fullName;
 
-    @Column(name = "PhoneNumber", length = 15, unique = true, columnDefinition = "NVARCHAR(15)")
+    @Column(name = "PhoneNumber", length = 15, unique = true)
     private String phoneNumber;
 
     @Column(name = "Address", length = 200, columnDefinition = "NVARCHAR(200)")
@@ -37,7 +60,8 @@ public class Patient {
 
     @Column(name = "Gender")
     private Boolean gender;
-    // true -> male, false -> female
+    // Database BIT: 0 -> male, 1 -> female
+    // Java Boolean: false -> male, true -> female
 
     @Column(name = "Height")
     private Integer height;
@@ -57,7 +81,7 @@ public class Patient {
     @Column(name = "SupervisorName", length = 90, columnDefinition = "NVARCHAR(90)")
     private String supervisorName;
 
-    @Column(name = "SupervisorPhone", length = 15, columnDefinition = "NVARCHAR(15)")
+    @Column(name = "SupervisorPhone", length = 15)
     private String supervisorPhone;
 
     @Column(name = "ImageURL", length = 255, columnDefinition = "NVARCHAR(255)")
@@ -80,6 +104,10 @@ public class Patient {
 
     public void setUser(User user) {
         this.user = user;
+
+        if (user != null) {
+            this.userId = user.getUserId();
+        }
     }
 
     public String getFullName() {

@@ -27,12 +27,19 @@ public class SecurityConfig {
 
                         // 2. Cho phép vào các trang public như Đăng ký, Đăng nhập mà không cần tài khoản
                         .requestMatchers("/login", "/register", "/api/auth/**", "/logout", "/error", "/register/otp",
-                                "/register/verify-otp", "/register/resend-otp", "/").permitAll()
+                                "/register/verify-otp", "/register/resend-otp", "/forgot-password",
+                                "/forgot-password/send-otp", "/forgot-password/otp", "/forgot-password/verify-otp",
+                                "/forgot-password/reset",
+                                "/test-sms").permitAll()
 
-                        // 3. Các đường dẫn admin thì bắt buộc phải có quyền ADMIN
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasRole("AD")
+                        .requestMatchers("/patient/**").hasRole("PAT")
+                        .requestMatchers("/doctor/**").hasRole("DOC")
 
-                        // 4. Tất cả các request còn lại đều phải đăng nhập
+                        .requestMatchers("/api/admin/**").hasRole("AD")
+                        .requestMatchers("/api/patient/**").hasRole("PAT")
+                        .requestMatchers("/api/doctor/**").hasRole("DOC")
+
                         .anyRequest().authenticated()
                 )
                 // KHÔNG dùng formLogin nữa

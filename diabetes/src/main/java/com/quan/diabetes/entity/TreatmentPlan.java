@@ -29,7 +29,7 @@ public class TreatmentPlan {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ClinicalExamID", referencedColumnName = "ClinicalExamID", nullable = false)
-    private ClinicalExamination clinicalExamination;
+    private ClinicalExamination clinicalExam;
 
     /**
      * Hàm này sẽ tự động chạy ngay trước khi đối tượng được lưu vào database lần đầu tiên.
@@ -87,6 +87,14 @@ public class TreatmentPlan {
         this.glucoseMonitoringPlan = glucoseMonitoringPlan;
     }
 
+    public ClinicalExamination getClinicalExam() {
+        return clinicalExam;
+    }
+
+    public void setClinicalExam(ClinicalExamination clinicalExam) {
+        this.clinicalExam = clinicalExam;
+    }
+
     public String getTreatmentGoal() {
         return treatmentGoal;
     }
@@ -95,24 +103,25 @@ public class TreatmentPlan {
         this.treatmentGoal = treatmentGoal;
     }
 
-    public ClinicalExamination getClinicalExamination() {
-        return clinicalExamination;
-    }
-
-    public void setClinicalExamination(ClinicalExamination clinicalExamination) {
-        this.clinicalExamination = clinicalExamination;
-    }
-
     @Override
     public String toString() {
-        return "TreatmentPlan{" +
-                "planId=" + planId +
-                ", treatmentGoal='" + treatmentGoal + '\'' +
-                ", createdAt=" + createdAt +
-                ", dietPlan='" + dietPlan + '\'' +
-                ", exercisePlan='" + exercisePlan + '\'' +
-                ", glucoseMonitoringPlan='" + glucoseMonitoringPlan + '\'' +
-                ", clinicalExam=" + clinicalExamination +
-                '}';
+        StringBuilder sb = new StringBuilder();
+
+        // 1. Chế độ ăn uống
+        if (dietPlan != null && !dietPlan.isBlank()) {
+            sb.append("\n       + Chế độ dinh dưỡng: ").append(dietPlan.trim());
+        }
+
+        // 2. Chế độ tập luyện
+        if (exercisePlan != null && !exercisePlan.isBlank()) {
+            sb.append("\n       + Chế độ tập luyện: ").append(exercisePlan.trim());
+        }
+
+        // 3. Kế hoạch theo dõi đường huyết (Cực kỳ quan trọng với bệnh nhân tiểu đường)
+        if (glucoseMonitoringPlan != null && !glucoseMonitoringPlan.isBlank()) {
+            sb.append("\n       + Kế hoạch theo dõi đường huyết: ").append(glucoseMonitoringPlan.trim());
+        }
+
+        return sb.toString();
     }
 }

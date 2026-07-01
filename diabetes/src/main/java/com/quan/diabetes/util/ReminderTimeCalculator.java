@@ -14,6 +14,7 @@ import java.util.Locale;
  * Business rule: when the slot indicates "trước" (before) use routineTime - 30 minutes;
  * when it indicates "sau" (after) use routineTime + 30 minutes.
  */
+
 public final class ReminderTimeCalculator {
 
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
@@ -35,6 +36,9 @@ public final class ReminderTimeCalculator {
         if (timeSlot == null) timeSlot = "";
         String s = timeSlot.trim().toLowerCase(Locale.ROOT);
 
+        if(routine == null){
+            routine = new PatientRoutine();
+        }
         // Try parse explicit HH:mm
         try {
             if (s.matches("^\\d{1,2}:\\d{2}$")) {

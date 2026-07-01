@@ -27,4 +27,7 @@ public interface MedicationTimingRepository
     );
     Optional<MedicationTiming> findByTimingName(String timingName);
 
+    boolean existsByTimingName(String timingName);
+
+    boolean existsByTimingNameAndTimingIDNot(String timingName, Integer timingID);
 }

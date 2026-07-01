@@ -1,8 +1,9 @@
 package com.quan.diabetes.controller.doctor;
 
 import com.quan.diabetes.entity.*;
-import com.quan.diabetes.service.*;
 import com.quan.diabetes.repository.*;
+import com.quan.diabetes.service.exam.ClinicalExaminationService;
+import com.quan.diabetes.service.user.ProfileService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

@@ -2,7 +2,12 @@ package com.quan.diabetes.controller.auth;
 
 import com.quan.diabetes.config.SecurityConfig;
 import com.quan.diabetes.entity.*;
-import com.quan.diabetes.service.*;
+import com.quan.diabetes.service.exam.ClinicalExaminationService;
+import com.quan.diabetes.service.masterdata.RoleService;
+import com.quan.diabetes.service.user.PatientRoutineService;
+import com.quan.diabetes.service.user.PatientService;
+import com.quan.diabetes.service.user.ProfileService;
+import com.quan.diabetes.service.user.UserService;
 import com.quan.diabetes.util.ParseUtil;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
@@ -61,9 +66,9 @@ public class AuthenticationController {
                             @RequestParam(required = false) String registerSuccess,
                             Model model) {
         if ("true".equals(resetSuccess)) {
-            model.addAttribute("successMsg", "Password reset successful! Please log in.");
+            model.addAttribute("successMsg", "Đặt lại mật khẩu thành công! Vui lòng đăng nhập.");
         } else if ("true".equals(registerSuccess)) {
-            model.addAttribute("successMsg", "Registration successful! Please log in.");
+            model.addAttribute("successMsg", "Đăng ký tài khoản thành công! Vui lòng đăng nhập.");
         }
         return "auth/login";
     }
@@ -82,6 +87,15 @@ public class AuthenticationController {
         return "auth/register-otp";
     }
 
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        if (session != null) {
+            session.invalidate();
+        }
+        SecurityContextHolder.clearContext();
+        return "redirect:/login";
+    }
+
     // ==================== POST ====================
 
     @PostMapping("/login")
@@ -92,11 +106,15 @@ public class AuthenticationController {
         Optional<User> userOptional = userService.findByUsernameAndPassword(phoneNumber, password);
 
         if (userOptional.isEmpty()) {
-            model.addAttribute("errorMsg", "Incorrect account or password");
+            model.addAttribute("errorMsg", "Tên tài khoản hoặc mật khẩu không chính xác");
             return "auth/login";
         }
         User user = userOptional.get();
         // Sau khi xác thực thành công (user hợp lệ)
+        if (User.STATUS_LOCKED.equalsIgnoreCase(user.getStatus())) {
+            model.addAttribute("errorMsg", "Your account has been blocked. Please contact the administrator.");
+            return "auth/login";
+        }
         List<SimpleGrantedAuthority> authorities = Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_" + user.getRole().getRoleId())
         );
@@ -112,7 +130,7 @@ public class AuthenticationController {
             case "PAT" -> {
                 Patient patient = patientService.findById(user.getUserId()).orElse(null);
                 session.setAttribute("userProfile", patient);
-                return "redirect:/admin/dashboard";
+                return "redirect:/patient/dashboard";
             }
             case "DOC" -> {
                 Profile profile = profileService.findById(user.getUserId()).orElse(null);
@@ -124,7 +142,7 @@ public class AuthenticationController {
             }
             default -> {
                 session.removeAttribute("loggedInUser");
-                model.addAttribute("errorMsg", "Your account role is not recognized.");
+                model.addAttribute("errorMsg", "Vai trò tài khoản của bạn không được nhận diện.");
                 return "auth/login";
             }
         }
@@ -151,20 +169,20 @@ public class AuthenticationController {
 
         // Validate required fields
         if (ParseUtil.isBlank(roleId) || ParseUtil.isBlank(fullName) || ParseUtil.isBlank(phoneNumber) || ParseUtil.isBlank(password)) {
-            model.addAttribute("errorMsg", "Please enter all required information.");
+            model.addAttribute("errorMsg", "Vui lòng nhập đầy đủ các thông tin bắt buộc.");
             return "auth/register";
         }
 
         // Kiểm tra số điện thoại đã tồn tại chưa (tránh đăng ký trùng)
         if (userService.findByPhoneNumber(phoneNumber).isPresent()) {
-            model.addAttribute("errorMsg", "The phone number already exists in the system.");
+            model.addAttribute("errorMsg", "Số điện thoại đã tồn tại trên hệ thống.");
             return "auth/register";
         }
 
         // Kiểm tra role tồn tại
         Role role = roleService.findById(roleId).orElse(null);
         if (role == null) {
-            model.addAttribute("errorMsg", "The role does not exist.");
+            model.addAttribute("errorMsg", "Vai trò không tồn tại.");
             return "auth/register";
         }
 
@@ -208,17 +226,17 @@ public class AuthenticationController {
         LocalDateTime expiredAt = (LocalDateTime) session.getAttribute("regOtpExpiredAt");
 
         if (regData == null || sessionOtp == null || expiredAt == null) {
-            model.addAttribute("errorMsg", "Registration session expired. Please register again.");
+            model.addAttribute("errorMsg", "Phiên đăng ký đã hết hạn. Vui lòng đăng ký lại.");
             return "auth/register";
         }
 
         if (LocalDateTime.now().isAfter(expiredAt)) {
-            model.addAttribute("errorMsg", "OTP code has expired. Please request a new one.");
+            model.addAttribute("errorMsg", "Mã OTP đã hết hạn. Vui lòng yêu cầu mã mới.");
             return "auth/register-otp";
         }
 
         if (!sessionOtp.equals(otp)) {
-            model.addAttribute("errorMsg", "Incorrect OTP code");
+            model.addAttribute("errorMsg", "Mã OTP không chính xác");
             return "auth/register-otp";
         }
 
@@ -232,7 +250,7 @@ public class AuthenticationController {
             session.removeAttribute("regOtpVerified");
             return "redirect:/login?registerSuccess=true";
         } catch (Exception e) {
-            model.addAttribute("errorMsg", "Registration failed: " + e.getMessage());
+            model.addAttribute("errorMsg", "Đăng ký thất bại: " + e.getMessage());
             return "auth/register";
         }
     }
@@ -243,7 +261,7 @@ public class AuthenticationController {
     public String resendRegisterOtp(HttpSession session) {
         Map<String, Object> regData = (Map<String, Object>) session.getAttribute("regData");
         if (regData == null) {
-            return "Registration session expired. Please register again.";
+            return "Phiên đăng ký đã hết hạn. Vui lòng đăng ký lại.";
         }
         String phoneNumber = (String) regData.get("phoneNumber");
         String newOtp = String.valueOf(100000 + new Random().nextInt(900000));
@@ -257,7 +275,7 @@ public class AuthenticationController {
     // Phương thức tạo user từ dữ liệu tạm (đã được kiểm tra phone chưa tồn tại trước đó,
     // nhưng cần kiểm tra lại phòng trường hợp có người đăng ký cùng số trong lúc chờ OTP)
     @Transactional
-    private void createUserFromRegData(Map<String, Object> regData) {
+    public void createUserFromRegData(Map<String, Object> regData) {
         String roleId = (String) regData.get("roleId");
         String fullName = (String) regData.get("fullName");
         String phoneNumber = (String) regData.get("phoneNumber");
@@ -274,10 +292,10 @@ public class AuthenticationController {
 
         // Kiểm tra lại phone number chưa tồn tại (tránh race condition)
         if (userService.findByPhoneNumber(phoneNumber).isPresent()) {
-            throw new RuntimeException("Phone number already exists. Please use another number.");
+            throw new RuntimeException("Số điện thoại đã tồn tại. Vui lòng chọn số khác.");
         }
 
-        Role role = roleService.findById(roleId).orElseThrow(() -> new RuntimeException("Role not found"));
+        Role role = roleService.findById(roleId).orElseThrow(() -> new RuntimeException("Không tìm thấy vai trò"));
         String userId = userService.getNewID(roleId);
 
         User user = new User();
@@ -289,6 +307,7 @@ public class AuthenticationController {
 
         if ("PAT".equalsIgnoreCase(roleId)) {
             Patient patient = new Patient();
+            patient.setUserId(userId);
             patient.setUser(user);
             patient.setFullName(fullName);
             patient.setPhoneNumber(phoneNumber);
@@ -315,5 +334,4 @@ public class AuthenticationController {
             profileService.create(profile);
         }
     }
-
 }
