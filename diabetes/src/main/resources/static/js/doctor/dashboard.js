@@ -2,52 +2,7 @@
  * Doctor Dashboard JS - Pure Thymeleaf Integration
  */
 
-let searchTimeout;
-
-// Debounced search on input
-function handleQueueSearch() {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-        const activePill = document.querySelector('.filter-pills .pill.active');
-        const status = activePill ? activePill.getAttribute('data-status') : 'all';
-        const searchVal = document.getElementById('queueSearchInput').value.trim();
-        window.location.href = `/doctor/dashboard?page=1&status=${status}&search=${encodeURIComponent(searchVal)}`;
-    }, 600);
-}
-
-// Redirect when changing filter pills
-function filterQueue(status) {
-    const searchVal = document.getElementById('queueSearchInput').value.trim();
-    window.location.href = `/doctor/dashboard?page=1&status=${status}&search=${encodeURIComponent(searchVal)}`;
-}
-
-// Redirect when clicking page numbers
-function navigatePage(page) {
-    const activePill = document.querySelector('.filter-pills .pill.active');
-    const status = activePill ? activePill.getAttribute('data-status') : 'all';
-    const searchVal = document.getElementById('queueSearchInput').value.trim();
-    window.location.href = `/doctor/dashboard?page=${page}&status=${status}&search=${encodeURIComponent(searchVal)}`;
-}
-
 document.addEventListener('DOMContentLoaded', () => {
-    // Setup global top header search mapping if present
-    const quickSearch = document.getElementById('quickSearchPatients');
-    if (quickSearch) {
-        // Read search parameter from URL to populate top search bar
-        const urlParams = new URLSearchParams(window.location.search);
-        const searchParam = urlParams.get('search') || '';
-        quickSearch.value = searchParam;
-
-        quickSearch.addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                const activePill = document.querySelector('.filter-pills .pill.active');
-                const status = activePill ? activePill.getAttribute('data-status') : 'all';
-                const searchVal = e.target.value.trim();
-                window.location.href = `/doctor/dashboard?page=1&status=${status}&search=${encodeURIComponent(searchVal)}`;
-            }, 600);
-        });
-    }
 
     // Check url param for toasts
     const urlParams = new URLSearchParams(window.location.search);

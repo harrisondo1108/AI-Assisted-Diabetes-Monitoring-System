@@ -67,20 +67,23 @@
                                 <h2 class="card-title">Hàng đợi khám bệnh</h2>
                                 <p class="card-subtitle">Quản lý lịch hẹn khám của bệnh nhân trong ngày hôm nay</p>
                             </div>
-                            <div class="header-actions">
+                            <form th:action="@{/doctor/dashboard}" method="get" class="header-actions">
+                                <input type="hidden" name="page" value="1">
+                                <input type="hidden" name="status" th:value="${currentStatus != null ? currentStatus : 'all'}">
+                                
                                 <div class="card-search-box">
                                     <i class="fas fa-search"></i>
-                                    <input type="text" id="queueSearchInput" placeholder="Tìm theo tên..."
-                                        th:value="${currentSearch}" oninput="handleQueueSearch()">
+                                    <input type="text" name="search" id="queueSearchInput" placeholder="Tìm theo tên..."
+                                        th:value="${currentSearch}">
                                 </div>
                                 <div class="filter-pills">
-                                    <button class="pill" th:classappend="${currentStatus == 'all' || currentStatus == null} ? 'active' : ''" data-status="all" onclick="filterQueue('all')">Tất cả</button>
-                                    <button class="pill" th:classappend="${currentStatus == 'Pending'} ? 'active' : ''" data-status="Pending" onclick="filterQueue('Pending')">Đang chờ</button>
-                                    <button class="pill" th:classappend="${currentStatus == 'InProgress'} ? 'active' : ''" data-status="InProgress" onclick="filterQueue('InProgress')">Đang khám</button>
-                                    <button class="pill" th:classappend="${currentStatus == 'Completed'} ? 'active' : ''" data-status="Completed" onclick="filterQueue('Completed')">Hoàn thành</button>
-                                    <button class="pill" th:classappend="${currentStatus == 'Cancelled'} ? 'active' : ''" data-status="Cancelled" onclick="filterQueue('Cancelled')">Đã hủy</button>
+                                    <a th:href="@{/doctor/dashboard(page=1, status='all', search=${currentSearch})}" class="pill" th:classappend="${currentStatus == 'all' || currentStatus == null} ? 'active' : ''" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Tất cả</a>
+                                    <a th:href="@{/doctor/dashboard(page=1, status='Pending', search=${currentSearch})}" class="pill" th:classappend="${currentStatus == 'Pending'} ? 'active' : ''" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Đang chờ</a>
+                                    <a th:href="@{/doctor/dashboard(page=1, status='InProgress', search=${currentSearch})}" class="pill" th:classappend="${currentStatus == 'InProgress'} ? 'active' : ''" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Đang khám</a>
+                                    <a th:href="@{/doctor/dashboard(page=1, status='Completed', search=${currentSearch})}" class="pill" th:classappend="${currentStatus == 'Completed'} ? 'active' : ''" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Hoàn thành</a>
+                                    <a th:href="@{/doctor/dashboard(page=1, status='Cancelled', search=${currentSearch})}" class="pill" th:classappend="${currentStatus == 'Cancelled'} ? 'active' : ''" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Đã hủy</a>
                                 </div>
-                            </div>
+                            </form>
                         </div>
                         <div class="table-container">
                             <table class="clinical-table">
@@ -145,23 +148,29 @@
                         <div class="card-footer">
                             <div class="pagination" id="queuePagination" th:if="${totalPages > 1}">
                                 <!-- Prev Button -->
-                                <button th:disabled="${currentPage == 1}"
-                                        th:onclick="'navigatePage(' + (${currentPage - 1}) + ')'">
+                                <a th:if="${currentPage > 1}"
+                                   th:href="@{/doctor/dashboard(page=${currentPage - 1}, status=${currentStatus}, search=${currentSearch})}">
                                     <i class="fas fa-chevron-left"></i>
-                                </button>
+                                </a>
+                                <span th:if="${currentPage == 1}" class="disabled">
+                                    <i class="fas fa-chevron-left"></i>
+                                </span>
                                 
                                 <!-- Page Numbers -->
-                                <button th:each="i : ${#numbers.sequence(1, totalPages)}"
-                                        th:text="${i}"
-                                        th:classappend="${i == currentPage} ? 'active' : ''"
-                                        th:onclick="'navigatePage(' + ${i} + ')'">
-                                </button>
+                                <a th:each="i : ${#numbers.sequence(1, totalPages)}"
+                                   th:text="${i}"
+                                   th:href="@{/doctor/dashboard(page=${i}, status=${currentStatus}, search=${currentSearch})}"
+                                   th:classappend="${i == currentPage} ? 'active' : ''">
+                                </a>
                                 
                                 <!-- Next Button -->
-                                <button th:disabled="${currentPage == totalPages}"
-                                        th:onclick="'navigatePage(' + (${currentPage + 1}) + ')'">
+                                <a th:if="${currentPage < totalPages}"
+                                   th:href="@{/doctor/dashboard(page=${currentPage + 1}, status=${currentStatus}, search=${currentSearch})}">
                                     <i class="fas fa-chevron-right"></i>
-                                </button>
+                                </a>
+                                <span th:if="${currentPage == totalPages}" class="disabled">
+                                    <i class="fas fa-chevron-right"></i>
+                                </span>
                             </div>
                         </div>
                     </div>

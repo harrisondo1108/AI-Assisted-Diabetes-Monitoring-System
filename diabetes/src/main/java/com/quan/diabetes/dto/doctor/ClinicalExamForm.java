@@ -22,15 +22,15 @@ public class ClinicalExamForm {
     private String prescriptionJson; // Receives serialized JSON string of medications
 
     // Treatment plan details
-    @Pattern(regexp = "^$|.*\\\\S.*", message = "Mục tiêu điều trị không được chỉ chứa khoảng trắng")
+    @Pattern(regexp = "^$|.*\\S.*", message = "Mục tiêu điều trị không được chỉ chứa khoảng trắng")
     private String treatmentGoal;
-    @Pattern(regexp = "^$|.*\\\\S.*", message = "Chế độ dinh dưỡng không được chỉ chứa khoảng trắng")
+    @Pattern(regexp = "^$|.*\\S.*", message = "Chế độ dinh dưỡng không được chỉ chứa khoảng trắng")
     private String dietPlan;
-    @Pattern(regexp = "^$|.*\\\\S.*", message = "Chế độ tập luyện không được chỉ chứa khoảng trắng")
+    @Pattern(regexp = "^$|.*\\S.*", message = "Chế độ tập luyện không được chỉ chứa khoảng trắng")
     private String exercisePlan;
-    @Pattern(regexp = "^$|.*\\\\S.*", message = "Kế hoạch theo dõi đường huyết không được chỉ chứa khoảng trắng")
+    @Pattern(regexp = "^$|.*\\S.*", message = "Kế hoạch theo dõi đường huyết không được chỉ chứa khoảng trắng")
     private String glucoseMonitoringPlan;
-    @Pattern(regexp = "^$|.*\\\\S.*", message = "Kế hoạch dùng thuốc không được chỉ chứa khoảng trắng")
+    @Pattern(regexp = "^$|.*\\S.*", message = "Kế hoạch dùng thuốc không được chỉ chứa khoảng trắng")
     private String medicationPlan;
     private Boolean isPregnant;
 
