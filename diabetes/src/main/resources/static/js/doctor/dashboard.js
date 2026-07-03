@@ -46,17 +46,7 @@ function closeCompletedExam() {
     if (modal) modal.classList.remove('open');
 }
 
-// Navigate to patient medical history timeline page
-function viewPatientHistory(patientId) {
-    window.location.href = `/doctor/history?patientId=${patientId}&from=dashboard`;
-}
 
-function viewPatientHistoryFromModal() {
-    const modalPatientIdEl = document.getElementById('modalPatientId');
-    if (modalPatientIdEl && modalPatientIdEl.value) {
-        viewPatientHistory(modalPatientIdEl.value);
-    }
-}
 
 function toggleDashboardPrescDetail(index) {
     const dropdown = document.getElementById(`presc-dashboard-dropdown-${index}`);
