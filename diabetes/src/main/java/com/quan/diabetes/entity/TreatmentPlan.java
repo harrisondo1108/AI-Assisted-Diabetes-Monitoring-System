@@ -12,7 +12,7 @@ public class TreatmentPlan {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int planId;
 
-    @Column(name = "TreatmentGoal",columnDefinition = "NVARCHAR(MAX)")
+    @Column(name = "TreatmentGoal", columnDefinition = "NVARCHAR(MAX)")
     private String treatmentGoal;
 
     @Column(name = "CreatedAt", nullable = false, updatable = false)
@@ -29,10 +29,17 @@ public class TreatmentPlan {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ClinicalExamID", referencedColumnName = "ClinicalExamID", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    // Mình vừa thêm Annotation @com.fasterxml.jackson.annotation.JsonIgnore vào
+    // thuộc tính clinicalExam trong Entity TreatmentPlan (TreatmentPlan.java). Điều
+    // này báo cho Jackson biết rằng: "Khi chuyển đổi TreatmentPlan thành JSON, hãy
+    // bỏ qua thuộc tính clinicalExam", từ đó bẻ gãy vòng lặp vô hạn một cách an
+    // toàn mà không làm ảnh hưởng đến các logic khác trong dự án của bạn.
     private ClinicalExamination clinicalExam;
 
     /**
-     * Hàm này sẽ tự động chạy ngay trước khi đối tượng được lưu vào database lần đầu tiên.
+     * Hàm này sẽ tự động chạy ngay trước khi đối tượng được lưu vào database lần
+     * đầu tiên.
      */
     @PrePersist
     protected void onCreate() {
@@ -44,7 +51,6 @@ public class TreatmentPlan {
     }
 
     // --- Getters and Setters ---
-
 
     public int getPlanId() {
         return planId;
@@ -58,7 +64,8 @@ public class TreatmentPlan {
         return createdAt;
     }
 
-    // Bạn có thể xóa hẳn hàm setCreatedAt nếu không muốn code bên ngoài thay đổi thời gian tạo lịch sử
+    // Bạn có thể xóa hẳn hàm setCreatedAt nếu không muốn code bên ngoài thay đổi
+    // thời gian tạo lịch sử
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
@@ -87,6 +94,7 @@ public class TreatmentPlan {
         this.glucoseMonitoringPlan = glucoseMonitoringPlan;
     }
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
     public ClinicalExamination getClinicalExam() {
         return clinicalExam;
     }

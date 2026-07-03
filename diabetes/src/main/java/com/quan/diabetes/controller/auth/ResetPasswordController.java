@@ -3,6 +3,8 @@ package com.quan.diabetes.controller.auth;
 import com.quan.diabetes.entity.User;
 import com.quan.diabetes.service.user.UserService;
 import jakarta.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +16,7 @@ import java.util.Random;
 
 @Controller
 public class ResetPasswordController {
-
+    private static final Logger logger = LoggerFactory.getLogger(ResetPasswordController.class);
     private final UserService userService;
 
     public ResetPasswordController(UserService userService) {
@@ -65,7 +67,7 @@ public class ResetPasswordController {
         session.setAttribute("otpVerified", false);
 
         System.out.println("OTP reset password: " + otp);
-
+        logger.info("OTP reset password: {} for phone {}", otp, phoneNumber);
         return "redirect:/forgot-password/otp";
     }
 

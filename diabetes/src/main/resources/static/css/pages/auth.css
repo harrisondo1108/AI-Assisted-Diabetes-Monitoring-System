@@ -1,3 +1,13 @@
+:root {
+    --primary: #059669;
+    --primary-hover: #047857;
+    --bg-light: #f4fbf7;
+    --text-dark: #0f172a;
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.5);
+    --shadow-lg: 0 20px 40px rgba(15, 23, 42, 0.08);
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -6,28 +16,90 @@
 
 body {
     font-family: 'Inter', sans-serif;
-    background: linear-gradient(135deg, #059669 0%, #065f46 100%);
+    background-color: var(--bg-light);
+    color: var(--text-dark);
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Background Glowing Orbs (similar to homepage) */
+.bg-glowing-dots {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+}
+
+.glowing-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.6;
+    animation: floatOrb 10s infinite ease-in-out alternate;
+}
+
+.orb-1 { width: 400px; height: 400px; background: rgba(16, 185, 129, 0.2); top: -100px; left: -100px; }
+.orb-2 { width: 300px; height: 300px; background: rgba(52, 211, 153, 0.2); bottom: -50px; right: -50px; animation-delay: -3s; }
+.orb-3 { width: 250px; height: 250px; background: rgba(5, 150, 105, 0.15); top: 40%; left: 50%; animation-delay: -6s; }
+
+@keyframes floatOrb {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(30px, -30px); }
 }
 
 /* Container chính */
 .container {
     width: 100%;
-    max-width: 1400px;
+    max-width: 1200px;
     padding: 20px;
+    position: relative;
+    z-index: 10;
+}
+
+/* Go Back Button */
+.btn-back {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: white;
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+    border-radius: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    z-index: 100;
+    font-family: 'Outfit', sans-serif;
+}
+
+.btn-back:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(5, 150, 105, 0.15);
+    background: var(--primary);
+    color: white;
 }
 
 /* Wrapper chung cho cả login và register */
 .portal-wrapper {
     display: flex;
-    background: white;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
     border-radius: 30px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    box-shadow: var(--shadow-lg);
     overflow: hidden;
-    min-height: 700px;
+    min-height: 650px;
 }
 
 /* Login wrapper */
@@ -43,11 +115,27 @@ body {
 /* ========== LEFT PANEL (chung) ========== */
 .left-panel {
     flex: 1;
-    background: linear-gradient(135deg, #047857 0%, #064e3b 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, #064e3b 100%);
     padding: 50px;
     color: white;
     display: flex;
     flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+.left-panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="2"/></svg>') repeat;
+    opacity: 0.5;
+    z-index: 1;
+}
+
+.left-panel > * {
+    position: relative;
+    z-index: 2;
 }
 
 .logo {
@@ -56,6 +144,7 @@ body {
     gap: 12px;
     font-size: 28px;
     font-weight: 700;
+    font-family: 'Outfit', sans-serif;
     margin-bottom: 60px;
 }
 
@@ -67,12 +156,14 @@ body {
 .left-panel h1 {
     font-size: 32px;
     margin-bottom: 15px;
+    font-family: 'Outfit', sans-serif;
 }
 
 .left-panel h2 {
     font-size: 28px;
     margin-bottom: 10px;
     font-weight: 600;
+    font-family: 'Outfit', sans-serif;
 }
 
 .subtitle {
@@ -141,10 +232,11 @@ body {
 
 /* Right panel headings */
 .right-panel h2 {
-    font-size: 28px;
-    color: #1e293b;
+    font-size: 32px;
+    color: var(--text-dark);
     margin-bottom: 30px;
     text-align: center;
+    font-family: 'Outfit', sans-serif;
 }
 
 /* ========== INPUT GROUP (chung) ========== */
@@ -176,6 +268,51 @@ body {
     transition: all 0.3s;
     font-family: inherit;
     background: white;
+}
+
+/* Readonly role input styling (moved from inline template) */
+.input-group .readonly-input[readonly] {
+    background-color: #f8fafc; /* light background like other inputs */
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 12px;
+    width: 100%;
+    box-sizing: border-box;
+    cursor: default;
+    color: #111827;
+}
+/* ensure the icon sits correctly (same spacing as other inputs) */
+.input-group .readonly-input[readonly] + .input-icon {
+    top: 12px;
+}
+/* Visible role label that looks like an input while submitting a hidden value */
+.role-label {
+    display: block;
+    padding: 12px 15px 12px 45px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    background: #f8fafc;
+    width: 100%;
+    box-sizing: border-box;
+    color: #111827;
+}
+.role-label + .input-icon {
+    top: 42px; /* match icon vertical position with other inputs */
+}
+
+/* Textarea in input-group (moved from inline) */
+.input-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-family: inherit;
+    resize: vertical;
+}
+
+/* Specific icon position for textarea's notes icon */
+.input-group .notes-icon {
+    top: 45px;
 }
 
 .input-group input:focus,
@@ -344,7 +481,7 @@ footer {
     margin-bottom: 20px;
     font-size: 14px;
     text-align: center;
-    /*display: none;*/
+    display: none; /* hide by default; will be shown by JS when needed */
 }
 
 /* ========== RESPONSIVE ========== */

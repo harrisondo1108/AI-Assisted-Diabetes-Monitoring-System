@@ -17,4 +17,5 @@ public interface AIMessageService {
     void deleteByConversationId(String conversationId);
     boolean existsById(Long id);
     List<AIMessage> searchByContent(String keyword);
+    String getFormattedConversationHistory(String conversationId, int limit);
 }

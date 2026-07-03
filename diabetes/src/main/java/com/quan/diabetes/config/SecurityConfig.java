@@ -30,7 +30,7 @@ public class SecurityConfig {
                                 "/register/verify-otp", "/register/resend-otp", "/forgot-password",
                                 "/forgot-password/send-otp", "/forgot-password/otp", "/forgot-password/verify-otp",
                                 "/forgot-password/reset",
-                                "/test-sms").permitAll()
+                                "/test-sms", "/").permitAll()
 
                         .requestMatchers("/admin/**").hasRole("AD")
                         .requestMatchers("/patient/**").hasRole("PAT")
