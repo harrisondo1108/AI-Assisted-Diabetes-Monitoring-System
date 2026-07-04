@@ -92,8 +92,9 @@ public class AIMessageServiceImpl implements AIMessageService {
 
     @Override
     public String getFormattedConversationHistory(String conversationId, int limit) {
-        List<AIMessage> topMessages = aIMessageRepository.findTop20ByAiConversation_AiConversationIdOrderByTimeDesc(conversationId);
-        
+        List<AIMessage> topMessages = aIMessageRepository
+                .findTop20ByAiConversation_AiConversationIdOrderByTimeDesc(conversationId);
+
         // Cần đảo ngược lại để hiển thị đúng thứ tự thời gian tăng dần
         Collections.reverse(topMessages);
 
@@ -101,11 +102,11 @@ public class AIMessageServiceImpl implements AIMessageService {
                 .limit(limit)
                 .map(m -> new AiHistoryDto(
                         m.getSender().equalsIgnoreCase("Patient") ? "user" : "ai",
-                        m.getContent()
-                )).collect(Collectors.toList());
+                        m.getContent()))
+                .collect(Collectors.toList());
 
         return historyDtos.stream()
-                .map(dto -> (dto.getRole().equals("user") ? "Patient: " : "Ai: ") + dto.getMessage())
+                .map(dto -> (dto.getRole().equals("user") ? "Bệnh nhân: " : "Bạn: ") + dto.getMessage())
                 .collect(Collectors.joining("\n"));
     }
 }
