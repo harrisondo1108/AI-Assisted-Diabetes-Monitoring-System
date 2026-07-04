@@ -42,7 +42,7 @@ public class AIChatServiceImpl implements AIChatService {
     private final AIConversationService aiConversationService;
     private final AIAssistantService aiAssistantService;
     private final PatientService patientService;
-    private final com.quan.diabetes.repository.AiRepository aiRepository;
+    private final com.quan.diabetes.service.ai.AiTool aiTool;
 
     public AIChatServiceImpl(
             RestTemplate restTemplate,
@@ -50,13 +50,13 @@ public class AIChatServiceImpl implements AIChatService {
             AIConversationService aiConversationService,
             AIAssistantService aiAssistantService,
             PatientService patientService,
-            com.quan.diabetes.repository.AiRepository aiRepository) {
+            com.quan.diabetes.service.ai.AiTool aiTool) {
         this.restTemplate = restTemplate;
         this.aiMessageService = aiMessageService;
         this.aiConversationService = aiConversationService;
         this.aiAssistantService = aiAssistantService;
         this.patientService = patientService;
-        this.aiRepository = aiRepository;
+        this.aiTool = aiTool;
     }
 
     @Override
@@ -99,6 +99,9 @@ public class AIChatServiceImpl implements AIChatService {
             AIConversation conversation = getOrCreateConversation(request, patient, assistant);
             logger.info("Using conversation: {}", conversation.getAiConversationId());
 
+            // Fetch history before saving the current message
+            String formattedHistory = aiMessageService.getFormattedConversationHistory(conversation.getAiConversationId(), 20);
+
             // 4. Save user message
             AIMessage userMessage = new AIMessage();
             userMessage.setContent(request.question());
@@ -111,10 +114,16 @@ public class AIChatServiceImpl implements AIChatService {
             RAGAiChatRequest ragAiChatRequest = new RAGAiChatRequest();
             ragAiChatRequest.setPatientId(request.patientId());
             ragAiChatRequest.setMessage(request.question());
-
+            ragAiChatRequest.setConversationHistory(formattedHistory);
+            System.out.println("==============History =================");
+            System.out.println(formattedHistory);
+            System.out.println();
+            System.out.println("==============History =================");
             // 2. call python (trả về RAGAIChatResponse)
             RAGAiChatResponse ragAiChatResponse = callPythonAiFirst(ragAiChatRequest);
-
+            System.out.println("================ CALL PYTHON 1ST ===========");
+            System.out.println(ragAiChatResponse);
+            System.out.println("================ CALL PYTHON 1ST ===========");
             // 3 & 4. backend check status
             String aiResponse = "";
             if (ragAiChatResponse != null && "FINAL_ANSWER".equals(ragAiChatResponse.getStatus())) {
@@ -125,7 +134,8 @@ public class AIChatServiceImpl implements AIChatService {
                 RAGPythonAiRequest pyRequest = new RAGPythonAiRequest(
                         ragAiChatRequest.getPatientId(),
                         ragAiChatRequest.getMessage(),
-                        ""
+                        "",
+                        formattedHistory
                 );
 
                 // Trích xuất tool thông tin từ content chuỗi JSON
@@ -140,12 +150,19 @@ public class AIChatServiceImpl implements AIChatService {
                     logger.info("[RAG] Python yêu cầu truy xuất SQL - action: {}", action);
                     // truy suất dữ liệu từ cơ sở dữ liệu theo tool tương ứng
                     String sqlData = fetchDataFromRepository(action, patientId);
-
+                    System.out.println("============== SQL DATA ===========");
+                    System.out.println(sqlData);
+                    System.out.println();
+                    System.out.println("============== SQL DATA ===========");
                     // sau đó lưu vào contextData
                     pyRequest.setContextData(sqlData);
-
+                    System.out.println("============== PY REQUEST ===========");
+                    System.out.println(pyRequest);
+                    System.out.println("============== PY REQUEST ===========");
                     // 5. dùng RAGPythonAiRequest để gọi python lần 2 sẽ trả về RAGPythonAiResponse
                     RAGPythonAiResponse secondPyResponse = callPythonAiSecond(pyRequest);
+                    System.out.println("============== SECOND PY RESPONSE ===========");System.out.println(secondPyResponse);
+                    System.out.println("============== SECOND PY RESPONSE ===========");
                     if (secondPyResponse != null) {
                         aiResponse = secondPyResponse.getContent();
                     } else {
@@ -196,7 +213,8 @@ public class AIChatServiceImpl implements AIChatService {
             RAGPythonAiRequest pyRequest = new RAGPythonAiRequest(
                     ragRequest.getPatientId(),
                     ragRequest.getMessage(),
-                    ""
+                    "",
+                    ragRequest.getConversationHistory()
             );
 
             HttpHeaders headers = new HttpHeaders();
@@ -243,15 +261,15 @@ public class AIChatServiceImpl implements AIChatService {
     private String fetchDataFromRepository(String action, String patientId) {
         switch (action) {
             case "get_general_record":
-                return aiRepository.getGeneralRecord(patientId);
+                return aiTool.getGeneralRecord(patientId);
             case "get_clinical_examination":
-                return aiRepository.getClinicalExamination(patientId);
+                return aiTool.getClinicalExamination(patientId);
             case "get_treatment_plan":
-                return aiRepository.getTreatmentPlan(patientId);
+                return aiTool.getTreatmentPlan(patientId);
             case "get_lab_results":
-                return aiRepository.getLabResults(patientId);
+                return aiTool.getLabResults(patientId);
             case "get_prescriptions":
-                return aiRepository.getPrescriptions(patientId);
+                return aiTool.getPrescriptions(patientId);
             default:
                 logger.warn("Không tìm thấy action RAG: {}", action);
                 return null;
