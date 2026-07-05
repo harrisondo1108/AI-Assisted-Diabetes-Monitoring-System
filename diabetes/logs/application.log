@@ -1924,3 +1924,388 @@ Caused by: com.microsoft.sqlserver.jdbc.SQLServerException: The object 'PK__Exam
 2026-07-05T01:33:34.968+07:00  INFO 30364 --- [diabetes] [http-nio-8080-exec-9] c.q.d.service.ai.impl.AIChatServiceImpl  : --- CHẶNG 2: Gọi AI Ollama phân tích ---
 2026-07-05T01:33:34.969+07:00  INFO 30364 --- [diabetes] [http-nio-8080-exec-9] c.q.d.service.ai.impl.AIChatServiceImpl  : Calling Ollama API at http://localhost:11434/api/generate with model: diabetesAI
 2026-07-05T01:33:42.329+07:00  INFO 30364 --- [diabetes] [http-nio-8080-exec-9] c.q.d.service.ai.impl.AIChatServiceImpl  : Total response time: 7495 ms
+2026-07-05T21:43:30.250+07:00  INFO 12492 --- [diabetes] [restartedMain] com.quan.diabetes.DiabetesApplication    : Starting DiabetesApplication using Java 21.0.11 with PID 12492 (D:\Git_clone_quan_le\AI-Assisted-Diabetes-Monitoring-System\diabetes\target\classes started by LENOVO in D:\Git_clone_quan_le\AI-Assisted-Diabetes-Monitoring-System\diabetes)
+2026-07-05T21:43:30.253+07:00  INFO 12492 --- [diabetes] [restartedMain] com.quan.diabetes.DiabetesApplication    : No active profile set, falling back to 1 default profile: "default"
+2026-07-05T21:43:30.298+07:00  INFO 12492 --- [diabetes] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-07-05T21:43:30.299+07:00  INFO 12492 --- [diabetes] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-07-05T21:43:31.034+07:00  INFO 12492 --- [diabetes] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-07-05T21:43:31.148+07:00  INFO 12492 --- [diabetes] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 104 ms. Found 25 JPA repository interfaces.
+2026-07-05T21:43:31.791+07:00  INFO 12492 --- [diabetes] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-07-05T21:43:31.807+07:00  INFO 12492 --- [diabetes] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-07-05T21:43:31.807+07:00  INFO 12492 --- [diabetes] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.21]
+2026-07-05T21:43:31.852+07:00  INFO 12492 --- [diabetes] [restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1553 ms
+2026-07-05T21:43:32.056+07:00  INFO 12492 --- [diabetes] [restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-07-05T21:43:32.099+07:00  INFO 12492 --- [diabetes] [restartedMain] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.12.Final
+2026-07-05T21:43:32.475+07:00  INFO 12492 --- [diabetes] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-07-05T21:43:32.503+07:00  INFO 12492 --- [diabetes] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-07-05T21:43:32.798+07:00  INFO 12492 --- [diabetes] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection ConnectionID:1 ClientConnectionId: 24390455-30b0-4b01-9462-bc302fe92135
+2026-07-05T21:43:32.800+07:00  INFO 12492 --- [diabetes] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-07-05T21:43:32.932+07:00  INFO 12492 --- [diabetes] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:sqlserver://localhost:1433;concatNullYieldsNull=ON;quotedIdentifier=ON;connectRetryInterval=10;connectRetryCount=1;maxResultBuffer=-1;sendTemporalDataTypesAsStringForBulkCopy=true;delayLoadingLobs=true;useFmtOnly=false;vectorTypeSupport=v1;cacheBulkCopyMetadata=false;bulkCopyForBatchInsertAllowEncryptedValueModifications=false;bulkCopyForBatchInsertTableLock=false;bulkCopyForBatchInsertKeepNulls=false;bulkCopyForBatchInsertKeepIdentity=false;bulkCopyForBatchInsertFireTriggers=false;bulkCopyForBatchInsertCheckConstraints=false;bulkCopyForBatchInsertBatchSize=0;useBulkCopyForBatchInsert=false;cancelQueryTimeout=-1;sslProtocol=TLS;calcBigDecimalPrecision=false;useDefaultJaasConfig=false;jaasConfigurationName=SQLJDBCDriver;statementPoolingCacheSize=0;serverPreparedStatementDiscardThreshold=10;enablePrepareOnFirstPreparedStatementCall=false;fips=false;socketTimeout=0;authentication=NotSpecified;authenticationScheme=nativeAuthentication;xopenStates=false;datetimeParameterType=datetime2;sendTimeAsDatetime=true;replication=false;trustStoreType=JKS;trustServerCertificate=true;TransparentNetworkIPResolution=true;iPAddressPreference=IPv4First;serverNameAsACE=false;sendStringParametersAsUnicode=true;selectMethod=direct;responseBuffering=adaptive;queryTimeout=-1;packetSize=8000;multiSubnetFailover=false;loginTimeout=30;lockTimeout=-1;lastUpdateCount=true;useDefaultGSSCredential=false;prepareMethod=prepexec;encrypt=true;disableStatementPooling=true;databaseName=Diabetes;columnEncryptionSetting=Disabled;applicationName=Microsoft JDBC Driver for SQL Server;applicationIntent=readwrite;]
+	Database driver: Microsoft JDBC Driver 13.2 for SQL Server
+	Database dialect: SQLServerDialect
+	Database version: 16.0
+	Default catalog/schema: Diabetes/dbo
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 128
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-07-05T21:43:34.293+07:00  INFO 12492 --- [diabetes] [restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-07-05T21:43:34.942+07:00  WARN 12492 --- [diabetes] [restartedMain] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
+    alter table ExamSymptom 
+       alter column ClinicalExamID varchar(255)" via JDBC [The object 'PK__ExamSymp__8AE75C681A0BB823' is dependent on column 'ClinicalExamID'.]
+
+org.hibernate.tool.schema.spi.CommandAcceptanceException: Error executing DDL "
+    alter table ExamSymptom 
+       alter column ClinicalExamID varchar(255)" via JDBC [The object 'PK__ExamSymp__8AE75C681A0BB823' is dependent on column 'ClinicalExamID'.]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:81) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.applySqlString(AbstractSchemaMigrator.java:566) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.applySqlStrings(AbstractSchemaMigrator.java:506) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.migrateTable(AbstractSchemaMigrator.java:324) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at org.hibernate.tool.schema.internal.GroupedSchemaMigratorImpl.performTablesMigration(GroupedSchemaMigratorImpl.java:84) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.performMigration(AbstractSchemaMigrator.java:220) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.doMigration(AbstractSchemaMigrator.java:96) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.performDatabaseAction(SchemaManagementToolCoordinator.java:269) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.lambda$process$1(SchemaManagementToolCoordinator.java:101) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at java.base/java.util.HashMap.forEach(HashMap.java:1429) ~[na:na]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.process(SchemaManagementToolCoordinator.java:100) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at org.hibernate.boot.internal.SessionFactoryObserverForSchemaExport.sessionFactoryCreated(SessionFactoryObserverForSchemaExport.java:35) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at org.hibernate.internal.SessionFactoryObserverChain.sessionFactoryCreated(SessionFactoryObserverChain.java:33) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at org.hibernate.internal.SessionFactoryImpl.<init>(SessionFactoryImpl.java:323) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at org.hibernate.internal.SessionFactoryRegistry.instantiateSessionFactory(SessionFactoryRegistry.java:64) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at org.hibernate.boot.internal.SessionFactoryBuilderImpl.build(SessionFactoryBuilderImpl.java:437) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1456) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:93) ~[spring-orm-7.0.7.jar:7.0.7]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:443) ~[spring-orm-7.0.7.jar:7.0.7]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:436) ~[spring-orm-7.0.7.jar:7.0.7]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:411) ~[spring-orm-7.0.7.jar:7.0.7]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:419) ~[spring-orm-7.0.7.jar:7.0.7]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1864) ~[spring-beans-7.0.7.jar:7.0.7]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1813) ~[spring-beans-7.0.7.jar:7.0.7]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603) ~[spring-beans-7.0.7.jar:7.0.7]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525) ~[spring-beans-7.0.7.jar:7.0.7]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333) ~[spring-beans-7.0.7.jar:7.0.7]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371) ~[spring-beans-7.0.7.jar:7.0.7]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331) ~[spring-beans-7.0.7.jar:7.0.7]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:201) ~[spring-beans-7.0.7.jar:7.0.7]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:977) ~[spring-context-7.0.7.jar:7.0.7]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621) ~[spring-context-7.0.7.jar:7.0.7]
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143) ~[spring-boot-web-server-4.0.6.jar:4.0.6]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756) ~[spring-boot-4.0.6.jar:4.0.6]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445) ~[spring-boot-4.0.6.jar:4.0.6]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321) ~[spring-boot-4.0.6.jar:4.0.6]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365) ~[spring-boot-4.0.6.jar:4.0.6]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-4.0.6.jar:4.0.6]
+	at com.quan.diabetes.DiabetesApplication.main(DiabetesApplication.java:12) ~[classes/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52) ~[spring-boot-devtools-4.0.6.jar:4.0.6]
+Caused by: com.microsoft.sqlserver.jdbc.SQLServerException: The object 'PK__ExamSymp__8AE75C681A0BB823' is dependent on column 'ClinicalExamID'.
+	at com.microsoft.sqlserver.jdbc.SQLServerException.makeFromDatabaseError(SQLServerException.java:278) ~[mssql-jdbc-13.2.1.jre11.jar:na]
+	at com.microsoft.sqlserver.jdbc.SQLServerStatement.getNextResult(SQLServerStatement.java:1788) ~[mssql-jdbc-13.2.1.jre11.jar:na]
+	at com.microsoft.sqlserver.jdbc.SQLServerStatement.doExecuteStatement(SQLServerStatement.java:975) ~[mssql-jdbc-13.2.1.jre11.jar:na]
+	at com.microsoft.sqlserver.jdbc.SQLServerStatement$StmtExecCmd.doExecute(SQLServerStatement.java:869) ~[mssql-jdbc-13.2.1.jre11.jar:na]
+	at com.microsoft.sqlserver.jdbc.TDSCommand.execute(IOBuffer.java:7825) ~[mssql-jdbc-13.2.1.jre11.jar:na]
+	at com.microsoft.sqlserver.jdbc.SQLServerConnection.executeCommand(SQLServerConnection.java:4828) ~[mssql-jdbc-13.2.1.jre11.jar:na]
+	at com.microsoft.sqlserver.jdbc.SQLServerStatement.executeCommand(SQLServerStatement.java:321) ~[mssql-jdbc-13.2.1.jre11.jar:na]
+	at com.microsoft.sqlserver.jdbc.SQLServerStatement.executeStatement(SQLServerStatement.java:253) ~[mssql-jdbc-13.2.1.jre11.jar:na]
+	at com.microsoft.sqlserver.jdbc.SQLServerStatement.execute(SQLServerStatement.java:842) ~[mssql-jdbc-13.2.1.jre11.jar:na]
+	at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:95) ~[HikariCP-7.0.2.jar:na]
+	at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java) ~[HikariCP-7.0.2.jar:na]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:76) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	... 41 common frames omitted
+
+2026-07-05T21:43:34.949+07:00  WARN 12492 --- [diabetes] [restartedMain] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
+    alter table ExamSymptom 
+       alter column SymptomID varchar(255)" via JDBC [The object 'PK__ExamSymp__8AE75C681A0BB823' is dependent on column 'SymptomID'.]
+
+org.hibernate.tool.schema.spi.CommandAcceptanceException: Error executing DDL "
+    alter table ExamSymptom 
+       alter column SymptomID varchar(255)" via JDBC [The object 'PK__ExamSymp__8AE75C681A0BB823' is dependent on column 'SymptomID'.]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:81) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.applySqlString(AbstractSchemaMigrator.java:566) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.applySqlStrings(AbstractSchemaMigrator.java:506) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.migrateTable(AbstractSchemaMigrator.java:324) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at org.hibernate.tool.schema.internal.GroupedSchemaMigratorImpl.performTablesMigration(GroupedSchemaMigratorImpl.java:84) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.performMigration(AbstractSchemaMigrator.java:220) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.doMigration(AbstractSchemaMigrator.java:96) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.performDatabaseAction(SchemaManagementToolCoordinator.java:269) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.lambda$process$1(SchemaManagementToolCoordinator.java:101) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at java.base/java.util.HashMap.forEach(HashMap.java:1429) ~[na:na]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.process(SchemaManagementToolCoordinator.java:100) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at org.hibernate.boot.internal.SessionFactoryObserverForSchemaExport.sessionFactoryCreated(SessionFactoryObserverForSchemaExport.java:35) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at org.hibernate.internal.SessionFactoryObserverChain.sessionFactoryCreated(SessionFactoryObserverChain.java:33) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at org.hibernate.internal.SessionFactoryImpl.<init>(SessionFactoryImpl.java:323) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at org.hibernate.internal.SessionFactoryRegistry.instantiateSessionFactory(SessionFactoryRegistry.java:64) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at org.hibernate.boot.internal.SessionFactoryBuilderImpl.build(SessionFactoryBuilderImpl.java:437) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1456) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:93) ~[spring-orm-7.0.7.jar:7.0.7]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:443) ~[spring-orm-7.0.7.jar:7.0.7]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:436) ~[spring-orm-7.0.7.jar:7.0.7]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:411) ~[spring-orm-7.0.7.jar:7.0.7]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:419) ~[spring-orm-7.0.7.jar:7.0.7]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1864) ~[spring-beans-7.0.7.jar:7.0.7]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1813) ~[spring-beans-7.0.7.jar:7.0.7]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603) ~[spring-beans-7.0.7.jar:7.0.7]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525) ~[spring-beans-7.0.7.jar:7.0.7]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333) ~[spring-beans-7.0.7.jar:7.0.7]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371) ~[spring-beans-7.0.7.jar:7.0.7]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331) ~[spring-beans-7.0.7.jar:7.0.7]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:201) ~[spring-beans-7.0.7.jar:7.0.7]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:977) ~[spring-context-7.0.7.jar:7.0.7]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621) ~[spring-context-7.0.7.jar:7.0.7]
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143) ~[spring-boot-web-server-4.0.6.jar:4.0.6]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756) ~[spring-boot-4.0.6.jar:4.0.6]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445) ~[spring-boot-4.0.6.jar:4.0.6]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321) ~[spring-boot-4.0.6.jar:4.0.6]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365) ~[spring-boot-4.0.6.jar:4.0.6]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-4.0.6.jar:4.0.6]
+	at com.quan.diabetes.DiabetesApplication.main(DiabetesApplication.java:12) ~[classes/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52) ~[spring-boot-devtools-4.0.6.jar:4.0.6]
+Caused by: com.microsoft.sqlserver.jdbc.SQLServerException: The object 'PK__ExamSymp__8AE75C681A0BB823' is dependent on column 'SymptomID'.
+	at com.microsoft.sqlserver.jdbc.SQLServerException.makeFromDatabaseError(SQLServerException.java:278) ~[mssql-jdbc-13.2.1.jre11.jar:na]
+	at com.microsoft.sqlserver.jdbc.SQLServerStatement.getNextResult(SQLServerStatement.java:1788) ~[mssql-jdbc-13.2.1.jre11.jar:na]
+	at com.microsoft.sqlserver.jdbc.SQLServerStatement.doExecuteStatement(SQLServerStatement.java:975) ~[mssql-jdbc-13.2.1.jre11.jar:na]
+	at com.microsoft.sqlserver.jdbc.SQLServerStatement$StmtExecCmd.doExecute(SQLServerStatement.java:869) ~[mssql-jdbc-13.2.1.jre11.jar:na]
+	at com.microsoft.sqlserver.jdbc.TDSCommand.execute(IOBuffer.java:7825) ~[mssql-jdbc-13.2.1.jre11.jar:na]
+	at com.microsoft.sqlserver.jdbc.SQLServerConnection.executeCommand(SQLServerConnection.java:4828) ~[mssql-jdbc-13.2.1.jre11.jar:na]
+	at com.microsoft.sqlserver.jdbc.SQLServerStatement.executeCommand(SQLServerStatement.java:321) ~[mssql-jdbc-13.2.1.jre11.jar:na]
+	at com.microsoft.sqlserver.jdbc.SQLServerStatement.executeStatement(SQLServerStatement.java:253) ~[mssql-jdbc-13.2.1.jre11.jar:na]
+	at com.microsoft.sqlserver.jdbc.SQLServerStatement.execute(SQLServerStatement.java:842) ~[mssql-jdbc-13.2.1.jre11.jar:na]
+	at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:95) ~[HikariCP-7.0.2.jar:na]
+	at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java) ~[HikariCP-7.0.2.jar:na]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:76) ~[hibernate-core-7.2.12.Final.jar:7.2.12.Final]
+	... 41 common frames omitted
+
+2026-07-05T21:43:35.461+07:00  INFO 12492 --- [diabetes] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-07-05T21:43:35.531+07:00  INFO 12492 --- [diabetes] [restartedMain] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-07-05T21:43:37.445+07:00  WARN 12492 --- [diabetes] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-07-05T21:43:37.760+07:00  INFO 12492 --- [diabetes] [restartedMain] o.s.b.w.a.WelcomePageHandlerMapping      : Adding welcome page template: index
+2026-07-05T21:43:38.100+07:00  INFO 12492 --- [diabetes] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8080 (http) with context path '/'
+2026-07-05T21:43:38.112+07:00  INFO 12492 --- [diabetes] [restartedMain] com.quan.diabetes.DiabetesApplication    : Started DiabetesApplication in 8.312 seconds (process running for 8.79)
+2026-07-05T21:43:41.101+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-07-05T21:43:41.102+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-07-05T21:43:41.104+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2026-07-05T21:44:03.254+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-7] c.q.d.s.ai.impl.AIAssistantServiceImpl   : Found AI Assistant with ID 1: Diabetes AI Specialist
+2026-07-05T21:44:03.254+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-7] c.q.d.service.ai.impl.AIChatServiceImpl  : Using AI Assistant: Diabetes AI Specialist (ID: 1, Model: diabetesAI)
+2026-07-05T21:44:03.281+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-7] c.q.d.service.ai.impl.AIChatServiceImpl  : Using conversation: CONV-76B9F7CC
+2026-07-05T21:44:03.358+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-7] c.q.d.service.ai.impl.AIChatServiceImpl  : --- CHẶNG 1: Phân loại câu hỏi cho patient P607261 ---
+2026-07-05T21:44:03.411+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-7] c.q.d.service.ai.impl.AIChatServiceImpl  : [Chặng 1] Phát hiện yêu cầu truy xuất dữ liệu cá nhân (RAG Tool): {"action":"get_prescriptions","patient_id":"P607261"}
+2026-07-05T21:44:03.460+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-7] c.q.d.service.ai.impl.AIChatServiceImpl  : [Chặng 1] Thực thi tool RAG - action: get_prescriptions, patientId: P607261
+2026-07-05T21:44:03.584+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-7] c.q.d.service.ai.impl.AIChatServiceImpl  : [Chặng 1] Dữ liệu SQL thu thập được:
+Danh mục: Lịch sử dùng thuốc và đơn thuốc
+
+- Tên thuốc: Gliclazide
+- Liều lượng: 2 viên/lần, 2 lần/ngày
+- Ngày bắt đầu uống: 2026-07-05
+- Ngày kết thúc uống: 2026-08-03
+- Dạng thuốc: Viên nén
+- Đường dùng (cách dùng): Đường uống
+- Hướng dẫn sử dụng: Uống trước bữa ăn sáng
+- Thời điểm uống trong ngày: Trước bữa sáng, Trước bữa tối
+- Kế hoạch dùng thuốc: Chưa cập nhật
+
+2026-07-05T21:44:03.585+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-7] c.q.d.service.ai.impl.AIChatServiceImpl  : --- CHẶNG 2: Gọi AI Ollama phân tích ---
+2026-07-05T21:44:03.589+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-7] c.q.d.service.ai.impl.AIChatServiceImpl  : Calling Ollama API at http://localhost:11434/api/generate with model: diabetesAI
+2026-07-05T21:44:37.789+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-7] c.q.d.service.ai.impl.AIChatServiceImpl  : Total response time: 34544 ms
+2026-07-05T21:44:53.165+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-8] c.q.d.s.ai.impl.AIAssistantServiceImpl   : Found AI Assistant with ID 1: Diabetes AI Specialist
+2026-07-05T21:44:53.165+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-8] c.q.d.service.ai.impl.AIChatServiceImpl  : Using AI Assistant: Diabetes AI Specialist (ID: 1, Model: diabetesAI)
+2026-07-05T21:44:53.192+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-8] c.q.d.service.ai.impl.AIChatServiceImpl  : Using conversation: CONV-76B9F7CC
+2026-07-05T21:44:53.214+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-8] c.q.d.service.ai.impl.AIChatServiceImpl  : --- CHẶNG 1: Phân loại câu hỏi cho patient P607261 ---
+2026-07-05T21:44:53.216+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-8] c.q.d.service.ai.impl.AIChatServiceImpl  : [Chặng 1] Phát hiện yêu cầu truy xuất dữ liệu cá nhân (RAG Tool): {"action":"get_prescriptions","patient_id":"P607261"}
+2026-07-05T21:44:53.219+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-8] c.q.d.service.ai.impl.AIChatServiceImpl  : [Chặng 1] Thực thi tool RAG - action: get_prescriptions, patientId: P607261
+2026-07-05T21:44:53.260+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-8] c.q.d.service.ai.impl.AIChatServiceImpl  : [Chặng 1] Dữ liệu SQL thu thập được:
+Danh mục: Lịch sử dùng thuốc và đơn thuốc
+
+- Tên thuốc: Gliclazide
+- Liều lượng: 2 viên/lần, 2 lần/ngày
+- Ngày bắt đầu uống: 2026-07-05
+- Ngày kết thúc uống: 2026-08-03
+- Dạng thuốc: Viên nén
+- Đường dùng (cách dùng): Đường uống
+- Hướng dẫn sử dụng: Uống trước bữa ăn sáng
+- Thời điểm uống trong ngày: Trước bữa sáng, Trước bữa tối
+- Kế hoạch dùng thuốc: Chưa cập nhật
+
+2026-07-05T21:44:53.260+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-8] c.q.d.service.ai.impl.AIChatServiceImpl  : --- CHẶNG 2: Gọi AI Ollama phân tích ---
+2026-07-05T21:44:53.261+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-8] c.q.d.service.ai.impl.AIChatServiceImpl  : Calling Ollama API at http://localhost:11434/api/generate with model: diabetesAI
+2026-07-05T21:45:12.475+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-8] c.q.d.service.ai.impl.AIChatServiceImpl  : Total response time: 19731 ms
+2026-07-05T21:45:37.734+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-3] c.q.d.s.ai.impl.AIAssistantServiceImpl   : Found AI Assistant with ID 1: Diabetes AI Specialist
+2026-07-05T21:45:37.734+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-3] c.q.d.service.ai.impl.AIChatServiceImpl  : Using AI Assistant: Diabetes AI Specialist (ID: 1, Model: diabetesAI)
+2026-07-05T21:45:37.749+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-3] c.q.d.service.ai.impl.AIChatServiceImpl  : Using conversation: CONV-76B9F7CC
+2026-07-05T21:45:37.758+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-3] c.q.d.service.ai.impl.AIChatServiceImpl  : --- CHẶNG 1: Phân loại câu hỏi cho patient P607261 ---
+2026-07-05T21:45:37.761+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-3] c.q.d.service.ai.impl.AIChatServiceImpl  : [Chặng 1] Phát hiện yêu cầu truy xuất dữ liệu cá nhân (RAG Tool): {"action":"get_general_record","patient_id":"P607261"}
+2026-07-05T21:45:37.762+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-3] c.q.d.service.ai.impl.AIChatServiceImpl  : [Chặng 1] Thực thi tool RAG - action: get_general_record, patientId: P607261
+2026-07-05T21:45:37.782+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-3] c.q.d.service.ai.impl.AIChatServiceImpl  : [Chặng 1] Dữ liệu SQL thu thập được:
+Danh mục: Hồ sơ bệnh án chung
+
+- Họ và tên: Trần Công Tú
+- Giới tính (true=Nam, false=Nữ): Chưa cập nhật
+- Chiều cao (cm): Chưa cập nhật
+- Cân nặng (kg): Chưa cập nhật
+- Nhóm máu: Chưa cập nhật
+- Lịch sử bệnh án: Chưa cập nhật
+- Ghi chú dị ứng: Chưa cập nhật
+
+2026-07-05T21:45:37.783+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-3] c.q.d.service.ai.impl.AIChatServiceImpl  : --- CHẶNG 2: Gọi AI Ollama phân tích ---
+2026-07-05T21:45:37.783+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-3] c.q.d.service.ai.impl.AIChatServiceImpl  : Calling Ollama API at http://localhost:11434/api/generate with model: diabetesAI
+2026-07-05T21:46:01.411+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-3] c.q.d.service.ai.impl.AIChatServiceImpl  : Total response time: 23682 ms
+2026-07-05T21:46:26.797+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-6] c.q.d.s.ai.impl.AIAssistantServiceImpl   : Found AI Assistant with ID 1: Diabetes AI Specialist
+2026-07-05T21:46:26.798+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-6] c.q.d.service.ai.impl.AIChatServiceImpl  : Using AI Assistant: Diabetes AI Specialist (ID: 1, Model: diabetesAI)
+2026-07-05T21:46:26.815+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-6] c.q.d.service.ai.impl.AIChatServiceImpl  : Using conversation: CONV-76B9F7CC
+2026-07-05T21:46:26.829+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-6] c.q.d.service.ai.impl.AIChatServiceImpl  : --- CHẶNG 1: Phân loại câu hỏi cho patient P607261 ---
+2026-07-05T21:46:26.831+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-6] c.q.d.service.ai.impl.AIChatServiceImpl  : [Chặng 1] Phát hiện yêu cầu truy xuất dữ liệu cá nhân (RAG Tool): {"action":"get_general_record","patient_id":"P607261"}
+2026-07-05T21:46:26.833+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-6] c.q.d.service.ai.impl.AIChatServiceImpl  : [Chặng 1] Thực thi tool RAG - action: get_general_record, patientId: P607261
+2026-07-05T21:46:26.835+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-6] c.q.d.service.ai.impl.AIChatServiceImpl  : [Chặng 1] Dữ liệu SQL thu thập được:
+Danh mục: Hồ sơ bệnh án chung
+
+- Họ và tên: Trần Công Tú
+- Giới tính (true=Nam, false=Nữ): Chưa cập nhật
+- Chiều cao (cm): Chưa cập nhật
+- Cân nặng (kg): Chưa cập nhật
+- Nhóm máu: Chưa cập nhật
+- Lịch sử bệnh án: Chưa cập nhật
+- Ghi chú dị ứng: Chưa cập nhật
+
+2026-07-05T21:46:26.835+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-6] c.q.d.service.ai.impl.AIChatServiceImpl  : --- CHẶNG 2: Gọi AI Ollama phân tích ---
+2026-07-05T21:46:26.836+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-6] c.q.d.service.ai.impl.AIChatServiceImpl  : Calling Ollama API at http://localhost:11434/api/generate with model: diabetesAI
+2026-07-05T21:46:29.631+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-6] c.q.d.service.ai.impl.AIChatServiceImpl  : Total response time: 2839 ms
+2026-07-05T21:46:55.083+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-7] c.q.d.s.ai.impl.AIAssistantServiceImpl   : Found AI Assistant with ID 1: Diabetes AI Specialist
+2026-07-05T21:46:55.083+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-7] c.q.d.service.ai.impl.AIChatServiceImpl  : Using AI Assistant: Diabetes AI Specialist (ID: 1, Model: diabetesAI)
+2026-07-05T21:46:55.086+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-7] c.q.d.service.ai.impl.AIChatServiceImpl  : Using conversation: CONV-76B9F7CC
+2026-07-05T21:46:55.094+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-7] c.q.d.service.ai.impl.AIChatServiceImpl  : --- CHẶNG 1: Phân loại câu hỏi cho patient P607261 ---
+2026-07-05T21:46:55.095+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-7] c.q.d.service.ai.impl.AIChatServiceImpl  : [Chặng 1] Phát hiện yêu cầu truy xuất dữ liệu cá nhân (RAG Tool): {"action":"get_lab_results","patient_id":"P607261"}
+2026-07-05T21:46:55.096+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-7] c.q.d.service.ai.impl.AIChatServiceImpl  : [Chặng 1] Thực thi tool RAG - action: get_lab_results, patientId: P607261
+2026-07-05T21:46:55.157+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-7] c.q.d.service.ai.impl.AIChatServiceImpl  : [Chặng 1] Dữ liệu SQL thu thập được:
+Danh mục: Kết quả xét nghiệm
+
+--- Bản ghi 1 ---
+- Tên xét nghiệm: Đường huyết lúc đói (FPG)
+- Kết quả: 0.00
+- Khoảng tham chiếu: N/A
+- Đơn vị: mg/dL
+- Chỉ số bất thường: NORMAL
+- Ngày xét nghiệm: 2026-07-05T20:44:54.22
+
+--- Bản ghi 2 ---
+- Tên xét nghiệm: HbA1c
+- Kết quả: 0.00
+- Khoảng tham chiếu: N/A
+- Đơn vị: %
+- Chỉ số bất thường: NORMAL
+- Ngày xét nghiệm: 2026-07-05T20:44:54.22
+
+--- Bản ghi 3 ---
+- Tên xét nghiệm: Nghiệm pháp dung nạp Glucose (OGTT)
+- Kết quả: 0.00
+- Khoảng tham chiếu: N/A
+- Đơn vị: mg/dL
+- Chỉ số bất thường: NORMAL
+- Ngày xét nghiệm: 2026-07-05T20:44:54.22
+
+--- Bản ghi 4 ---
+- Tên xét nghiệm: Đường huyết ngẫu nhiên
+- Kết quả: 0.00
+- Khoảng tham chiếu: N/A
+- Đơn vị: mg/dL
+- Chỉ số bất thường: NORMAL
+- Ngày xét nghiệm: 2026-07-05T20:44:54.22
+
+2026-07-05T21:46:55.157+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-7] c.q.d.service.ai.impl.AIChatServiceImpl  : --- CHẶNG 2: Gọi AI Ollama phân tích ---
+2026-07-05T21:46:55.158+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-7] c.q.d.service.ai.impl.AIChatServiceImpl  : Calling Ollama API at http://localhost:11434/api/generate with model: diabetesAI
+2026-07-05T21:47:13.736+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-7] c.q.d.service.ai.impl.AIChatServiceImpl  : Total response time: 18659 ms
+2026-07-05T21:48:01.452+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-10] c.q.d.s.ai.impl.AIAssistantServiceImpl   : Found AI Assistant with ID 1: Diabetes AI Specialist
+2026-07-05T21:48:01.452+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-10] c.q.d.service.ai.impl.AIChatServiceImpl  : Using AI Assistant: Diabetes AI Specialist (ID: 1, Model: diabetesAI)
+2026-07-05T21:48:01.463+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-10] c.q.d.service.ai.impl.AIChatServiceImpl  : Using conversation: CONV-76B9F7CC
+2026-07-05T21:48:01.477+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-10] c.q.d.service.ai.impl.AIChatServiceImpl  : --- CHẶNG 1: Phân loại câu hỏi cho patient P607261 ---
+2026-07-05T21:48:01.480+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-10] c.q.d.service.ai.impl.AIChatServiceImpl  : [Chặng 1] Phát hiện yêu cầu truy xuất dữ liệu cá nhân (RAG Tool): {"action":"get_prescriptions","patient_id":"P607261"}
+2026-07-05T21:48:01.481+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-10] c.q.d.service.ai.impl.AIChatServiceImpl  : [Chặng 1] Thực thi tool RAG - action: get_prescriptions, patientId: P607261
+2026-07-05T21:48:01.522+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-10] c.q.d.service.ai.impl.AIChatServiceImpl  : [Chặng 1] Dữ liệu SQL thu thập được:
+Danh mục: Lịch sử dùng thuốc và đơn thuốc
+
+- Tên thuốc: Gliclazide
+- Liều lượng: 2 viên/lần, 2 lần/ngày
+- Ngày bắt đầu uống: 2026-07-05
+- Ngày kết thúc uống: 2026-08-03
+- Dạng thuốc: Viên nén
+- Đường dùng (cách dùng): Đường uống
+- Hướng dẫn sử dụng: Uống trước bữa ăn sáng
+- Thời điểm uống trong ngày: Trước bữa sáng, Trước bữa tối
+- Kế hoạch dùng thuốc: Chưa cập nhật
+
+2026-07-05T21:48:01.523+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-10] c.q.d.service.ai.impl.AIChatServiceImpl  : --- CHẶNG 2: Gọi AI Ollama phân tích ---
+2026-07-05T21:48:01.523+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-10] c.q.d.service.ai.impl.AIChatServiceImpl  : Calling Ollama API at http://localhost:11434/api/generate with model: diabetesAI
+2026-07-05T21:48:12.238+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-10] c.q.d.service.ai.impl.AIChatServiceImpl  : Total response time: 10792 ms
+2026-07-05T21:48:58.200+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-8] c.q.d.s.ai.impl.AIAssistantServiceImpl   : Found AI Assistant with ID 1: Diabetes AI Specialist
+2026-07-05T21:48:58.200+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-8] c.q.d.service.ai.impl.AIChatServiceImpl  : Using AI Assistant: Diabetes AI Specialist (ID: 1, Model: diabetesAI)
+2026-07-05T21:48:58.212+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-8] c.q.d.service.ai.impl.AIChatServiceImpl  : Using conversation: CONV-76B9F7CC
+2026-07-05T21:48:58.221+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-8] c.q.d.service.ai.impl.AIChatServiceImpl  : --- CHẶNG 1: Phân loại câu hỏi cho patient P607261 ---
+2026-07-05T21:48:58.223+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-8] c.q.d.service.ai.impl.AIChatServiceImpl  : [Chặng 1] Phát hiện yêu cầu truy xuất dữ liệu cá nhân (RAG Tool): {"action":"get_clinical_examination","patient_id":"P607261"}
+2026-07-05T21:48:58.225+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-8] c.q.d.service.ai.impl.AIChatServiceImpl  : [Chặng 1] Thực thi tool RAG - action: get_clinical_examination, patientId: P607261
+2026-07-05T21:48:58.315+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-8] c.q.d.service.ai.impl.AIChatServiceImpl  : [Chặng 1] Dữ liệu SQL thu thập được:
+Danh mục: Lịch sử khám lâm sàng
+
+- Ngày khám: 2026-07-05T20:44:54.22
+- Bác sĩ khám: phan công sơn
+- Chẩn đoán: bình thường, ko có vấn đề gì
+
+- Lịch hẹn tái khám: 2026-07-10T00:00:00
+- Các triệu chứng:
+  * Khát nước quá mức (Polydipsia)
+  * Sụt cân không rõ nguyên nhân
+  * Vết thương lâu lành
+- Danh sách kết quả xét nghiệm:
+  - Tên xét nghiệm: Đường huyết lúc đói (FPG)
+  - Kết quả: 0.00
+  - Khoảng tham chiếu: N/A
+  - Đơn vị: mg/dL
+  - Chỉ số bất thường: NORMAL
+  - Ngày xét nghiệm: 2026-07-05T20:44:54.22
+  ---
+  - Tên xét nghiệm: HbA1c
+  - Kết quả: 0.00
+  - Khoảng tham chiếu: N/A
+  - Đơn vị: %
+  - Chỉ số bất thường: NORMAL
+  - Ngày xét nghiệm: 2026-07-05T20:44:54.22
+  ---
+  - Tên xét nghiệm: Nghiệm pháp dung nạp Glucose (OGTT)
+  - Kết quả: 0.00
+  - Khoảng tham chiếu: N/A
+  - Đơn vị: mg/dL
+  - Chỉ số bất thường: NORMAL
+  - Ngày xét nghiệm: 2026-07-05T20:44:54.22
+  ---
+  - Tên xét nghiệm: Đường huyết ngẫu nhiên
+  - Kết quả: 0.00
+  - Khoảng tham chiếu: N/A
+  - Đơn vị: mg/dL
+  - Chỉ số bất thường: NORMAL
+  - Ngày xét nghiệm: 2026-07-05T20:44:54.22
+  ---
+- Danh sách đơn thuốc:
+  - Tên thuốc: Gliclazide
+  - Liều lượng: 2 viên/lần, 2 lần/ngày
+  - Ngày bắt đầu uống: 2026-07-05
+  - Ngày kết thúc uống: 2026-08-03
+  - Dạng thuốc: Viên nén
+  - Đường dùng (cách dùng): Đường uống
+  - Hướng dẫn sử dụng: Uống trước bữa ăn sáng
+  - Thời điểm uống trong ngày: Trước bữa sáng, Trước bữa tối
+  - Kế hoạch dùng thuốc: Chưa cập nhật
+  ---
+- Kế hoạch điều trị:
+  - Mục tiêu điều trị: Chưa cập nhật
+  - Chế độ dinh dưỡng: ăn uống nhiều rau xanh, giảm tinh bột
+  - Chế độ tập luyện: Chưa cập nhật
+  - Kế hoạch theo dõi đường huyết: Chưa cập nhật
+  - Ngày lập phác đồ: 2026-07-05T20:51:32.837
+- Trạng thái: Completed
+- Lý do hủy (nếu có): Chưa cập nhật
+
+2026-07-05T21:48:58.316+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-8] c.q.d.service.ai.impl.AIChatServiceImpl  : --- CHẶNG 2: Gọi AI Ollama phân tích ---
+2026-07-05T21:48:58.317+07:00  INFO 12492 --- [diabetes] [http-nio-8080-exec-8] c.q.d.service.ai.impl.AIChatServiceImpl  : Calling Ollama API at http://localhost:11434/api/generate with model: diabetesAI

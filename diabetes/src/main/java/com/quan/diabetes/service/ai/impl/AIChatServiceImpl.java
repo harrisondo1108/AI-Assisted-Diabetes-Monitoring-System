@@ -50,19 +50,21 @@ public class AIChatServiceImpl implements AIChatService {
     @Value("${ollama.url:http://localhost:11434}")
     private String ollamaUrl;
 
-    @Value("${ollama.model:diabetesAI}")
+    @Value("${ollama.model:diabetes-ai}")
     private String ollamaDefaultModel;
 
     private static final String STAGE_2_SYSTEM_PROMPT = """
-            Bạn là Bác sĩ nội tiết và trợ lý AI thông minh chuyên tư vấn y khoa và kiểm soát bệnh tiểu đường.
+            Bạn là một trợ lý AI thông minh chuyên tư vấn y khoa và kiểm soát bệnh tiểu đường.
             
-            QUY TẮC TRẢ LỜI TỐI THƯỢNG:
+            QUY TẮC TRẢ LỜI:
             1. CÁCH ĐỌC VÀ TƯ VẤN TỪ DỮ LIỆU BỆNH ÁN (RAG):
-               - Trong câu hỏi hoặc prompt sẽ có phần [DỮ LIỆU BỆNH ÁN] chứa các thông tin, chỉ số, hồ sơ của bệnh nhân được hệ thống lưu dưới cấu trúc JSON.
-               - NHIỆM VỤ CỦA BẠN: BẮT BUỘC phải trích xuất, phân tích và DIỄN ĐẠT LẠI các chỉ số đó thành lời tư vấn bác sĩ bằng tiếng Việt tự nhiên, thân thiện và dễ hiểu (Ví dụ: "Chào bạn, theo hồ sơ y khoa, bạn có nhóm máu..., các chỉ số hiện tại là...").
-               - TUYỆT ĐỐI KHÔNG từ chối trả lời, KHÔNG nói "không thể cung cấp dưới dạng JSON" hay "không thể đọc được trực tiếp", KHÔNG lặp lại mã bệnh nhân hay chuỗi JSON thô. Hãy đóng vai bác sĩ giải thích rõ ràng cho bệnh nhân!
+               - Trong prompt sẽ có phần [DỮ LIỆU BỆNH ÁN] chứa danh sách các thông tin, chỉ số, hồ sơ y khoa của bệnh nhân.
+               - NHIỆM VỤ CỦA BẠN: BẮT BUỘC phải đọc kỹ dữ liệu, trích xuất và DIỄN ĐẠT LẠI các thông tin đó thành lời tư vấn bằng tiếng Việt tự nhiên, thân thiện và dễ hiểu (Ví dụ: "Chào bạn, theo hồ sơ y khoa, bạn có nhóm máu..., tuy nhiên một số thông tin khác hiện chưa có...").
+               - Nếu các trường dữ liệu ghi là "Chưa cập nhật" hoặc rỗng, hãy lịch sự thông báo cho bệnh nhân biết là hệ thống chưa có thông tin đó.
+               - TUYỆT ĐỐI KHÔNG lặp lại mã bệnh nhân hay chép y nguyên cấu trúc dữ liệu thô. Hãy đóng vai trợ lý y khoa giải thích rõ ràng cho bệnh nhân!
             2. Cấu trúc & Bố cục (Markdown):
-               - Mở đầu trả lời trực tiếp (1-2 câu) → Phân tích thông tin bệnh án/cơ chế → Hướng dẫn cụ thể áp dụng được → Lưu ý an toàn.
+               - Mở đầu: Chào hỏi và trả lời trực tiếp vấn đề (1-2 câu) → Phân tích thông tin bệnh án/cơ chế → Hướng dẫn cụ thể áp dụng được → Lưu ý an toàn.
+               - NẾU cần đặt câu hỏi ngược lại cho bệnh nhân, BẮT BUỘC phải để câu hỏi đó ở đoạn CÚỐI CÙNG (trước câu kết luận), tuyệt đối không hỏi ngay ở đầu câu trả lời.
                - BẮT BUỘC sử dụng định dạng Markdown rõ ràng: chia thành các đoạn văn ngắn, sử dụng tiêu đề (như ### hoặc **...**) để tách biệt các ý.
                - Sử dụng gạch đầu dòng (-) hoặc đánh số (1, 2, 3...) khi liệt kê thông tin, nguyên nhân, triệu chứng hoặc hướng dẫn.
                - In đậm (**chữ in đậm**) các chỉ số y khoa, tên bệnh hoặc từ khóa quan trọng để người đọc dễ nắm bắt.
@@ -122,7 +124,7 @@ public class AIChatServiceImpl implements AIChatService {
             }
 
             String modelToUse = assistant.getModelName();
-            if (modelToUse == null || modelToUse.isEmpty() || "diabetesAI".equalsIgnoreCase(modelToUse)) {
+            if (modelToUse == null || modelToUse.isEmpty() || "diabetes-ai".equalsIgnoreCase(modelToUse)) {
                 modelToUse = ollamaDefaultModel;
                 assistant.setModelName(modelToUse);
                 aiAssistantService.update(assistant.getAiAssistantId(), assistant);
@@ -136,7 +138,7 @@ public class AIChatServiceImpl implements AIChatService {
             logger.info("Using conversation: {}", conversation.getAiConversationId());
 
             // Fetch history before saving the current message
-            String formattedHistory = aiMessageService.getFormattedConversationHistory(conversation.getAiConversationId(), 20);
+            String formattedHistory = aiMessageService.getFormattedConversationHistory(conversation.getAiConversationId(), 3);
 
             // 4. Save user message
             AIMessage userMessage = new AIMessage();
@@ -150,7 +152,7 @@ public class AIChatServiceImpl implements AIChatService {
             // CHẶNG 1: Phân loại câu hỏi (dữ liệu cá nhân vs kiến thức chung)
             // =========================================================================
             logger.info("--- CHẶNG 1: Phân loại câu hỏi cho patient {} ---", request.patientId());
-            String toolJson = classifyAndGetToolJson(request.question(), request.patientId(), modelToUse, formattedHistory);
+            String toolJson = classifyAndGetToolJson(request.question(), request.patientId(), modelToUse);
 
             String aiResponse = "";
             String sqlData = null;
@@ -179,9 +181,16 @@ public class AIChatServiceImpl implements AIChatService {
             // CHẶNG 2: Gởi input (lịch sử + RAG data nếu có + câu hỏi) cho AI phân tích
             // =========================================================================
             logger.info("--- CHẶNG 2: Gọi AI Ollama phân tích ---");
-            String chang2Prompt = buildStage2Prompt(request.question(), sqlData, formattedHistory);
-
-            aiResponse = callOllamaGenerate(modelToUse, chang2Prompt, STAGE_2_SYSTEM_PROMPT, null);
+            String finalSystemPrompt = STAGE_2_SYSTEM_PROMPT;
+            if (formattedHistory != null && !formattedHistory.trim().isEmpty()) {
+                finalSystemPrompt += "\n\n[LỊCH SỬ TRÒ CHUYỆN]:\n" + formattedHistory;
+            }
+            String chang2Prompt = buildStage2Prompt(request.question(), sqlData);
+            System.out.println("=================== Final System Prompt :\n" + finalSystemPrompt);
+            System.out.println("=================== Stage 2 Prompt :\n" + chang2Prompt);
+            
+            OllamaGenerateRequest.Options options = new OllamaGenerateRequest.Options(0.2, 0.9, 40, 1.15, 4096, 1024);
+            aiResponse = callOllamaGenerate(modelToUse, chang2Prompt, finalSystemPrompt, options);
             if (aiResponse == null || aiResponse.trim().isEmpty()) {
                 aiResponse = "Xin lỗi, hiện tại hệ thống AI đang gặp sự cố khi xử lý câu hỏi của bạn. Vui lòng thử lại sau.";
             }
@@ -220,7 +229,7 @@ public class AIChatServiceImpl implements AIChatService {
      * "patient_id": "..."}) nếu là dữ liệu cá nhân, hoặc trả về null nếu là
      * kiến thức y tế chung.
      */
-    private String classifyAndGetToolJson(String question, String patientId, String modelToUse, String history) {
+    private String classifyAndGetToolJson(String question, String patientId, String modelToUse) {
         // Step 1: Lọc nhanh bằng keyword fallback (giống logic trong file Python) để tối ưu hiệu năng và độ chính xác
         Map<String, String> keywordTool = checkKeywordToolFallback(question, patientId);
         if (keywordTool != null) {
@@ -247,9 +256,6 @@ public class AIChatServiceImpl implements AIChatService {
                 """.formatted(patientId, patientId, patientId, patientId, patientId);
 
         StringBuilder promptBuilder = new StringBuilder();
-        if (history != null && !history.trim().isEmpty()) {
-            promptBuilder.append("[LỊCH SỬ TRÒ CHUYỆN]:\n").append(history).append("\n\n");
-        }
         promptBuilder.append("[YÊU CẦU HIỆN TẠI]\nMã bệnh nhân: ").append(patientId)
                 .append("\nCâu hỏi: ").append(question);
 
@@ -327,13 +333,11 @@ public class AIChatServiceImpl implements AIChatService {
     /**
      * Xây dựng chuỗi prompt cho Chặng 2 (Tư vấn bởi bác sĩ AI)
      */
-    private String buildStage2Prompt(String question, String sqlData, String history) {
+    private String buildStage2Prompt(String question, String sqlData) {
         StringBuilder promptBuilder = new StringBuilder();
-        if (history != null && !history.trim().isEmpty()) {
-            promptBuilder.append("[LỊCH SỬ TRÒ CHUYỆN]:\n").append(history).append("\n\n");
-        }
         if (sqlData != null && !sqlData.trim().isEmpty()) {
             promptBuilder.append("[DỮ LIỆU BỆNH ÁN]:\n").append(sqlData).append("\n\n");
+            promptBuilder.append("[YÊU CẦU HIỆN TẠI BẮT BUỘC]:\nDựa VÀO DUY NHẤT [DỮ LIỆU BỆNH ÁN MỚI NHẤT] ở trên, hãy trả lời câu hỏi sau của bệnh nhân. CHỈ trả lời về vấn đề được hỏi.\n\n");
         }
         promptBuilder.append("Câu hỏi của bệnh nhân: ").append(question);
         return promptBuilder.toString();
