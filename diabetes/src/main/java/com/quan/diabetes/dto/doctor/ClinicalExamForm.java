@@ -3,9 +3,11 @@ package com.quan.diabetes.dto.doctor;
 import java.util.List;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
 
 /**
- * Form backing object to bind clinical examination form fields from Thymeleaf views.
+ * Form backing object to bind clinical examination form fields from Thymeleaf
+ * views.
  */
 public class ClinicalExamForm {
 
@@ -20,10 +22,15 @@ public class ClinicalExamForm {
     private String prescriptionJson; // Receives serialized JSON string of medications
 
     // Treatment plan details
+    @Pattern(regexp = "^$|.*\\S.*", message = "Mục tiêu điều trị không được chỉ chứa khoảng trắng")
     private String treatmentGoal;
+    @Pattern(regexp = "^$|.*\\S.*", message = "Chế độ dinh dưỡng không được chỉ chứa khoảng trắng")
     private String dietPlan;
+    @Pattern(regexp = "^$|.*\\S.*", message = "Chế độ tập luyện không được chỉ chứa khoảng trắng")
     private String exercisePlan;
+    @Pattern(regexp = "^$|.*\\S.*", message = "Kế hoạch theo dõi đường huyết không được chỉ chứa khoảng trắng")
     private String glucoseMonitoringPlan;
+    @Pattern(regexp = "^$|.*\\S.*", message = "Kế hoạch dùng thuốc không được chỉ chứa khoảng trắng")
     private String medicationPlan;
     private Boolean isPregnant;
 

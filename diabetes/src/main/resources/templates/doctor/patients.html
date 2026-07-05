@@ -66,19 +66,34 @@
 
                         <!-- Patient Diagnostics History Timeline -->
                         <div class="history-section-card" style="margin-top: 20px;">
-                            <div class="timeline-header-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <div class="timeline-header-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                                 <h3 class="section-title-label" style="margin-bottom: 0;"><i class="fas fa-timeline"></i> Lịch sử khám bệnh</h3>
-                                <div class="timeline-date-filter" style="display: flex; align-items: center; gap: 10px;">
+                                <form th:action="@{/doctor/history}" method="get" class="timeline-date-filter" style="display: flex; align-items: center; gap: 10px;">
+                                    <input type="hidden" name="patientId" th:value="${patient.userId}">
+                                    <input type="hidden" name="from" th:value="${from}">
+                                    
                                     <div class="date-input-group" style="display: flex; align-items: center; gap: 6px;">
                                         <span style="font-size: 0.78rem; color: var(--doctor-text-muted); font-weight: 500;">Từ ngày:</span>
-                                        <input type="date" id="timelineFromDate" onchange="filterTimeline()" style="padding: 4px 8px; border-radius: 6px; border: 1px solid var(--doctor-border); outline: none; font-size: 0.78rem; font-family: inherit; color: var(--doctor-text-main);">
+                                        <input type="date" id="timelineFromDate" name="fromDate" th:value="${currentFromDate}" style="padding: 4px 8px; border-radius: 6px; border: 1px solid var(--doctor-border); outline: none; font-size: 0.78rem; font-family: inherit; color: var(--doctor-text-main);">
                                     </div>
                                     <div class="date-input-group" style="display: flex; align-items: center; gap: 6px;">
                                         <span style="font-size: 0.78rem; color: var(--doctor-text-muted); font-weight: 500;">Đến ngày:</span>
-                                        <input type="date" id="timelineToDate" onchange="filterTimeline()" style="padding: 4px 8px; border-radius: 6px; border: 1px solid var(--doctor-border); outline: none; font-size: 0.78rem; font-family: inherit; color: var(--doctor-text-main);">
+                                        <input type="date" id="timelineToDate" name="toDate" th:value="${currentToDate}" style="padding: 4px 8px; border-radius: 6px; border: 1px solid var(--doctor-border); outline: none; font-size: 0.78rem; font-family: inherit; color: var(--doctor-text-main);">
                                     </div>
-                                </div>
+                                    
+                                    <button type="submit" class="btn btn-secondary btn-sm" style="padding: 4px 8px; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 4px;">
+                                        <i class="fas fa-filter"></i> Lọc
+                                    </button>
+                                    
+                                    <a th:href="@{/doctor/history(patientId=${patient.userId}, from=${from})}" class="btn btn-secondary btn-sm" style="padding: 4px 8px; font-size: 0.75rem; text-decoration: none; display: inline-flex; align-items: center; color: var(--doctor-text-main);">
+                                        Xóa lọc
+                                    </a>
+                                </form>
                             </div>
+                            <div th:if="${dateError != null}" style="color: var(--doctor-danger); font-size: 0.78rem; text-align: right; margin-top: -6px; margin-bottom: 12px; font-weight: 500;">
+                                <i class="fas fa-exclamation-circle"></i> <span th:text="${dateError}">Lỗi ngày</span>
+                            </div>
+                            
                             <div class="timeline-trail" id="consultationTimeline">
                                 <div th:each="t, iterStat : ${timeline}" class="timeline-item" th:classappend="${iterStat.first} ? 'active' : 'N/A'" th:data-date="${t.examDate != null ? #temporals.format(t.examDate, 'MMMM yyyy') : 'N/A'}" th:data-exam-date="${t.examDate != null ? #temporals.format(t.examDate, 'yyyy-MM-dd') : ''}">
                                     <div class="timeline-node"></div>

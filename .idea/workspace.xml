@@ -5,16 +5,27 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4605d59c-ecd2-4241-9ab7-4b90c5f99b6a" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/AI-Assisted-Diabetes-Monitoring-System (1).iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Huong_dan_chay_AI.docx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ai_server.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Modelfile" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/Modelfile" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/Modelfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/ai_server.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/logs/application.log" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/logs/application.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AIAssistantServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AIAssistantServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AIChatServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AIChatServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AiToolImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AiToolImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorDashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorDashboardController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorExamineController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorExamineController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorPatientController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorPatientController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/dto/doctor/ClinicalExamForm.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/dto/doctor/ClinicalExamForm.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/ClinicalExaminationRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/ClinicalExaminationRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/cloudinary/impl/CloudinaryServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/cloudinary/impl/CloudinaryServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/application.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/application.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/doctor/doctor-dashboard.css" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/doctor/doctor-dashboard.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/doctor/dashboard.js" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/doctor/dashboard.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/doctor/examine.js" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/doctor/examine.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/doctor/patients.js" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/doctor/patients.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/dashboard.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/examine.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/examine.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/patients.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/patients.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,9 +55,6 @@
       <entry key="_C:/Users/Acer/AI-Assisted-Diabetes-Monitoring-System" value="3G2ssiMYLUtcbSiTHcX6OqyYDaF" />
       <entry key="_D:/Git_clone_quan_le/AI-Assisted-Diabetes-Monitoring-System" value="3G45gqGOTf1r6MnqHd9hFfcle3n" />
     </persistenceIdMap>
-  </component>
-  <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="262" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -98,7 +106,7 @@
     &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
     &quot;copilot.chat.legacySessionMetadata.migrated&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;quan__le&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;Merging quan__le&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
@@ -108,6 +116,9 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;org.jetbrains.plugins.github.ui.GithubSettingsConfigurable&quot;,
     &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
@@ -116,7 +127,15 @@
   <component name="RunManager">
     <configuration name="DiabetesApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
-      <module name="diabetes" />
+      <module name="AI-Assisted-Diabetes-Monitoring-System" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.quan.diabetes.DiabetesApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="DiabetesApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+      <module name="AI-Assisted-Diabetes-Monitoring-System" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.quan.diabetes.DiabetesApplication" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -144,6 +163,7 @@
       <workItem from="1783244336527" duration="94000" />
       <workItem from="1783258134782" duration="4044000" />
       <workItem from="1783262983688" duration="113000" />
+      <workItem from="1783263570223" duration="320000" />
     </task>
     <servers />
   </component>

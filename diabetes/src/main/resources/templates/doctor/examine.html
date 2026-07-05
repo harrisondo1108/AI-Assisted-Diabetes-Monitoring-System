@@ -115,7 +115,8 @@
                         </div>
                         <!-- Top actions -->
                         <div class="workspace-actions">
-                            <button type="button" class="btn btn-outline-danger" onclick="cancelExam()">Hủy ca khám</button>
+                            <a th:if="${isEditMode}" th:href="@{/doctor/dashboard}" class="btn btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px;"><i class="fas fa-arrow-left"></i> Quay lại</a>
+                            <button th:unless="${isEditMode}" type="button" class="btn btn-outline-danger" onclick="cancelExam()">Hủy ca khám</button>
                             <button type="button" class="btn btn-primary" onclick="saveExam()"><i
                                     class="fas fa-floppy-disk"></i> Hoàn thành khám bệnh</button>
                         </div>
@@ -242,17 +243,23 @@
                                 <div class="form-group">
                                     <label for="planDiet">Chế độ dinh dưỡng</label>
                                     <textarea id="planDiet" th:field="*{dietPlan}" rows="3"
-                                        placeholder="Ví dụ: Hạn chế đường, tinh bột, ăn nhiều thực phẩm giàu chất xơ..."></textarea>
+                                        placeholder="Ví dụ: Hạn chế đường, tinh bột, ăn nhiều thực phẩm giàu chất xơ..."
+                                        th:classappend="${#fields.hasErrors('dietPlan')} ? 'is-invalid' : ''"></textarea>
+                                    <div class="error-feedback" th:if="${#fields.hasErrors('dietPlan')}" th:errors="*{dietPlan}"></div>
                                 </div>
                                 <div class="form-group">
                                     <label for="planExercise">Chế độ vận động & Tập luyện</label>
                                     <textarea id="planExercise" th:field="*{exercisePlan}" rows="3"
-                                        placeholder="Ví dụ: Đi bộ hoặc chạy bộ 30 phút mỗi ngày, 5 lần một tuần..."></textarea>
+                                        placeholder="Ví dụ: Đi bộ hoặc chạy bộ 30 phút mỗi ngày, 5 lần một tuần..."
+                                        th:classappend="${#fields.hasErrors('exercisePlan')} ? 'is-invalid' : ''"></textarea>
+                                    <div class="error-feedback" th:if="${#fields.hasErrors('exercisePlan')}" th:errors="*{exercisePlan}"></div>
                                 </div>
                                 <div class="form-group">
                                     <label for="planGlucose">Tần suất tự theo dõi đường huyết</label>
                                     <textarea id="planGlucose" th:field="*{glucoseMonitoringPlan}" rows="3"
-                                        placeholder="Ví dụ: Đo đường huyết lúc đói vào buổi sáng và 2 giờ sau khi ăn trưa..."></textarea>
+                                        placeholder="Ví dụ: Đo đường huyết lúc đói vào buổi sáng và 2 giờ sau khi ăn trưa..."
+                                        th:classappend="${#fields.hasErrors('glucoseMonitoringPlan')} ? 'is-invalid' : ''"></textarea>
+                                    <div class="error-feedback" th:if="${#fields.hasErrors('glucoseMonitoringPlan')}" th:errors="*{glucoseMonitoringPlan}"></div>
                                 </div>
 
                             </div>
@@ -485,6 +492,7 @@
         const rawLabTestsCatalog = /*[[${labTestsCatalogData}]]*/ [];
         const rawLabTestsPregnantCatalog = /*[[${labTestsPregnantCatalogData}]]*/ [];
         const rawMedicationsCatalog = /*[[${medicationsCatalogData}]]*/ [];
+        const thValidationError = /*[[${validationError}]]*/ null;
         /*]]>*/
     </script>
     <script th:src="@{/js/doctor/examine.js}"></script>

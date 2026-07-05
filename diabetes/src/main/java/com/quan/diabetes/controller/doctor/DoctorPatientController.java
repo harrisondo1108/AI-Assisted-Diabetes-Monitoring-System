@@ -52,6 +52,8 @@ public class DoctorPatientController {
     public String patientHistoryPage(
             @RequestParam(value = "patientId", required = false) String patientId,
             @RequestParam(value = "from", required = false) String from,
+            @RequestParam(value = "fromDate", required = false) String fromDate,
+            @RequestParam(value = "toDate", required = false) String toDate,
             HttpSession session,
             Model model) {
         User loggedInUser = (User) session.getAttribute("loggedInUser");
@@ -93,7 +95,41 @@ public class DoctorPatientController {
         List<ClinicalExamination> timeline = clinicalExaminationService.findByPatientId(selectedPatientId).stream()
                 .filter(e -> "Completed".equalsIgnoreCase(e.getStatus()) || "Cancelled".equalsIgnoreCase(e.getStatus()))
                 .collect(Collectors.toList());
+
+        // Validate logic ngày ở Backend
+        if (fromDate != null && toDate != null && !fromDate.trim().isEmpty() && !toDate.trim().isEmpty()) {
+            if (fromDate.compareTo(toDate) > 0) {
+                model.addAttribute("dateError", "Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu.");
+                fromDate = null;
+                toDate = null;
+            }
+        }
+
+        // Thực hiện lọc danh sách theo khoảng ngày hợp lệ
+        if (fromDate != null && !fromDate.trim().isEmpty()) {
+            try {
+                java.time.LocalDate start = java.time.LocalDate.parse(fromDate);
+                timeline = timeline.stream()
+                        .filter(e -> e.getExamDate() != null && !e.getExamDate().toLocalDate().isBefore(start))
+                        .collect(Collectors.toList());
+            } catch (Exception e) {
+                // Ignore parsing errors
+            }
+        }
+        if (toDate != null && !toDate.trim().isEmpty()) {
+            try {
+                java.time.LocalDate end = java.time.LocalDate.parse(toDate);
+                timeline = timeline.stream()
+                        .filter(e -> e.getExamDate() != null && !e.getExamDate().toLocalDate().isAfter(end))
+                        .collect(Collectors.toList());
+            } catch (Exception e) {
+                // Ignore parsing errors
+            }
+        }
+
         model.addAttribute("timeline", timeline);
+        model.addAttribute("currentFromDate", fromDate);
+        model.addAttribute("currentToDate", toDate);
         model.addAttribute("from", from);
 
         return "doctor/patients";

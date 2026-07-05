@@ -453,12 +453,14 @@ public class DoctorExamineController {
 
         // Custom validation check 2: treatment plan must have at least one field filled
         if (ParseUtil.isBlank(form.getTreatmentGoal()) && ParseUtil.isBlank(form.getDietPlan()) &&
-            ParseUtil.isBlank(form.getExercisePlan()) && ParseUtil.isBlank(form.getGlucoseMonitoringPlan())) {
+            ParseUtil.isBlank(form.getExercisePlan()) && ParseUtil.isBlank(form.getGlucoseMonitoringPlan()) &&
+            ParseUtil.isBlank(form.getMedicationPlan())) {
             bindingResult.rejectValue("treatmentGoal", "error.treatmentGoal", "Yêu cầu điền ít nhất 1 trường của Kế hoạch & Phác đồ điều trị.");
         }
 
         if (bindingResult.hasErrors()) {
             populateExamineModel(patientId, false, session, model, loggedInUser);
+            model.addAttribute("validationError", "Có lỗi xảy ra trong dữ liệu nhập vào. Vui lòng kiểm tra lại các trường thông báo đỏ.");
             return "doctor/examine";
         }
 
@@ -685,7 +687,8 @@ public class DoctorExamineController {
 
         // Custom validation check 2: treatment plan must have at least one field filled
         if (ParseUtil.isBlank(form.getTreatmentGoal()) && ParseUtil.isBlank(form.getDietPlan()) &&
-            ParseUtil.isBlank(form.getExercisePlan()) && ParseUtil.isBlank(form.getGlucoseMonitoringPlan())) {
+            ParseUtil.isBlank(form.getExercisePlan()) && ParseUtil.isBlank(form.getGlucoseMonitoringPlan()) &&
+            ParseUtil.isBlank(form.getMedicationPlan())) {
             bindingResult.rejectValue("treatmentGoal", "error.treatmentGoal", "Yêu cầu điền ít nhất 1 trường của Kế hoạch & Phác đồ điều trị.");
         }
 
@@ -697,6 +700,7 @@ public class DoctorExamineController {
             populateExamineModel(patientId, false, session, model, loggedInUser);
             model.addAttribute("isEditMode", true);
             model.addAttribute("lastExam", exam);
+            model.addAttribute("validationError", "Có lỗi xảy ra trong dữ liệu nhập vào. Vui lòng kiểm tra lại các trường thông báo đỏ.");
 
             // Re-populate all required lists to prevent UI crashing on validation failure
             List<ExamSymptom> symptoms = examSymptomRepository.findAll().stream()
