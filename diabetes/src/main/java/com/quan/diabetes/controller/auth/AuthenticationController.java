@@ -324,7 +324,7 @@ public class AuthenticationController {
             PatientRoutine patientRoutine = new PatientRoutine();
             patientRoutine.setPatient(patient);
             patientRoutineService.create(patientRoutine);
-            clinicalExaminationService.createAutoPendingExamination(patient.getUserId());
+//            clinicalExaminationService.createAutoPendingExamination(patient.getUserId()); // thay đổi luồng vào ca khám
         } else {
             Profile profile = new Profile();
             profile.setUser(user);

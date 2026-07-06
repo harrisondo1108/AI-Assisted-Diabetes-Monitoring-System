@@ -101,7 +101,7 @@
                 </aside>
 
                 <!-- Right/Main Workspace Container -->
-                <form th:action="${isEditMode} ? @{/doctor/examine/update/{examId}(examId=${lastExam.clinicalExamId})} : @{/doctor/examine/{id}/submit(id=${patient.userId})}" method="POST" id="examineForm" th:object="${examForm}" 
+                 <form th:action="${isEditMode} ? @{/doctor/examine/update/{examId}(examId=${lastExam != null ? lastExam.clinicalExamId : ''})} : @{/doctor/examine/{id}/submit(id=${patient.userId})}" method="POST" id="examineForm" th:object="${examForm}" 
                       class="examination-workspace" 
                       th:classappend="${activeExam != null && activeExam.status == 'Pending' ? 'exam-pending' : ''}">
                     <input type="hidden" id="prescriptionJson" name="prescriptionJson" value="">

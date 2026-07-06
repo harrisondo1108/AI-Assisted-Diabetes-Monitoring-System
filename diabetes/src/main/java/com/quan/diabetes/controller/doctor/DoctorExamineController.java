@@ -446,10 +446,10 @@ public class DoctorExamineController {
             return "redirect:/login";
         }
 
-        // Custom validation check 1: prescription must not be empty
-        if (form.getPrescriptionJson() == null || form.getPrescriptionJson().trim().isEmpty() || "[]".equals(form.getPrescriptionJson().trim())) {
-            bindingResult.rejectValue("prescriptionJson", "error.prescriptionJson", "Vui lòng kê đơn ít nhất một loại thuốc.");
-        }
+        // Custom validation check 1: prescription must not be empty (Commented out to allow submitting without prescription)
+        // if (form.getPrescriptionJson() == null || form.getPrescriptionJson().trim().isEmpty() || "[]".equals(form.getPrescriptionJson().trim())) {
+        //     bindingResult.rejectValue("prescriptionJson", "error.prescriptionJson", "Vui lòng kê đơn ít nhất một loại thuốc.");
+        // }
 
         // Custom validation check 2: treatment plan must have at least one field filled
         if (ParseUtil.isBlank(form.getTreatmentGoal()) && ParseUtil.isBlank(form.getDietPlan()) &&
@@ -680,10 +680,10 @@ public class DoctorExamineController {
             return "redirect:/login";
         }
 
-        // Custom validation check 1: prescription must not be empty
-        if (form.getPrescriptionJson() == null || form.getPrescriptionJson().trim().isEmpty() || "[]".equals(form.getPrescriptionJson().trim())) {
-            bindingResult.rejectValue("prescriptionJson", "error.prescriptionJson", "Vui lòng kê đơn ít nhất một loại thuốc.");
-        }
+        // Custom validation check 1: prescription must not be empty (Commented out to allow updating without prescription)
+        // if (form.getPrescriptionJson() == null || form.getPrescriptionJson().trim().isEmpty() || "[]".equals(form.getPrescriptionJson().trim())) {
+        //     bindingResult.rejectValue("prescriptionJson", "error.prescriptionJson", "Vui lòng kê đơn ít nhất một loại thuốc.");
+        // }
 
         // Custom validation check 2: treatment plan must have at least one field filled
         if (ParseUtil.isBlank(form.getTreatmentGoal()) && ParseUtil.isBlank(form.getDietPlan()) &&
