@@ -5,6 +5,7 @@ import com.quan.diabetes.entity.AIConversation;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface AIConversationRepository extends JpaRepository<AIConversation, String> {
@@ -19,5 +20,8 @@ public interface AIConversationRepository extends JpaRepository<AIConversation, 
 
     @Query("SELECT c FROM AIConversation c WHERE c.topic LIKE %:keyword%")
     List<AIConversation> searchByTopic(@Param("keyword") String keyword);
+
+    // Find conversations created between two datetimes (inclusive start, exclusive end)
+    List<AIConversation> findByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 }
 

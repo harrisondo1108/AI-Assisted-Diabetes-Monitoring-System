@@ -8,15 +8,39 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
+import jakarta.persistence.Transient;
+import jakarta.persistence.PostPersist;
+import jakarta.persistence.PostLoad;
+import org.springframework.data.domain.Persistable;
+
 import java.time.LocalTime;
 
 @Entity
 @Table(name = "PatientRoutine")
-public class PatientRoutine {
+public class PatientRoutine implements Persistable<String> {
 
     @Id
     @Column(name = "UserID", length = 50)
     private String userId;
+
+    @Transient
+    private boolean isNew = true;
+
+    @Override
+    public String getId() {
+        return this.userId;
+    }
+
+    @Override
+    public boolean isNew() {
+        return this.isNew;
+    }
+
+    @PostPersist
+    @PostLoad
+    protected void markNotNew() {
+        this.isNew = false;
+    }
 
     /*
         Không dùng @MapsId ở đây để tránh lỗi:

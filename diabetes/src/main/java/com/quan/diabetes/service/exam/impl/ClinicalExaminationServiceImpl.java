@@ -798,7 +798,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         // Check if there is an active exam (Pending, InProgress, Requested)
         boolean hasActive = clinicalExaminationRepository
                 .findFirstByPatient_UserIdAndDoctor_UserIdAndStatusIn(
-                        patientId, doctor.getUserId(), List.of("Pending", "InProgress", "Requested"))
+                        patientId, doctor.getUserId(), List.of("Pending", "InProgress", "Completed", "Cancelled"))
                 .isPresent();
 
         if (hasActive) {
@@ -811,7 +811,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                 .orElseThrow(() -> new EntityNotFoundException("Patient not found: " + patientId)));
         exam.setDoctor(doctor);
         exam.setExamDate(LocalDateTime.now());
-        exam.setStatus("Requested");
+        exam.setStatus("Pending");
         exam.setMedicalHistory(medicalHistory);
         clinicalExaminationRepository.save(exam);
     }

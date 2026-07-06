@@ -150,6 +150,7 @@
             setDrawerRow('drawerAllergy', user.allergyNotes || '—');
             setDrawerRow('drawerSupervisor', user.supervisorName || '—');
             setDrawerRow('drawerSupervisorPhone', user.supervisorPhone || '—');
+            setDrawerRow('drawerEmail', user.email || '—');
         }
 
         els.drawerOverlay.classList.add('open');
@@ -269,6 +270,7 @@
                 document.getElementById('formAllergy').value = user.allergyNotes || '';
                 document.getElementById('formSupervisorName').value = user.supervisorName || '';
                 document.getElementById('formSupervisorPhone').value = user.supervisorPhone || '';
+                document.getElementById('formEmail').value = user.email || '';
                 addHiddenRole('PAT');
             }
             // Disable radio để chúng không được gửi
@@ -632,6 +634,21 @@
                     } else {
                         hasNameError = validateName(patName, 'Patient full name');
                         hasDobError = validateDob(dobPat);
+                        
+                        const emailInput = document.getElementById('formEmail');
+                        if (emailInput) {
+                            const emailVal = emailInput.value.trim();
+                            if (emailVal) {
+                                const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                                if (!emailRegex.test(emailVal)) {
+                                    showError(emailInput, 'Please enter a valid email address');
+                                    e.preventDefault();
+                                } else if (emailVal.length > 100) {
+                                    showError(emailInput, 'Email must not exceed 100 characters');
+                                    e.preventDefault();
+                                }
+                            }
+                        }
                     }
 
                     if (hasPhoneError || hasPwdError || hasNameError || hasDobError || els.userForm.querySelector('.is-invalid')) {
@@ -756,7 +773,8 @@
                 data-permanent-medical-history="${escapeHtml(user.permanentMedicalHistory || '')}"
                 data-allergy-notes="${escapeHtml(user.allergyNotes || '')}"
                 data-supervisor-name="${escapeHtml(user.supervisorName || '')}"
-                data-supervisor-phone="${escapeHtml(user.supervisorPhone || '')}">
+                data-supervisor-phone="${escapeHtml(user.supervisorPhone || '')}"
+                data-email="${escapeHtml(user.email || '')}">
                 <td>
                     <div class="user-cell">
                         <div class="user-name">${escapeHtml(user.fullName || '')}</div>

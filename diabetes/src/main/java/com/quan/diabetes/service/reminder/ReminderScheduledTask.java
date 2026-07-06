@@ -26,7 +26,16 @@ public class ReminderScheduledTask {
 
         for (AIReminder reminder : reminders) {
             sendReminder(reminder);
-            emailService.sendSimpleEmail("lequan13112005@gmail.com", reminder.getTitle(), reminder.getMessage());
+            String patientEmail = null;
+            if (reminder.getPatient() != null) {
+                patientEmail = reminder.getPatient().getEmail();
+            }
+            if (patientEmail != null && !patientEmail.trim().isEmpty()) {
+                emailService.sendSimpleEmail(patientEmail.trim(), reminder.getTitle(), reminder.getMessage());
+            } else {
+                System.out.println("Warning: Patient " + (reminder.getPatient() != null ? reminder.getPatient().getUserId() : "null") + " has no email configured, fallback to default recipient");
+                emailService.sendSimpleEmail("lequan13112005@gmail.com", reminder.getTitle(), reminder.getMessage());
+            }
             reminder.setIsSent(true);
         }
 

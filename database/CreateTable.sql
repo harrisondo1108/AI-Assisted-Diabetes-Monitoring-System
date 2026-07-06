@@ -10,7 +10,7 @@ GO
 
 CREATE TABLE [Room] (
     [RoomID] INT IDENTITY(1,1) PRIMARY KEY,
-    [RoomName] VARCHAR(50) NOT NULL UNIQUE
+    [RoomName] NVARCHAR(50) NOT NULL UNIQUE
 );
 
 -- 1. Role
@@ -64,6 +64,7 @@ CREATE TABLE [Patient] (
     SupervisorName NVARCHAR(90),
     SupervisorPhone VARCHAR(15),
 	ImageURL NVARCHAR(255) NULL,
+	Email NVARCHAR(100) NULL,
     FOREIGN KEY (UserID) REFERENCES [Account](UserID) ON DELETE CASCADE ON UPDATE CASCADE,
     CHECK (Bloodgroup IN ('A+','A-','B+','B-','AB+','AB-','O+','O-'))
 );
@@ -325,8 +326,8 @@ VALUES
 
 INSERT INTO [Room] ([RoomName])
 VALUES
-('Endocrinology Clinic'),
-('Laboratory');
+(N'Phòn xét nghiệm'),
+(N'Phòng điều dưỡng');
 
 INSERT INTO [Symptoms_Catalog] (SymptomID, SymptomName, Status)
 VALUES

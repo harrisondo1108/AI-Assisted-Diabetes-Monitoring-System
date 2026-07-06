@@ -83,6 +83,7 @@ public class PatientProfileController extends BasePatientController {
                               @RequestParam(value = "allergyNotes", required = false) String allergyNotes,
                               @RequestParam(value = "supervisorName", required = false) String supervisorName,
                               @RequestParam(value = "supervisorPhone", required = false) String supervisorPhone,
+                              @RequestParam(value = "email", required = false) String email,
                               @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
                               HttpSession session,
                               RedirectAttributes redirectAttributes) {
@@ -139,6 +140,17 @@ public class PatientProfileController extends BasePatientController {
             }
         }
 
+        if (email != null && !email.trim().isEmpty()) {
+            if (email.trim().length() > 100) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Email không được vượt quá 100 ký tự.");
+                return "redirect:/patient/profile";
+            }
+            if (!email.trim().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Địa chỉ email không hợp lệ.");
+                return "redirect:/patient/profile";
+            }
+        }
+
         if (height != null && (height < 50 || height > 250)) {
             redirectAttributes.addFlashAttribute("errorMessage", "Chiều cao phải từ 50 đến 250 cm.");
             return "redirect:/patient/profile";
@@ -168,6 +180,7 @@ public class PatientProfileController extends BasePatientController {
         patient.setAllergyNotes(clean(allergyNotes));
         patient.setSupervisorName(clean(supervisorName));
         patient.setSupervisorPhone(clean(supervisorPhone));
+        patient.setEmail(clean(email));
 
         if (imageFile != null && !imageFile.isEmpty()) {
             if (imageFile.getSize() > 2 * 1024 * 1024) {

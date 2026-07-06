@@ -91,6 +91,13 @@
                     </div>
 
                     <div class="profile-field">
+                        <label>Email</label>
+                        <div th:text="${patient != null && patient.email != null ? patient.email : 'Chưa cập nhật'}">
+                            example@gmail.com
+                        </div>
+                    </div>
+
+                    <div class="profile-field">
                         <label>Ngày sinh</label>
                         <div th:text="${patient != null && patient.dob != null ? #temporals.format(patient.dob, 'dd/MM/yyyy') : 'Chưa cập nhật'}">
                             01/01/2000
@@ -294,6 +301,15 @@
                                name="imageFile"
                                accept="image/*"
                                class="form-control-file">
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label>Email</label>
+                        <input type="email"
+                               name="email"
+                               maxlength="100"
+                               th:value="${patient != null ? patient.email : ''}"
+                               placeholder="Nhập địa chỉ email">
                     </div>
 
                     <div class="modal-form-group">

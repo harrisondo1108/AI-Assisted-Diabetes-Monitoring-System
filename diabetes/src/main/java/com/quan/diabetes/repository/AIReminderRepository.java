@@ -69,6 +69,9 @@ public interface AIReminderRepository extends JpaRepository<AIReminder, Long> {
             @Param("endOfDay") LocalDateTime endOfDay
     );
 
+    // Simple derived query to fetch reminders scheduled within a datetime range
+    List<AIReminder> findByScheduledTimeBetween(LocalDateTime start, LocalDateTime end);
+
     @Query("""
             SELECT reminder
             FROM AIReminder reminder

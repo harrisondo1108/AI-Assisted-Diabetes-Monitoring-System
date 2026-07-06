@@ -112,6 +112,7 @@ function setupProfileValidation() {
         const allergyNotes = getValue(form, 'allergyNotes');
         const supervisorName = getValue(form, 'supervisorName');
         const supervisorPhone = getValue(form, 'supervisorPhone');
+        const email = getValue(form, 'email');
 
         const errors = [];
 
@@ -136,6 +137,16 @@ function setupProfileValidation() {
         } else if (!isValidPhone(phoneNumber)) {
             errors.push('Số điện thoại phải gồm 10 chữ số.');
             markInvalid(form, 'phoneNumber');
+        }
+
+        if (email) {
+            if (email.length > 100) {
+                errors.push('Email không được vượt quá 100 ký tự.');
+                markInvalid(form, 'email');
+            } else if (!isValidEmail(email)) {
+                errors.push('Địa chỉ email không hợp lệ.');
+                markInvalid(form, 'email');
+            }
         }
 
         if (address && address.length > 200) {
@@ -323,6 +334,10 @@ function getValue(form, fieldName) {
 
 function isValidPhone(value) {
     return /^[0-9]{10}$/.test(value);
+}
+
+function isValidEmail(value) {
+    return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value);
 }
 
 function isValidName(value) {

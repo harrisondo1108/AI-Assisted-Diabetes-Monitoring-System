@@ -91,7 +91,8 @@
                                     th:data-permanent-medical-history="${user.permanentMedicalHistory}"
                                     th:data-allergy-notes="${user.allergyNotes}"
                                     th:data-supervisor-name="${user.supervisorName}"
-                                    th:data-supervisor-phone="${user.supervisorPhone}">
+                                    th:data-supervisor-phone="${user.supervisorPhone}"
+                                    th:data-email="${user.email}">
 
                                     <td>
                                         <div class="user-cell">
@@ -244,6 +245,8 @@
                             id="drawerSupervisor">—</span></div>
                     <div class="info-row"><span class="label">Supervisor Phone</span><span class="value"
                             id="drawerSupervisorPhone">—</span></div>
+                    <div class="info-row"><span class="label">Email</span><span class="value"
+                            id="drawerEmail">—</span></div>
                 </div>
             </div>
         </div>
@@ -496,6 +499,15 @@
                                     th:classappend="${#fields.hasErrors('supervisorPhone')} ? 'is-invalid' : ''">
                                 <div class="error-feedback"><span th:if="${#fields.hasErrors('supervisorPhone')}"
                                         th:errors="*{supervisorPhone}"></span></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" id="formEmail" name="email"
+                                    th:value="*{email}" maxlength="100"
+                                    placeholder="Please enter patient email"
+                                    th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''">
+                                <div class="error-feedback"><span th:if="${#fields.hasErrors('email')}"
+                                        th:errors="*{email}"></span></div>
                             </div>
                             <div class="form-group full-width">
                                 <label>Medical History</label>

@@ -105,6 +105,7 @@ public class AdminUserServiceImpl implements AdminUserService {
                     dto.setAllergyNotes(p.getAllergyNotes());
                     dto.setSupervisorName(p.getSupervisorName());
                     dto.setSupervisorPhone(p.getSupervisorPhone());
+                    dto.setEmail(p.getEmail());
                 });
             } else { // profile (doctor) fields
                 profileRepository.findById(u.getUserId()).ifPresent(p -> {
@@ -191,6 +192,7 @@ public class AdminUserServiceImpl implements AdminUserService {
             p.setAllergyNotes(ParseUtil.parseString(dto.getAllergyNotes()));
             p.setSupervisorName(ParseUtil.parseString(dto.getSupervisorName()));
             p.setSupervisorPhone(ParseUtil.parseString(dto.getSupervisorPhone()));
+            p.setEmail(ParseUtil.parseString(dto.getEmail()));
 
             p = patientService.create(p);
 
@@ -243,6 +245,7 @@ public class AdminUserServiceImpl implements AdminUserService {
             p.setAllergyNotes(ParseUtil.parseString(dto.getAllergyNotes()));
             p.setSupervisorName(ParseUtil.parseString(dto.getSupervisorName()));
             p.setSupervisorPhone(ParseUtil.parseString(dto.getSupervisorPhone()));
+            p.setEmail(ParseUtil.parseString(dto.getEmail()));
             patientRepository.save(p);
         } else {
             Profile p = profileRepository.findById(userId)
@@ -302,6 +305,7 @@ public class AdminUserServiceImpl implements AdminUserService {
                 dto.setAllergyNotes(p.getAllergyNotes());
                 dto.setSupervisorName(p.getSupervisorName());
                 dto.setSupervisorPhone(p.getSupervisorPhone());
+                dto.setEmail(p.getEmail());
             });
         } else {
             profileRepository.findById(userId).ifPresent(p -> {
