@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <title>Configure – Diabetes Care System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/admin/configure.css}">
-    <link rel="stylesheet" href="/static/css/admin/configure.css">
 </head>
 <body>
 <div class="admin-layout">
@@ -47,7 +46,7 @@
                     <div class="panel-toolbar-timing">
                         <div class="table-search-box">
                             <i class="fa-solid fa-magnifying-glass"></i>
-                            <input type="text" id="roomSearch" placeholder="Search by room name...">
+                            <input type="text" id="roomSearch" th:value="${search != null ? search : ''}" placeholder="Search room... (Enter để tìm)">
                         </div>
                         <button type="button" class="btn btn-primary" id="btnAddRoom" style="margin:0">
                             <i class="fa-solid fa-plus"></i> Add Room
@@ -56,6 +55,7 @@
                     <table class="data-table">
                         <thead>
                         <tr>
+                            <th style="width: 80px;">ROOM ID</th>
                             <th>ROOM NAME</th>
                             <th>DESCRIPTION</th>
                             <th class="col-center">ACTIONS</th>
@@ -64,6 +64,9 @@
                         <tbody id="roomTableBody">
 
                         <tr th:each="room : ${roomList}" class="data-row room-row">
+                            <td>
+                                <span class="room-number-badge" th:text="${room.roomId}">1</span>
+                            </td>
                             <td>
                                 <div class="test-info">
                                     <div class="test-icon"><i class="fa-solid fa-door-open"></i></div>
@@ -80,19 +83,18 @@
                                                      data-desc=${room.description}">
                                         <i class="fa-solid fa-pen"></i>
                                     </button>
-                                    <form th:action="@{/admin/configure/room/delete/{id}(id=${room.roomId})}"
-                                          method="post" class="inline-form"
-                                          onsubmit="return confirm('Xóa phòng này?')">
-                                        <button type="submit" class="action-btn btn-lock" title="Delete">
-                                            <i class="fa-regular fa-trash-can"></i>
-                                        </button>
-                                    </form>
+                                    <button type="button" class="action-btn btn-lock delete-room-btn"
+                                            title="Delete"
+                                            th:attr="data-id=${room.roomId},
+                                                     data-name=${room.roomName}">
+                                        <i class="fa-regular fa-trash-can"></i>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
 
                         <tr th:if="${roomList == null or roomList.isEmpty()}">
-                            <td colspan="3" class="empty-row">Chưa có phòng nào. Nhấn "+ Add Room" để thêm.</td>
+                            <td colspan="4" class="empty-row">Chưa có phòng nào hoặc không tìm thấy kết quả.</td>
                         </tr>
 
                         </tbody>
@@ -114,7 +116,7 @@
                     <div class="panel-toolbar-timing">
                         <div class="table-search-box">
                             <i class="fa-solid fa-magnifying-glass"></i>
-                            <input type="text" id="timingSearch" placeholder="Search by timing name...">
+                            <input type="text" id="timingSearch" th:value="${search != null ? search : ''}" placeholder="Search timing... (Enter để tìm)">
                         </div>
                         <button type="button" class="btn btn-primary" id="btnAddTiming" style="margin:0">
                             <i class="fa-solid fa-plus"></i> Add Timing
@@ -144,19 +146,17 @@
                                             th:attr="data-id=${timing.timingID}, data-name=${timing.timingName}">
                                         <i class="fa-solid fa-pen"></i>
                                     </button>
-                                    <form th:action="@{/admin/configure/timing/delete/{id}(id=${timing.timingID})}"
-                                          method="post" class="inline-form"
-                                          onsubmit="return confirm('Xóa timing này?')">
-                                        <button type="submit" class="action-btn btn-lock" title="Delete">
-                                            <i class="fa-regular fa-trash-can"></i>
-                                        </button>
-                                    </form>
+                                    <button type="button" class="action-btn btn-lock delete-timing-btn"
+                                            title="Delete"
+                                            th:attr="data-id=${timing.timingID}, data-name=${timing.timingName}">
+                                        <i class="fa-regular fa-trash-can"></i>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
 
                         <tr th:if="${timingList == null or timingList.isEmpty()}">
-                            <td colspan="2" class="empty-row">Chưa có timing nào. Nhấn "+ Add Timing" để thêm.</td>
+                            <td colspan="2" class="empty-row">Chưa có timing nào hoặc không tìm thấy kết quả.</td>
                         </tr>
 
                         </tbody>
@@ -190,14 +190,22 @@
             <h3>Add Room</h3>
             <button type="button" class="modal-close" id="btnCloseAddRoom"><i class="fa-solid fa-xmark"></i></button>
         </div>
-        <form th:action="@{/admin/configure/room/create}" method="post" class="modal-form">
+        <form th:action="@{/admin/configure/room/create}" method="post" class="modal-form" id="addRoomForm">
             <div class="form-group">
                 <label>Room Name <span class="required">*</span></label>
-                <input type="text" name="roomName" placeholder="VD: Phòng Xét Nghiệm 1" maxlength="50" required>
+                <input type="text" name="roomName" id="inputAddRoomName" placeholder="VD: Phòng Xét Nghiệm 1" maxlength="50" required autocomplete="off">
+                <div class="validation-info">
+                    <span class="error-msg" id="errorAddRoomName"></span>
+                    <span class="char-count" id="countAddRoomName">0 / 50</span>
+                </div>
             </div>
             <div class="form-group">
                 <label>Description</label>
-                <input type="text" name="description" placeholder="VD: Lab — Floor 1" maxlength="255">
+                <input type="text" name="description" id="inputAddRoomDesc" placeholder="VD: Lab — Floor 1" maxlength="255" autocomplete="off">
+                <div class="validation-info">
+                    <span class="error-msg" id="errorAddRoomDesc"></span>
+                    <span class="char-count" id="countAddRoomDesc">0 / 255</span>
+                </div>
             </div>
             <div class="modal-actions">
                 <button type="button" class="btn-cancel" id="btnCancelAddRoom">Cancel</button>
@@ -217,11 +225,19 @@
         <form id="editRoomForm" method="post" class="modal-form">
             <div class="form-group">
                 <label>Room Name <span class="required">*</span></label>
-                <input type="text" id="editRoomName" name="roomName" maxlength="50" required>
+                <input type="text" id="editRoomName" name="roomName" maxlength="50" required autocomplete="off">
+                <div class="validation-info">
+                    <span class="error-msg" id="errorEditRoomName"></span>
+                    <span class="char-count" id="countEditRoomName">0 / 50</span>
+                </div>
             </div>
             <div class="form-group">
                 <label>Description</label>
-                <input type="text" id="editRoomDesc" name="description" maxlength="255">
+                <input type="text" id="editRoomDesc" name="description" maxlength="255" autocomplete="off">
+                <div class="validation-info">
+                    <span class="error-msg" id="errorEditRoomDesc"></span>
+                    <span class="char-count" id="countEditRoomDesc">0 / 255</span>
+                </div>
             </div>
             <div class="modal-actions">
                 <button type="button" class="btn-cancel" id="btnCancelEditRoom">Cancel</button>
@@ -238,10 +254,14 @@
             <h3>Add Timing</h3>
             <button type="button" class="modal-close" id="btnCloseAddTiming"><i class="fa-solid fa-xmark"></i></button>
         </div>
-        <form th:action="@{/admin/configure/timing/create}" method="post" class="modal-form">
+        <form th:action="@{/admin/configure/timing/create}" method="post" class="modal-form" id="addTimingForm">
             <div class="form-group">
                 <label>Timing Name <span class="required">*</span></label>
-                <input type="text" name="timingName" placeholder="VD: Sáng, Trưa, Tối..." maxlength="100" required>
+                <input type="text" name="timingName" id="inputAddTimingName" placeholder="VD: Sáng, Trưa, Tối..." maxlength="100" required autocomplete="off">
+                <div class="validation-info">
+                    <span class="error-msg" id="errorAddTimingName"></span>
+                    <span class="char-count" id="countAddTimingName">0 / 100</span>
+                </div>
             </div>
             <div class="modal-actions">
                 <button type="button" class="btn-cancel" id="btnCancelAddTiming">Cancel</button>
@@ -261,7 +281,11 @@
         <form id="editTimingForm" method="post" class="modal-form">
             <div class="form-group">
                 <label>Timing Name <span class="required">*</span></label>
-                <input type="text" id="editTimingName" name="timingName" maxlength="100" required>
+                <input type="text" id="editTimingName" name="timingName" maxlength="100" required autocomplete="off">
+                <div class="validation-info">
+                    <span class="error-msg" id="errorEditTimingName"></span>
+                    <span class="char-count" id="countEditTimingName">0 / 100</span>
+                </div>
             </div>
             <div class="modal-actions">
                 <button type="button" class="btn-cancel" id="btnCancelEditTiming">Cancel</button>
@@ -271,7 +295,23 @@
     </div>
 </div>
 
+<!-- CUSTOM CONFIRM MODAL -->
+<div class="modal-overlay" id="customConfirmModal">
+    <div class="modal-box" style="max-width: 400px;">
+        <div class="modal-header">
+            <h3 id="confirmTitle">Xác nhận</h3>
+            <button type="button" class="modal-close" id="btnCloseConfirm"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body" style="padding: 15px 0;">
+            <p id="confirmMessage">Bạn có chắc chắn muốn thực hiện hành động này?</p>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn-cancel" id="btnCancelConfirm">Hủy</button>
+            <button type="button" class="btn-save" id="btnOkConfirm" style="background-color: #ef4444;">Xác nhận</button>
+        </div>
+    </div>
+</div>
+
 <script th:src="@{/js/configure.js}"></script>
 </body>
 </html>
-

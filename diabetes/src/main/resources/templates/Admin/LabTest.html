@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <title>Medical Tests Management – Diabetes Care System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/admin/lab-tests.css}">
-    <link rel="stylesheet" href="/static/css/admin/lab-tests.css">
 </head>
 <body>
 <div class="admin-layout">
@@ -66,7 +65,7 @@
                     </div>
                     <div class="table-search-box">
                         <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" id="tableSearch" placeholder="Search by test name, unit or room...">
+                        <input type="text" id="tableSearch" th:value="${keyword != null ? keyword : ''}" placeholder="Search by test name, unit or room... (Enter để tìm)">
                     </div>
                 </div>
 
@@ -93,8 +92,8 @@
                         <td th:text="${test.unit}">%</td>
                         <td th:text="${test.roomId}">1</td>
                         <td>
-                            <span th:class="${test.status} ? 'badge badge--active' : 'badge badge--inactive'"
-                                  th:text="${test.status} ? 'Active' : 'Inactive'">Active</span>
+                            <span th:class="${test.status == true} ? 'badge badge--active' : 'badge badge--inactive'"
+                                  th:text="${test.status == true} ? 'Active' : 'Inactive'">Active</span>
                         </td>
                         <td class="col-center">
                             <div class="row-actions">
@@ -112,19 +111,19 @@
                                                  data-description=${test.description}">
                                     <i class="fa-solid fa-pen"></i>
                                 </button>
-                                <form th:action="@{/admin/lab-tests/toggle-status/{id}(id=${test.labTestId})}"
-                                      method="post" class="inline-form">
-                                    <button type="submit" class="action-btn btn-lock"
-                                            th:title="${test.status} ? 'Deactivate' : 'Activate'">
-                                        <i th:class="${test.status} ? 'fa-solid fa-lock-open' : 'fa-solid fa-lock'"></i>
-                                    </button>
-                                </form>
+                                <button type="button" class="action-btn btn-lock btn-toggle-status"
+                                        th:title="${test.status == true} ? 'Deactivate' : 'Activate'"
+                                        th:attr="data-id=${test.labTestId},
+                                                 data-name=${test.testName},
+                                                 data-status=${test.status}">
+                                    <i th:class="${test.status == true} ? 'fa-solid fa-lock-open' : 'fa-solid fa-lock'"></i>
+                                </button>
                             </div>
                         </td>
                     </tr>
 
                     <tr th:if="${testList == null || testList.isEmpty()}">
-                        <td colspan="5" class="empty-row">Chưa có dữ liệu xét nghiệm.</td>
+                        <td colspan="5" class="empty-row">Chưa có dữ liệu xét nghiệm hoặc không tìm thấy kết quả.</td>
                     </tr>
 
                     </tbody>
@@ -160,16 +159,24 @@
         </div>
         <form th:action="@{/admin/lab-tests/create}" method="post" class="modal-form" id="createTestForm">
             <div class="form-group">
-                <label>Test Name</label>
-                <input type="text" name="testName" maxlength="100" placeholder="VD: Fasting Blood Sugar" required>
+                <label>Test Name <span class="required">*</span></label>
+                <input type="text" name="testName" id="inputCreateTestName" maxlength="100" placeholder="VD: Fasting Blood Sugar" required autocomplete="off">
+                <div class="validation-info">
+                    <span class="error-msg" id="errorCreateTestName"></span>
+                    <span class="char-count" id="countCreateTestName">0 / 100</span>
+                </div>
             </div>
             <div class="form-row two-col">
                 <div class="form-group">
-                    <label>Unit</label>
-                    <input type="text" name="unit" maxlength="20" placeholder="VD: mg/dL" required>
+                    <label>Unit <span class="required">*</span></label>
+                    <input type="text" name="unit" id="inputCreateUnit" maxlength="20" placeholder="VD: mg/dL" required autocomplete="off">
+                    <div class="validation-info">
+                        <span class="error-msg" id="errorCreateUnit"></span>
+                        <span class="char-count" id="countCreateUnit">0 / 20</span>
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label>Room</label>
+                    <label>Room <span class="required">*</span></label>
                     <select name="roomId" required>
                         <option value="">-- Chọn phòng xét nghiệm --</option>
                         <option th:each="room : ${roomList}" th:value="${room.roomId}" th:text="${room.roomName}">Room 1</option>
@@ -182,29 +189,29 @@
                     <div class="threshold-input-card">
                         <h4>Người trẻ</h4>
                         <div class="form-row two-col">
-                            <div class="form-group"><label>Min</label><input type="number" id="createYoungMin" min="0" required></div>
-                            <div class="form-group"><label>Max</label><input type="number" id="createYoungMax" min="0" required></div>
+                            <div class="form-group"><label>Min</label><input type="number" id="createYoungMin" name="youngMin" min="0" required></div>
+                            <div class="form-group"><label>Max</label><input type="number" id="createYoungMax" name="youngMax" min="0" required></div>
                         </div>
                     </div>
                     <div class="threshold-input-card">
                         <h4>Trung niên</h4>
                         <div class="form-row two-col">
-                            <div class="form-group"><label>Min</label><input type="number" id="createMiddleMin" min="0" required></div>
-                            <div class="form-group"><label>Max</label><input type="number" id="createMiddleMax" min="0" required></div>
+                            <div class="form-group"><label>Min</label><input type="number" id="createMiddleMin" name="middleMin" min="0" required></div>
+                            <div class="form-group"><label>Max</label><input type="number" id="createMiddleMax" name="middleMax" min="0" required></div>
                         </div>
                     </div>
                     <div class="threshold-input-card">
                         <h4>Cao tuổi</h4>
                         <div class="form-row two-col">
-                            <div class="form-group"><label>Min</label><input type="number" id="createElderMin" min="0" required></div>
-                            <div class="form-group"><label>Max</label><input type="number" id="createElderMax" min="0" required></div>
+                            <div class="form-group"><label>Min</label><input type="number" id="createElderMin" name="elderMin" min="0" required></div>
+                            <div class="form-group"><label>Max</label><input type="number" id="createElderMax" name="elderMax" min="0" required></div>
                         </div>
                     </div>
                     <div class="threshold-input-card">
                         <h4>Người có bầu</h4>
                         <div class="form-row two-col">
-                            <div class="form-group"><label>Min</label><input type="number" id="createPregnantMin" min="0" required></div>
-                            <div class="form-group"><label>Max</label><input type="number" id="createPregnantMax" min="0" required></div>
+                            <div class="form-group"><label>Min</label><input type="number" id="createPregnantMin" name="pregnantMin" min="0" required></div>
+                            <div class="form-group"><label>Max</label><input type="number" id="createPregnantMax" name="pregnantMax" min="0" required></div>
                         </div>
                     </div>
                 </div>
@@ -213,7 +220,11 @@
             <input type="hidden" name="maxValue" id="createMainMaxValue">
             <div class="form-group">
                 <label>Description</label>
-                <textarea name="description" rows="4" placeholder="Enter description..."></textarea>
+                <textarea name="description" id="inputCreateDesc" rows="4" placeholder="Enter description..." maxlength="255"></textarea>
+                <div class="validation-info">
+                    <span class="error-msg" id="errorCreateDesc"></span>
+                    <span class="char-count" id="countCreateDesc">0 / 255</span>
+                </div>
             </div>
             <div class="modal-actions">
                 <button type="button" class="btn-cancel" id="btnCancelModal">Cancel</button>
@@ -237,16 +248,24 @@
                 <input type="text" id="editLabTestId" disabled>
             </div>
             <div class="form-group">
-                <label>Test Name</label>
-                <input type="text" id="editTestName" name="testName" maxlength="100" required>
+                <label>Test Name <span class="required">*</span></label>
+                <input type="text" id="editTestName" name="testName" maxlength="100" required autocomplete="off">
+                <div class="validation-info">
+                    <span class="error-msg" id="errorEditTestName"></span>
+                    <span class="char-count" id="countEditTestName">0 / 100</span>
+                </div>
             </div>
             <div class="form-row two-col">
                 <div class="form-group">
-                    <label>Unit</label>
-                    <input type="text" id="editUnit" name="unit" maxlength="20" required>
+                    <label>Unit <span class="required">*</span></label>
+                    <input type="text" id="editUnit" name="unit" maxlength="20" required autocomplete="off">
+                    <div class="validation-info">
+                        <span class="error-msg" id="errorEditUnit"></span>
+                        <span class="char-count" id="countEditUnit">0 / 20</span>
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label>Room</label>
+                    <label>Room <span class="required">*</span></label>
                     <select id="editRoomId" name="roomId" required>
                         <option value="">-- Chọn phòng xét nghiệm --</option>
                         <option th:each="room : ${roomList}" th:value="${room.roomId}" th:text="${room.roomName}">Room 1</option>
@@ -259,29 +278,29 @@
                     <div class="threshold-input-card">
                         <h4>Người trẻ</h4>
                         <div class="form-row two-col">
-                            <div class="form-group"><label>Min</label><input type="number" id="editYoungMin" min="0" required></div>
-                            <div class="form-group"><label>Max</label><input type="number" id="editYoungMax" min="0" required></div>
+                            <div class="form-group"><label>Min</label><input type="number" id="editYoungMin" name="youngMin" min="0" required></div>
+                            <div class="form-group"><label>Max</label><input type="number" id="editYoungMax" name="youngMax" min="0" required></div>
                         </div>
                     </div>
                     <div class="threshold-input-card">
                         <h4>Trung niên</h4>
                         <div class="form-row two-col">
-                            <div class="form-group"><label>Min</label><input type="number" id="editMiddleMin" min="0" required></div>
-                            <div class="form-group"><label>Max</label><input type="number" id="editMiddleMax" min="0" required></div>
+                            <div class="form-group"><label>Min</label><input type="number" id="editMiddleMin" name="middleMin" min="0" required></div>
+                            <div class="form-group"><label>Max</label><input type="number" id="editMiddleMax" name="middleMax" min="0" required></div>
                         </div>
                     </div>
                     <div class="threshold-input-card">
                         <h4>Cao tuổi</h4>
                         <div class="form-row two-col">
-                            <div class="form-group"><label>Min</label><input type="number" id="editElderMin" min="0" required></div>
-                            <div class="form-group"><label>Max</label><input type="number" id="editElderMax" min="0" required></div>
+                            <div class="form-group"><label>Min</label><input type="number" id="editElderMin" name="elderMin" min="0" required></div>
+                            <div class="form-group"><label>Max</label><input type="number" id="editElderMax" name="elderMax" min="0" required></div>
                         </div>
                     </div>
                     <div class="threshold-input-card">
                         <h4>Người có bầu</h4>
                         <div class="form-row two-col">
-                            <div class="form-group"><label>Min</label><input type="number" id="editPregnantMin" min="0" required></div>
-                            <div class="form-group"><label>Max</label><input type="number" id="editPregnantMax" min="0" required></div>
+                            <div class="form-group"><label>Min</label><input type="number" id="editPregnantMin" name="pregnantMin" min="0" required></div>
+                            <div class="form-group"><label>Max</label><input type="number" id="editPregnantMax" name="pregnantMax" min="0" required></div>
                         </div>
                     </div>
                 </div>
@@ -290,7 +309,11 @@
             <input type="hidden" name="maxValue" id="editMainMaxValue">
             <div class="form-group">
                 <label>Description</label>
-                <textarea id="editDescription" name="description" rows="4"></textarea>
+                <textarea id="editDescription" name="description" rows="4" maxlength="255"></textarea>
+                <div class="validation-info">
+                    <span class="error-msg" id="errorEditDesc"></span>
+                    <span class="char-count" id="countEditDesc">0 / 255</span>
+                </div>
             </div>
             <div class="modal-actions">
                 <button type="button" class="btn-cancel" id="btnCancelEditModal">Cancel</button>
@@ -331,6 +354,23 @@
                 <label>Description</label>
                 <div class="description-box" id="detailDescription">---</div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- CUSTOM CONFIRM MODAL -->
+<div class="modal-overlay" id="customConfirmModal">
+    <div class="modal-box" style="max-width: 400px;">
+        <div class="modal-header">
+            <h3 id="confirmTitle">Xác nhận</h3>
+            <button type="button" class="modal-close" id="btnCloseConfirm"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body" style="padding: 15px 0;">
+            <p id="confirmMessage">Bạn có chắc chắn muốn thực hiện hành động này?</p>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn-cancel" id="btnCancelConfirm">Hủy</button>
+            <button type="button" class="btn-save" id="btnOkConfirm">Xác nhận</button>
         </div>
     </div>
 </div>

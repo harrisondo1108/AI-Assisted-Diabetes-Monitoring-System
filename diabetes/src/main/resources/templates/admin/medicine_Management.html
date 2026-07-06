@@ -477,7 +477,7 @@
             </div>
         </div>
     </div>
-    <script th:src="@{/js/admin/medicine_management.js}"></script>
+    <script th:src="@{/js/admin/medicine_management.js(v=${#dates.createNow().getTime()})}"></script>
 </body>
 
 </html>

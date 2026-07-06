@@ -1,4 +1,4 @@
-package com.quan.diabetes.controller;
+package com.quan.diabetes.controller.admin;
 
 import com.quan.diabetes.entity.LabTestCatalog;
 
@@ -23,10 +23,24 @@ public class LabTestCatalogController {
 
     /* ── Danh sách ── */
     @GetMapping
-    public String showLabTests(@RequestParam(value = "error", required = false) String error,
+    public String showLabTests(@RequestParam(value = "keyword", defaultValue = "") String keyword,
+                               @RequestParam(value = "status",  defaultValue = "all") String status,
+                               @RequestParam(value = "error",   required = false) String error,
                                Model model) {
-        model.addAttribute("testList", labTestCatalogService.findAll());
+        Boolean statusFilter = null;
+        if ("active".equals(status)) {
+            statusFilter = Boolean.TRUE;
+        } else if ("inactive".equals(status)) {
+            statusFilter = Boolean.FALSE;
+        }
+        
+        String kw = keyword.trim();
+        java.util.List<LabTestCatalog> testList = labTestCatalogService.searchByKeywordAndStatus(kw, statusFilter);
+
+        model.addAttribute("testList", testList);
         model.addAttribute("roomList", roomService.findAll());
+        model.addAttribute("keyword",  kw);
+        model.addAttribute("status",   status);
 
         if ("duplicate".equals(error))
             model.addAttribute("errorMessage", "Tên xét nghiệm đã tồn tại.");

@@ -31,7 +31,7 @@
 }
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--bg-page);
     color: var(--text-primary);
     min-height: 100vh;
@@ -768,3 +768,30 @@ body {
     color: #dc2626;
     margin-left: 2px;
 }
+
+/* ── Custom validation & counter styles ── */
+.validation-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    margin-top: 4px;
+}
+
+.error-msg {
+    color: #ef4444;
+}
+
+.char-count {
+    color: var(--text-muted);
+}
+
+.room-number-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background-color: var(--mint-200);
+    color: var(--green-900);
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+

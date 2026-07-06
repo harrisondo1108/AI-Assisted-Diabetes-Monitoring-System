@@ -31,7 +31,7 @@
 }
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--bg-page);
     color: var(--text-primary);
     min-height: 100vh;
@@ -933,3 +933,19 @@ body {
     white-space: pre-wrap;
     line-height: 1.5;
 }
+
+.validation-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    margin-top: 4px;
+}
+
+.error-msg {
+    color: #ef4444;
+}
+
+.char-count {
+    color: var(--text-muted);
+}
+
