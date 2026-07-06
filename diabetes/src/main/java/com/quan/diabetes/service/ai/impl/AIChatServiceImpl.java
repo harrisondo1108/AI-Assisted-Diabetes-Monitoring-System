@@ -35,11 +35,11 @@ import com.quan.diabetes.service.ai.AIChatService;
 import com.quan.diabetes.service.ai.AIConversationService;
 import com.quan.diabetes.service.ai.AIMessageService;
 import com.quan.diabetes.service.user.PatientService;
+import com.quan.diabetes.monitoring.service.AiMonitoringService;
 
 import jakarta.persistence.EntityNotFoundException;
 
 @Service
-@Transactional
 public class AIChatServiceImpl implements AIChatService {
 
     private static final Logger logger = LoggerFactory.getLogger(AIChatServiceImpl.class);
@@ -50,17 +50,16 @@ public class AIChatServiceImpl implements AIChatService {
     @Value("${ollama.url:http://localhost:11434}")
     private String ollamaUrl;
 
-    @Value("${ollama.model:diabetesAI}")
+    @Value("${ollama.model:diabetes}")
     private String ollamaDefaultModel;
 
     private static final String STAGE_2_SYSTEM_PROMPT = """
             Bạn là Bác sĩ nội tiết và trợ lý AI thông minh chuyên tư vấn y khoa và kiểm soát bệnh tiểu đường.
             
             QUY TẮC TRẢ LỜI TỐI THƯỢNG:
-            1. CÁCH ĐỌC VÀ TƯ VẤN TỪ DỮ LIỆU BỆNH ÁN (RAG):
-               - Trong câu hỏi hoặc prompt sẽ có phần [DỮ LIỆU BỆNH ÁN] chứa các thông tin, chỉ số, hồ sơ của bệnh nhân được hệ thống lưu dưới cấu trúc JSON.
-               - NHIỆM VỤ CỦA BẠN: BẮT BUỘC phải trích xuất, phân tích và DIỄN ĐẠT LẠI các chỉ số đó thành lời tư vấn bác sĩ bằng tiếng Việt tự nhiên, thân thiện và dễ hiểu (Ví dụ: "Chào bạn, theo hồ sơ y khoa, bạn có nhóm máu..., các chỉ số hiện tại là...").
-               - TUYỆT ĐỐI KHÔNG từ chối trả lời, KHÔNG nói "không thể cung cấp dưới dạng JSON" hay "không thể đọc được trực tiếp", KHÔNG lặp lại mã bệnh nhân hay chuỗi JSON thô. Hãy đóng vai bác sĩ giải thích rõ ràng cho bệnh nhân!
+            1. PHÂN BIỆT CÂU HỎI KIẾN THỨC VÀ DỮ LIỆU BỆNH ÁN (RAG):
+               - NẾU BỆNH NHÂN HỎI VỀ KIẾN THỨC Y KHOA CHUNG (ví dụ: "bệnh tiểu đường là gì?", "nguyên nhân tiểu đường?", "chế độ ăn thế nào?", chào hỏi): BẮT BUỘC phải trả lời đúng trọng tâm dựa trên kiến thức y khoa chuyên sâu đã được huấn luyện, KHÔNG ĐƯỢC lôi hồ sơ bệnh án hay chỉ số cá nhân vào để giải thích nếu câu hỏi không yêu cầu!
+               - NẾU BỆNH NHÂN HỎI VỀ DỮ LIỆU CÁ NHÂN CỦA HỌ (ví dụ: "hồ sơ của tôi", "kết quả xét nghiệm", "tôi đang uống thuốc gì"): Khi đó prompt sẽ có khối [DỮ LIỆU BỆNH ÁN], bạn phải trích xuất, phân tích và DIỄN ĐẠT LẠI các chỉ số đó thành lời tư vấn bác sĩ bằng tiếng Việt tự nhiên, thân thiện và dễ hiểu. TUYỆT ĐỐI KHÔNG lặp lại mã bệnh nhân hay chuỗi JSON thô.
             2. Cấu trúc & Bố cục (Markdown):
                - Mở đầu trả lời trực tiếp (1-2 câu) → Phân tích thông tin bệnh án/cơ chế → Hướng dẫn cụ thể áp dụng được → Lưu ý an toàn.
                - BẮT BUỘC sử dụng định dạng Markdown rõ ràng: chia thành các đoạn văn ngắn, sử dụng tiêu đề (như ### hoặc **...**) để tách biệt các ý.
@@ -79,6 +78,7 @@ public class AIChatServiceImpl implements AIChatService {
     private final AIAssistantService aiAssistantService;
     private final PatientService patientService;
     private final com.quan.diabetes.service.ai.AiTool aiTool;
+    private final AiMonitoringService aiMonitoringService;
 
     public AIChatServiceImpl(
             RestTemplate restTemplate,
@@ -86,13 +86,15 @@ public class AIChatServiceImpl implements AIChatService {
             AIConversationService aiConversationService,
             AIAssistantService aiAssistantService,
             PatientService patientService,
-            com.quan.diabetes.service.ai.AiTool aiTool) {
+            com.quan.diabetes.service.ai.AiTool aiTool,
+            AiMonitoringService aiMonitoringService) {
         this.restTemplate = restTemplate;
         this.aiMessageService = aiMessageService;
         this.aiConversationService = aiConversationService;
         this.aiAssistantService = aiAssistantService;
         this.patientService = patientService;
         this.aiTool = aiTool;
+        this.aiMonitoringService = aiMonitoringService;
     }
 
     @Override
@@ -102,6 +104,10 @@ public class AIChatServiceImpl implements AIChatService {
 
     @Override
     public ChatResponseDto sendMessageWithAssistant(AiChatRequestDto request, Integer assistantId) {
+        if (!aiMonitoringService.isAiEnabled()) {
+            logger.warn("AI system is currently disabled by admin.");
+            return ChatResponseDto.success(request.conversationId(), "⚠️ **Hệ thống Trợ lý AI hiện đang được tạm tắt để bảo trì hoặc giám sát.**\n\nVui lòng quay lại sau, hoặc liên hệ quản trị viên để biết thêm chi tiết.");
+        }
         try {
             long startTime = System.currentTimeMillis();
 
@@ -234,16 +240,18 @@ public class AIChatServiceImpl implements AIChatService {
 
         // Step 2: Nếu không khớp keyword, gọi AI Ollama để phân loại
         String systemPromptTool = """
-                Bạn là hệ thống phân loại câu hỏi y tế thông minh. Nhiệm vụ của bạn là phân loại câu hỏi của bệnh nhân và trả về kết quả dưới định dạng JSON duy nhất, KHÔNG giải thích gì thêm.
-                Dựa vào câu hỏi và lịch sử, nếu bệnh nhân hỏi về dữ liệu cá nhân của họ (chiều cao, cân nặng, bệnh án, kế hoạch điều trị, xét nghiệm, đơn thuốc):
-                - Hỏi hồ sơ cá nhân/tiền sử: {"action": "get_general_record", "patient_id": "%s"}
-                - Hỏi bệnh án/lịch sử khám/chẩn đoán: {"action": "get_clinical_examination", "patient_id": "%s"}
-                - Hỏi kế hoạch điều trị/chế độ ăn/tập luyện: {"action": "get_treatment_plan", "patient_id": "%s"}
-                - Hỏi kết quả xét nghiệm/đường huyết/HbA1c: {"action": "get_lab_results", "patient_id": "%s"}
-                - Hỏi đơn thuốc/thuốc đang uống: {"action": "get_prescriptions", "patient_id": "%s"}
-                
-                NẾU LÀ CÂU HỎI KIẾN THỨC Y KHOA CHUNG, CHÀO HỎI, HOẶC THÔNG TIN ĐÃ CÓ TRONG LỊCH SỬ:
-                Hãy trả về duy nhất từ: NONE
+                Bạn là bộ định tuyến phân loại câu hỏi (Router). Nhiệm vụ là xác định xem câu hỏi có cần truy xuất dữ liệu cá nhân trong cơ sở dữ liệu bệnh viện hay không.
+                QUY TẮC TUYỆT ĐỐI:
+                1. NẾU LÀ CÂU HỎI KIẾN THỨC Y KHOA CHUNG, CHÀO HỎI, HOẶC THÔNG TIN CHUNG (ví dụ: "bệnh tiểu đường là gì", "nguyên nhân tiểu đường", "chế độ ăn cho người bệnh", "triệu chứng là gì", "xin chào"):
+                   -> BẮT BUỘC TRẢ VỀ DUY NHẤT TỪ: NONE
+                   -> KHÔNG ĐƯỢC trả về JSON tool nếu không hỏi trực tiếp về hồ sơ cá nhân của người hỏi!
+                2. CHỈ KHI bệnh nhân hỏi trực tiếp về HỒ SƠ, DỮ LIỆU CÁ NHÂN CỦA RIÊNG HỌ (ví dụ: "hồ sơ của tôi", "kết quả xét nghiệm", "tôi đang uống thuốc gì", "lịch sử khám", "đường huyết của tôi là bao nhiêu"):
+                   -> Trả về JSON tool tương ứng:
+                   - Hỏi hồ sơ cá nhân/tiền sử: {"action": "get_general_record", "patient_id": "%s"}
+                   - Hỏi bệnh án/lịch sử khám/chẩn đoán: {"action": "get_clinical_examination", "patient_id": "%s"}
+                   - Hỏi kế hoạch điều trị/chế độ ăn của riêng tôi: {"action": "get_treatment_plan", "patient_id": "%s"}
+                   - Hỏi kết quả xét nghiệm/đường huyết cá nhân: {"action": "get_lab_results", "patient_id": "%s"}
+                   - Hỏi đơn thuốc/thuốc đang uống: {"action": "get_prescriptions", "patient_id": "%s"}
                 """.formatted(patientId, patientId, patientId, patientId, patientId);
 
         StringBuilder promptBuilder = new StringBuilder();
@@ -253,7 +261,7 @@ public class AIChatServiceImpl implements AIChatService {
         promptBuilder.append("[YÊU CẦU HIỆN TẠI]\nMã bệnh nhân: ").append(patientId)
                 .append("\nCâu hỏi: ").append(question);
 
-        OllamaGenerateRequest.Options options = new OllamaGenerateRequest.Options(0.1, 0.9, 20, 1.15, 4096, 128);
+        OllamaGenerateRequest.Options options = new OllamaGenerateRequest.Options(0.1, 0.9, 20, 1.15, 1024, 64);
         String responseText = callOllamaGenerate(modelToUse, promptBuilder.toString(), systemPromptTool, options);
         if (responseText != null) {
             String extractedJson = extractToolCallJson(responseText);
@@ -273,6 +281,10 @@ public class AIChatServiceImpl implements AIChatService {
             return null;
         }
         String msgLower = message.toLowerCase();
+        // Lọc ngay các câu hỏi kiến thức y khoa chung hoặc chào hỏi thông thường
+        if (msgLower.contains("là gì") || msgLower.contains("nguyên nhân") || msgLower.contains("triệu chứng") || msgLower.contains("phòng ngừa") || msgLower.contains("khái niệm") || (msgLower.contains("bệnh tiểu đường") && !msgLower.contains("của tôi")) || msgLower.equals("chào") || msgLower.equals("xin chào") || msgLower.contains("chào bác sĩ") || msgLower.contains("hello")) {
+            return null;
+        }
         if (msgLower.contains("đơn thuốc") || msgLower.contains("toa thuốc") || msgLower.contains("thuốc của tôi") || msgLower.contains("thuốc đang uống") || msgLower.contains("lịch sử dùng thuốc")) {
             return Map.of("action", "get_prescriptions", "patient_id", patientId);
         }
@@ -285,7 +297,7 @@ public class AIChatServiceImpl implements AIChatService {
         if (msgLower.contains("bệnh án") || msgLower.contains("lịch sử khám") || msgLower.contains("chẩn đoán của tôi") || msgLower.contains("lịch tái khám") || msgLower.contains("lịch hẹn")) {
             return Map.of("action", "get_clinical_examination", "patient_id", patientId);
         }
-        if (msgLower.contains("hồ sơ") || msgLower.contains("hổ sơ") || msgLower.contains("hồ của tôi") || msgLower.contains("thông tin cá nhân") || msgLower.contains("thông tin của tôi") || msgLower.contains("tiền sử bệnh") || msgLower.contains("dị ứng") || msgLower.contains("nhóm máu") || msgLower.contains("chiều cao") || msgLower.contains("cân nặng")) {
+        if (msgLower.contains("hồ sơ") || msgLower.contains("hổ sơ") || msgLower.contains("hồ của tôi") || msgLower.contains("thông tin cá nhân") || msgLower.contains("thông tin của tôi") || msgLower.contains("tiền sử bệnh") || msgLower.contains("dị ứng") || msgLower.contains("nhóm máu") || msgLower.contains("chiều cao của tôi") || msgLower.contains("cân nặng của tôi")) {
             return Map.of("action", "get_general_record", "patient_id", patientId);
         }
         return null;
@@ -523,6 +535,7 @@ public class AIChatServiceImpl implements AIChatService {
     }
 
     @Override
+    @Transactional
     public void deleteConversation(String conversationId) {
         if (!aiConversationService.existsById(conversationId)) {
             throw new EntityNotFoundException("Conversation not found: " + conversationId);

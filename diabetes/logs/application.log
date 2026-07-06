@@ -1924,3 +1924,29 @@ Caused by: com.microsoft.sqlserver.jdbc.SQLServerException: The object 'PK__Exam
 2026-07-05T01:33:34.968+07:00  INFO 30364 --- [diabetes] [http-nio-8080-exec-9] c.q.d.service.ai.impl.AIChatServiceImpl  : --- CHẶNG 2: Gọi AI Ollama phân tích ---
 2026-07-05T01:33:34.969+07:00  INFO 30364 --- [diabetes] [http-nio-8080-exec-9] c.q.d.service.ai.impl.AIChatServiceImpl  : Calling Ollama API at http://localhost:11434/api/generate with model: diabetesAI
 2026-07-05T01:33:42.329+07:00  INFO 30364 --- [diabetes] [http-nio-8080-exec-9] c.q.d.service.ai.impl.AIChatServiceImpl  : Total response time: 7495 ms
+2026-07-05T01:35:29.743+07:00  INFO 30364 --- [diabetes] [http-nio-8080-exec-4] c.q.d.s.ai.impl.AIAssistantServiceImpl   : Found AI Assistant with ID 1: Diabetes AI Specialist
+2026-07-05T01:35:29.753+07:00  INFO 30364 --- [diabetes] [http-nio-8080-exec-4] c.q.d.service.ai.impl.AIChatServiceImpl  : Using AI Assistant: Diabetes AI Specialist (ID: 1, Model: diabetesAI)
+2026-07-05T01:35:29.774+07:00  INFO 30364 --- [diabetes] [http-nio-8080-exec-4] c.q.d.service.ai.impl.AIChatServiceImpl  : Using conversation: CONV-97732D3F
+2026-07-05T01:35:29.800+07:00  INFO 30364 --- [diabetes] [http-nio-8080-exec-4] c.q.d.service.ai.impl.AIChatServiceImpl  : --- CHẶNG 1: Phân loại câu hỏi cho patient P827106 ---
+2026-07-05T01:35:29.802+07:00  INFO 30364 --- [diabetes] [http-nio-8080-exec-4] c.q.d.service.ai.impl.AIChatServiceImpl  : Calling Ollama API at http://localhost:11434/api/generate with model: diabetesAI
+2026-07-05T01:35:33.222+07:00  INFO 30364 --- [diabetes] [http-nio-8080-exec-4] c.q.d.service.ai.impl.AIChatServiceImpl  : [Ollama Router] Tool call detected: {"action": "get_clinical_examination", "patient_id": "P827106"}
+2026-07-05T01:35:33.223+07:00  INFO 30364 --- [diabetes] [http-nio-8080-exec-4] c.q.d.service.ai.impl.AIChatServiceImpl  : [Chặng 1] Phát hiện yêu cầu truy xuất dữ liệu cá nhân (RAG Tool): {"action": "get_clinical_examination", "patient_id": "P827106"}
+2026-07-05T01:35:33.226+07:00  INFO 30364 --- [diabetes] [http-nio-8080-exec-4] c.q.d.service.ai.impl.AIChatServiceImpl  : [Chặng 1] Thực thi tool RAG - action: get_clinical_examination, patientId: P827106
+2026-07-05T01:35:33.251+07:00  INFO 30364 --- [diabetes] [http-nio-8080-exec-4] c.q.d.service.ai.impl.AIChatServiceImpl  : [Chặng 1] Dữ liệu SQL thu thập được:
+{"title": "Lịch sử khám lâm sàng", "data": []}
+2026-07-05T01:35:33.251+07:00  INFO 30364 --- [diabetes] [http-nio-8080-exec-4] c.q.d.service.ai.impl.AIChatServiceImpl  : --- CHẶNG 2: Gọi AI Ollama phân tích ---
+2026-07-05T01:35:33.251+07:00  INFO 30364 --- [diabetes] [http-nio-8080-exec-4] c.q.d.service.ai.impl.AIChatServiceImpl  : Calling Ollama API at http://localhost:11434/api/generate with model: diabetesAI
+2026-07-05T01:35:38.420+07:00  INFO 30364 --- [diabetes] [http-nio-8080-exec-4] c.q.d.service.ai.impl.AIChatServiceImpl  : Total response time: 8716 ms
+2026-07-05T01:35:50.601+07:00  INFO 30364 --- [diabetes] [http-nio-8080-exec-6] c.q.d.s.ai.impl.AIAssistantServiceImpl   : Found AI Assistant with ID 1: Diabetes AI Specialist
+2026-07-05T01:35:50.609+07:00  INFO 30364 --- [diabetes] [http-nio-8080-exec-6] c.q.d.service.ai.impl.AIChatServiceImpl  : Using AI Assistant: Diabetes AI Specialist (ID: 1, Model: diabetesAI)
+2026-07-05T01:35:50.632+07:00  INFO 30364 --- [diabetes] [http-nio-8080-exec-6] c.q.d.service.ai.impl.AIChatServiceImpl  : Using conversation: CONV-97732D3F
+2026-07-05T01:35:50.654+07:00  INFO 30364 --- [diabetes] [http-nio-8080-exec-6] c.q.d.service.ai.impl.AIChatServiceImpl  : --- CHẶNG 1: Phân loại câu hỏi cho patient P827106 ---
+2026-07-05T01:35:50.654+07:00  INFO 30364 --- [diabetes] [http-nio-8080-exec-6] c.q.d.service.ai.impl.AIChatServiceImpl  : Calling Ollama API at http://localhost:11434/api/generate with model: diabetesAI
+2026-07-05T01:35:53.833+07:00  INFO 30364 --- [diabetes] [http-nio-8080-exec-6] c.q.d.service.ai.impl.AIChatServiceImpl  : [Ollama Router] Tool call detected: {"action": "get_clinical_examination", "patient_id": "P827106"}
+2026-07-05T01:35:53.833+07:00  INFO 30364 --- [diabetes] [http-nio-8080-exec-6] c.q.d.service.ai.impl.AIChatServiceImpl  : [Chặng 1] Phát hiện yêu cầu truy xuất dữ liệu cá nhân (RAG Tool): {"action": "get_clinical_examination", "patient_id": "P827106"}
+2026-07-05T01:35:53.834+07:00  INFO 30364 --- [diabetes] [http-nio-8080-exec-6] c.q.d.service.ai.impl.AIChatServiceImpl  : [Chặng 1] Thực thi tool RAG - action: get_clinical_examination, patientId: P827106
+2026-07-05T01:35:53.849+07:00  INFO 30364 --- [diabetes] [http-nio-8080-exec-6] c.q.d.service.ai.impl.AIChatServiceImpl  : [Chặng 1] Dữ liệu SQL thu thập được:
+{"title": "Lịch sử khám lâm sàng", "data": []}
+2026-07-05T01:35:53.849+07:00  INFO 30364 --- [diabetes] [http-nio-8080-exec-6] c.q.d.service.ai.impl.AIChatServiceImpl  : --- CHẶNG 2: Gọi AI Ollama phân tích ---
+2026-07-05T01:35:53.849+07:00  INFO 30364 --- [diabetes] [http-nio-8080-exec-6] c.q.d.service.ai.impl.AIChatServiceImpl  : Calling Ollama API at http://localhost:11434/api/generate with model: diabetesAI
+2026-07-05T01:36:17.306+07:00  INFO 30364 --- [diabetes] [http-nio-8080-exec-6] c.q.d.service.ai.impl.AIChatServiceImpl  : Total response time: 26739 ms
