@@ -2,7 +2,7 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Medical Tests Management – Diabetes Care System</title>
+    <title>Quản lý Xét nghiệm – Hệ thống Tiểu đường</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -18,7 +18,7 @@
     <div class="admin-main">
 
         <!-- Header -->
-        <div th:replace="~{layout/header :: header('Medical Tests')}"></div>
+        <div th:replace="~{layout/header :: header('Chỉ số Xét nghiệm')}"></div>
 
         <!-- Content -->
         <main class="admin-content">
@@ -31,17 +31,17 @@
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-icon"><i class="fas fa-flask"></i></div>
-                    <div class="stat-label">Total Tests</div>
+                    <div class="stat-label">Tổng xét nghiệm</div>
                     <div class="stat-value" id="statTotal">0</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
-                    <div class="stat-label">Active Tests</div>
+                    <div class="stat-label">Đang hoạt động</div>
                     <div class="stat-value" id="statActive">0</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon"><i class="fas fa-ban"></i></div>
-                    <div class="stat-label">Inactive Tests</div>
+                    <div class="stat-label">Tạm ngưng</div>
                     <div class="stat-value" id="statInactive">0</div>
                 </div>
             </div>
@@ -49,7 +49,7 @@
             <!-- ACTION BAR -->
             <div class="page-header">
                 <button type="button" class="btn btn-primary" id="btnDefineTest">
-                    <i class="fas fa-plus"></i> Define New Test
+                    <i class="fas fa-plus"></i> Định nghĩa Xét nghiệm Mới
                 </button>
             </div>
 
@@ -59,13 +59,13 @@
                 <!-- Toolbar: tabs + search -->
                 <div class="table-toolbar">
                     <div class="tab-group">
-                        <button type="button" class="tab active" id="tabAll">Test Catalog</button>
-                        <button type="button" class="tab" id="tabActive">Active</button>
-                        <button type="button" class="tab" id="tabInactive">Inactive</button>
+                        <button type="button" class="tab active" id="tabAll">Danh mục xét nghiệm</button>
+                        <button type="button" class="tab" id="tabActive">Đang hoạt động</button>
+                        <button type="button" class="tab" id="tabInactive">Tạm ngưng</button>
                     </div>
                     <div class="table-search-box">
                         <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" id="tableSearch" th:value="${keyword != null ? keyword : ''}" placeholder="Search by test name, unit or room... (Enter để tìm)">
+                        <input type="text" id="tableSearch" th:value="${keyword != null ? keyword : ''}" placeholder="Tìm kiếm theo tên xét nghiệm, đơn vị hoặc phòng... (Enter)">
                     </div>
                 </div>
 
@@ -73,11 +73,11 @@
                 <table class="data-table">
                     <thead>
                     <tr>
-                        <th>TEST NAME</th>
-                        <th>UNIT</th>
-                        <th>ROOM</th>
-                        <th>STATUS</th>
-                        <th class="col-center">ACTIONS</th>
+                        <th>Tên xét nghiệm</th>
+                        <th>Đơn vị</th>
+                        <th>Phòng xét nghiệm</th>
+                        <th>Trạng thái</th>
+                        <th class="col-center">Hành động</th>
                     </tr>
                     </thead>
                     <tbody id="labTestTableBody">
@@ -93,18 +93,18 @@
                         <td th:text="${test.roomId}">1</td>
                         <td>
                             <span th:class="${test.status == true} ? 'badge badge--active' : 'badge badge--inactive'"
-                                  th:text="${test.status == true} ? 'Active' : 'Inactive'">Active</span>
+                                  th:text="${test.status == true} ? 'Hoạt động' : 'Tạm ngưng'">Hoạt động</span>
                         </td>
                         <td class="col-center">
                             <div class="row-actions">
-                                <button type="button" class="action-btn btn-view" title="View detail"
+                                <button type="button" class="action-btn btn-view" title="Xem chi tiết"
                                         th:attr="data-id=${test.labTestId},data-name=${test.testName},
                                                  data-unit=${test.unit},data-min=${test.minValue},
                                                  data-max=${test.maxValue},data-room=${test.roomId},
                                                  data-status=${test.status},data-description=${test.description}">
                                     <i class="fa-regular fa-eye"></i>
                                 </button>
-                                <button type="button" class="action-btn btn-edit" title="Edit"
+                                <button type="button" class="action-btn btn-edit" title="Chỉnh sửa"
                                         th:attr="data-id=${test.labTestId},data-name=${test.testName},
                                                  data-unit=${test.unit},data-min=${test.minValue},
                                                  data-max=${test.maxValue},data-room=${test.roomId},
@@ -112,7 +112,7 @@
                                     <i class="fa-solid fa-pen"></i>
                                 </button>
                                 <button type="button" class="action-btn btn-lock btn-toggle-status"
-                                        th:title="${test.status == true} ? 'Deactivate' : 'Activate'"
+                                        th:title="${test.status == true} ? 'Ngưng hoạt động' : 'Kích hoạt'"
                                         th:attr="data-id=${test.labTestId},
                                                  data-name=${test.testName},
                                                  data-status=${test.status}">
@@ -133,9 +133,9 @@
                 <div class="pagination-bar">
                     <span class="pagination-info" id="paginationInfo">Hiển thị 0 – 0 / 0 xét nghiệm</span>
                     <div class="pagination-btns">
-                        <button type="button" id="prevPageBtn">Previous</button>
+                        <button type="button" id="prevPageBtn">Trước</button>
                         <div id="pageNumbers"></div>
-                        <button type="button" id="nextPageBtn">Next</button>
+                        <button type="button" id="nextPageBtn">Sau</button>
                     </div>
                 </div>
 
@@ -154,12 +154,12 @@
 <div class="modal-overlay" id="defineTestModal">
     <div class="modal-box large-modal-box">
         <div class="modal-header">
-            <h2>Define New Test</h2>
+            <h2>Định nghĩa Xét nghiệm Mới</h2>
             <button type="button" class="modal-close" id="btnCloseModal"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <form th:action="@{/admin/lab-tests/create}" method="post" class="modal-form" id="createTestForm">
             <div class="form-group">
-                <label>Test Name <span class="required">*</span></label>
+                <label>Tên xét nghiệm <span class="required">*</span></label>
                 <input type="text" name="testName" id="inputCreateTestName" maxlength="100" placeholder="VD: Fasting Blood Sugar" required autocomplete="off">
                 <div class="validation-info">
                     <span class="error-msg" id="errorCreateTestName"></span>
@@ -168,7 +168,7 @@
             </div>
             <div class="form-row two-col">
                 <div class="form-group">
-                    <label>Unit <span class="required">*</span></label>
+                    <label>Đơn vị <span class="required">*</span></label>
                     <input type="text" name="unit" id="inputCreateUnit" maxlength="20" placeholder="VD: mg/dL" required autocomplete="off">
                     <div class="validation-info">
                         <span class="error-msg" id="errorCreateUnit"></span>
@@ -176,7 +176,7 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Room <span class="required">*</span></label>
+                    <label>Phòng xét nghiệm <span class="required">*</span></label>
                     <select name="roomId" required>
                         <option value="">-- Chọn phòng xét nghiệm --</option>
                         <option th:each="room : ${roomList}" th:value="${room.roomId}" th:text="${room.roomName}">Room 1</option>
@@ -184,7 +184,7 @@
                 </div>
             </div>
             <div class="threshold-input-section">
-                <label class="section-label">Config Min – Max theo từng nhóm bệnh nhân</label>
+                <label class="section-label">Cấu hình Ngưỡng Min – Max theo từng nhóm bệnh nhân</label>
                 <div class="threshold-input-grid">
                     <div class="threshold-input-card">
                         <h4>Người trẻ</h4>
@@ -219,16 +219,16 @@
             <input type="hidden" name="minValue" id="createMainMinValue">
             <input type="hidden" name="maxValue" id="createMainMaxValue">
             <div class="form-group">
-                <label>Description</label>
-                <textarea name="description" id="inputCreateDesc" rows="4" placeholder="Enter description..." maxlength="255"></textarea>
+                <label>Mô tả</label>
+                <textarea name="description" id="inputCreateDesc" rows="4" placeholder="Nhập mô tả chi tiết xét nghiệm..." maxlength="255"></textarea>
                 <div class="validation-info">
                     <span class="error-msg" id="errorCreateDesc"></span>
                     <span class="char-count" id="countCreateDesc">0 / 255</span>
                 </div>
             </div>
             <div class="modal-actions">
-                <button type="button" class="btn-cancel" id="btnCancelModal">Cancel</button>
-                <button type="submit" class="btn-save">Save Test</button>
+                <button type="button" class="btn-cancel" id="btnCancelModal">Hủy</button>
+                <button type="submit" class="btn-save">Lưu Xét nghiệm</button>
             </div>
         </form>
     </div>
@@ -239,16 +239,16 @@
 <div class="modal-overlay" id="editTestModal">
     <div class="modal-box large-modal-box">
         <div class="modal-header">
-            <h2>Edit Medical Test</h2>
+            <h2>Chỉnh sửa Xét nghiệm</h2>
             <button type="button" class="modal-close" id="btnCloseEditModal"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <form id="editTestForm" method="post" class="modal-form">
             <div class="form-group">
-                <label>Lab Test ID</label>
+                <label>Mã xét nghiệm</label>
                 <input type="text" id="editLabTestId" disabled>
             </div>
             <div class="form-group">
-                <label>Test Name <span class="required">*</span></label>
+                <label>Tên xét nghiệm <span class="required">*</span></label>
                 <input type="text" id="editTestName" name="testName" maxlength="100" required autocomplete="off">
                 <div class="validation-info">
                     <span class="error-msg" id="errorEditTestName"></span>
@@ -257,7 +257,7 @@
             </div>
             <div class="form-row two-col">
                 <div class="form-group">
-                    <label>Unit <span class="required">*</span></label>
+                    <label>Đơn vị <span class="required">*</span></label>
                     <input type="text" id="editUnit" name="unit" maxlength="20" required autocomplete="off">
                     <div class="validation-info">
                         <span class="error-msg" id="errorEditUnit"></span>
@@ -265,7 +265,7 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Room <span class="required">*</span></label>
+                    <label>Phòng xét nghiệm <span class="required">*</span></label>
                     <select id="editRoomId" name="roomId" required>
                         <option value="">-- Chọn phòng xét nghiệm --</option>
                         <option th:each="room : ${roomList}" th:value="${room.roomId}" th:text="${room.roomName}">Room 1</option>
@@ -273,7 +273,7 @@
                 </div>
             </div>
             <div class="threshold-input-section">
-                <label class="section-label">Config Min – Max theo từng nhóm bệnh nhân</label>
+                <label class="section-label">Cấu hình Ngưỡng Min – Max theo từng nhóm bệnh nhân</label>
                 <div class="threshold-input-grid">
                     <div class="threshold-input-card">
                         <h4>Người trẻ</h4>
@@ -308,7 +308,7 @@
             <input type="hidden" name="minValue" id="editMainMinValue">
             <input type="hidden" name="maxValue" id="editMainMaxValue">
             <div class="form-group">
-                <label>Description</label>
+                <label>Mô tả</label>
                 <textarea id="editDescription" name="description" rows="4" maxlength="255"></textarea>
                 <div class="validation-info">
                     <span class="error-msg" id="errorEditDesc"></span>
@@ -316,8 +316,8 @@
                 </div>
             </div>
             <div class="modal-actions">
-                <button type="button" class="btn-cancel" id="btnCancelEditModal">Cancel</button>
-                <button type="submit" class="btn-save">Update Test</button>
+                <button type="button" class="btn-cancel" id="btnCancelEditModal">Hủy</button>
+                <button type="submit" class="btn-save">Cập nhật Xét nghiệm</button>
             </div>
         </form>
     </div>
@@ -328,21 +328,21 @@
 <div class="modal-overlay" id="viewDetailModal">
     <div class="modal-box detail-modal-box">
         <div class="modal-header">
-            <h2>Medical Test Detail</h2>
+            <h2>Chi tiết Xét nghiệm</h2>
             <button type="button" class="modal-close" id="btnCloseViewModal"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="detail-container">
             <div class="detail-row">
-                <div class="detail-item"><label>Lab Test ID</label><p id="detailId">---</p></div>
-                <div class="detail-item"><label>Test Name</label><p id="detailName">---</p></div>
+                <div class="detail-item"><label>Mã xét nghiệm</label><p id="detailId">---</p></div>
+                <div class="detail-item"><label>Tên xét nghiệm</label><p id="detailName">---</p></div>
             </div>
             <div class="detail-row">
-                <div class="detail-item"><label>Unit</label><p id="detailUnit">---</p></div>
-                <div class="detail-item"><label>Room ID</label><p id="detailRoom">---</p></div>
-                <div class="detail-item"><label>Status</label><p id="detailStatus">---</p></div>
+                <div class="detail-item"><label>Đơn vị</label><p id="detailUnit">---</p></div>
+                <div class="detail-item"><label>Mã phòng</label><p id="detailRoom">---</p></div>
+                <div class="detail-item"><label>Trạng thái</label><p id="detailStatus">---</p></div>
             </div>
             <div class="detail-item">
-                <label>Diabetes Threshold by Group</label>
+                <label>Ngưỡng tiểu đường theo nhóm đối tượng</label>
                 <div class="threshold-grid">
                     <div class="threshold-card"><h4>Người trẻ</h4><p>Min: <b id="youngMin">---</b></p><p>Max: <b id="youngMax">---</b></p></div>
                     <div class="threshold-card"><h4>Trung niên</h4><p>Min: <b id="middleMin">---</b></p><p>Max: <b id="middleMax">---</b></p></div>
@@ -351,7 +351,7 @@
                 </div>
             </div>
             <div class="detail-item">
-                <label>Description</label>
+                <label>Mô tả</label>
                 <div class="description-box" id="detailDescription">---</div>
             </div>
         </div>

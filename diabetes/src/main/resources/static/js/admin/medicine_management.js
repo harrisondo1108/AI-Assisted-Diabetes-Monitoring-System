@@ -64,14 +64,14 @@ var pendingName = null;
 
 // Show confirm modal
 window.showConfirmModal = function(id, currentStatus, medicineName) {
-    var isActive = currentStatus === 'Active';
-    var title = isActive ? 'Clock Medicine' : 'Restore Medicine';
+    var isActive = currentStatus === 'true' || currentStatus === true || currentStatus === 'Active';
+    var title = isActive ? 'Khóa Thuốc' : 'Khôi phục Thuốc';
     var message = isActive
-        ? 'Are you sure you want to clock "' + medicineName + '"?'
-        : 'Are you sure you want to restore "' + medicineName + '"?';
+        ? 'Bạn có chắc chắn muốn khóa thuốc "' + medicineName + '"?'
+        : 'Bạn có chắc chắn muốn khôi phục thuốc "' + medicineName + '"?';
     var subMessage = isActive
-        ? 'This medicine will be hidden from active lists and cannot be prescribed to new patients.'
-        : 'This medicine will become available again in active lists.';
+        ? 'Thuốc này sẽ bị ẩn khỏi danh sách hoạt động và không thể kê đơn cho bệnh nhân mới.'
+        : 'Thuốc này sẽ hoạt động trở lại bình thường.';
 
     document.getElementById('confirmModalTitle').innerHTML = '<i class="fas fa-shield-alt" style="margin-right: 8px; color: #f59e0b;"></i> ' + title;
     document.getElementById('confirmMessage').innerHTML = '<i class="fas fa-pills" style="margin-right: 8px; color: #f59e0b;"></i> ' + message;
@@ -113,7 +113,7 @@ function closeConfirmModal() {
 
 function executeAction() {
     if (pendingId && pendingStatus) {
-        var isActive = pendingStatus === 'Active';
+        var isActive = pendingStatus === 'true' || pendingStatus === true || pendingStatus === 'Active';
         var url = isActive ? '/admin/medicines/soft-delete/' + pendingId : '/admin/medicines/restore/' + pendingId;
         var form = document.createElement('form');
         form.method = 'POST';
@@ -122,7 +122,7 @@ function executeAction() {
 
         var okBtn = document.getElementById('okConfirmBtn');
         var originalText = okBtn.innerHTML;
-        okBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        okBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
         okBtn.disabled = true;
 
         setTimeout(function() {
@@ -412,7 +412,7 @@ window.openEditModal = function(id) {
         .then(function(result) {
             if (result.success) {
                 var med = result.data;
-                document.getElementById('editModalTitle').innerText = 'Edit Medicine: ' + med.medicationName;
+                document.getElementById('editModalTitle').innerText = 'Chỉnh sửa Thuốc: ' + med.medicationName;
                 document.getElementById('editMedicationId').value = med.medicationId;
                 document.getElementById('editMedicationName').value = med.medicationName;
                 document.getElementById('editFormSelect').value = med.form;
@@ -451,9 +451,9 @@ window.viewDetail = function(id) {
                 document.getElementById('detailMedName').innerText = med.medicationName || '--';
                 document.getElementById('detailConcentration').innerText = med.concentration || '--';
                 document.getElementById('detailRoute').innerText = med.administrationRoute || '--';
-                document.getElementById('detailInstruction').innerText = med.usageInstruction || 'No instruction available';
-                document.getElementById('detailStatus').innerText = med.status || '--';
-                var formText = med.form === 'tablet' ? 'Tablet' : (med.form === 'capsule' ? 'Capsule' : 'Injection');
+                document.getElementById('detailInstruction').innerText = med.usageInstruction || 'Không có hướng dẫn sử dụng';
+                document.getElementById('detailStatus').innerText = med.status ? 'Hoạt động' : 'Tạm khóa';
+                var formText = med.form === 'tablet' ? 'Viên nén' : (med.form === 'capsule' ? 'Viên nang' : 'Thuốc tiêm');
                 document.getElementById('detailForm').innerText = formText;
                 document.getElementById('detailMeta').innerText = formText;
                 detailDrawer.classList.add('open');

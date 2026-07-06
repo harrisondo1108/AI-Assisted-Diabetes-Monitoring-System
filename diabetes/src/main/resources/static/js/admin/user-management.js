@@ -4,7 +4,7 @@
 (function () {
     'use strict';
 
-    const GENDER_LABEL = { false: 'Male', true: 'Female', '0': 'Male', '1': 'Female' };
+    const GENDER_LABEL = { false: 'Nam', true: 'Nữ', '0': 'Nam', '1': 'Nữ' };
 
     function normalizeGenderKey(gender) {
         if (gender === true || gender === 1 || gender === '1' || gender === 'true') return '1';
@@ -25,13 +25,13 @@
 
     window.showConfirmModal = function(id, currentStatus, fullName) {
         const isActive = currentStatus === 'Active';
-        const title = isActive ? 'Clock Account' : 'Unlock Account';
+        const title = isActive ? 'Khóa tài khoản' : 'Mở khóa tài khoản';
         const message = isActive
-            ? 'Are you sure you want to clock "' + fullName + '"?'
-            : 'Are you sure you want to unlock "' + fullName + '"?';
+            ? 'Bạn có chắc chắn muốn khóa tài khoản "' + fullName + '"?'
+            : 'Bạn có chắc chắn muốn mở khóa tài khoản "' + fullName + '"?';
         const subMessage = isActive
-            ? 'This user will be hidden from active lists and cannot perform actions.'
-            : 'This user will become active again.';
+            ? 'Người dùng này sẽ bị tạm ngưng hoạt động trên hệ thống.'
+            : 'Người dùng này sẽ hoạt động trở lại bình thường.';
 
         document.getElementById('confirmModalTitle').innerHTML = '<i class="fas fa-shield-alt" style="margin-right: 8px; color: #f59e0b;"></i> ' + title;
         document.getElementById('confirmMessage').innerHTML = '<i class="fas fa-user-shield" style="margin-right: 8px; color: #f59e0b;"></i> ' + message;
@@ -80,7 +80,7 @@
             document.body.appendChild(form);
 
             const okBtn = document.getElementById('okConfirmBtn');
-            okBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            okBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
             okBtn.disabled = true;
 
             setTimeout(function() {
@@ -99,14 +99,14 @@
     };
 
     function roleLabel(role) {
-        const map = { doctor: 'Doctor', patient: 'Patient', admin: 'Admin', DOC: 'Doctor', PAT: 'Patient' };
+        const map = { doctor: 'Bác sĩ', patient: 'Bệnh nhân', admin: 'Quản trị viên', DOC: 'Bác sĩ', PAT: 'Bệnh nhân' };
         return map[role] || role;
     }
 
     function formatDate(iso) {
         if (!iso) return '—';
         const d = new Date(iso);
-        return d.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
+        return d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
     }
 
     function findUser(id) {
@@ -119,7 +119,7 @@
         document.getElementById('drawerName').textContent = user.fullName;
         const isClocked = user.status && user.status.toLowerCase() === 'clocked';
         document.getElementById('drawerMeta').textContent =
-            roleLabel(user.role) + ' • ' + (isClocked ? 'Clocked' : 'Active');
+            roleLabel(user.role) + ' • ' + (isClocked ? 'Đang khóa' : 'Hoạt động');
 
         setDrawerRow('drawerUserId', user.userId);
         setDrawerRow('drawerAccountPhone', user.accountPhone);
@@ -129,7 +129,7 @@
         setDrawerRow('drawerAddress', user.address || '—');
         setDrawerRow('drawerContactPhone', user.phoneNumber || '—');
         setDrawerRow('drawerRole', roleLabel(user.role));
-        setDrawerRow('drawerStatus', isClocked ? 'Clocked' : 'Active');
+        setDrawerRow('drawerStatus', isClocked ? 'Đang khóa' : 'Hoạt động');
 
         const doctorSec = document.querySelectorAll('.doctor-only-section');
         const patientSec = document.querySelectorAll('.patient-only-section');

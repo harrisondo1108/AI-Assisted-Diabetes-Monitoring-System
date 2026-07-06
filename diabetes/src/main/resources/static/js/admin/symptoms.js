@@ -45,13 +45,13 @@ let pendingName = null;
 
 window.showConfirmModal = function(id, currentStatus, symptomName) {
     const isActive = currentStatus === 'Active';
-    const title = isActive ? 'Clock Symptom' : 'Restore Symptom';
+    const title = isActive ? 'Khóa triệu chứng' : 'Khôi phục triệu chứng';
     const message = isActive
-        ? `Are you sure you want to clock "${symptomName}"?`
-        : `Are you sure you want to restore "${symptomName}"?`;
+        ? `Bạn có chắc chắn muốn khóa triệu chứng "${symptomName}"?`
+        : `Bạn có chắc chắn muốn khôi phục triệu chứng "${symptomName}"?`;
     const subMessage = isActive
-        ? 'This symptom will be hidden from active lists.'
-        : 'This symptom will become available again.';
+        ? 'Triệu chứng này sẽ bị tạm ẩn khỏi danh sách hoạt động.'
+        : 'Triệu chứng này sẽ hoạt động trở lại bình thường.';
 
     document.getElementById('confirmModalTitle').innerHTML = `<i class="fas fa-shield-alt" style="margin-right: 8px; color: #f59e0b;"></i> ${title}`;
     document.getElementById('confirmMessage').innerHTML = `<i class="fas fa-head-side-medical" style="margin-right: 8px; color: #f59e0b;"></i> ${message}`;
@@ -101,7 +101,7 @@ function executeAction() {
         // Disable button to prevent double submit
         const okBtn = document.getElementById('okConfirmBtn');
         const originalText = okBtn.innerHTML;
-        okBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        okBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
         okBtn.disabled = true;
         setTimeout(() => form.submit(), 100);
     }
@@ -144,14 +144,14 @@ window.openEditModal = function(id) {
         .then(result => {
             if (result.success) {
                 const sym = result.data;
-                document.getElementById('editModalTitle').innerText = `Edit Symptom: ${sym.symptomName}`;
+                document.getElementById('editModalTitle').innerText = `Chỉnh sửa Triệu chứng: ${sym.symptomName}`;
                 document.getElementById('editSymptomId').value = sym.symptomId;
                 document.getElementById('editSymptomName').value = sym.symptomName;
                 editForm.action = `/admin/symptoms/edit/${id}`;
                 editModal.classList.add('open');
                 document.body.classList.add('modal-open');
             } else {
-                showToast('Failed to load symptom data', 'error');
+                showToast('Tải dữ liệu triệu chứng thất bại', 'error');
             }
         })
         .catch(err => {

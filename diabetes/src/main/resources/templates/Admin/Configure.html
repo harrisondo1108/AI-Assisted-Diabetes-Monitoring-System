@@ -2,7 +2,7 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Configure – Diabetes Care System</title>
+    <title>Cấu hình – Hệ thống Tiểu đường</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -18,7 +18,7 @@
     <div class="admin-main">
 
         <!-- Header -->
-        <div th:replace="~{layout/header :: header('System Configuration')}"></div>
+        <div th:replace="~{layout/header :: header('Cấu hình Hệ thống')}"></div>
 
         <!-- Content -->
         <main class="admin-content">
@@ -34,10 +34,10 @@
                     <div class="tab-group">
                         <button type="button"
                                 th:class="${activeTab == 'room'} ? 'tab active' : 'tab'"
-                                id="tabRoom" data-tab="room">Room</button>
+                                id="tabRoom" data-tab="room">Phòng khám</button>
                         <button type="button"
                                 th:class="${activeTab == 'timing'} ? 'tab active' : 'tab'"
-                                id="tabTiming" data-tab="timing">Timing Medication</button>
+                                id="tabTiming" data-tab="timing">Khung giờ uống thuốc</button>
                     </div>
                 </div>
 
@@ -46,19 +46,19 @@
                     <div class="panel-toolbar-timing">
                         <div class="table-search-box">
                             <i class="fa-solid fa-magnifying-glass"></i>
-                            <input type="text" id="roomSearch" th:value="${search != null ? search : ''}" placeholder="Search room... (Enter để tìm)">
+                            <input type="text" id="roomSearch" th:value="${search != null ? search : ''}" placeholder="Tìm kiếm phòng khám... (Enter)">
                         </div>
                         <button type="button" class="btn btn-primary" id="btnAddRoom" style="margin:0">
-                            <i class="fa-solid fa-plus"></i> Add Room
+                            <i class="fa-solid fa-plus"></i> Thêm Phòng khám
                         </button>
                     </div>
                     <table class="data-table">
                         <thead>
                         <tr>
-                            <th style="width: 80px;">ROOM ID</th>
-                            <th>ROOM NAME</th>
-                            <th>DESCRIPTION</th>
-                            <th class="col-center">ACTIONS</th>
+                            <th style="width: 100px;">MÃ PHÒNG</th>
+                            <th>TÊN PHÒNG KHÁM</th>
+                            <th>MÔ TẢ</th>
+                            <th class="col-center">HÀNH ĐỘNG</th>
                         </tr>
                         </thead>
                         <tbody id="roomTableBody">
@@ -77,14 +77,14 @@
                             <td class="col-center">
                                 <div class="row-actions">
                                     <button type="button" class="action-btn btn-edit edit-room-btn"
-                                            title="Edit"
+                                            title="Chỉnh sửa"
                                             th:attr="data-id=${room.roomId},
                                                      data-name=${room.roomName},
                                                      data-desc=${room.description}">
                                         <i class="fa-solid fa-pen"></i>
                                     </button>
                                     <button type="button" class="action-btn btn-lock delete-room-btn"
-                                            title="Delete"
+                                            title="Xóa"
                                             th:attr="data-id=${room.roomId},
                                                      data-name=${room.roomName}">
                                         <i class="fa-regular fa-trash-can"></i>
@@ -104,9 +104,9 @@
                     <div class="pagination-bar">
                         <span class="pagination-info" id="paginationInfo">Hiển thị 0 – 0 / 0 phòng</span>
                         <div class="pagination-btns">
-                            <button type="button" id="prevPageBtn">Previous</button>
+                            <button type="button" id="prevPageBtn">Trước</button>
                             <div id="pageNumbers"></div>
-                            <button type="button" id="nextPageBtn">Next</button>
+                            <button type="button" id="nextPageBtn">Sau</button>
                         </div>
                     </div>
                 </div>
@@ -116,18 +116,18 @@
                     <div class="panel-toolbar-timing">
                         <div class="table-search-box">
                             <i class="fa-solid fa-magnifying-glass"></i>
-                            <input type="text" id="timingSearch" th:value="${search != null ? search : ''}" placeholder="Search timing... (Enter để tìm)">
+                            <input type="text" id="timingSearch" th:value="${search != null ? search : ''}" placeholder="Tìm kiếm khung giờ... (Enter)">
                         </div>
                         <button type="button" class="btn btn-primary" id="btnAddTiming" style="margin:0">
-                            <i class="fa-solid fa-plus"></i> Add Timing
+                            <i class="fa-solid fa-plus"></i> Thêm Khung giờ
                         </button>
                     </div>
 
                     <table class="data-table">
                         <thead>
                         <tr>
-                            <th>TIMING NAME</th>
-                            <th class="col-center">ACTIONS</th>
+                            <th>TÊN KHUNG GIỜ</th>
+                            <th class="col-center">HÀNH ĐỘNG</th>
                         </tr>
                         </thead>
                         <tbody id="timingTableBody">
@@ -142,12 +142,12 @@
                             <td class="col-center">
                                 <div class="row-actions">
                                     <button type="button" class="action-btn btn-edit edit-timing-btn"
-                                            title="Edit"
+                                            title="Chỉnh sửa"
                                             th:attr="data-id=${timing.timingID}, data-name=${timing.timingName}">
                                         <i class="fa-solid fa-pen"></i>
                                     </button>
                                     <button type="button" class="action-btn btn-lock delete-timing-btn"
-                                            title="Delete"
+                                            title="Xóa"
                                             th:attr="data-id=${timing.timingID}, data-name=${timing.timingName}">
                                         <i class="fa-regular fa-trash-can"></i>
                                     </button>
@@ -166,9 +166,9 @@
                     <div class="pagination-bar">
                         <span class="pagination-info" id="timingPaginationInfo">Hiển thị 0 – 0 / 0</span>
                         <div class="pagination-btns">
-                            <button type="button" id="timingPrevBtn">Previous</button>
+                            <button type="button" id="timingPrevBtn">Trước</button>
                             <div id="timingPageNumbers"></div>
-                            <button type="button" id="timingNextBtn">Next</button>
+                            <button type="button" id="timingNextBtn">Sau</button>
                         </div>
                     </div>
                 </div>
@@ -187,12 +187,12 @@
 <div class="modal-overlay" id="addRoomModal">
     <div class="modal-box">
         <div class="modal-header">
-            <h3>Add Room</h3>
+            <h3>Thêm Phòng khám</h3>
             <button type="button" class="modal-close" id="btnCloseAddRoom"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <form th:action="@{/admin/configure/room/create}" method="post" class="modal-form" id="addRoomForm">
             <div class="form-group">
-                <label>Room Name <span class="required">*</span></label>
+                <label>Tên phòng khám <span class="required">*</span></label>
                 <input type="text" name="roomName" id="inputAddRoomName" placeholder="VD: Phòng Xét Nghiệm 1" maxlength="50" required autocomplete="off">
                 <div class="validation-info">
                     <span class="error-msg" id="errorAddRoomName"></span>
@@ -200,16 +200,16 @@
                 </div>
             </div>
             <div class="form-group">
-                <label>Description</label>
-                <input type="text" name="description" id="inputAddRoomDesc" placeholder="VD: Lab — Floor 1" maxlength="255" autocomplete="off">
+                <label>Mô tả</label>
+                <input type="text" name="description" id="inputAddRoomDesc" placeholder="VD: Lab — Tầng 1" maxlength="255" autocomplete="off">
                 <div class="validation-info">
                     <span class="error-msg" id="errorAddRoomDesc"></span>
                     <span class="char-count" id="countAddRoomDesc">0 / 255</span>
                 </div>
             </div>
             <div class="modal-actions">
-                <button type="button" class="btn-cancel" id="btnCancelAddRoom">Cancel</button>
-                <button type="submit" class="btn-save">Save Room</button>
+                <button type="button" class="btn-cancel" id="btnCancelAddRoom">Hủy</button>
+                <button type="submit" class="btn-save">Lưu Phòng</button>
             </div>
         </form>
     </div>
@@ -219,12 +219,12 @@
 <div class="modal-overlay" id="editRoomModal">
     <div class="modal-box">
         <div class="modal-header">
-            <h3>Edit Room</h3>
+            <h3>Chỉnh sửa Phòng khám</h3>
             <button type="button" class="modal-close" id="btnCloseEditRoom"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <form id="editRoomForm" method="post" class="modal-form">
             <div class="form-group">
-                <label>Room Name <span class="required">*</span></label>
+                <label>Tên phòng khám <span class="required">*</span></label>
                 <input type="text" id="editRoomName" name="roomName" maxlength="50" required autocomplete="off">
                 <div class="validation-info">
                     <span class="error-msg" id="errorEditRoomName"></span>
@@ -232,7 +232,7 @@
                 </div>
             </div>
             <div class="form-group">
-                <label>Description</label>
+                <label>Mô tả</label>
                 <input type="text" id="editRoomDesc" name="description" maxlength="255" autocomplete="off">
                 <div class="validation-info">
                     <span class="error-msg" id="errorEditRoomDesc"></span>
@@ -240,8 +240,8 @@
                 </div>
             </div>
             <div class="modal-actions">
-                <button type="button" class="btn-cancel" id="btnCancelEditRoom">Cancel</button>
-                <button type="submit" class="btn-save">Update Room</button>
+                <button type="button" class="btn-cancel" id="btnCancelEditRoom">Hủy</button>
+                <button type="submit" class="btn-save">Cập nhật Phòng</button>
             </div>
         </form>
     </div>
@@ -251,12 +251,12 @@
 <div class="modal-overlay" id="addTimingModal">
     <div class="modal-box">
         <div class="modal-header">
-            <h3>Add Timing</h3>
+            <h3>Thêm Khung giờ</h3>
             <button type="button" class="modal-close" id="btnCloseAddTiming"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <form th:action="@{/admin/configure/timing/create}" method="post" class="modal-form" id="addTimingForm">
             <div class="form-group">
-                <label>Timing Name <span class="required">*</span></label>
+                <label>Tên khung giờ <span class="required">*</span></label>
                 <input type="text" name="timingName" id="inputAddTimingName" placeholder="VD: Sáng, Trưa, Tối..." maxlength="100" required autocomplete="off">
                 <div class="validation-info">
                     <span class="error-msg" id="errorAddTimingName"></span>
@@ -264,8 +264,8 @@
                 </div>
             </div>
             <div class="modal-actions">
-                <button type="button" class="btn-cancel" id="btnCancelAddTiming">Cancel</button>
-                <button type="submit" class="btn-save">Save Timing</button>
+                <button type="button" class="btn-cancel" id="btnCancelAddTiming">Hủy</button>
+                <button type="submit" class="btn-save">Lưu Khung giờ</button>
             </div>
         </form>
     </div>
@@ -275,12 +275,12 @@
 <div class="modal-overlay" id="editTimingModal">
     <div class="modal-box">
         <div class="modal-header">
-            <h3>Edit Timing</h3>
+            <h3>Chỉnh sửa Khung giờ</h3>
             <button type="button" class="modal-close" id="btnCloseEditTiming"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <form id="editTimingForm" method="post" class="modal-form">
             <div class="form-group">
-                <label>Timing Name <span class="required">*</span></label>
+                <label>Tên khung giờ <span class="required">*</span></label>
                 <input type="text" id="editTimingName" name="timingName" maxlength="100" required autocomplete="off">
                 <div class="validation-info">
                     <span class="error-msg" id="errorEditTimingName"></span>
@@ -288,8 +288,8 @@
                 </div>
             </div>
             <div class="modal-actions">
-                <button type="button" class="btn-cancel" id="btnCancelEditTiming">Cancel</button>
-                <button type="submit" class="btn-save">Update Timing</button>
+                <button type="button" class="btn-cancel" id="btnCancelEditTiming">Hủy</button>
+                <button type="submit" class="btn-save">Cập nhật Khung giờ</button>
             </div>
         </form>
     </div>

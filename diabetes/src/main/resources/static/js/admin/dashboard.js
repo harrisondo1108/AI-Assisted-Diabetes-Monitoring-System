@@ -8,7 +8,7 @@
             canvas.width = width;
             canvas.height = height;
 
-            const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            const days = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ Nhật'];
             const values = [12, 18, 15, 24, 20, 16, 10];
             const padding = { top: 20, right: 25, bottom: 30, left: 45 };
             const chartWidth = width - padding.left - padding.right;
@@ -93,7 +93,7 @@
         if (refreshBtn) {
             refreshBtn.addEventListener('click', function(e) {
                 e.preventDefault();
-                showToast('Dashboard data refreshed successfully', 'success');
+                showToast('Đã cập nhật dữ liệu bảng điều khiển thành công', 'success');
                 const elements = document.querySelectorAll('.stat-number, .item-value');
                 elements.forEach(el => {
                     el.style.transform = 'scale(1.02)';
