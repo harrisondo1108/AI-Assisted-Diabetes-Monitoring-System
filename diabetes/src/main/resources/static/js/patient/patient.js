@@ -213,6 +213,19 @@ function setupProfileValidation() {
             markInvalid(form, 'supervisorPhone');
         }
 
+        const imageFileInput = form.querySelector('input[name="imageFile"]');
+        if (imageFileInput && imageFileInput.files && imageFileInput.files[0]) {
+            const imageFile = imageFileInput.files[0];
+            if (imageFile.size > 2 * 1024 * 1024) {
+                errors.push('Ảnh đại diện không được vượt quá 2MB.');
+                markInvalid(form, 'imageFile');
+            }
+            if (!imageFile.type.startsWith('image/')) {
+                errors.push('Định dạng tệp không hợp lệ. Chỉ chấp nhận các tệp ảnh.');
+                markInvalid(form, 'imageFile');
+            }
+        }
+
         if (errors.length > 0) {
             event.preventDefault();
             showValidationMessage('profileValidationMessage', errors);

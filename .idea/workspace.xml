@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="35d4ee31-efef-433e-940d-fdb413c90a79" name="Changes" comment="luan_ha&#10;thêm phần upload ảnh profile cho patient 3">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientProfileController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientProfileController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/patient/patient.js" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/patient/patient.js" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CopilotPersistence">
+    <persistenceIdMap>
+      <entry key="_C:/Users/LuHan/IdeaProjects/AI-Assisted-Diabetes-Monitoring-System/diabetes" value="3ErZXWT4L2S9rpmKGdNf43hA6CE" />
+    </persistenceIdMap>
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="211" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;luhan05&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/harrisondo1108/AI-Assisted-Diabetes-Monitoring-System.git&quot;,
+    &quot;accountId&quot;: &quot;4ea497d5-775c-4b70-959b-bfb8ecdd7ee3&quot;
+  }
+}</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="jar://$USER_HOME$/.jdks/ms-21.0.11/lib/src.zip!/java.base/sun/nio/ch/Net.java" root0="FORCE_HIGHLIGHTING" />
+    <setting file="jar://$MAVEN_REPOSITORY$/org/springframework/spring-orm/7.0.7/spring-orm-7.0.7-sources.jar!/org/springframework/orm/jpa/persistenceunit/SpringPersistenceUnitInfo.java" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHomeTypeForPersistence" value="WRAPPER" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="NextEditCompletionFeaturesState">
+    <decayedCancelled>
+      <entry key="MS100" value="1.1975103279658443" />
+      <entry key="MS500" value="1.7229661472728737" />
+      <entry key="S2" value="1.922103117912631" />
+      <entry key="S5" value="1.968081222145753" />
+      <entry key="S10" value="1.9839111861066288" />
+      <entry key="S30" value="1.9946080423774748" />
+      <entry key="S60" value="1.9974827025914632" />
+      <entry key="M2" value="2.069348771240585" />
+      <entry key="M5" value="4.645567008235634" />
+      <entry key="M10" value="11.354151879358604" />
+      <entry key="M15" value="16.528346259867604" />
+      <entry key="M30" value="24.931028875566238" />
+      <entry key="H1" value="31.03530519144509" />
+      <entry key="H2" value="34.74847276696408" />
+      <entry key="H4" value="36.801635672260154" />
+      <entry key="D1" value="38.62303295674595" />
+      <entry key="W1" value="38.94588196620514" />
+    </decayedCancelled>
+    <decayedSelected>
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="0.0" />
+      <entry key="S2" value="0.0" />
+      <entry key="S5" value="0.0" />
+      <entry key="S10" value="0.0" />
+      <entry key="S30" value="0.0" />
+      <entry key="S60" value="0.0" />
+      <entry key="M2" value="0.0" />
+      <entry key="M5" value="0.0" />
+      <entry key="M10" value="0.0" />
+      <entry key="M15" value="0.0" />
+      <entry key="M30" value="0.0" />
+      <entry key="H1" value="0.0" />
+      <entry key="H2" value="0.0" />
+      <entry key="H4" value="0.0" />
+      <entry key="D1" value="0.0" />
+      <entry key="W1" value="0.0" />
+    </decayedSelected>
+    <decayedShown>
+      <entry key="MS100" value="0.38052103995904746" />
+      <entry key="MS500" value="1.4349912450714095" />
+      <entry key="S2" value="1.8406975856349326" />
+      <entry key="S5" value="1.9346873192107263" />
+      <entry key="S10" value="1.9670724633470282" />
+      <entry key="S30" value="1.9889633319580238" />
+      <entry key="S60" value="1.9946548748722763" />
+      <entry key="M2" value="2.067697259128617" />
+      <entry key="M5" value="4.641870121506384" />
+      <entry key="M10" value="11.348609727952391" />
+      <entry key="M15" value="16.52281743365682" />
+      <entry key="M30" value="24.926809953589945" />
+      <entry key="H1" value="31.032677214434944" />
+      <entry key="H2" value="34.74700269330904" />
+      <entry key="H4" value="36.80085771635446" />
+      <entry key="D1" value="38.62289697345524" />
+      <entry key="W1" value="38.94586238017984" />
+    </decayedShown>
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="3ErZXWT4L2S9rpmKGdNf43hA6CE" />
+  <component name="ProjectSessionTemplates">
+    <option name="panelTemplate">
+      <template>
+        <option name="modeId" value="Agent" />
+        <option name="model">
+          <model>
+            <option name="modelType" value="builtin_family" />
+            <option name="modelValue" value="auto" />
+          </model>
+        </option>
+        <option name="targetType" value="BACKGROUND" />
+      </template>
+    </option>
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.DiabetesApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Unnamed.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;SONARLINT_PRECOMMIT_ANALYSIS&quot;: &quot;true&quot;,
+    &quot;Spring Boot.DiabetesApplication.executor&quot;: &quot;Run&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;copilot.chat.legacySessionMetadata.migrated&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;luan__ha&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/LuHan/IdeaProjects/AI-Assisted-Diabetes-Monitoring-System&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.project.maven.repository.indices&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RunManager">
+    <configuration name="DiabetesApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="ALTERNATIVE_JRE_PATH" value="21" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <module name="diabetes" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.quan.diabetes.DiabetesApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+      <option name="ALTERNATIVE_JRE_PATH" value="21" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <module name="diabetes" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.quan.diabetes.DiabetesApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-37e91769500f-intellij.indexing.shared.core-IU-261.25134.95" />
+        <option value="bundled-js-predefined-d6986cc7102b-31caf2ab9e3c-JavaScript-IU-261.25134.95" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="35d4ee31-efef-433e-940d-fdb413c90a79" name="Changes" comment="" />
+      <created>1780938695397</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1780938695397</updated>
+      <workItem from="1782364143917" duration="605000" />
+      <workItem from="1782364926362" duration="434000" />
+      <workItem from="1782391171453" duration="109000" />
+      <workItem from="1782521290797" duration="722000" />
+      <workItem from="1782522123551" duration="1201000" />
+      <workItem from="1782523535537" duration="442000" />
+      <workItem from="1782526845740" duration="1648000" />
+      <workItem from="1782624697624" duration="1516000" />
+      <workItem from="1782633506621" duration="4829000" />
+      <workItem from="1782693548590" duration="392000" />
+      <workItem from="1782694029592" duration="5979000" />
+    </task>
+    <task id="LOCAL-00001" summary="luan_ha&#10;thêm phần upload ảnh profile cho patient">
+      <option name="closed" value="true" />
+      <created>1782636397384</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1782636397385</updated>
+    </task>
+    <task id="LOCAL-00002" summary="luan_ha&#10;thêm phần upload ảnh profile cho patient 2">
+      <option name="closed" value="true" />
+      <created>1782637375185</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1782637375185</updated>
+    </task>
+    <task id="LOCAL-00003" summary="luan_ha&#10;thêm phần upload ảnh profile cho patient 2">
+      <option name="closed" value="true" />
+      <created>1782638504592</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1782638504592</updated>
+    </task>
+    <task id="LOCAL-00004" summary="luan_ha&#10;thêm phần upload ảnh profile cho patient 3">
+      <option name="closed" value="true" />
+      <created>1782699529404</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1782699529404</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="luan_ha&#10;thêm phần upload ảnh profile cho patient" />
+    <MESSAGE value="luan_ha&#10;thêm phần upload ảnh profile cho patient 2" />
+    <MESSAGE value="luan_ha&#10;thêm phần upload ảnh profile cho patient 3" />
+    <option name="LAST_COMMIT_MESSAGE" value="luan_ha&#10;thêm phần upload ảnh profile cho patient 3" />
+  </component>
+</project>

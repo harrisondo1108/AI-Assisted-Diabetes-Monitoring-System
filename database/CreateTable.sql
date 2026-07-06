@@ -1,4 +1,4 @@
-﻿--DROP trước
+--DROP trước
 --IF DB_ID('Diabetes') IS NOT NULL
 --   DROP DATABASE Diabetes;
 --GO
@@ -97,25 +97,6 @@ CREATE TABLE [ClinicalExamination] (
     FOREIGN KEY (DoctorID) REFERENCES [Account](UserID)
 );
 
-CREATE TABLE TreatmentPlan (
-    PlanID INT IDENTITY(1,1) PRIMARY KEY,
-
-    CreatedAt DATETIME DEFAULT GETDATE(),
-	[TreatmentGoal] NVARCHAR(MAX),
-
-    DietPlan NVARCHAR(MAX),
-
-    ExercisePlan NVARCHAR(MAX),
-
-    GlucoseMonitoringPlan NVARCHAR(MAX),
-
-    ClinicalExamID VARCHAR(50) NOT NULL,
-
-    CONSTRAINT FK_TreatmentPlan_ClinicalExamination
-        FOREIGN KEY (ClinicalExamID)
-        REFERENCES ClinicalExamination(ClinicalExamID)
-);
-
 -- 6. Symptoms Catalog
 CREATE TABLE [Symptoms_Catalog] (
     SymptomID VARCHAR(50) PRIMARY KEY,
@@ -156,6 +137,7 @@ CREATE TABLE PatientType (
 
 CREATE TABLE IndicatorThreshold (
     ThresholdID INT IDENTITY(1,1) PRIMARY KEY,
+
     LabTestID VARCHAR(50) NOT NULL,
     PatientTypeID INT NOT NULL,
 
@@ -201,6 +183,18 @@ CREATE TABLE [Prescription] (
     FOREIGN KEY (ClinicalExamID) REFERENCES ClinicalExamination(ClinicalExamID)
 );
 
+-- 11.5. TreatmentPlan
+CREATE TABLE [TreatmentPlan] (
+    [PlanID] INT IDENTITY(1,1) PRIMARY KEY,
+    [ClinicalExamID] VARCHAR(50) NOT NULL,
+    [TreatmentGoal] NVARCHAR(MAX),
+    [DietPlan] NVARCHAR(MAX),
+    [ExercisePlan] NVARCHAR(MAX),
+    [GlucoseMonitoringPlan] NVARCHAR(MAX),
+    [CreatedAt] DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (ClinicalExamID) REFERENCES ClinicalExamination(ClinicalExamID) ON DELETE CASCADE
+);
+
 -- 12. Medication
 CREATE TABLE [Medication] (
     MedicationID VARCHAR(50) PRIMARY KEY,
@@ -220,11 +214,11 @@ CREATE TABLE [PrescriptionDetail] (
     Dosage NVARCHAR(50), -- liều lượng (mỗi lần dùng bn)
     TotalQuantity INT, -- tổng số thuốc cung cấp
     DurationDays INT, -- tổng số ngày sử dụng
-	StartDate DATE,
-	EndDate DATE,
+    MedicationPlan NVARCHAR(MAX),
+    StartDate DATE,
+    EndDate DATE,
     FOREIGN KEY (PrescriptionID) REFERENCES Prescription(PrescriptionID) ON DELETE CASCADE,
-    FOREIGN KEY (MedicationID) REFERENCES Medication(MedicationID),
-	MedicationPlan NVARCHAR(MAX)
+    FOREIGN KEY (MedicationID) REFERENCES Medication(MedicationID)
 );
 
 CREATE TABLE MedicationTiming (
@@ -297,12 +291,12 @@ CREATE TABLE [AI_Reminder] (
     Message NVARCHAR(MAX),
     ScheduledTime DATETIME,
     IsRead BIT DEFAULT 0,
-	AIAssistantID INT,
+    AIAssistantID INT,
     PatientID VARCHAR(50),
-	TimingID INT,
+    TimingID INT,
     FOREIGN KEY (PatientID) REFERENCES Patient(UserID) ON DELETE CASCADE,
-	FOREIGN KEY (AIAssistantID) REFERENCES AI_Assistant(AIAssistantID) ON DELETE CASCADE,
-	FOREIGN KEY (TimingID) REFERENCES MedicationTiming(TimingID)
+    FOREIGN KEY (AIAssistantID) REFERENCES AI_Assistant(AIAssistantID) ON DELETE CASCADE,
+    FOREIGN KEY (TimingID) REFERENCES MedicationTiming(TimingID)
 );
 
 ------------------  INSERT  ----------------------------------------
@@ -325,7 +319,7 @@ VALUES
 ('Laboratory');
 
 INSERT INTO [Symptoms_Catalog] (SymptomID, SymptomName, Status)
-VALUES
+VALUES 
 ('SYM001', N'Khát nước quá mức (Polydipsia)', 1),
 ('SYM002', N'Đi tiểu nhiều lần (Polyuria)', 1),
 ('SYM003', N'Đói dữ dội (Polyphagia)', 1),
@@ -335,14 +329,14 @@ VALUES
 ('SYM007', N'Vết thương lâu lành', 1);
 
 INSERT INTO [Lab_Test_Catalog] (LabTestID, TestName, Unit, Description, RoomID, Status)
-VALUES
+VALUES 
 ('LAB001', N'Đường huyết lúc đói (FPG)', 'mg/dL', N'Đo lượng đường trong máu sau khi nhịn ăn 8h', 2, 1),
 ('LAB002', N'HbA1c', '%', N'Đo đường huyết trung bình trong 2-3 tháng qua', 2, 1),
 ('LAB003', N'Nghiệm pháp dung nạp Glucose (OGTT)', 'mg/dL', N'Đánh giá khả năng chuyển hóa đường của cơ thể', 2, 1),
 ('LAB004', N'Đường huyết ngẫu nhiên', 'mg/dL', N'Đo đường huyết tại thời điểm bất kỳ', 2, 1);
 
 INSERT INTO [Medication] (MedicationID, MedicationName, Form, Concentration, AdministrationRoute, UsageInstruction, Status)
-VALUES
+VALUES 
 ('MED001', 'Metformin', N'Viên nén', '500mg', N'Đường uống', N'Uống sau khi ăn', 'Active'),
 ('MED002', 'Gliclazide', N'Viên nén', '30mg', N'Đường uống', N'Uống trước bữa ăn sáng', 'Active'),
 ('MED003', 'Insulin Glargine', N'Bút tiêm', '100IU/ml', N'Tiêm dưới da', N'Tiêm vào cùng một thời điểm mỗi ngày', 'Active'),
