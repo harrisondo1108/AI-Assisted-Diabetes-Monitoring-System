@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bảng điều khiển bác sĩ | Hệ thống chăm sóc tiểu đường</title>
     <!-- Premium Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -157,52 +157,7 @@
                         </div>
                     </div>
 
-                    <!-- Patient Requests Card -->
-                    <div class="card grid-span-3" style="margin-top: 10px;" th:if="${requestedExams != null && !requestedExams.isEmpty()}">
-                        <div class="card-header" style="background-color: rgba(5, 150, 105, 0.03);">
-                            <div class="header-titles">
-                                <h2 class="card-title" style="color: var(--doctor-primary);"><i class="fas fa-clipboard-list-check"></i> Yêu cầu khám từ bệnh nhân</h2>
-                                <p class="card-subtitle">Duyệt hoặc từ chối các yêu cầu khám mới từ người bệnh</p>
-                            </div>
-                        </div>
-                        <div class="table-container">
-                            <table class="clinical-table">
-                                <thead>
-                                    <tr>
-                                        <th>Họ và tên</th>
-                                        <th>Tuổi / Giới tính</th>
-                                        <th>Thời gian yêu cầu</th>
-                                        <th>Lý do khám / Triệu chứng</th>
-                                        <th style="width: 200px; text-align: center;">Thao tác</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr th:each="req : ${requestedExams}">
-                                        <td><strong th:text="${req.patient.fullName}" style="color: var(--doctor-text-main);">Patient Name</strong></td>
-                                        <td th:text="${(req.patient.dob != null ? (T(java.time.Period).between(req.patient.dob, T(java.time.LocalDate).now()).getYears()) + ' tuổi' : 'N/A') + ' / ' + (req.patient.gender != null ? (req.patient.gender ? 'Nữ' : 'Nam') : 'N/A')}">Tuổi/Giới tính</td>
-                                        <td th:text="${#temporals.format(req.examDate, 'dd/MM/yyyy HH:mm')}">06/07/2026 08:30</td>
-                                        <td>
-                                            <div th:text="${req.medicalHistory}" style="max-width: 450px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--doctor-text-muted);" th:title="${req.medicalHistory}">Lý do khám</div>
-                                        </td>
-                                        <td>
-                                            <div style="display: flex; gap: 8px; justify-content: center;">
-                                                <form th:action="@{/doctor/request/approve/{id}(id=${req.clinicalExamId})}" method="post" style="display: inline;">
-                                                    <button type="submit" class="btn btn-primary btn-sm" style="background: linear-gradient(135deg, #10b981, #059669); border: none; box-shadow: none; color: white;">
-                                                        <i class="fas fa-check"></i> Duyệt
-                                                    </button>
-                                                </form>
-                                                <form th:action="@{/doctor/request/reject/{id}(id=${req.clinicalExamId})}" method="post" style="display: inline;">
-                                                    <button type="submit" class="btn btn-secondary btn-sm" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; box-shadow: none;" onclick="return confirm('Bạn có chắc chắn muốn từ chối yêu cầu khám này?')">
-                                                        <i class="fas fa-times"></i> Từ chối
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+
                 </div>
             </main>
         </div>
@@ -394,6 +349,60 @@
                 <button type="button" class="btn btn-primary" id="modalViewHistoryBtn"
                     onclick="viewPatientHistoryFromModal()"><i class="fas fa-history"></i> Xem bệnh án đầy đủ</button>
                 <button type="button" class="btn btn-secondary" onclick="closeCompletedExam()">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- REQUEST APPROVAL MODAL -->
+    <div class="modal-overlay" id="requestApprovalModal">
+        <div class="modal modal-history">
+            <div class="modal-header">
+                <h2>Yêu cầu khám từ bệnh nhân</h2>
+                <button type="button" class="modal-close" onclick="closeRequestApprovalModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" style="max-height: 75vh; overflow-y: auto;">
+                <div class="table-container" style="box-shadow: none; border: none; padding: 0;">
+                    <table class="clinical-table">
+                        <thead>
+                            <tr>
+                                <th>Họ và tên</th>
+                                <th>Tuổi / Giới tính</th>
+                                <th>Thời gian yêu cầu</th>
+                                <th>Lý do khám / Triệu chứng</th>
+                                <th style="width: 200px; text-align: center;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${requestedExams == null || requestedExams.isEmpty()}">
+                                <td colspan="5" style="text-align: center; color: var(--doctor-text-muted); padding: 30px;">
+                                    Không có yêu cầu khám bệnh nào cần duyệt.
+                                </td>
+                            </tr>
+                            <tr th:each="req : ${requestedExams}">
+                                <td><strong th:text="${req.patient.fullName}" style="color: var(--doctor-text-main);">Patient Name</strong></td>
+                                <td th:text="${(req.patient.dob != null ? (T(java.time.Period).between(req.patient.dob, T(java.time.LocalDate).now()).getYears()) + ' tuổi' : 'N/A') + ' / ' + (req.patient.gender != null ? (req.patient.gender ? 'Nữ' : 'Nam') : 'N/A')}">Tuổi/Giới tính</td>
+                                <td th:text="${#temporals.format(req.examDate, 'dd/MM/yyyy HH:mm')}">06/07/2026 08:30</td>
+                                <td>
+                                    <div th:text="${req.medicalHistory}" style="max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--doctor-text-muted);" th:title="${req.medicalHistory}">Lý do khám</div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 8px; justify-content: center;">
+                                        <form th:action="@{/doctor/request/approve/{id}(id=${req.clinicalExamId})}" method="post" style="display: inline;">
+                                            <button type="submit" class="btn btn-primary btn-sm" style="background: linear-gradient(135deg, #10b981, #059669); border: none; box-shadow: none; color: white;">
+                                                <i class="fas fa-check"></i> Duyệt
+                                            </button>
+                                        </form>
+                                        <form th:action="@{/doctor/request/reject/{id}(id=${req.clinicalExamId})}" method="post" style="display: inline;">
+                                            <button type="submit" class="btn btn-secondary btn-sm" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; box-shadow: none;" onclick="return confirm('Bạn có chắc chắn muốn từ chối yêu cầu khám này?')">
+                                                <i class="fas fa-times"></i> Từ chối
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

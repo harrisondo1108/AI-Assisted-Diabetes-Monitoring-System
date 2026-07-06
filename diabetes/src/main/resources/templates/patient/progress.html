@@ -39,13 +39,6 @@
             </div>
 
             <div class="dashboard-stats progress-stats">
-                <div class="stat-card">
-                    <div class="stat-info">
-                        <h4><i class="fas fa-stethoscope"></i> Tổng số lần khám</h4>
-                        <div class="stat-number" th:text="${examinations != null ? examinations.size() : 0}">0</div>
-                    </div>
-                    <span class="badge badge-info">Lượt khám</span>
-                </div>
 
                 <div class="stat-card">
                     <div class="stat-info">
@@ -72,32 +65,6 @@
                 </div>
             </div>
 
-            <!-- Date Search Filter Card -->
-            <div class="patient-card search-filter-card">
-                <div id="dateValidationError" class="alert alert-danger" 
-                     th:style="${errorMessage != null} ? 'display: block; margin-bottom: 15px; width: 100%;' : 'display: none; margin-bottom: 15px; width: 100%;'"
-                     th:text="${errorMessage}">
-                </div>
-
-                <form method="get" th:action="@{/patient/progress}" class="search-filter-form" onsubmit="return validateDateFilter(this)">
-                    <div class="search-filter-field">
-                        <label for="startDate">Từ ngày</label>
-                        <input type="date" id="startDate" name="startDate" th:value="${startDate}">
-                    </div>
-                    <div class="search-filter-field">
-                        <label for="endDate">Đến ngày</label>
-                        <input type="date" id="endDate" name="endDate" th:value="${endDate}">
-                    </div>
-                    <div class="search-filter-actions">
-                        <button type="submit" class="primary-btn">
-                            <i class="fas fa-search"></i> Tìm kiếm
-                        </button>
-                        <a th:href="@{/patient/progress}" class="secondary-btn">
-                            <i class="fas fa-undo"></i> Làm mới
-                        </a>
-                    </div>
-                </form>
-            </div>
 
             <div class="progress-timeline" th:if="${examinations != null && !examinations.isEmpty()}">
                 <section class="progress-card"
@@ -289,29 +256,6 @@
                 </section>
             </div>
 
-            <!-- Pagination Controls -->
-            <div class="pagination-container" th:if="${totalPages > 0}">
-                <div class="pagination-size">
-                    <label for="pageSizeSelect">Hiển thị:</label>
-                    <select id="pageSizeSelect" class="page-size-select" onchange="changePageSize(this.value)">
-                        <option value="2" th:selected="${pageSize == 2}">2 hàng / trang</option>
-                        <option value="5" th:selected="${pageSize == 5}">5 hàng / trang</option>
-                        <option value="10" th:selected="${pageSize == 10}">10 hàng / trang</option>
-                        <option value="20" th:selected="${pageSize == 20}">20 hàng / trang</option>
-                    </select>
-                </div>
-                <div class="pagination-controls">
-                    <a th:if="${currentPage > 0}" th:href="@{/patient/progress(page=0, size=${pageSize}, startDate=${startDate}, endDate=${endDate})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> Trang đầu</a>
-                    <a th:if="${currentPage > 0}" th:href="@{/patient/progress(page=${currentPage - 1}, size=${pageSize}, startDate=${startDate}, endDate=${endDate})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> Trước</a>
-                    <div class="pagination-pages">
-                        <th:block th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}">
-                            <a th:if="${pageNum >= currentPage - 2 and pageNum <= currentPage + 2}" th:href="@{/patient/progress(page=${pageNum}, size=${pageSize}, startDate=${startDate}, endDate=${endDate})}" class="page-number" th:classappend="${pageNum == currentPage} ? 'active' : ''" th:text="${pageNum + 1}"></a>
-                        </th:block>
-                    </div>
-                    <a th:if="${currentPage < totalPages - 1}" th:href="@{/patient/progress(page=${currentPage + 1}, size=${pageSize}, startDate=${startDate}, endDate=${endDate})}" class="pagination-btn">Sau <i class="fas fa-chevron-right"></i></a>
-                    <a th:if="${currentPage < totalPages - 1}" th:href="@{/patient/progress(page=${totalPages - 1}, size=${pageSize}, startDate=${startDate}, endDate=${endDate})}" class="pagination-btn">Trang cuối <i class="fas fa-chevron-right"></i></a>
-                </div>
-            </div>
 
 
             <div class="patient-card" th:if="${examinations == null || examinations.isEmpty()}">

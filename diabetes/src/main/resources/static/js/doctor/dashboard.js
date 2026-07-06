@@ -295,3 +295,13 @@ function showToast(message, type = 'success') {
         }
     }, 4000);
 }
+
+function openRequestApprovalModal() {
+    const modal = document.getElementById('requestApprovalModal');
+    if (modal) modal.classList.add('open');
+}
+
+function closeRequestApprovalModal() {
+    const modal = document.getElementById('requestApprovalModal');
+    if (modal) modal.classList.remove('open');
+}

@@ -36,7 +36,7 @@
 }
 
 body {
-    font-family: 'Plus Jakarta Sans', 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-family: 'Inter', 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     background: var(--bg-page);
     color: var(--text-primary);
     min-height: 100vh;
@@ -604,7 +604,7 @@ body {
     border: none;
     border-radius: var(--radius-sm);
     padding: 11px 16px;
-    font-weight: 800;
+    font-weight: 600;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -795,7 +795,7 @@ body {
     margin: 0;
     font-size: 1.45rem;
     color: var(--green-700);
-    font-weight: 800;
+    font-weight: 600;
 }
 
 .modal-close-btn {
@@ -833,7 +833,7 @@ body {
     display: block;
     margin-bottom: 10px;
     color: #334155;
-    font-weight: 800;
+    font-weight: 500;
     font-size: 0.95rem;
 }
 
@@ -881,9 +881,13 @@ body {
     border: none;
     border-radius: 12px;
     padding: 14px 28px;
-    font-weight: 800;
+    font-weight: 600;
     font-size: 1rem;
     cursor: pointer;
+}
+
+.modal-form-group input[type="password"] {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
 }
 
 .modal-cancel-btn {
@@ -2604,4 +2608,60 @@ body::before {
 
 .page-size-select:focus, .page-size-select:hover {
     border-color: var(--green-600);
+}
+
+/* Premium Glassmorphic Stat Cards for Progress */
+.progress-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    margin-bottom: 30px;
+}
+
+.progress-stats .stat-card {
+    background: linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.7) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end; /* Align badge to bottom right */
+}
+
+.progress-stats .stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+}
+
+.progress-stats .stat-info {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+}
+
+.progress-stats .stat-info h4 {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.progress-stats .stat-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-main);
+    line-height: 1;
+}
+
+.progress-stats .badge {
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
 }

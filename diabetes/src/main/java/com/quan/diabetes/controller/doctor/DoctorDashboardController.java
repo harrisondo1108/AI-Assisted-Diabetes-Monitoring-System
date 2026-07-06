@@ -126,6 +126,30 @@ public class DoctorDashboardController {
         return "doctor/dashboard :: examDetail";
     }
 
+    @GetMapping("/requests")
+    public String requestsPage(HttpSession session, Model model) {
+        User loggedInUser = (User) session.getAttribute("loggedInUser");
+        if (loggedInUser == null || !"DOC".equalsIgnoreCase(loggedInUser.getRole().getRoleId())) {
+            return "redirect:/login";
+        }
+
+        String doctorId = loggedInUser.getUserId();
+        Profile profile = profileService.findById(doctorId).orElse(null);
+        if (profile != null) {
+            model.addAttribute("doctorProfile", profile);
+            session.setAttribute("userProfile", profile);
+        }
+
+        List<ClinicalExamination> allExams = clinicalExaminationService.findByDoctorId(doctorId);
+        List<ClinicalExamination> requestedExams = allExams.stream()
+                .filter(e -> "Requested".equalsIgnoreCase(e.getStatus()))
+                .sorted((e1, e2) -> e2.getExamDate().compareTo(e1.getExamDate()))
+                .collect(Collectors.toList());
+
+        model.addAttribute("requestedExams", requestedExams);
+        return "doctor/requests";
+    }
+
     @PostMapping("/request/approve/{examId}")
     public String approveRequest(
             @PathVariable("examId") String examId,
