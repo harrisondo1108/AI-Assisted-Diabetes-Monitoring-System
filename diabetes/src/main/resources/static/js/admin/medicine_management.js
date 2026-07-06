@@ -185,30 +185,30 @@ window.changePageSize = function() {
     window.location.href = currentUrl.toString();
 };
 
-// Live search (debounced) - update table via AJAX JSON endpoint
+// Backend search - submit form when clicking the search icon or when clearing input
 var searchKeyword = document.getElementById('searchKeyword');
 var searchForm = document.getElementById('searchForm');
-if (searchForm) {
-    searchForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        fetchAndRender(0);
-    });
-}
 
-if (searchKeyword) {
-    var debounceTimer;
+if (searchForm && searchKeyword) {
+    // Tự động submit để hiển thị lại tất cả khi xóa trắng ô tìm kiếm
     searchKeyword.addEventListener('input', function() {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(function() {
-            fetchAndRender(0);
-        }, 300);
-    });
-    searchKeyword.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            fetchAndRender(0);
+        if (this.value.trim() === '') {
+            searchForm.submit();
         }
     });
+
+    searchKeyword.addEventListener('search', function() {
+        if (this.value.trim() === '') {
+            searchForm.submit();
+        }
+    });
+
+    var searchIcon = document.getElementById('searchIcon');
+    if (searchIcon) {
+        searchIcon.addEventListener('click', function() {
+            searchForm.submit();
+        });
+    }
 }
 
 function renderMedicines(list) {

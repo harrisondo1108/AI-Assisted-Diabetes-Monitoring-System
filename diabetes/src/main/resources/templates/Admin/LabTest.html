@@ -64,8 +64,8 @@
                         <button type="button" class="tab" id="tabInactive">Tạm ngưng</button>
                     </div>
                     <div class="table-search-box">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" id="tableSearch" th:value="${keyword != null ? keyword : ''}" placeholder="Tìm kiếm theo tên xét nghiệm, đơn vị hoặc phòng... (Enter)">
+                        <i class="fa-solid fa-magnifying-glass lab-search-icon" style="cursor: pointer;"></i>
+                        <input type="search" id="tableSearch" th:value="${keyword != null ? keyword : ''}" placeholder="Tìm kiếm theo tên xét nghiệm, đơn vị hoặc phòng... (Enter)">
                     </div>
                 </div>
 
@@ -130,13 +130,14 @@
                 </table>
 
                 <!-- Pagination -->
-                <div class="pagination-bar">
-                    <span class="pagination-info" id="paginationInfo">Hiển thị 0 – 0 / 0 xét nghiệm</span>
-                    <div class="pagination-btns">
+                <div class="pagination-bar" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span class="pagination-info" id="paginationInfo" style="flex: 1;">Hiển thị 0 – 0 / 0 xét nghiệm</span>
+                    <div class="pagination-btns" style="flex: 0 0 auto; display: flex; align-items: center; gap: 6px;">
                         <button type="button" id="prevPageBtn">Trước</button>
-                        <div id="pageNumbers"></div>
+                        <div id="pageNumbers" style="display: flex; gap: 4px;"></div>
                         <button type="button" id="nextPageBtn">Sau</button>
                     </div>
+                    <div class="pagination-placeholder" style="flex: 1;"></div>
                 </div>
 
             </div><!-- /.table-card -->

@@ -170,81 +170,30 @@ document.getElementById('cancelEditModalBtn').onclick = closeEditModal;
 editModal.onclick = (e) => {
     if (e.target === editModal) closeEditModal();
 };
-// ==================== THÊM MỚI: REAL-TIME SEARCH ====================
-// Lấy các phần tử
+// ==================== BACKEND SEARCH & AUTO-RESET ON CLEAR ====================
 const searchInput = document.getElementById('searchKeyword');
-const symptomTableBody = document.getElementById('symptomTableBody');
-let searchTimeout = null;
+const searchForm = document.getElementById('symptomSearchForm');
 
-// Hàm tải dữ liệu từ API
-function fetchSymptomsByKeyword(keyword) {
-    const statusSelect = document.getElementById('statusSelect');
-    const currentStatus = statusSelect ? statusSelect.value : '';
-    const url = `/admin/symptoms/list?keyword=${encodeURIComponent(keyword)}&status=${currentStatus}&page=0&size=7`;
-    fetch(url)
-        .then(res => res.json())
-        .then(data => {
-            // Cập nhật bảng
-            if (data.content && data.content.length > 0) {
-                let html = '';
-                data.content.forEach(sym => {
-                    const statusClass = sym.status ? 'badge-active' : 'badge-clocked';
-                    const statusText = sym.status ? 'Hoạt động' : 'Tạm khóa';
-                    const lockIcon = sym.status ? 'fas fa-lock' : 'fas fa-lock-open';
-                    const lockTitle = sym.status ? 'Khóa triệu chứng' : 'Khôi phục triệu chứng';
-                    html += `
-                        <tr>
-                            <td>
-                                <div class="symptom-cell">
-                                    <span class="symptom-name">${escapeHtml(sym.symptomName)}</span>
-                                    <span class="symptom-id">${escapeHtml(sym.symptomId)}</span>
-                                </div>
-                            </td>
-                            <td><span class="${statusClass}">${statusText}</span></td>
-                            <td class="action-group">
-                                <button class="action-btn edit" data-id="${escapeHtml(sym.symptomId)}" onclick="openEditModal(this.getAttribute('data-id'))" title="Chỉnh sửa"><i class="fas fa-pen"></i></button>
-                                <button class="action-btn soft-delete" data-id="${escapeHtml(sym.symptomId)}" data-status="${sym.status ? 'Active' : 'Clocked'}" data-name="${escapeHtml(sym.symptomName)}" onclick="showConfirmModal(this.getAttribute('data-id'), this.getAttribute('data-status'), this.getAttribute('data-name'))" title="${lockTitle}"><i class="${lockIcon}"></i></button>
-                            </td>
-                        </tr>
-                    `;
-                });
-                symptomTableBody.innerHTML = html;
-            } else {
-                symptomTableBody.innerHTML = `<tr><td colspan="3" class="empty-row"><i class="fas fa-head-side-medical"></i><p>Không tìm thấy triệu chứng nào</p></td></tr>`;
-            }
-            // Cập nhật thống kê (nếu cần)
-            fetchStats();
-        })
-        .catch(err => console.error('Search error:', err));
-}
-
-function fetchStats() {
-    fetch('/admin/symptoms/stats')
-        .then(res => res.json())
-        .then(stats => {
-            document.getElementById('statTotal').innerText = stats.totalSymptoms || 0;
-            document.getElementById('statActive').innerText = stats.activeSymptoms || 0;
-            document.getElementById('statClocked').innerText = stats.clockedSymptoms || 0;
-        })
-        .catch(err => console.error('Stats error:', err));
-}
-
-function escapeHtml(str) {
-    if (!str) return '';
-    return String(str).replace(/[&<>"'`]/g, function(s) {
-        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'})[s];
-    });
-}
-
-// Gắn sự kiện real-time cho ô tìm kiếm
-if (searchInput) {
+if (searchForm && searchInput) {
+    // Tự động submit để hiển thị lại tất cả khi xóa trắng ô tìm kiếm
     searchInput.addEventListener('input', function() {
-        clearTimeout(searchTimeout);
-        const keyword = this.value.trim();
-        searchTimeout = setTimeout(() => {
-            fetchSymptomsByKeyword(keyword);
-        }, 300);
+        if (this.value.trim() === '') {
+            searchForm.submit();
+        }
     });
+
+    searchInput.addEventListener('search', function() {
+        if (this.value.trim() === '') {
+            searchForm.submit();
+        }
+    });
+
+    const searchIcon = document.getElementById('searchIcon');
+    if (searchIcon) {
+        searchIcon.addEventListener('click', function() {
+            searchForm.submit();
+        });
+    }
 }
 
 // Khi trang load, nếu có từ khóa trong URL (do filter status submit) thì vẫn hiển thị đúng

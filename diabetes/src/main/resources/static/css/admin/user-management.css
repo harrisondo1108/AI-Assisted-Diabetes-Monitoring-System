@@ -28,8 +28,8 @@
     --action-view-text: #2b4acb;
     --action-edit-bg: #fef9e6;
     --action-edit-text: #b7791f;
-    --action-lock-bg: #fdeaea;
-    --action-lock-text: #c53030;
+    --action-lock-bg: #fef3c7;
+    --action-lock-text: #d97706;
     --action-unlock-bg: #e8f8ef;
     --action-unlock-text: #1a7a4a;
 }

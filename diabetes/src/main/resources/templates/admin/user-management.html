@@ -138,12 +138,14 @@
                         </table>
                     </div>
 
-                    <div class="table-footer">
-                        <div class="pagination" id="pagination" th:if="${totalPages != null and totalPages > 1}">
+                    <div class="table-footer" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-top: 1px solid var(--border); background: var(--bg-card); flex-wrap: wrap; gap: 16px;">
+                        <span class="pagination-info" style="font-size: 0.825rem; color: var(--text-muted; flex: 1;" th:with="start=${totalItems == 0 ? 0 : currentPage * pageSize + 1}, end=${(currentPage + 1) * pageSize > totalItems ? totalItems : (currentPage + 1) * pageSize}" th:text="|Hiển thị ${start} - ${end} / ${totalItems} người dùng|">Hiển thị 0 - 0 / 0 người dùng</span>
+                        <div class="pagination" id="pagination" th:if="${totalPages != null and totalPages > 1}" style="flex: 0 0 auto;">
 
                             <a th:if="${currentPage > 0}"
                                 th:href="@{/admin/users(role=${currentRole}, search=${currentSearch}, page=${currentPage - 1})}"
                                 class="page-link">&laquo; Trước</a>
+                            <span th:unless="${currentPage > 0}" class="page-link disabled" style="opacity: 0.38; cursor: not-allowed; display: flex; align-items: center; justify-content: center; min-width: 36px; height: 36px; padding: 0 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-card); color: var(--text-muted); font-size: 0.85rem;">&laquo; Trước</span>
 
                             <a th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
                                 th:href="@{/admin/users(role=${currentRole}, search=${currentSearch}, page=${i})}"
@@ -153,7 +155,9 @@
                             <a th:if="${currentPage + 1 < totalPages}"
                                 th:href="@{/admin/users(role=${currentRole}, search=${currentSearch}, page=${currentPage + 1})}"
                                 class="page-link">Sau &raquo;</a>
+                            <span th:unless="${currentPage + 1 < totalPages}" class="page-link disabled" style="opacity: 0.38; cursor: not-allowed; display: flex; align-items: center; justify-content: center; min-width: 36px; height: 36px; padding: 0 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-card); color: var(--text-muted); font-size: 0.85rem;">Sau &raquo;</span>
                         </div>
+                        <div class="pagination-placeholder" style="flex: 1;"></div>
                     </div>
                 </div>
 

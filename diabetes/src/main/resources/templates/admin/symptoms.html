@@ -30,8 +30,7 @@
 
       <div class="table-card">
         <div class="table-toolbar">
-          <!-- Form lọc theo trạng thái (GIỮ NGUYÊN, vẫn submit reload trang) -->
-          <form id="filterForm" th:action="@{/admin/symptoms}" method="get">
+          <form th:action="@{/admin/symptoms}" method="get" class="filter-form" style="display: flex; gap: 12px; align-items: center;" id="symptomSearchForm">
             <select name="status" id="statusSelect" class="filter-select" onchange="this.form.submit()">
               <option value="">Tất cả trạng thái</option>
               <option value="active" th:selected="${selectedStatus == 'active'}">Hoạt động</option>
@@ -40,13 +39,11 @@
             <input type="hidden" name="size" th:value="${pageSize}">
             <input type="hidden" name="sortField" th:value="${sortField}">
             <input type="hidden" name="sortDirection" th:value="${sortDirection}">
+            <div class="header-search">
+              <i class="fas fa-search" id="searchIcon" style="cursor: pointer;"></i>
+              <input type="search" name="keyword" th:value="${searchKeyword}" id="searchKeyword" placeholder="Tìm kiếm theo ID hoặc tên triệu chứng...">
+            </div>
           </form>
-
-          <!-- Ô TÌM KIẾM REAL-TIME (KHÔNG CÓ NÚT, KHÔNG FORM) -->
-          <div class="header-search">
-            <i class="fas fa-search"></i>
-            <input type="text" id="searchKeyword" placeholder="Tìm kiếm theo ID hoặc tên triệu chứng...">
-          </div>
         </div>
 
         <div class="table-wrap">
@@ -85,27 +82,25 @@
         </div>
 
         <!-- PHÂN TRANG GIỮ NGUYÊN (thẻ a, reload trang) -->
-        <div class="pagination-container" th:if="${totalPages > 0}">
-          <div class="page-size-selector" style="display: flex; align-items: center; gap: 8px; font-size: 0.875rem; color: #5a6f68;">
-            <label>Hiển thị: </label>
-            <select id="pageSizeSelect" style="padding: 6px 12px; border: 1px solid #e2ebe7; border-radius: 8px; background-color: #fff; color: #0f2e26; font-size: 0.875rem; font-weight: 500; cursor: pointer;" onchange="changePageSize()">
-              <option value="4" th:selected="${pageSize == 4}">4 hàng / trang</option>
-              <option value="8" th:selected="${pageSize == 8}">8 hàng / trang</option>
-              <option value="15" th:selected="${pageSize == 15}">15 hàng / trang</option>
-              <option value="30" th:selected="${pageSize == 30}">30 hàng / trang</option>
-            </select>
-          </div>
-          <div class="pagination-controls">
-            <a th:if="${currentPage > 0}" th:href="@{/admin/symptoms(page=0, size=${pageSize}, status=${selectedStatus}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> Đầu</a>
-            <a th:if="${currentPage > 0}" th:href="@{/admin/symptoms(page=${currentPage - 1}, size=${pageSize}, status=${selectedStatus}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> Trước</a>
-            <div class="pagination-pages">
+        <div class="pagination-container" th:if="${totalPages > 0}" style="display: flex; justify-content: space-between; align-items: center;">
+          <span class="pagination-info" style="font-size: 0.875rem; color: #5a6f68; flex: 1;" th:with="start=${totalItems == 0 ? 0 : currentPage * pageSize + 1}, end=${(currentPage + 1) * pageSize > totalItems ? totalItems : (currentPage + 1) * pageSize}" th:text="|Hiển thị ${start} - ${end} / ${totalItems} triệu chứng|">Hiển thị 0 - 0 / 0 triệu chứng</span>
+          <div class="pagination-controls" style="flex: 0 0 auto; display: flex; align-items: center; gap: 8px;">
+            <!-- Nút Trước -->
+            <a th:if="${currentPage > 0}" th:href="@{/admin/symptoms(page=${currentPage - 1}, size=${pageSize}, status=${selectedStatus}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection})}" class="pagination-btn">Trước</a>
+            <span th:unless="${currentPage > 0}" class="pagination-btn disabled" style="opacity: 0.38; cursor: not-allowed; display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; color: var(--text-muted); font-size: 0.875rem; font-weight: 500;">Trước</span>
+
+            <!-- Các số trang -->
+            <div class="pagination-pages" style="display: flex; gap: 4px;">
               <th:block th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}">
-                <a th:if="${pageNum >= currentPage - 2 and pageNum <= currentPage + 2}" th:href="@{/admin/symptoms(page=${pageNum}, size=${pageSize}, status=${selectedStatus}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection})}" class="page-number" th:classappend="${pageNum == currentPage} ? 'active' : ''" th:text="${pageNum + 1}"></a>
+                <a th:href="@{/admin/symptoms(page=${pageNum}, size=${pageSize}, status=${selectedStatus}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection})}" class="page-number" th:classappend="${pageNum == currentPage} ? 'active' : ''" th:text="${pageNum + 1}"></a>
               </th:block>
             </div>
-            <a th:if="${currentPage < totalPages - 1}" th:href="@{/admin/symptoms(page=${currentPage + 1}, size=${pageSize}, status=${selectedStatus}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection})}" class="pagination-btn">Sau <i class="fas fa-chevron-right"></i></a>
-            <a th:if="${currentPage < totalPages - 1}" th:href="@{/admin/symptoms(page=${totalPages - 1}, size=${pageSize}, status=${selectedStatus}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection})}" class="pagination-btn">Cuối <i class="fas fa-chevron-right"></i></a>
+
+            <!-- Nút Sau -->
+            <a th:if="${currentPage < totalPages - 1}" th:href="@{/admin/symptoms(page=${currentPage + 1}, size=${pageSize}, status=${selectedStatus}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection})}" class="pagination-btn">Sau</a>
+            <span th:unless="${currentPage < totalPages - 1}" class="pagination-btn disabled" style="opacity: 0.38; cursor: not-allowed; display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; color: var(--text-muted); font-size: 0.875rem; font-weight: 500;">Sau</span>
           </div>
+          <div class="pagination-placeholder" style="flex: 1;"></div>
         </div>
       </div>
     </main>

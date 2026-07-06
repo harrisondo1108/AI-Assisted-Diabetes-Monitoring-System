@@ -693,10 +693,23 @@
             })();
         }
 
-        // Backend search - submit form when clicking the search icon (Enter key triggers form submit naturally)
+        // Backend search - submit form when clicking the search icon or when clearing input
         const searchInput = document.getElementById('globalSearch');
         const toolbarForm = document.querySelector('.toolbar-search');
-        if (toolbarForm) {
+        if (toolbarForm && searchInput) {
+            // Tự động submit để hiển thị lại tất cả khi xóa trắng ô tìm kiếm
+            searchInput.addEventListener('input', function () {
+                if (this.value.trim() === '') {
+                    toolbarForm.submit();
+                }
+            });
+
+            searchInput.addEventListener('search', function () {
+                if (this.value.trim() === '') {
+                    toolbarForm.submit();
+                }
+            });
+
             const searchIcon = toolbarForm.querySelector('.fa-search');
             if (searchIcon) {
                 searchIcon.style.cursor = 'pointer';

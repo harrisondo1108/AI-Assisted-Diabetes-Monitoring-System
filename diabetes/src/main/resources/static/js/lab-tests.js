@@ -269,7 +269,7 @@ function initTabs() {
     });
 }
 
-/* ── SEARCH (Enter key trigger) ── */
+/* ── SEARCH (Backend-side search, reset on clear) ── */
 function initSearch() {
     const input = document.getElementById('tableSearch');
     if (input) {
@@ -280,6 +280,28 @@ function initSearch() {
                 window.location.href = `/admin/lab-tests?status=${status}&keyword=${encodeURIComponent(input.value.trim())}`;
             }
         });
+
+        input.addEventListener('input', function() {
+            if (this.value.trim() === '') {
+                const status = activeFilter;
+                window.location.href = `/admin/lab-tests?status=${status}`;
+            }
+        });
+
+        input.addEventListener('search', function() {
+            if (this.value.trim() === '') {
+                const status = activeFilter;
+                window.location.href = `/admin/lab-tests?status=${status}`;
+            }
+        });
+
+        const icon = document.querySelector('.lab-search-icon');
+        if (icon) {
+            icon.addEventListener('click', function() {
+                const status = activeFilter;
+                window.location.href = `/admin/lab-tests?status=${status}&keyword=${encodeURIComponent(input.value.trim())}`;
+            });
+        }
     }
 }
 

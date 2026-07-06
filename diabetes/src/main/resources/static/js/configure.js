@@ -87,6 +87,23 @@ function initSearch() {
                 window.location.href = '/admin/configure?tab=room&search=' + encodeURIComponent(val);
             }
         });
+        rInput.addEventListener('input', function(){
+            if (this.value.trim() === '') {
+                window.location.href = '/admin/configure?tab=room';
+            }
+        });
+        rInput.addEventListener('search', function(){
+            if (this.value.trim() === '') {
+                window.location.href = '/admin/configure?tab=room';
+            }
+        });
+        var rIcon = document.querySelector('.room-search-icon');
+        if (rIcon) {
+            rIcon.addEventListener('click', function(){
+                var val = rInput.value.trim();
+                window.location.href = '/admin/configure?tab=room&search=' + encodeURIComponent(val);
+            });
+        }
     }
     
     if(tInput) {
@@ -97,6 +114,23 @@ function initSearch() {
                 window.location.href = '/admin/configure?tab=timing&search=' + encodeURIComponent(val);
             }
         });
+        tInput.addEventListener('input', function(){
+            if (this.value.trim() === '') {
+                window.location.href = '/admin/configure?tab=timing';
+            }
+        });
+        tInput.addEventListener('search', function(){
+            if (this.value.trim() === '') {
+                window.location.href = '/admin/configure?tab=timing';
+            }
+        });
+        var tIcon = document.querySelector('.timing-search-icon');
+        if (tIcon) {
+            tIcon.addEventListener('click', function(){
+                var val = tInput.value.trim();
+                window.location.href = '/admin/configure?tab=timing&search=' + encodeURIComponent(val);
+            });
+        }
     }
 }
 
