@@ -526,8 +526,8 @@ body {
 }
 
 .btn-lock {
-    background: #fef3c7;
-    color: #d97706;
+    background: #fee2e2;
+    color: #dc2626;
 }
 
 .action-btn:hover {
@@ -539,7 +539,7 @@ body {
 }
 
 .btn-lock:hover {
-    background: #fde68a;
+    background: #fecaca;
 }
 
 .empty-row {
