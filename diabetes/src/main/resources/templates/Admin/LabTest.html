@@ -360,17 +360,30 @@
 
 <!-- CUSTOM CONFIRM MODAL -->
 <div class="modal-overlay" id="customConfirmModal">
-    <div class="modal-box" style="max-width: 400px;">
+    <div class="modal-box confirm-modal">
         <div class="modal-header">
-            <h3 id="confirmTitle">Xác nhận</h3>
-            <button type="button" class="modal-close" id="btnCloseConfirm"><i class="fa-solid fa-xmark"></i></button>
+            <h2 id="confirmTitle" style="font-size: 1.15rem; font-weight: 700; color: var(--green-800); margin: 0; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-shield-alt" style="color: #f59e0b;"></i>
+                Xác nhận
+            </h2>
+            <button type="button" class="modal-close" id="btnCloseConfirm">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
-        <div class="modal-body" style="padding: 15px 0;">
-            <p id="confirmMessage">Bạn có chắc chắn muốn thực hiện hành động này?</p>
+        <div class="modal-body" style="text-align: center; padding: 32px 28px;">
+            <div class="confirm-icon" style="width: 80px; height: 80px; background: linear-gradient(135deg, #fff3e0, #ffe8cc); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                <i class="fas fa-exclamation-triangle" style="color: #f59e0b; font-size: 40px;"></i>
+            </div>
+            <p id="confirmMessage" style="font-weight: 600; font-size: 1rem; color: #1e293b; line-height: 1.5; margin: 0 0 8px 0;"></p>
+            <p class="confirm-submessage" style="color: #64748b; font-size: 0.85rem; margin: 8px 0 0 0;">Trạng thái hoạt động của xét nghiệm này sẽ thay đổi trên toàn hệ thống.</p>
         </div>
-        <div class="modal-actions">
-            <button type="button" class="btn-cancel" id="btnCancelConfirm">Hủy</button>
-            <button type="button" class="btn-save" id="btnOkConfirm">Xác nhận</button>
+        <div class="modal-footer" style="justify-content: center; gap: 16px; padding: 20px 24px 24px; display: flex; border-top: 1px solid var(--border); box-shadow: none;">
+            <button type="button" class="btn btn-secondary" id="btnCancelConfirm" style="min-width: 110px; padding: 10px 20px; border-radius: 10px; font-weight: 600; background: #f1f5f9; color: #475569; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <i class="fas fa-times"></i> Hủy
+            </button>
+            <button type="button" class="btn btn-primary" id="btnOkConfirm" style="min-width: 110px; padding: 10px 20px; border-radius: 10px; font-weight: 600; background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <i class="fas fa-check"></i> Xác nhận
+            </button>
         </div>
     </div>
 </div>

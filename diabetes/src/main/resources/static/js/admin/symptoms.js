@@ -189,9 +189,9 @@ function fetchSymptomsByKeyword(keyword) {
                 let html = '';
                 data.content.forEach(sym => {
                     const statusClass = sym.status ? 'badge-active' : 'badge-clocked';
-                    const statusText = sym.status ? 'Active' : 'Clocked';
+                    const statusText = sym.status ? 'Hoạt động' : 'Tạm khóa';
                     const lockIcon = sym.status ? 'fas fa-lock' : 'fas fa-lock-open';
-                    const lockTitle = sym.status ? 'Clock Symptom' : 'Restore Symptom';
+                    const lockTitle = sym.status ? 'Khóa triệu chứng' : 'Khôi phục triệu chứng';
                     html += `
                         <tr>
                             <td>
@@ -202,15 +202,15 @@ function fetchSymptomsByKeyword(keyword) {
                             </td>
                             <td><span class="${statusClass}">${statusText}</span></td>
                             <td class="action-group">
-                                <button class="action-btn edit" data-id="${escapeHtml(sym.symptomId)}" onclick="openEditModal(this.getAttribute('data-id'))"><i class="fas fa-pen"></i></button>
-                                <button class="action-btn soft-delete" data-id="${escapeHtml(sym.symptomId)}" data-status="${statusText}" data-name="${escapeHtml(sym.symptomName)}" onclick="showConfirmModal(this.getAttribute('data-id'), this.getAttribute('data-status'), this.getAttribute('data-name'))" title="${lockTitle}"><i class="${lockIcon}"></i></button>
+                                <button class="action-btn edit" data-id="${escapeHtml(sym.symptomId)}" onclick="openEditModal(this.getAttribute('data-id'))" title="Chỉnh sửa"><i class="fas fa-pen"></i></button>
+                                <button class="action-btn soft-delete" data-id="${escapeHtml(sym.symptomId)}" data-status="${sym.status ? 'Active' : 'Clocked'}" data-name="${escapeHtml(sym.symptomName)}" onclick="showConfirmModal(this.getAttribute('data-id'), this.getAttribute('data-status'), this.getAttribute('data-name'))" title="${lockTitle}"><i class="${lockIcon}"></i></button>
                             </td>
                         </tr>
                     `;
                 });
                 symptomTableBody.innerHTML = html;
             } else {
-                symptomTableBody.innerHTML = `<tr><td colspan="3" class="empty-row"><i class="fas fa-head-side-medical"></i><p>No symptoms found</p></td></tr>`;
+                symptomTableBody.innerHTML = `<tr><td colspan="3" class="empty-row"><i class="fas fa-head-side-medical"></i><p>Không tìm thấy triệu chứng nào</p></td></tr>`;
             }
             // Cập nhật thống kê (nếu cần)
             fetchStats();

@@ -24,11 +24,17 @@
     let resetValidationState = null;
 
     window.showConfirmModal = function(id, currentStatus, fullName) {
+        let displayName = fullName;
+        if (!fullName || fullName === 'null' || fullName === 'undefined' || fullName.trim() === '') {
+            const row = document.querySelector(`tr[data-user-id="${id}"]`);
+            const phone = row ? row.querySelector('.user-phone')?.innerText : '';
+            displayName = phone || 'Người dùng';
+        }
         const isActive = currentStatus === 'Active';
         const title = isActive ? 'Khóa tài khoản' : 'Mở khóa tài khoản';
         const message = isActive
-            ? 'Bạn có chắc chắn muốn khóa tài khoản "' + fullName + '"?'
-            : 'Bạn có chắc chắn muốn mở khóa tài khoản "' + fullName + '"?';
+            ? 'Bạn có chắc chắn muốn khóa tài khoản "' + displayName + '"?'
+            : 'Bạn có chắc chắn muốn mở khóa tài khoản "' + displayName + '"?';
         const subMessage = isActive
             ? 'Người dùng này sẽ bị tạm ngưng hoạt động trên hệ thống.'
             : 'Người dùng này sẽ hoạt động trở lại bình thường.';
@@ -759,7 +765,7 @@
                 data-supervisor-phone="${escapeHtml(user.supervisorPhone || '')}">
                 <td>
                     <div class="user-cell">
-                        <div class="user-name">${escapeHtml(user.fullName || '')}</div>
+                        <div class="user-name">${escapeHtml(user.fullName || '').trim() !== '' ? escapeHtml(user.fullName) : '&nbsp;'}</div>
                         <div class="user-phone">${escapeHtml(user.accountPhone || '')}</div>
                     </div>
                 </td>
