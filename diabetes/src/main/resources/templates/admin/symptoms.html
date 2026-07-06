@@ -7,7 +7,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" th:href="@{/css/admin/symptoms.css}">
-  <link rel="stylesheet" href="/static/css/admin/symptoms.css">
 </head>
 <body>
 <div class="admin-layout">
@@ -18,11 +17,11 @@
       <!-- CHỈ 3 THẺ STAT, BỎ CATEGORIES -->
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-icon"><i class="fas fa-notes-medical"></i></div>
-          <div class="stat-label">Total Symptoms</div><div class="stat-value" th:text="${totalSymptoms}">0</div></div>
+          <div class="stat-label">Total Symptoms</div><div class="stat-value" id="statTotal" th:text="${totalSymptoms}">0</div></div>
         <div class="stat-card"><div class="stat-icon"><i class="fas fa-check-circle"></i></div>
-          <div class="stat-label">Active</div><div class="stat-value" th:text="${activeSymptoms}">0</div></div>
+          <div class="stat-label">Active</div><div class="stat-value" id="statActive" th:text="${activeSymptoms}">0</div></div>
         <div class="stat-card"><div class="stat-icon"><i class="fas fa-ban"></i></div>
-          <div class="stat-label">Clocked</div><div class="stat-value" th:text="${clockedSymptoms}">0</div></div>
+          <div class="stat-label">Clocked</div><div class="stat-value" id="statClocked" th:text="${clockedSymptoms}">0</div></div>
       </div>
 
       <div class="page-header">
@@ -193,8 +192,7 @@
   </div>
 </div>
 
-<script th:src="@{/js/admin/symptoms.js}"></script>
-<script src="/static/js/admin/symptoms.js"></script>
+<script th:src="@{/js/admin/symptoms.js(v=${#dates.createNow().getTime()})}"></script>
 <script>
     function changePageSize() {
         var size = document.getElementById('pageSizeSelect').value;

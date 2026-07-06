@@ -69,4 +69,13 @@ public class LabTestCatalogServiceImpl implements LabTestCatalogService {
     public String generateLabTestId() {
         return "LT-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
+
+    @Override
+    public List<LabTestCatalog> searchByKeywordAndStatus(String keyword, Boolean status) {
+        return labTestCatalogRepository.findAll().stream()
+                .filter(t -> (status == null || status.equals(t.getStatus())))
+                .filter(t -> com.quan.diabetes.util.SearchUtil.matches(t.getTestName(), keyword)
+                          || com.quan.diabetes.util.SearchUtil.matches(t.getUnit(), keyword))
+                .collect(java.util.stream.Collectors.toList());
+    }
 }

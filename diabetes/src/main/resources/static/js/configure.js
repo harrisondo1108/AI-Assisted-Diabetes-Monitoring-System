@@ -9,6 +9,9 @@ document.addEventListener('DOMContentLoaded', function () {
     initSearch();
     initRoomModals();
     initTimingModals();
+    initValidation();
+    initConfirmModal();
+
     markVisible('#roomTableBody',   '.room-row');
     markVisible('#timingTableBody', '.timing-row');
     renderPagination('#roomTableBody',   '.room-row',   roomPage,   roomKw,
@@ -32,6 +35,29 @@ function addClose(modal) {
     });
 }
 
+/* ── Custom Confirm Modal ── */
+let confirmAction = null;
+function initConfirmModal() {
+    const modal = document.getElementById('customConfirmModal');
+    if (!modal) return;
+    addClose(modal, document.getElementById('btnCloseConfirm'), document.getElementById('btnCancelConfirm'));
+    document.getElementById('btnOkConfirm').addEventListener('click', function() {
+        if (confirmAction) {
+            confirmAction();
+        }
+        closeModal(modal);
+    });
+}
+
+function showConfirm(title, message, callback) {
+    const modal = document.getElementById('customConfirmModal');
+    if (!modal) return;
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmMessage').textContent = message;
+    confirmAction = callback;
+    openModal(modal);
+}
+
 /* ── TABS ── */
 function initTabs() {
     var tabs   = document.querySelectorAll('.tab');
@@ -48,40 +74,34 @@ function initTabs() {
 }
 function cap(s){ return s ? s.charAt(0).toUpperCase()+s.slice(1) : ''; }
 
+/* ── Backend Search — Enter key trigger ── */
 function initSearch() {
     var rInput = document.getElementById('roomSearch');
     var tInput = document.getElementById('timingSearch');
     
     if(rInput) {
-        rInput.addEventListener('input', function(){
-            roomKw = rInput.value.toLowerCase().trim();
-            roomPage = 1;
-            applyFilter('#roomTableBody', '.room-row', roomKw);
-            renderPagination('#roomTableBody', '.room-row', roomPage, roomKw,
-                             'paginationInfo', 'prevPageBtn', 'nextPageBtn', 'pageNumbers', 'phòng',
-                             function(p){ roomPage = p; });
+        rInput.addEventListener('keypress', function(e){
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                e.preventDefault();
+                var val = rInput.value.trim();
+                window.location.href = '/admin/configure?tab=room&search=' + encodeURIComponent(val);
+            }
         });
     }
     
     if(tInput) {
-        tInput.addEventListener('input', function(){
-            timingKw = tInput.value.toLowerCase().trim();
-            timingPage = 1;
-            applyFilter('#timingTableBody', '.timing-row', timingKw);
-            renderPagination('#timingTableBody', '.timing-row', timingPage, timingKw,
-                'timingPaginationInfo','timingPrevBtn','timingNextBtn','timingPageNumbers','timing',
-                function(p){ timingPage = p; });
+        tInput.addEventListener('keypress', function(e){
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                e.preventDefault();
+                var val = tInput.value.trim();
+                window.location.href = '/admin/configure?tab=timing&search=' + encodeURIComponent(val);
+            }
         });
     }
 }
 
 function markVisible(tbody, rowSel){
     document.querySelectorAll(tbody+' '+rowSel).forEach(function(r){ r.dataset.filtered='visible'; });
-}
-function applyFilter(tbody, rowSel, kw){
-    document.querySelectorAll(tbody+' '+rowSel).forEach(function(r){
-        r.dataset.filtered = (!kw || r.innerText.toLowerCase().includes(kw)) ? 'visible' : 'hidden';
-    });
 }
 
 /* ── PAGINATION ── */
@@ -124,16 +144,77 @@ function reDraw(tbody,rowSel,p,kw,infoId,prevId,nextId,numsId,unit,setPage){
     renderPagination(tbody,rowSel,p,kw,infoId,prevId,nextId,numsId,unit,setPage);
 }
 
+/* ── Validation & Character Limit Counter ── */
+function setupInputValidation(inputId, countId, errorId, maxLen, pattern, errMsg) {
+    const input = document.getElementById(inputId);
+    const count = document.getElementById(countId);
+    const err   = document.getElementById(errorId);
+    if (!input) return;
+
+    input.addEventListener('input', function() {
+        const value = input.value;
+        if (count) count.textContent = `${value.length} / ${maxLen}`;
+        
+        if (value.length > maxLen) {
+            input.value = value.substring(0, maxLen);
+            if (count) count.textContent = `${maxLen} / ${maxLen}`;
+        }
+
+        if (err) {
+            if (pattern && value.trim() !== '' && !pattern.test(value)) {
+                err.textContent = errMsg;
+            } else {
+                err.textContent = '';
+            }
+        }
+    });
+}
+
+function initValidation() {
+    const namePattern = /^[^<>;'"\\`$^`{}~|\[\]]+$/;
+    const descPattern = /^[^<>;'"\\`$^`{}~|\[\]]+$/;
+    const nameErrMsg = 'Không chứa các ký tự đặc biệt nguy hiểm (< > ; \' " \\ `).';
+
+    setupInputValidation('inputAddRoomName',  'countAddRoomName',  'errorAddRoomName',  50, namePattern, nameErrMsg);
+    setupInputValidation('inputAddRoomDesc',  'countAddRoomDesc',  'errorAddRoomDesc',  255, descPattern, nameErrMsg);
+    setupInputValidation('editRoomName',      'countEditRoomName',      'errorEditRoomName',      50, namePattern, nameErrMsg);
+    setupInputValidation('editRoomDesc',      'countEditRoomDesc',      'errorEditRoomDesc',      255, descPattern, nameErrMsg);
+    setupInputValidation('inputAddTimingName', 'countAddTimingName', 'errorAddTimingName', 100, namePattern, nameErrMsg);
+    setupInputValidation('editTimingName',     'countEditTimingName',     'errorEditTimingName',     100, namePattern, nameErrMsg);
+}
+
+function validateFormBeforeSubmit(nameId, descId, errorNameId) {
+    const name = document.getElementById(nameId)?.value.trim() || '';
+    const err  = document.getElementById(errorNameId);
+    if (!name) {
+        if (err) err.textContent = 'Trường này không được để trống.';
+        return false;
+    }
+    const errText = err?.textContent || '';
+    if (errText !== '') {
+        return false;
+    }
+    return true;
+}
+
 /* ── ROOM MODALS ── */
 function initRoomModals(){
     var addModal  = document.getElementById('addRoomModal');
     var editModal = document.getElementById('editRoomModal');
     var editForm  = document.getElementById('editRoomForm');
+    
     if(addModal){
         var open = document.getElementById('btnAddRoom');
         if(open) open.addEventListener('click',function(){ openModal(addModal); });
         addClose(addModal, document.getElementById('btnCloseAddRoom'), document.getElementById('btnCancelAddRoom'));
+        
+        document.getElementById('addRoomForm')?.addEventListener('submit', function(e) {
+            if (!validateFormBeforeSubmit('inputAddRoomName', 'inputAddRoomDesc', 'errorAddRoomName')) {
+                e.preventDefault();
+            }
+        });
     }
+    
     if(editModal&&editForm){
         addClose(editModal, document.getElementById('btnCloseEditRoom'), document.getElementById('btnCancelEditRoom'));
         document.querySelectorAll('.edit-room-btn').forEach(function(btn){
@@ -141,10 +222,40 @@ function initRoomModals(){
                 document.getElementById('editRoomName').value = btn.dataset.name||'';
                 document.getElementById('editRoomDesc').value = (btn.dataset.desc&&btn.dataset.desc!=='null') ? btn.dataset.desc : '';
                 editForm.action = '/admin/configure/room/update/'+btn.dataset.id;
+                
+                // Trigger input for counter updates
+                document.getElementById('editRoomName').dispatchEvent(new Event('input'));
+                document.getElementById('editRoomDesc').dispatchEvent(new Event('input'));
                 openModal(editModal);
             });
         });
+        
+        editForm.addEventListener('submit', function(e) {
+            if (!validateFormBeforeSubmit('editRoomName', 'editRoomDesc', 'errorEditRoomName')) {
+                e.preventDefault();
+            }
+        });
     }
+
+    // Delete confirm custom
+    document.querySelectorAll('.delete-room-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const id = btn.dataset.id;
+            const name = btn.dataset.name;
+            showConfirm(
+                'Xác nhận xóa phòng',
+                `Bạn có chắc chắn muốn xóa phòng "${name}"?`,
+                function() {
+                    const form = document.createElement('form');
+                    form.method = 'post';
+                    form.action = `/admin/configure/room/delete/${id}`;
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            );
+        });
+    });
 }
 
 /* ── TIMING MODALS ── */
@@ -152,19 +263,55 @@ function initTimingModals(){
     var addModal  = document.getElementById('addTimingModal');
     var editModal = document.getElementById('editTimingModal');
     var editForm  = document.getElementById('editTimingForm');
+    
     if(addModal){
         var open = document.getElementById('btnAddTiming');
         if(open) open.addEventListener('click',function(){ openModal(addModal); });
         addClose(addModal, document.getElementById('btnCloseAddTiming'), document.getElementById('btnCancelAddTiming'));
+        
+        document.getElementById('addTimingForm')?.addEventListener('submit', function(e) {
+            if (!validateFormBeforeSubmit('inputAddTimingName', null, 'errorAddTimingName')) {
+                e.preventDefault();
+            }
+        });
     }
+    
     if(editModal&&editForm){
         addClose(editModal, document.getElementById('btnCloseEditTiming'), document.getElementById('btnCancelEditTiming'));
         document.querySelectorAll('.edit-timing-btn').forEach(function(btn){
             btn.addEventListener('click',function(){
                 document.getElementById('editTimingName').value = btn.dataset.name||'';
                 editForm.action = '/admin/configure/timing/update/'+btn.dataset.id;
+                
+                document.getElementById('editTimingName').dispatchEvent(new Event('input'));
                 openModal(editModal);
             });
         });
+        
+        editForm.addEventListener('submit', function(e) {
+            if (!validateFormBeforeSubmit('editTimingName', null, 'errorEditTimingName')) {
+                e.preventDefault();
+            }
+        });
     }
+
+    // Delete confirm custom
+    document.querySelectorAll('.delete-timing-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const id = btn.dataset.id;
+            const name = btn.dataset.name;
+            showConfirm(
+                'Xác nhận xóa thời điểm',
+                `Bạn có chắc chắn muốn xóa thời điểm dùng thuốc "${name}"?`,
+                function() {
+                    const form = document.createElement('form');
+                    form.method = 'post';
+                    form.action = `/admin/configure/timing/delete/${id}`;
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            );
+        });
+    });
 }
