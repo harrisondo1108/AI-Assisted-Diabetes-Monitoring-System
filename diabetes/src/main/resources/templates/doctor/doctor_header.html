@@ -18,6 +18,9 @@
         <a th:href="@{/doctor/dashboard}" class="header-nav-item" th:classappend="${activeMenu == 'dashboard'} ? 'active' : ''">
             <i class="fas fa-chart-line"></i> Tổng quan
         </a>
+        <a th:href="@{/doctor/reminders}" class="header-nav-item" th:classappend="${activeMenu == 'reminders'} ? 'active' : ''">
+            <i class="fas fa-bell"></i> Nhắc nhở
+        </a>
     </nav>
 
     <!-- Right Profile Utilities -->

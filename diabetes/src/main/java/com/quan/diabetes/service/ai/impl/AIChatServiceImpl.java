@@ -337,7 +337,7 @@ public class AIChatServiceImpl implements AIChatService {
         StringBuilder promptBuilder = new StringBuilder();
         if (sqlData != null && !sqlData.trim().isEmpty()) {
             promptBuilder.append("[DỮ LIỆU BỆNH ÁN]:\n").append(sqlData).append("\n\n");
-            promptBuilder.append("[YÊU CẦU HIỆN TẠI BẮT BUỘC]:\nDựa VÀO DUY NHẤT [DỮ LIỆU BỆNH ÁN MỚI NHẤT] ở trên, hãy trả lời câu hỏi sau của bệnh nhân. CHỈ trả lời về vấn đề được hỏi.\n\n");
+            promptBuilder.append("[YÊU CẦU HIỆN TẠI BẮT BUỘC]:\nDựa VÀO DUY NHẤT [DỮ LIỆU BỆNH ÁN] ở trên, hãy trả lời câu hỏi sau của bệnh nhân. CHỈ trả lời về vấn đề được hỏi.\n");
         }
         promptBuilder.append("Câu hỏi của bệnh nhân: ").append(question);
         return promptBuilder.toString();

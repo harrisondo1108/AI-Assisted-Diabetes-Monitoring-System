@@ -45,6 +45,9 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
     @Autowired
     private AppointmentSchedule appointmentSchedule;
 
+    @Autowired
+    private AIReminderRepository aiReminderRepository;
+
 
     public ClinicalExaminationServiceImpl(
             ClinicalExaminationRepository clinicalExaminationRepository,
@@ -769,5 +772,18 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                 throw new RuntimeException("Error deserializing prescription JSON: " + e.getMessage(), e);
             }
         }
+
+        // Lock các reminder cũ của phiên khám (set lockStatus = true)
+        List<AIReminder> oldReminders = aiReminderRepository.findByClinicalExamination_ClinicalExamId(examId);
+        if (oldReminders != null && !oldReminders.isEmpty()) {
+            for (AIReminder r : oldReminders) {
+                r.setLockStatus(true);
+            }
+            aiReminderRepository.saveAll(oldReminders);
+        }
+
+        // Tạo lại reminders mới dựa vào lịch tái khám và đơn thuốc
+        medicationSchedualeService.generateReminder(examId);
+        appointmentSchedule.generateAppointmentReminder(examId);
     }
 }
