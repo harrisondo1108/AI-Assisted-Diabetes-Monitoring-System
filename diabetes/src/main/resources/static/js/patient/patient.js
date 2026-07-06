@@ -403,6 +403,14 @@ function openPatientModal(id) {
         return;
     }
 
+    if (id === 'changePasswordModal') {
+        const form = document.getElementById('changePasswordForm');
+        if (form) {
+            clearValidation(form, 'changePasswordValidationMessage');
+            form.reset();
+        }
+    }
+
     modal.classList.add('show');
     document.body.style.overflow = 'hidden';
 }
@@ -443,6 +451,8 @@ function setupChangePasswordValidation() {
     }
 
     form.addEventListener('submit', function (event) {
+        event.preventDefault(); // Always prevent default form submission
+
         clearValidation(form, 'changePasswordValidationMessage');
 
         const currentPassword = getValue(form, 'currentPassword');
@@ -473,10 +483,43 @@ function setupChangePasswordValidation() {
         }
 
         if (errors.length > 0) {
-            event.preventDefault();
             showValidationMessage('changePasswordValidationMessage', errors);
             scrollToValidationMessage('changePasswordValidationMessage');
+            return;
         }
+
+        // AJAX Request
+        const formData = new FormData(form);
+        fetch('/patient/profile/change-password', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(errData => {
+                    throw new Error(errData.message || 'Thay đổi mật khẩu thất bại.');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Success - Close modal and reset form
+                closePatientModal('changePasswordModal');
+                form.reset();
+                // Redirect/reload with success message parameter
+                window.location.href = '/patient/profile?successMessage=' + encodeURIComponent(data.message);
+            } else {
+                // Failure - Show error inside modal, keep modal open
+                showValidationMessage('changePasswordValidationMessage', [data.message]);
+                scrollToValidationMessage('changePasswordValidationMessage');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showValidationMessage('changePasswordValidationMessage', [error.message || 'Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau.']);
+            scrollToValidationMessage('changePasswordValidationMessage');
+        });
     });
 }
 

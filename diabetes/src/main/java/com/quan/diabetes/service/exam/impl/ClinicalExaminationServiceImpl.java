@@ -770,4 +770,34 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
             }
         }
     }
+
+    @Override
+    @Transactional
+    public void requestExamination(String patientId, String medicalHistory) {
+        User doctor = userRepository.findFirstByRole_RoleId("DOC").orElse(null);
+        if (doctor == null) {
+            throw new RuntimeException("Không tìm thấy bác sĩ nào trong hệ thống.");
+        }
+
+        // Check if there is an active exam (Pending, InProgress, Requested)
+        boolean hasActive = clinicalExaminationRepository
+                .findFirstByPatient_UserIdAndDoctor_UserIdAndStatusIn(
+                        patientId, doctor.getUserId(), List.of("Pending", "InProgress", "Requested"))
+                .isPresent();
+
+        if (hasActive) {
+            throw new RuntimeException("Bạn đã có một yêu cầu khám đang chờ duyệt hoặc một ca khám đang diễn ra.");
+        }
+
+        ClinicalExamination exam = new ClinicalExamination();
+        exam.setClinicalExamId("EXM-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000));
+        exam.setPatient(patientRepository.findById(patientId)
+                .orElseThrow(() -> new EntityNotFoundException("Patient not found: " + patientId)));
+        exam.setDoctor(doctor);
+        exam.setExamDate(LocalDateTime.now());
+        exam.setStatus("Requested");
+        exam.setMedicalHistory(medicalHistory);
+        clinicalExaminationRepository.save(exam);
+    }
 }
+

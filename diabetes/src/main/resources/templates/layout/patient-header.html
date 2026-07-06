@@ -7,7 +7,11 @@
         <h1 class="header-page-title" th:text="${pageTitle}">Trang bệnh nhân</h1>
     </div>
 
-    <div class="header-actions">
+    <div class="header-actions" style="display: flex; align-items: center; gap: 15px;">
+        <span class="date-display" id="patientHeaderDate" style="font-size: 0.82rem; font-weight: 600; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 6px; background: rgba(226, 235, 231, 0.4); padding: 6px 12px; border-radius: 20px;">
+            <i class="far fa-calendar-alt" style="color: #059669;"></i> Đang tải ngày...
+        </span>
+
         <a th:href="@{/patient/notifications/history}" class="icon-btn header-link-btn" title="Thông báo" style="position: relative; display: flex; align-items: center; justify-content: center;">
             <i class="fas fa-bell"></i>
             <span th:if="${hasUnreadNotifications}" class="notification-dot" style="position: absolute; top: 8px; right: 8px; width: 8px; height: 8px; background-color: var(--danger, #dc2626); border-radius: 50%;"></span>
@@ -27,11 +31,23 @@
             </div>
 
             <div class="profile-text">
-                <div class="name" th:text="${patient != null ? patient.fullName : 'Bệnh nhân'}">Bệnh nhân</div>
-                <div class="role">Theo dõi tiểu đường</div>
+                <div class="name" th:text="${patient != null && patient.fullName != null && !patient.fullName.trim().isEmpty() ? patient.fullName : (!#strings.isEmpty(userPhone) ? userPhone : 'Bệnh nhân')}">Bệnh nhân</div>
+                <div class="role" th:text="${patient != null && patient.fullName != null && !patient.fullName.trim().isEmpty() ? 'Theo dõi tiểu đường' : 'Chưa lập hồ sơ'}">Theo dõi tiểu đường</div>
             </div>
         </div>
     </div>
+    <script>
+        (function() {
+            const days = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+            const months = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+            const now = new Date();
+            const formattedDate = `${days[now.getDay()]}, ngày ${now.getDate()} ${months[now.getMonth()]} năm ${now.getFullYear()}`;
+            const dateEl = document.getElementById('patientHeaderDate');
+            if (dateEl) {
+                dateEl.innerHTML = `<i class="far fa-calendar-alt" style="color: #059669;"></i> ${formattedDate}`;
+            }
+        })();
+    </script>
 </header>
 </body>
 </html>

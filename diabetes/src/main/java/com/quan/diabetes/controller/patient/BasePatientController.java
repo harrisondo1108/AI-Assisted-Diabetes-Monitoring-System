@@ -15,6 +15,7 @@ import com.quan.diabetes.service.medication.PrescriptionService;
 import com.quan.diabetes.service.medication.PrescriptionTimingService;
 import com.quan.diabetes.service.user.PatientRoutineService;
 import com.quan.diabetes.service.user.PatientService;
+import com.quan.diabetes.service.user.UserService;
 import com.quan.diabetes.util.ReminderTimeCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
@@ -32,6 +33,8 @@ public abstract class BasePatientController {
 
     @Autowired
     protected PatientService patientService;
+    @Autowired
+    protected UserService userService;
     @Autowired
     protected PatientRoutineService patientRoutineService;
     @Autowired
@@ -58,11 +61,13 @@ public abstract class BasePatientController {
 
     protected Patient addCommonData(Model model, HttpSession session, String activeMenu) {
         Patient patient = getCurrentPatient(session);
+        User currentUser = getCurrentUser(session);
 
         model.addAttribute("activeMenu", activeMenu);
         model.addAttribute("patient", patient);
         model.addAttribute("patientCode", patient != null ? patient.getUserId() : "");
         model.addAttribute("pageRole", "Cổng thông tin bệnh nhân");
+        model.addAttribute("userPhone", currentUser != null ? currentUser.getPhoneNumber() : "");
 
         boolean hasUnreadNotifications = false;
         if (patient != null) {
@@ -76,27 +81,44 @@ public abstract class BasePatientController {
 
     protected User getCurrentUser(HttpSession session) {
         Object loggedInUser = session.getAttribute("loggedInUser");
-
-        if (loggedInUser instanceof User user) {
-            return user;
+        if (loggedInUser != null) {
+            if (loggedInUser instanceof User user) {
+                return user;
+            }
+            try {
+                if (loggedInUser.getClass().getName().endsWith(".User")) {
+                    java.lang.reflect.Method getUserIdMethod = loggedInUser.getClass().getMethod("getUserId");
+                    String userId = (String) getUserIdMethod.invoke(loggedInUser);
+                    return userService.findById(userId).orElse(null);
+                }
+            } catch (Exception e) {
+                // ignore and fall back
+            }
         }
-
         return null;
     }
 
     protected Patient getCurrentPatient(HttpSession session) {
         Object userProfile = session.getAttribute("userProfile");
-
-        if (userProfile instanceof Patient patient) {
-            return patient;
+        if (userProfile != null) {
+            if (userProfile instanceof Patient patient) {
+                return patient;
+            }
+            try {
+                if (userProfile.getClass().getName().endsWith(".Patient")) {
+                    java.lang.reflect.Method getUserIdMethod = userProfile.getClass().getMethod("getUserId");
+                    String userId = (String) getUserIdMethod.invoke(userProfile);
+                    return patientService.findById(userId).orElse(null);
+                }
+            } catch (Exception e) {
+                // ignore and fall back
+            }
         }
 
         User currentUser = getCurrentUser(session);
-
         if (currentUser != null) {
             return patientService.findById(currentUser.getUserId()).orElse(null);
         }
-
         return null;
     }
 

@@ -8,8 +8,9 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -67,9 +68,16 @@ public class DoctorDashboardController {
         List<ClinicalExamination> allExams = clinicalExaminationService.findByDoctorId(doctorId);
         LocalDate today = LocalDate.now();
 
-        // Lọc danh sách ca khám hôm nay
+        // Lọc danh sách ca khám hôm nay (chỉ gồm các trạng thái thực tế khám)
         List<ClinicalExamination> todayQueue = allExams.stream()
                 .filter(e -> e.getExamDate() != null && e.getExamDate().toLocalDate().isEqual(today))
+                .filter(e -> List.of("Pending", "InProgress", "Completed", "Cancelled").contains(e.getStatus()))
+                .collect(Collectors.toList());
+
+        // Lấy tất cả yêu cầu khám đang chờ duyệt (status = 'Requested')
+        List<ClinicalExamination> requestedExams = allExams.stream()
+                .filter(e -> "Requested".equalsIgnoreCase(e.getStatus()))
+                .sorted((e1, e2) -> e2.getExamDate().compareTo(e1.getExamDate()))
                 .collect(Collectors.toList());
 
         // Tính toán các metrics
@@ -78,6 +86,7 @@ public class DoctorDashboardController {
         long completed = todayQueue.stream().filter(e -> "Completed".equalsIgnoreCase(e.getStatus())).count();
 
         model.addAttribute("todayQueue", todayQueue);
+        model.addAttribute("requestedExams", requestedExams);
         model.addAttribute("queueCount", pending + inProgress);
         model.addAttribute("completedCount", completed);
         long alertCount = labResultRepository.countByLabOrder_ClinicalExamination_Doctor_UserIdAndFlag(doctorId, "HIGH");
@@ -115,5 +124,61 @@ public class DoctorDashboardController {
         }
 
         return "doctor/dashboard :: examDetail";
+    }
+
+    @PostMapping("/request/approve/{examId}")
+    public String approveRequest(
+            @PathVariable("examId") String examId,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+        User loggedInUser = (User) session.getAttribute("loggedInUser");
+        if (loggedInUser == null || !"DOC".equalsIgnoreCase(loggedInUser.getRole().getRoleId())) {
+            return "redirect:/login";
+        }
+
+        Optional<ClinicalExamination> examOpt = clinicalExaminationRepository.findById(examId);
+        if (examOpt.isPresent()) {
+            ClinicalExamination exam = examOpt.get();
+            if ("Requested".equalsIgnoreCase(exam.getStatus())) {
+                exam.setStatus("Pending");
+                exam.setExamDate(LocalDateTime.now()); // Set date to today so it appears in today's queue
+                clinicalExaminationRepository.save(exam);
+                redirectAttributes.addFlashAttribute("successMessage", "Đã duyệt yêu cầu khám của bệnh nhân " + exam.getPatient().getFullName() + ".");
+            } else {
+                redirectAttributes.addFlashAttribute("errorMessage", "Yêu cầu khám này đã được xử lý từ trước.");
+            }
+        } else {
+            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy yêu cầu khám.");
+        }
+
+        return "redirect:/doctor/dashboard";
+    }
+
+    @PostMapping("/request/reject/{examId}")
+    public String rejectRequest(
+            @PathVariable("examId") String examId,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+        User loggedInUser = (User) session.getAttribute("loggedInUser");
+        if (loggedInUser == null || !"DOC".equalsIgnoreCase(loggedInUser.getRole().getRoleId())) {
+            return "redirect:/login";
+        }
+
+        Optional<ClinicalExamination> examOpt = clinicalExaminationRepository.findById(examId);
+        if (examOpt.isPresent()) {
+            ClinicalExamination exam = examOpt.get();
+            if ("Requested".equalsIgnoreCase(exam.getStatus())) {
+                exam.setStatus("Cancelled");
+                exam.setCancelReason("Bác sĩ từ chối yêu cầu khám");
+                clinicalExaminationRepository.save(exam);
+                redirectAttributes.addFlashAttribute("successMessage", "Đã từ chối yêu cầu khám của bệnh nhân " + exam.getPatient().getFullName() + ".");
+            } else {
+                redirectAttributes.addFlashAttribute("errorMessage", "Yêu cầu khám này đã được xử lý từ trước.");
+            }
+        } else {
+            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy yêu cầu khám.");
+        }
+
+        return "redirect:/doctor/dashboard";
     }
 }

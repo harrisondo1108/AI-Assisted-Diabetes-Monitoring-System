@@ -2,7 +2,7 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Tiến trình Y tế | Hệ thống Chăm sóc Tiểu đường</title>
+    <title>Tiến trình y tế | Hệ thống chăm sóc tiểu đường</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/patient/patient.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,16 +13,29 @@
     <div th:replace="~{layout/patient-sidebar :: patientSidebar('progress')}"></div>
 
     <div class="admin-main">
-        <div th:replace="~{layout/patient-header :: patientHeader('Tiến trình Y tế')}"></div>
+        <div th:replace="~{layout/patient-header :: patientHeader('Tiến trình y tế')}"></div>
 
         <main class="admin-content">
             <div class="page-header">
                 <div>
-                    <h1><i class="fas fa-notes-medical"></i> Tiến trình Khám bệnh</h1>
+                    <h1><i class="fas fa-notes-medical"></i> Tiến trình khám bệnh</h1>
                     <p class="subtitle">
                         Theo dõi từng cuộc khám bệnh từ đánh giá của bác sĩ, yêu cầu xét nghiệm, kết quả xét nghiệm đến đơn thuốc.
                     </p>
                 </div>
+                <div class="dashboard-actions">
+                    <button class="primary-btn" onclick="openPatientModal('requestExamModal')" style="cursor: pointer;">
+                        <i class="fas fa-calendar-plus"></i> Yêu cầu khám bệnh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Message Alerts -->
+            <div th:if="${requestSuccessMessage != null}" class="alert alert-success" style="margin-bottom: 15px; width: 100%; padding: 12px; border-radius: 8px; background: rgba(22, 163, 74, 0.15); color: #16a34a; border: 1px solid rgba(22, 163, 74, 0.25);">
+                <i class="fas fa-check-circle"></i> <span th:text="${requestSuccessMessage}"></span>
+            </div>
+            <div th:if="${requestErrorMessage != null}" class="alert alert-danger" style="margin-bottom: 15px; width: 100%; padding: 12px; border-radius: 8px; background: rgba(220, 38, 38, 0.15); color: #dc2626; border: 1px solid rgba(220, 38, 38, 0.25);">
+                <i class="fas fa-exclamation-circle"></i> <span th:text="${requestErrorMessage}"></span>
             </div>
 
             <div class="dashboard-stats progress-stats">
@@ -147,7 +160,7 @@
                         <div class="progress-subsection" th:if="${treatmentPlansByExam[exam.clinicalExamId] != null}" th:with="plan=${treatmentPlansByExam[exam.clinicalExamId]}">
                             <div class="card-header">
                                 <i class="fas fa-file-medical-alt" style="color: var(--green-600);"></i>
-                                <h3>Phác đồ & Kế hoạch Điều trị</h3>
+                                <h3>Phác đồ & kế hoạch điều trị</h3>
                             </div>
                             <div class="progress-note-grid" style="margin-top: 12px; margin-bottom: 0;">
                                 <div class="progress-note">
@@ -172,7 +185,7 @@
                         <div class="progress-subsection">
                             <div class="card-header">
                                 <i class="fas fa-vial" style="color: var(--green-600);"></i>
-                                <h3>Yêu cầu & Kết quả Xét nghiệm</h3>
+                                <h3>Yêu cầu & kết quả xét nghiệm</h3>
                             </div>
 
                             <div class="lab-order-list" th:if="${examOrders != null && !examOrders.isEmpty()}">
@@ -311,6 +324,43 @@
         </main>
 
         <div th:replace="~{layout/footer :: footer}"></div>
+    </div>
+</div>
+
+<!-- REQUEST EXAMINATIONS MODAL -->
+<div class="patient-modal-overlay" id="requestExamModal">
+    <div class="patient-modal">
+        <div class="patient-modal-header">
+            <h2>Yêu cầu khám bệnh mới</h2>
+            <button type="button" class="modal-close-btn" onclick="closePatientModal('requestExamModal')">
+                ×
+            </button>
+        </div>
+
+        <form th:action="@{/patient/request-exam}" method="post">
+            <div class="patient-modal-body">
+                <div class="modal-form-grid">
+                    <div class="modal-form-group full" style="display: flex; flex-direction: column; gap: 8px;">
+                        <label for="requestSymptomNote" style="font-weight: 600; color: var(--text-primary);">Lý do khám / Triệu chứng hiện tại <span style="color: var(--danger-color, #ef4444);">*</span></label>
+                        <textarea id="requestSymptomNote" 
+                                  name="medicalHistory" 
+                                  required 
+                                  rows="4" 
+                                  placeholder="Ví dụ: Đường huyết đo tại nhà tăng cao, mệt mỏi kéo dài, cảm thấy khát nước nhiều..."
+                                  style="width: 100%; border: 1px solid var(--border-color, #e2e8f0); border-radius: 8px; padding: 10px; font-family: inherit; font-size: 0.9rem; resize: vertical;"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="patient-modal-footer">
+                <button type="button" class="modal-cancel-btn" onclick="closePatientModal('requestExamModal')">
+                    Hủy
+                </button>
+                <button type="submit" class="modal-save-btn">
+                    Gửi yêu cầu
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 

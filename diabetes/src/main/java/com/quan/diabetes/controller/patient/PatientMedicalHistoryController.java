@@ -6,7 +6,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -200,5 +202,30 @@ public class PatientMedicalHistoryController extends BasePatientController {
         model.addAttribute("treatmentPlan", plan);
 
         return "patient/history-detail";
+    }
+
+    @PostMapping("/patient/request-exam")
+    public String requestExam(
+            @RequestParam("medicalHistory") String medicalHistory,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+        Patient patient = getCurrentPatient(session);
+        if (patient == null) {
+            return "redirect:/login";
+        }
+
+        if (medicalHistory == null || medicalHistory.trim().isEmpty()) {
+            redirectAttributes.addFlashAttribute("requestErrorMessage", "Vui lòng nhập lý do khám hoặc triệu chứng của bạn.");
+            return "redirect:/patient/progress";
+        }
+
+        try {
+            clinicalExaminationService.requestExamination(patient.getUserId(), medicalHistory.trim());
+            redirectAttributes.addFlashAttribute("requestSuccessMessage", "Gửi yêu cầu khám thành công! Vui lòng chờ bác sĩ duyệt.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("requestErrorMessage", e.getMessage());
+        }
+
+        return "redirect:/patient/progress";
     }
 }

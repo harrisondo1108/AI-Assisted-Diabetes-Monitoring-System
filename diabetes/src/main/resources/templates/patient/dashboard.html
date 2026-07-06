@@ -2,7 +2,7 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Bảng Điều khiển Bệnh nhân | Hệ thống Chăm sóc Tiểu đường</title>
+    <title>Bảng điều khiển bệnh nhân | Hệ thống chăm sóc tiểu đường</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/patient/patient.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,14 +13,14 @@
     <div th:replace="~{layout/patient-sidebar :: patientSidebar('dashboard')}"></div>
 
     <div class="admin-main">
-        <div th:replace="~{layout/patient-header :: patientHeader('Bảng Điều khiển Bệnh nhân')}"></div>
+        <div th:replace="~{layout/patient-header :: patientHeader('Bảng điều khiển bệnh nhân')}"></div>
 
         <main class="admin-content">
             <div class="page-header dashboard-hero">
                 <div>
                     <h1>
                         <i class="fas fa-heart-pulse"></i>
-                        Tổng quan Chăm sóc Tiểu đường
+                        Tổng quan chăm sóc tiểu đường
                     </h1>
                     <p class="subtitle">
                         Chào mừng,

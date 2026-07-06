@@ -1,4 +1,4 @@
---DROP trước
+﻿--DROP trước
 --IF DB_ID('Diabetes') IS NOT NULL
 --   DROP DATABASE Diabetes;
 --GO
