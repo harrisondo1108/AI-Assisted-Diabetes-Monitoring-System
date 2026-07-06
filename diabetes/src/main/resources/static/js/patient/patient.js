@@ -213,6 +213,19 @@ function setupProfileValidation() {
             markInvalid(form, 'supervisorPhone');
         }
 
+        const imageFileInput = form.querySelector('input[name="imageFile"]');
+        if (imageFileInput && imageFileInput.files && imageFileInput.files[0]) {
+            const imageFile = imageFileInput.files[0];
+            if (imageFile.size > 2 * 1024 * 1024) {
+                errors.push('Ảnh đại diện không được vượt quá 2MB.');
+                markInvalid(form, 'imageFile');
+            }
+            if (!imageFile.type.startsWith('image/')) {
+                errors.push('Định dạng tệp không hợp lệ. Chỉ chấp nhận các tệp ảnh.');
+                markInvalid(form, 'imageFile');
+            }
+        }
+
         if (errors.length > 0) {
             event.preventDefault();
             showValidationMessage('profileValidationMessage', errors);
@@ -403,6 +416,14 @@ function openPatientModal(id) {
         return;
     }
 
+    if (id === 'changePasswordModal') {
+        const form = document.getElementById('changePasswordForm');
+        if (form) {
+            clearValidation(form, 'changePasswordValidationMessage');
+            form.reset();
+        }
+    }
+
     modal.classList.add('show');
     document.body.style.overflow = 'hidden';
 }
@@ -443,6 +464,8 @@ function setupChangePasswordValidation() {
     }
 
     form.addEventListener('submit', function (event) {
+        event.preventDefault(); // Always prevent default form submission
+
         clearValidation(form, 'changePasswordValidationMessage');
 
         const currentPassword = getValue(form, 'currentPassword');
@@ -473,10 +496,43 @@ function setupChangePasswordValidation() {
         }
 
         if (errors.length > 0) {
-            event.preventDefault();
             showValidationMessage('changePasswordValidationMessage', errors);
             scrollToValidationMessage('changePasswordValidationMessage');
+            return;
         }
+
+        // AJAX Request
+        const formData = new FormData(form);
+        fetch('/patient/profile/change-password', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(errData => {
+                    throw new Error(errData.message || 'Thay đổi mật khẩu thất bại.');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Success - Close modal and reset form
+                closePatientModal('changePasswordModal');
+                form.reset();
+                // Redirect/reload with success message parameter
+                window.location.href = '/patient/profile?successMessage=' + encodeURIComponent(data.message);
+            } else {
+                // Failure - Show error inside modal, keep modal open
+                showValidationMessage('changePasswordValidationMessage', [data.message]);
+                scrollToValidationMessage('changePasswordValidationMessage');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showValidationMessage('changePasswordValidationMessage', [error.message || 'Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau.']);
+            scrollToValidationMessage('changePasswordValidationMessage');
+        });
     });
 }
 

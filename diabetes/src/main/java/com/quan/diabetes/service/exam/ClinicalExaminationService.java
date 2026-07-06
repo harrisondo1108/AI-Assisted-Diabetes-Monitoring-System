@@ -35,4 +35,6 @@ public interface ClinicalExaminationService {
     void createAutoPendingExamination(String patientId);
 
     void updateExamination(String examId, ClinicalExamForm form);
+
+    void requestExamination(String patientId, String medicalHistory);
 }
