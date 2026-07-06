@@ -1,7 +1,7 @@
 'use strict';
 
 let roomPage = 1, timingPage = 1;
-const PAGE_SIZE = 8;
+const PAGE_SIZE = 7;
 let roomKw = '', timingKw = '';
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -175,9 +175,9 @@ function initValidation() {
     const descPattern = /^[^<>;'"\\`$^`{}~|\[\]]+$/;
     const nameErrMsg = 'Không chứa các ký tự đặc biệt nguy hiểm (< > ; \' " \\ `).';
 
-    setupInputValidation('inputAddRoomName',  'countAddRoomName',  'errorAddRoomName',  50, namePattern, nameErrMsg);
+    setupInputValidation('inputAddRoomName',  'countAddRoomName',  'errorAddRoomName',  100, namePattern, nameErrMsg);
     setupInputValidation('inputAddRoomDesc',  'countAddRoomDesc',  'errorAddRoomDesc',  255, descPattern, nameErrMsg);
-    setupInputValidation('editRoomName',      'countEditRoomName',      'errorEditRoomName',      50, namePattern, nameErrMsg);
+    setupInputValidation('editRoomName',      'countEditRoomName',      'errorEditRoomName',      100, namePattern, nameErrMsg);
     setupInputValidation('editRoomDesc',      'countEditRoomDesc',      'errorEditRoomDesc',      255, descPattern, nameErrMsg);
     setupInputValidation('inputAddTimingName', 'countAddTimingName', 'errorAddTimingName', 100, namePattern, nameErrMsg);
     setupInputValidation('editTimingName',     'countEditTimingName',     'errorEditTimingName',     100, namePattern, nameErrMsg);

@@ -193,10 +193,10 @@
         <form th:action="@{/admin/configure/room/create}" method="post" class="modal-form" id="addRoomForm">
             <div class="form-group">
                 <label>Tên phòng khám <span class="required">*</span></label>
-                <input type="text" name="roomName" id="inputAddRoomName" placeholder="VD: Phòng Xét Nghiệm 1" maxlength="50" required autocomplete="off">
+                <input type="text" name="roomName" id="inputAddRoomName" placeholder="VD: Phòng Xét Nghiệm 1" maxlength="100" required autocomplete="off">
                 <div class="validation-info">
                     <span class="error-msg" id="errorAddRoomName"></span>
-                    <span class="char-count" id="countAddRoomName">0 / 50</span>
+                    <span class="char-count" id="countAddRoomName">0 / 100</span>
                 </div>
             </div>
             <div class="form-group">
@@ -225,10 +225,10 @@
         <form id="editRoomForm" method="post" class="modal-form">
             <div class="form-group">
                 <label>Tên phòng khám <span class="required">*</span></label>
-                <input type="text" id="editRoomName" name="roomName" maxlength="50" required autocomplete="off">
+                <input type="text" id="editRoomName" name="roomName" maxlength="100" required autocomplete="off">
                 <div class="validation-info">
                     <span class="error-msg" id="errorEditRoomName"></span>
-                    <span class="char-count" id="countEditRoomName">0 / 50</span>
+                    <span class="char-count" id="countEditRoomName">0 / 100</span>
                 </div>
             </div>
             <div class="form-group">

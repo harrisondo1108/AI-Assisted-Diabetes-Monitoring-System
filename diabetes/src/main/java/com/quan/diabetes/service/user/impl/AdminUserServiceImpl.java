@@ -16,6 +16,7 @@ import com.quan.diabetes.service.user.AdminUserService;
 import com.quan.diabetes.service.user.PatientService;
 import com.quan.diabetes.service.user.UserService;
 import com.quan.diabetes.util.ParseUtil;
+import com.quan.diabetes.util.SearchUtil;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -120,12 +121,11 @@ public class AdminUserServiceImpl implements AdminUserService {
                 });
             }
 
-            // Filter by search query (name, phone, accountPhone)
-            if (!searchLower.isEmpty()) {
-                String fullName = dto.getFullName() != null ? dto.getFullName().toLowerCase() : "";
-                String phone = dto.getAccountPhone() != null ? dto.getAccountPhone().toLowerCase() : "";
-                String accPhone = dto.getAccountPhone() != null ? dto.getAccountPhone().toLowerCase() : "";
-                if (!fullName.contains(searchLower) && !phone.contains(searchLower) && !accPhone.contains(searchLower)) {
+            // Filter by search query using SearchUtil for accent-insensitive matching (similar to labtests)
+            if (search != null && !search.trim().isEmpty()) {
+                boolean matchesName = SearchUtil.matches(dto.getFullName(), search);
+                boolean matchesPhone = SearchUtil.matches(dto.getAccountPhone(), search);
+                if (!matchesName && !matchesPhone) {
                     continue;
                 }
             }

@@ -29,7 +29,7 @@ public class AdminUserController {
             @RequestParam(name = "role", defaultValue = "all") String role,
             @RequestParam(name = "search", defaultValue = "") String search,
             @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "8") int size,
+            @RequestParam(name = "size", defaultValue = "7") int size,
             Model model) {
         org.springframework.data.domain.Page<UserManagementDTO> userPage = adminUserService
                 .getPagedUserManagementDTOs(role, search, page, size);
@@ -162,7 +162,7 @@ public class AdminUserController {
             @RequestParam(name = "role", defaultValue = "all") String role,
             @RequestParam(name = "search", defaultValue = "") String search,
             @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "8") int size) {
+            @RequestParam(name = "size", defaultValue = "7") int size) {
         org.springframework.data.domain.Page<UserManagementDTO> userPage = adminUserService
                 .getPagedUserManagementDTOs(role, search, page, size);
 

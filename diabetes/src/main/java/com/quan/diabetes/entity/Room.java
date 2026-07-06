@@ -19,7 +19,7 @@ public class Room {
     @Column(name = "RoomID")
     private int roomId;
 
-    @Column(name = "RoomName", nullable = false, unique = true, length = 50, columnDefinition = "VARCHAR(50)")
+    @Column(name = "RoomName", nullable = false, unique = true, length = 100, columnDefinition = "NVARCHAR(100)")
     private String roomName;
 
     @Column(name = "Description", length = 255, columnDefinition = "NVARCHAR(255)")

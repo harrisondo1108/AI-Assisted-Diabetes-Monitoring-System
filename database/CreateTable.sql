@@ -10,7 +10,7 @@ GO
 
 CREATE TABLE [Room] (
     [RoomID] INT IDENTITY(1,1) PRIMARY KEY,
-    [RoomName] VARCHAR(50) NOT NULL UNIQUE
+    [RoomName] NVARCHAR(100) NOT NULL UNIQUE
 );
 
 -- 1. Role

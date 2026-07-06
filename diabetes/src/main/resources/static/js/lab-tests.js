@@ -1,7 +1,7 @@
 'use strict';
 
 let currentPage  = 1;
-const PAGE_SIZE  = 8;
+const PAGE_SIZE  = 7;
 let activeFilter = 'all';
 let searchKeyword = '';
 

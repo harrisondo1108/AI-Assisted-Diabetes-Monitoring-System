@@ -349,7 +349,7 @@ function fetchAndRender(page) {
     var route = document.getElementById('routeSelect')?.value || '';
     var keyword = (document.getElementById('searchKeyword')?.value || '').trim();
     var urlParams = new URLSearchParams(window.location.search);
-    var pageSize = urlParams.get('size') || '5';
+    var pageSize = urlParams.get('size') || '7';
     var sortField = urlParams.get('sortField') || 'medicationName';
     var sortDirection = urlParams.get('sortDirection') || 'asc';
 

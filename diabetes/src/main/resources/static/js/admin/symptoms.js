@@ -180,7 +180,7 @@ let searchTimeout = null;
 function fetchSymptomsByKeyword(keyword) {
     const statusSelect = document.getElementById('statusSelect');
     const currentStatus = statusSelect ? statusSelect.value : '';
-    const url = `/admin/symptoms/list?keyword=${encodeURIComponent(keyword)}&status=${currentStatus}&page=0&size=8`;
+    const url = `/admin/symptoms/list?keyword=${encodeURIComponent(keyword)}&status=${currentStatus}&page=0&size=7`;
     fetch(url)
         .then(res => res.json())
         .then(data => {

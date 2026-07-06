@@ -29,7 +29,7 @@ public class MedicationController {
             @RequestParam(name = "form", required = false) String form,
             @RequestParam(name = "status", required = false) String status,
             @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "5") int size,
+            @RequestParam(name = "size", defaultValue = "7") int size,
             @RequestParam(name = "sortField", defaultValue = "medicationName") String sortField,
             @RequestParam(name = "sortDirection", defaultValue = "asc") String sortDirection,
             Model model) {
@@ -147,7 +147,7 @@ public class MedicationController {
             @RequestParam(name = "form", required = false) String form,
             @RequestParam(name = "status", required = false) String status,
             @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "5") int size,
+            @RequestParam(name = "size", defaultValue = "7") int size,
             @RequestParam(name = "sortField", defaultValue = "medicationName") String sortField,
             @RequestParam(name = "sortDirection", defaultValue = "asc") String sortDirection) {
 
