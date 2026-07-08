@@ -1,4 +1,4 @@
-package com.quan.diabetes.controller;
+package com.quan.diabetes.controller.admin;
 
 import com.quan.diabetes.entity.MedicationTiming;
 import com.quan.diabetes.entity.Room;
@@ -23,12 +23,17 @@ public class ConfigureController {
 
     /* ── Trang Configure ── */
     @GetMapping
-    public String showConfigure(@RequestParam(value = "tab",   defaultValue = "room") String tab,
-                                @RequestParam(value = "error", required = false)      String error,
+    public String showConfigure(@RequestParam(value = "tab",    defaultValue = "room") String tab,
+                                @RequestParam(value = "search", defaultValue = "")    String search,
+                                @RequestParam(value = "error",  required = false)     String error,
                                 Model model) {
-        model.addAttribute("roomList",   roomService.findAll());
-        model.addAttribute("timingList", timingService.findAll());
+        String keyword = search.trim();
+        model.addAttribute("roomList",   keyword.isEmpty() ? roomService.findAll()
+                                                           : roomService.searchByKeyword(keyword));
+        model.addAttribute("timingList", keyword.isEmpty() ? timingService.findAll()
+                                                           : timingService.searchByKeyword(keyword));
         model.addAttribute("activeTab",  tab);
+        model.addAttribute("search",     keyword);
 
         if      ("duplicate".equals(error)) model.addAttribute("errorMessage", "Tên đã tồn tại.");
         else if ("empty".equals(error))     model.addAttribute("errorMessage", "Vui lòng nhập tên.");

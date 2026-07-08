@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bảng điều khiển bác sĩ | Hệ thống chăm sóc tiểu đường</title>
     <!-- Premium Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -22,6 +22,14 @@
             <div th:replace="~{doctor/doctor_header :: header('Trang tổng quan lâm sàng', 'dashboard')}"></div>
 
             <main class="doctor-content">
+                <!-- Status/Alert Messages -->
+                <div th:if="${successMessage != null}" class="alert-msg success" style="margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 8px; font-size: 0.88rem; font-weight: 500; background: rgba(16, 185, 129, 0.08); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);">
+                    <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
+                </div>
+                <div th:if="${errorMessage != null}" class="alert-msg error" style="margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 8px; font-size: 0.88rem; font-weight: 500; background: rgba(239, 68, 68, 0.08); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2);">
+                    <i class="fas fa-exclamation-circle"></i> <span th:text="${errorMessage}"></span>
+                </div>
+
                 <!-- Statistics cards with modern glassmorphic look -->
                 <div class="metrics-grid">
                     <div class="metric-card bg-gradient-teal">
@@ -67,20 +75,23 @@
                                 <h2 class="card-title">Hàng đợi khám bệnh</h2>
                                 <p class="card-subtitle">Quản lý lịch hẹn khám của bệnh nhân trong ngày hôm nay</p>
                             </div>
-                            <div class="header-actions">
+                            <form th:action="@{/doctor/dashboard}" method="get" class="header-actions">
+                                <input type="hidden" name="page" value="1">
+                                <input type="hidden" name="status" th:value="${currentStatus != null ? currentStatus : 'all'}">
+                                
                                 <div class="card-search-box">
                                     <i class="fas fa-search"></i>
-                                    <input type="text" id="queueSearchInput" placeholder="Tìm theo tên..."
-                                        oninput="handleQueueSearch()">
+                                    <input type="text" name="search" id="queueSearchInput" placeholder="Tìm theo tên..."
+                                        th:value="${currentSearch}">
                                 </div>
                                 <div class="filter-pills">
-                                    <button class="pill active" onclick="filterQueue('all')">Tất cả</button>
-                                    <button class="pill" onclick="filterQueue('Pending')">Đang chờ</button>
-                                    <button class="pill" onclick="filterQueue('InProgress')">Đang khám</button>
-                                    <button class="pill" onclick="filterQueue('Completed')">Hoàn thành</button>
-                                    <button class="pill" onclick="filterQueue('Cancelled')">Đã hủy</button>
+                                    <a th:href="@{/doctor/dashboard(page=1, status='all', search=${currentSearch})}" class="pill" th:classappend="${currentStatus == 'all' || currentStatus == null} ? 'active' : ''" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Tất cả</a>
+                                    <a th:href="@{/doctor/dashboard(page=1, status='Pending', search=${currentSearch})}" class="pill" th:classappend="${currentStatus == 'Pending'} ? 'active' : ''" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Đang chờ</a>
+                                    <a th:href="@{/doctor/dashboard(page=1, status='InProgress', search=${currentSearch})}" class="pill" th:classappend="${currentStatus == 'InProgress'} ? 'active' : ''" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Đang khám</a>
+                                    <a th:href="@{/doctor/dashboard(page=1, status='Completed', search=${currentSearch})}" class="pill" th:classappend="${currentStatus == 'Completed'} ? 'active' : ''" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Hoàn thành</a>
+                                    <a th:href="@{/doctor/dashboard(page=1, status='Cancelled', search=${currentSearch})}" class="pill" th:classappend="${currentStatus == 'Cancelled'} ? 'active' : ''" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Đã hủy</a>
                                 </div>
-                            </div>
+                            </form>
                         </div>
                         <div class="table-container">
                             <table class="clinical-table">
@@ -120,14 +131,21 @@
                                                     class="fa-solid fa-ban"></i> Đã hủy</span>
                                         </td>
                                         <td>
-                                            <a th:if="${p.status == 'Pending' || p.status == 'InProgress'}"
-                                                th:href="@{/doctor/examine(patientId=${p.patient.userId})}"
-                                                class="btn btn-primary btn-sm">
-                                                <i class="fas fa-stethoscope"></i> <span
-                                                    th:text="${p.status == 'Pending' ? 'Bắt đầu' : 'Khám tiếp'}">Bắt
-                                                    đầu</span>
-                                            </a>
-                                            <div th:if="${p.status == 'Completed' || p.status == 'Cancelled'}" style="display: inline-flex; gap: 6px;">
+                                            <div th:if="${p.status == 'Pending' || p.status == 'InProgress'}" style="display: inline-flex; gap: 6px; align-items: center;">
+                                                <a th:href="@{/doctor/examine(patientId=${p.patient.userId})}"
+                                                    class="btn btn-primary btn-sm">
+                                                    <i class="fas fa-stethoscope"></i> <span
+                                                        th:text="${p.status == 'Pending' ? 'Bắt đầu' : 'Khám tiếp'}">Bắt
+                                                        đầu</span>
+                                                </a>
+                                                <a th:href="@{/doctor/history(patientId=${p.patient.userId}, from='dashboard')}"
+                                                   class="btn btn-secondary btn-sm"
+                                                   title="Lịch sử bệnh án"
+                                                   style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0;">
+                                                    <i class="fas fa-history"></i>
+                                                </a>
+                                            </div>
+                                            <div th:if="${p.status == 'Completed' || p.status == 'Cancelled'}" style="display: inline-flex; gap: 6px; align-items: center;">
                                                 <button class="btn btn-secondary btn-sm" th:data-exam-id="${p.clinicalExamId}"
                                                     onclick="viewCompletedExam(this.getAttribute('data-exam-id'))"><i
                                                         class="fas fa-eye"></i> Xem</button>
@@ -136,6 +154,12 @@
                                                    class="btn btn-primary btn-sm" style="color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
                                                     <i class="fas fa-edit"></i> Sửa
                                                 </a>
+                                                <a th:href="@{/doctor/history(patientId=${p.patient.userId}, from='dashboard')}"
+                                                   class="btn btn-secondary btn-sm"
+                                                   title="Lịch sử bệnh án"
+                                                   style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0;">
+                                                    <i class="fas fa-history"></i>
+                                                </a>
                                             </div>
                                         </td>
                                     </tr>
@@ -143,11 +167,36 @@
                             </table>
                         </div>
                         <div class="card-footer">
-                            <div class="pagination" id="queuePagination">
-                                <!-- Dynamic pagination buttons via JS -->
+                            <div class="pagination" id="queuePagination" th:if="${totalPages > 1}">
+                                <!-- Prev Button -->
+                                <a th:if="${currentPage > 1}"
+                                   th:href="@{/doctor/dashboard(page=${currentPage - 1}, status=${currentStatus}, search=${currentSearch})}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                                <span th:if="${currentPage == 1}" class="disabled">
+                                    <i class="fas fa-chevron-left"></i>
+                                </span>
+                                
+                                <!-- Page Numbers -->
+                                <a th:each="i : ${#numbers.sequence(1, totalPages)}"
+                                   th:text="${i}"
+                                   th:href="@{/doctor/dashboard(page=${i}, status=${currentStatus}, search=${currentSearch})}"
+                                   th:classappend="${i == currentPage} ? 'active' : ''">
+                                </a>
+                                
+                                <!-- Next Button -->
+                                <a th:if="${currentPage < totalPages}"
+                                   th:href="@{/doctor/dashboard(page=${currentPage + 1}, status=${currentStatus}, search=${currentSearch})}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                                <span th:if="${currentPage == totalPages}" class="disabled">
+                                    <i class="fas fa-chevron-right"></i>
+                                </span>
                             </div>
                         </div>
                     </div>
+
+
                 </div>
             </main>
         </div>
@@ -190,7 +239,7 @@
                         style="font-size: 0.68rem; color: var(--doctor-primary); font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 6px; letter-spacing: 0.5px;"><i
                             class="fas fa-file-medical"></i> Chẩn đoán cuối cùng</span>
                     <h4 class="notes-content" id="modalExamDiagnosis" style="font-weight: 700; color: var(--green-900);"
-                        th:text="${exam.diagnosisNote != null && !exam.diagnosisNote.empty ? exam.diagnosisNote : 'N/A'}"></h4>
+                        th:text="${exam.diagnosisNote != null ? exam.diagnosisNote : 'N/A'}"></h4>
                 </div>
 
                 <!-- Cancel Reason (Only show if Cancelled) -->
@@ -199,7 +248,7 @@
                         style="font-size: 0.68rem; color: var(--doctor-danger); font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 6px; letter-spacing: 0.5px;"><i
                             class="fas fa-ban"></i> Lý do hủy ca khám</span>
                     <h4 class="notes-content" style="font-weight: 700; color: var(--doctor-danger);"
-                        th:text="${exam.cancelReason != null && !exam.cancelReason.empty ? exam.cancelReason : 'Không có lý do hủy'}"></h4>
+                        th:text="${exam.cancelReason != null ? exam.cancelReason : 'Không có lý do hủy'}"></h4>
                 </div>
 
                 <!-- Symptoms & Observations -->
@@ -210,7 +259,7 @@
                         <span th:each="s : ${symptoms}"
                             th:text="${s.symptom.symptomName + (s.note != null && !s.note.trim().isEmpty() ? ' (' + s.note + ')' : '')}"
                             style="background: #ffffff; border: 1px solid var(--doctor-border); padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; color: var(--doctor-text-main); font-weight: 600;"></span>
-                        <span th:if="${symptoms == null || symptoms.empty}"
+                        <span th:if="${symptoms == null}"
                             style="font-size: 0.8rem; color: var(--doctor-text-muted);">Không ghi nhận triệu
                             chứng</span>
                     </div>
@@ -227,7 +276,7 @@
                     </h3>
                     <div class="treatment-plan-card">
                         <div class="plan-item-row" id="modalPlanGoalRow"
-                            th:if="${exam.treatmentPlan.treatmentGoal != null && !exam.treatmentPlan.treatmentGoal.empty}">
+                            th:if="${exam.treatmentPlan.treatmentGoal != null}">
                             <div class="plan-item-icon"><i class="fas fa-bullseye"></i></div>
                             <div class="plan-item-content">
                                 <span class="plan-item-label">Mục tiêu điều trị</span>
@@ -236,7 +285,7 @@
                             </div>
                         </div>
                         <div class="plan-item-row" id="modalPlanDietRow"
-                            th:if="${exam.treatmentPlan.dietPlan != null && !exam.treatmentPlan.dietPlan.empty}">
+                            th:if="${exam.treatmentPlan.dietPlan != null}">
                             <div class="plan-item-icon"><i class="fas fa-apple-whole"></i></div>
                             <div class="plan-item-content">
                                 <span class="plan-item-label">Chế độ dinh dưỡng</span>
@@ -245,7 +294,7 @@
                             </div>
                         </div>
                         <div class="plan-item-row" id="modalPlanExerciseRow"
-                            th:if="${exam.treatmentPlan.exercisePlan != null && !exam.treatmentPlan.exercisePlan.empty}">
+                            th:if="${exam.treatmentPlan.exercisePlan != null}">
                             <div class="plan-item-icon"><i class="fas fa-person-running"></i></div>
                             <div class="plan-item-content">
                                 <span class="plan-item-label">Chế độ vận động & Tập luyện</span>
@@ -254,7 +303,7 @@
                             </div>
                         </div>
                         <div class="plan-item-row" id="modalPlanGlucoseRow"
-                            th:if="${exam.treatmentPlan.glucoseMonitoringPlan != null && !exam.treatmentPlan.glucoseMonitoringPlan.empty}">
+                            th:if="${exam.treatmentPlan.glucoseMonitoringPlan != null}">
                             <div class="plan-item-icon"><i class="fas fa-droplet"></i></div>
                             <div class="plan-item-content">
                                 <span class="plan-item-label">Tần suất tự theo dõi đường huyết</span>
@@ -292,7 +341,7 @@
                                         th:styleappend="${l.flag == 'HIGH' ? 'color: var(--doctor-danger)' : 'color: var(--doctor-success)'}">
                                     </td>
                                 </tr>
-                                <tr th:if="${labResults == null || labResults.empty}">
+                                <tr th:if="${labResults == null}">
                                     <td colspan="4"
                                         style="text-align: center; color: var(--doctor-text-muted); padding: 15px;">
                                         Không có chỉ định xét nghiệm nào trong ca khám này</td>
@@ -327,18 +376,70 @@
                                 <div style="margin-bottom: 6px;"><strong style="color: var(--doctor-text-muted);"><i class="far fa-clock"></i> Thời điểm sử dụng:</strong> 
                                     <span th:each="t, iter : ${p.prescriptionTimings}" th:text="${t.timing.timingName + (iter.last ? '' : ', ')}"></span>
                                 </div>
-                                <div th:if="${p.medicationPlan != null && !p.medicationPlan.empty}" style="margin-bottom: 0;"><strong style="color: var(--doctor-text-muted);"><i class="fas fa-info-circle"></i> Hướng dẫn:</strong> <span th:text="${p.medicationPlan}"></span></div>
+                                <div th:if="${p.medicationPlan != null}" style="margin-bottom: 0;"><strong style="color: var(--doctor-text-muted);"><i class="fas fa-info-circle"></i> Hướng dẫn:</strong> <span th:text="${p.medicationPlan}"></span></div>
                             </div>
                         </div>
-                        <div th:if="${prescriptionDetails == null || prescriptionDetails.empty}" style="text-align: center; color: var(--doctor-text-muted); padding: 15px;">Không có thuốc nào được kê trong ca khám này</div>
+                        <div th:if="${prescriptionDetails == null}" style="text-align: center; color: var(--doctor-text-muted); padding: 15px;">Không có thuốc nào được kê trong ca khám này</div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer"
-                style="padding: 14px 20px; border-top: 1px solid var(--doctor-border); display: flex; justify-content: space-between; align-items: center;">
-                <button type="button" class="btn btn-primary" id="modalViewHistoryBtn"
-                    onclick="viewPatientHistoryFromModal()"><i class="fas fa-history"></i> Xem bệnh án đầy đủ</button>
+                style="padding: 14px 20px; border-top: 1px solid var(--doctor-border); display: flex; justify-content: flex-end; align-items: center;">
                 <button type="button" class="btn btn-secondary" onclick="closeCompletedExam()">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- REQUEST APPROVAL MODAL -->
+    <div class="modal-overlay" id="requestApprovalModal">
+        <div class="modal modal-history">
+            <div class="modal-header">
+                <h2>Yêu cầu khám từ bệnh nhân</h2>
+                <button type="button" class="modal-close" onclick="closeRequestApprovalModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" style="max-height: 75vh; overflow-y: auto;">
+                <div class="table-container" style="box-shadow: none; border: none; padding: 0;">
+                    <table class="clinical-table">
+                        <thead>
+                            <tr>
+                                <th>Họ và tên</th>
+                                <th>Tuổi / Giới tính</th>
+                                <th>Thời gian yêu cầu</th>
+                                <th>Lý do khám / Triệu chứng</th>
+                                <th style="width: 200px; text-align: center;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${requestedExams == null || requestedExams.isEmpty()}">
+                                <td colspan="5" style="text-align: center; color: var(--doctor-text-muted); padding: 30px;">
+                                    Không có yêu cầu khám bệnh nào cần duyệt.
+                                </td>
+                            </tr>
+                            <tr th:each="req : ${requestedExams}">
+                                <td><strong th:text="${req.patient.fullName}" style="color: var(--doctor-text-main);">Patient Name</strong></td>
+                                <td th:text="${(req.patient.dob != null ? (T(java.time.Period).between(req.patient.dob, T(java.time.LocalDate).now()).getYears()) + ' tuổi' : 'N/A') + ' / ' + (req.patient.gender != null ? (req.patient.gender ? 'Nữ' : 'Nam') : 'N/A')}">Tuổi/Giới tính</td>
+                                <td th:text="${#temporals.format(req.examDate, 'dd/MM/yyyy HH:mm')}">06/07/2026 08:30</td>
+                                <td>
+                                    <div th:text="${req.medicalHistory}" style="max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--doctor-text-muted);" th:title="${req.medicalHistory}">Lý do khám</div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 8px; justify-content: center;">
+                                        <form th:action="@{/doctor/request/approve/{id}(id=${req.clinicalExamId})}" method="post" style="display: inline;">
+                                            <button type="submit" class="btn btn-primary btn-sm" style="background: linear-gradient(135deg, #10b981, #059669); border: none; box-shadow: none; color: white;">
+                                                <i class="fas fa-check"></i> Duyệt
+                                            </button>
+                                        </form>
+                                        <form th:action="@{/doctor/request/reject/{id}(id=${req.clinicalExamId})}" method="post" style="display: inline;">
+                                            <button type="submit" class="btn btn-secondary btn-sm" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; box-shadow: none;" onclick="return confirm('Bạn có chắc chắn muốn từ chối yêu cầu khám này?')">
+                                                <i class="fas fa-times"></i> Từ chối
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

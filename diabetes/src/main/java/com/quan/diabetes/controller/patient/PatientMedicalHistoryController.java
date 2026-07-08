@@ -6,7 +6,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -26,22 +28,10 @@ public class PatientMedicalHistoryController extends BasePatientController {
             Model model, HttpSession session) {
         Patient patient = addCommonData(model, session, "progress");
 
-        List<ClinicalExamination> allExams = findExaminationsByPatient(patient);
-        if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
-            model.addAttribute("errorMessage", "Ngày bắt đầu (Từ ngày) không thể lớn hơn Ngày kết thúc (Đến ngày).");
-            allExams = List.of();
-        } else {
-            if (startDate != null) {
-                allExams = allExams.stream()
-                        .filter(exam -> exam.getExamDate() != null && !exam.getExamDate().isBefore(startDate.atStartOfDay()))
-                        .collect(Collectors.toList());
-            }
-            if (endDate != null) {
-                allExams = allExams.stream()
-                        .filter(exam -> exam.getExamDate() != null && !exam.getExamDate().isAfter(endDate.atTime(23, 59, 59)))
-                        .collect(Collectors.toList());
-            }
-        }
+        LocalDate today = LocalDate.now();
+        List<ClinicalExamination> allExams = findExaminationsByPatient(patient).stream()
+                .filter(exam -> exam.getExamDate() != null && exam.getExamDate().toLocalDate().isEqual(today))
+                .collect(Collectors.toList());
 
         List<LabOrder> allLabOrders = findLabOrdersByPatient(patient);
         List<LabResult> allLabResults = findLabResultsByPatient(patient);
@@ -200,5 +190,30 @@ public class PatientMedicalHistoryController extends BasePatientController {
         model.addAttribute("treatmentPlan", plan);
 
         return "patient/history-detail";
+    }
+
+    @PostMapping("/patient/request-exam")
+    public String requestExam(
+            @RequestParam("medicalHistory") String medicalHistory,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+        Patient patient = getCurrentPatient(session);
+        if (patient == null) {
+            return "redirect:/login";
+        }
+
+        if (medicalHistory == null || medicalHistory.trim().isEmpty()) {
+            redirectAttributes.addFlashAttribute("requestErrorMessage", "Vui lòng nhập lý do khám hoặc triệu chứng của bạn.");
+            return "redirect:/patient/progress";
+        }
+
+        try {
+            clinicalExaminationService.requestExamination(patient.getUserId(), medicalHistory.trim());
+            redirectAttributes.addFlashAttribute("requestSuccessMessage", "Gửi yêu cầu khám thành công! Vui lòng chờ bác sĩ duyệt.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("requestErrorMessage", e.getMessage());
+        }
+
+        return "redirect:/patient/progress";
     }
 }

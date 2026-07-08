@@ -112,7 +112,7 @@ public class AuthenticationController {
         User user = userOptional.get();
         // Sau khi xác thực thành công (user hợp lệ)
         if (User.STATUS_LOCKED.equalsIgnoreCase(user.getStatus())) {
-            model.addAttribute("errorMsg", "Your account has been blocked. Please contact the administrator.");
+            model.addAttribute("errorMsg", "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ với quản trị viên.");
             return "auth/login";
         }
         List<SimpleGrantedAuthority> authorities = Collections.singletonList(
@@ -324,7 +324,6 @@ public class AuthenticationController {
             PatientRoutine patientRoutine = new PatientRoutine();
             patientRoutine.setPatient(patient);
             patientRoutineService.create(patientRoutine);
-            clinicalExaminationService.createAutoPendingExamination(patient.getUserId());
         } else {
             Profile profile = new Profile();
             profile.setUser(user);

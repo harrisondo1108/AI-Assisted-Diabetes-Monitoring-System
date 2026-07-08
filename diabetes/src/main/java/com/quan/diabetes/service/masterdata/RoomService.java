@@ -17,4 +17,6 @@ public interface RoomService {
     public void deleteById(Integer id);
 
     public boolean existsById(Integer id);
+
+    public List<Room> searchByKeyword(String keyword);
 }

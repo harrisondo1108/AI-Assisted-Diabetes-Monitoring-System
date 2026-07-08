@@ -26,4 +26,12 @@ public class RAGAiChatResponse {
     public void setContent(String content) {
         this.content = content;
     }
+
+    @Override
+    public String toString() {
+        return "RAGAiChatResponse{" +
+                "status='" + status + '\'' +
+                ", content='" + content + '\'' +
+                '}';
+    }
 }

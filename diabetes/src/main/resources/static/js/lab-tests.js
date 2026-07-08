@@ -1,7 +1,7 @@
 'use strict';
 
 let currentPage  = 1;
-const PAGE_SIZE  = 8;
+const PAGE_SIZE  = 7;
 let activeFilter = 'all';
 let searchKeyword = '';
 
@@ -12,6 +12,8 @@ document.addEventListener('DOMContentLoaded', function () {
     initCreateModal();
     initEditModal();
     initViewModal();
+    initValidation();
+    initConfirmModal();
     renderPagination();
 });
 
@@ -28,6 +30,29 @@ function addCloseHandlers(modal, ...triggers) {
 /* ── LocalStorage ── */
 function saveThreshold(id, data) { localStorage.setItem('threshold_' + id, JSON.stringify(data)); }
 function getThreshold(id)        { const r = localStorage.getItem('threshold_' + id); return r ? JSON.parse(r) : null; }
+
+/* ── Custom Confirm Modal ── */
+let confirmAction = null;
+function initConfirmModal() {
+    const modal = document.getElementById('customConfirmModal');
+    if (!modal) return;
+    addCloseHandlers(modal, document.getElementById('btnCloseConfirm'), document.getElementById('btnCancelConfirm'));
+    document.getElementById('btnOkConfirm').addEventListener('click', function() {
+        if (confirmAction) {
+            confirmAction();
+        }
+        closeModal(modal);
+    });
+}
+
+function showConfirm(title, message, callback) {
+    const modal = document.getElementById('customConfirmModal');
+    if (!modal) return;
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmMessage').textContent = message;
+    confirmAction = callback;
+    openModal(modal);
+}
 
 function buildThresholdData(p) {
     return {
@@ -53,15 +78,64 @@ function val(id)        { const el = document.getElementById(id); return el ? el
 function setVal(id, v)  { const el = document.getElementById(id); if (el) el.value = v; }
 function setText(id, v) { const el = document.getElementById(id); if (el) el.textContent = v ?? '---'; }
 
-/* ── Validation ── */
-function validateBaseForm(form) {
+/* ── Setup Character Limit & Validation ── */
+function setupInputValidation(inputId, countId, errorId, maxLen, pattern, errMsg) {
+    const input = document.getElementById(inputId);
+    const count = document.getElementById(countId);
+    const err   = document.getElementById(errorId);
+    if (!input) return;
+
+    input.addEventListener('input', function() {
+        const value = input.value;
+        if (count) count.textContent = `${value.length} / ${maxLen}`;
+        
+        if (value.length > maxLen) {
+            input.value = value.substring(0, maxLen);
+            if (count) count.textContent = `${maxLen} / ${maxLen}`;
+        }
+
+        if (err) {
+            if (pattern && value.trim() !== '' && !pattern.test(value)) {
+                err.textContent = errMsg;
+            } else {
+                err.textContent = '';
+            }
+        }
+    });
+}
+
+function initValidation() {
+    const namePattern = /^[^<>;'"\\`$^`{}~|\[\]]+$/;
+    const unitPattern = /^[^<>;'"\\`$^`{}~|\[\]]+$/;
+    const descPattern = /^[^<>;'"\\`$^`{}~|\[\]]+$/;
+    
+    setupInputValidation('inputCreateTestName', 'countCreateTestName', 'errorCreateTestName', 100, namePattern, 'Không chứa ký tự đặc biệt nguy hiểm (< > ; \' " \\ `).');
+    setupInputValidation('inputCreateUnit',     'countCreateUnit',     'errorCreateUnit',     20,  unitPattern, 'Đơn vị không phù hợp.');
+    setupInputValidation('inputCreateDesc',     'countCreateDesc',     'errorCreateDesc',     255, descPattern, 'Mô tả chứa ký tự đặc biệt nguy hiểm.');
+    
+    setupInputValidation('editTestName',        'countEditTestName',   'errorEditTestName',   100, namePattern, 'Không chứa ký tự đặc biệt nguy hiểm.');
+    setupInputValidation('editUnit',            'countEditUnit',       'errorEditUnit',       20,  unitPattern, 'Đơn vị không phù hợp.');
+    setupInputValidation('editDescription',     'countEditDesc',       'errorEditDesc',       255, descPattern, 'Mô tả chứa ký tự đặc biệt nguy hiểm.');
+}
+
+function validateBaseForm(form, isEdit) {
+    const prefix = isEdit ? 'edit' : 'Create';
+    const errName = document.getElementById(isEdit ? 'errorEditTestName' : 'errorCreateTestName')?.textContent;
+    const errUnit = document.getElementById(isEdit ? 'errorEditUnit' : 'errorCreateUnit')?.textContent;
+    const errDesc = document.getElementById(isEdit ? 'errorEditDesc' : 'errorCreateDesc')?.textContent;
+
+    if (errName || errUnit || errDesc) {
+        alert('Dữ liệu nhập vào chứa lỗi, vui lòng kiểm tra lại.');
+        return false;
+    }
+
     const testName = form.querySelector('[name="testName"]');
     const unit     = form.querySelector('[name="unit"]');
     const roomId   = form.querySelector('[name="roomId"]');
-    if (!testName?.value.trim())           return alert('Vui lòng nhập Test Name'), false;
-    if (testName.value.trim().length > 100) return alert('Test Name tối đa 100 ký tự'), false;
-    if (!unit?.value.trim())               return alert('Vui lòng nhập Unit'), false;
-    if (unit.value.trim().length > 20)     return alert('Unit tối đa 20 ký tự'), false;
+    if (!testName?.value.trim())           return alert('Vui lòng nhập Tên xét nghiệm'), false;
+    if (testName.value.trim().length > 100) return alert('Tên xét nghiệm tối đa 100 ký tự'), false;
+    if (!unit?.value.trim())               return alert('Vui lòng nhập Đơn vị'), false;
+    if (unit.value.trim().length > 20)     return alert('Đơn vị tối đa 20 ký tự'), false;
     if (!roomId?.value)                    return alert('Vui lòng chọn phòng xét nghiệm'), false;
     return true;
 }
@@ -81,11 +155,17 @@ function initCreateModal() {
     const modal = document.getElementById('defineTestModal');
     const form  = document.getElementById('createTestForm');
     if (!modal) return;
-    document.getElementById('btnDefineTest')?.addEventListener('click', function() { form?.reset(); openModal(modal); });
+    document.getElementById('btnDefineTest')?.addEventListener('click', function() { 
+        form?.reset(); 
+        document.getElementById('countCreateTestName').textContent = '0 / 100';
+        document.getElementById('countCreateUnit').textContent = '0 / 20';
+        document.getElementById('countCreateDesc').textContent = '0 / 255';
+        openModal(modal); 
+    });
     addCloseHandlers(modal, document.getElementById('btnCloseModal'), document.getElementById('btnCancelModal'));
     form?.addEventListener('submit', function(e) {
         const data = buildThresholdData('create');
-        if (!validateBaseForm(form) || !validateThresholdData(data)) { e.preventDefault(); return; }
+        if (!validateBaseForm(form, false) || !validateThresholdData(data)) { e.preventDefault(); return; }
         setVal('createMainMinValue', data.young.min);
         setVal('createMainMaxValue', data.young.max);
         localStorage.setItem('pending_create_threshold', JSON.stringify(data));
@@ -108,13 +188,18 @@ function initEditModal() {
             setVal('editDescription', btn.dataset.description || '');
             fillThresholdInputs('edit', getThreshold(id), btn.dataset.min, btn.dataset.max);
             form.action = '/admin/lab-tests/update/' + id;
+            
+            document.getElementById('editTestName').dispatchEvent(new Event('input'));
+            document.getElementById('editUnit').dispatchEvent(new Event('input'));
+            document.getElementById('editDescription').dispatchEvent(new Event('input'));
+            
             openModal(modal);
         });
     });
     form.addEventListener('submit', function(e) {
         const data = buildThresholdData('edit');
         const id   = val('editLabTestId');
-        if (!validateBaseForm(form) || !validateThresholdData(data)) { e.preventDefault(); return; }
+        if (!validateBaseForm(form, true) || !validateThresholdData(data)) { e.preventDefault(); return; }
         setVal('editMainMinValue', data.young.min);
         setVal('editMainMaxValue', data.young.max);
         saveThreshold(id, data);
@@ -145,7 +230,7 @@ function fillViewFromDataset(ds, thr) {
     setText('detailName',        ds.name);
     setText('detailUnit',        ds.unit);
     setText('detailRoom',        ds.room);
-    setText('detailStatus',      ds.status === 'true' ? 'Active' : 'Inactive');
+    setText('detailStatus',      ds.status === 'true' ? 'Hoạt động' : 'Tạm ngưng');
     setText('detailDescription', ds.description || '---');
     const t = thr || { young:{min:ds.min??0,max:ds.max??0}, middle:{min:ds.min??0,max:ds.max??0}, elder:{min:ds.min??0,max:ds.max??0}, pregnant:{min:ds.min??0,max:ds.max??0} };
     setText('youngMin',t.young.min); setText('youngMax',t.young.max);
@@ -159,7 +244,7 @@ function fillViewFromApi(d, thr) {
     setText('detailName',        d.testName);
     setText('detailUnit',        d.unit);
     setText('detailRoom',        d.roomId);
-    setText('detailStatus',      d.status === true ? 'Active' : 'Inactive');
+    setText('detailStatus',      d.status === true ? 'Hoạt động' : 'Tạm ngưng');
     setText('detailDescription', d.description || '---');
     const t = thr || { young:{min:d.minValue??0,max:d.maxValue??0}, middle:{min:d.minValue??0,max:d.maxValue??0}, elder:{min:d.minValue??0,max:d.maxValue??0}, pregnant:{min:d.minValue??0,max:d.maxValue??0} };
     setText('youngMin',t.young.min); setText('youngMax',t.young.max);
@@ -184,17 +269,40 @@ function initTabs() {
     });
 }
 
-/* ── SEARCH ── */
+/* ── SEARCH (Backend-side search, reset on clear) ── */
 function initSearch() {
-    function onSearch(e) {
-        searchKeyword = e.target.value.toLowerCase().trim();
-        const other = document.getElementById(e.target.id === 'tableSearch' ? 'topbarSearch' : 'tableSearch');
-        if (other) other.value = e.target.value;
-        currentPage = 1;
-        applyFilters();
+    const input = document.getElementById('tableSearch');
+    if (input) {
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                e.preventDefault();
+                const status = activeFilter;
+                window.location.href = `/admin/lab-tests?status=${status}&keyword=${encodeURIComponent(input.value.trim())}`;
+            }
+        });
+
+        input.addEventListener('input', function() {
+            if (this.value.trim() === '') {
+                const status = activeFilter;
+                window.location.href = `/admin/lab-tests?status=${status}`;
+            }
+        });
+
+        input.addEventListener('search', function() {
+            if (this.value.trim() === '') {
+                const status = activeFilter;
+                window.location.href = `/admin/lab-tests?status=${status}`;
+            }
+        });
+
+        const icon = document.querySelector('.lab-search-icon');
+        if (icon) {
+            icon.addEventListener('click', function() {
+                const status = activeFilter;
+                window.location.href = `/admin/lab-tests?status=${status}&keyword=${encodeURIComponent(input.value.trim())}`;
+            });
+        }
     }
-    document.getElementById('tableSearch')?.addEventListener('input',  onSearch);
-    document.getElementById('topbarSearch')?.addEventListener('input', onSearch);
 }
 
 /* ── FILTER ENGINE ── */
@@ -248,4 +356,27 @@ function updateUI(total, pages) {
         b.addEventListener('click', (function(p) { return function() { currentPage = p; renderPagination(); }; })(i));
         nums.appendChild(b);
     }
+
+    // Bind custom confirm to toggle status
+    document.querySelectorAll('.btn-toggle-status').forEach(function(btn) {
+        btn.onclick = function(e) {
+            e.preventDefault();
+            const id = btn.dataset.id;
+            const name = btn.dataset.name;
+            const currentStatus = btn.dataset.status === 'true';
+            const actionText = currentStatus ? 'vô hiệu hóa' : 'kích hoạt';
+            
+            showConfirm(
+                'Xác nhận trạng thái',
+                `Bạn có chắc chắn muốn ${actionText} xét nghiệm "${name}"?`,
+                function() {
+                    const form = document.createElement('form');
+                    form.method = 'post';
+                    form.action = `/admin/lab-tests/toggle-status/${id}`;
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            );
+        };
+    });
 }

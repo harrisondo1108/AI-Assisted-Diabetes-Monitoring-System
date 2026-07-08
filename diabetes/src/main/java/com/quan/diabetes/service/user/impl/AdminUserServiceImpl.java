@@ -16,6 +16,7 @@ import com.quan.diabetes.service.user.AdminUserService;
 import com.quan.diabetes.service.user.PatientService;
 import com.quan.diabetes.service.user.UserService;
 import com.quan.diabetes.util.ParseUtil;
+import com.quan.diabetes.util.SearchUtil;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -105,6 +106,7 @@ public class AdminUserServiceImpl implements AdminUserService {
                     dto.setAllergyNotes(p.getAllergyNotes());
                     dto.setSupervisorName(p.getSupervisorName());
                     dto.setSupervisorPhone(p.getSupervisorPhone());
+                    dto.setEmail(p.getEmail());
                 });
             } else { // profile (doctor) fields
                 profileRepository.findById(u.getUserId()).ifPresent(p -> {
@@ -120,12 +122,11 @@ public class AdminUserServiceImpl implements AdminUserService {
                 });
             }
 
-            // Filter by search query (name, phone, accountPhone)
-            if (!searchLower.isEmpty()) {
-                String fullName = dto.getFullName() != null ? dto.getFullName().toLowerCase() : "";
-                String phone = dto.getAccountPhone() != null ? dto.getAccountPhone().toLowerCase() : "";
-                String accPhone = dto.getAccountPhone() != null ? dto.getAccountPhone().toLowerCase() : "";
-                if (!fullName.contains(searchLower) && !phone.contains(searchLower) && !accPhone.contains(searchLower)) {
+            // Filter by search query using SearchUtil for accent-insensitive matching (similar to labtests)
+            if (search != null && !search.trim().isEmpty()) {
+                boolean matchesName = SearchUtil.matches(dto.getFullName(), search);
+                boolean matchesPhone = SearchUtil.matches(dto.getAccountPhone(), search);
+                if (!matchesName && !matchesPhone) {
                     continue;
                 }
             }
@@ -191,6 +192,7 @@ public class AdminUserServiceImpl implements AdminUserService {
             p.setAllergyNotes(ParseUtil.parseString(dto.getAllergyNotes()));
             p.setSupervisorName(ParseUtil.parseString(dto.getSupervisorName()));
             p.setSupervisorPhone(ParseUtil.parseString(dto.getSupervisorPhone()));
+            p.setEmail(ParseUtil.parseString(dto.getEmail()));
 
             p = patientService.create(p);
 
@@ -243,6 +245,7 @@ public class AdminUserServiceImpl implements AdminUserService {
             p.setAllergyNotes(ParseUtil.parseString(dto.getAllergyNotes()));
             p.setSupervisorName(ParseUtil.parseString(dto.getSupervisorName()));
             p.setSupervisorPhone(ParseUtil.parseString(dto.getSupervisorPhone()));
+            p.setEmail(ParseUtil.parseString(dto.getEmail()));
             patientRepository.save(p);
         } else {
             Profile p = profileRepository.findById(userId)
@@ -302,6 +305,7 @@ public class AdminUserServiceImpl implements AdminUserService {
                 dto.setAllergyNotes(p.getAllergyNotes());
                 dto.setSupervisorName(p.getSupervisorName());
                 dto.setSupervisorPhone(p.getSupervisorPhone());
+                dto.setEmail(p.getEmail());
             });
         } else {
             profileRepository.findById(userId).ifPresent(p -> {

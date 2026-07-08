@@ -53,4 +53,15 @@ public class RoomServiceImpl implements RoomService {
     public boolean existsById(Integer id) {
         return roomRepository.existsById(id);
     }
+
+    @Override
+    public List<Room> searchByKeyword(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return roomRepository.findAll();
+        }
+        return roomRepository.findAll().stream()
+                .filter(room -> com.quan.diabetes.util.SearchUtil.matches(room.getRoomName(), keyword) 
+                        || com.quan.diabetes.util.SearchUtil.matches(room.getDescription(), keyword))
+                .collect(java.util.stream.Collectors.toList());
+    }
 }

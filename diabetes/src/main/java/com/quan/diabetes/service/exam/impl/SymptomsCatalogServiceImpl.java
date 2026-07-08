@@ -40,7 +40,20 @@ public class SymptomsCatalogServiceImpl implements SymptomsCatalogService {
         if (keyword == null || keyword.trim().isEmpty()) {
             return findByStatus(status, pageable);
         }
-        return repository.searchByKeywordAndStatus(keyword.trim(), status, pageable);
+        java.util.List<SymptomsCatalog> filtered = repository.findAll().stream()
+                .filter(s -> (status == null || status.equals(s.getStatus())))
+                .filter(s -> com.quan.diabetes.util.SearchUtil.matches(s.getSymptomId(), keyword)
+                        || com.quan.diabetes.util.SearchUtil.matches(s.getSymptomName(), keyword))
+                .collect(java.util.stream.Collectors.toList());
+
+        int total = filtered.size();
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), total);
+        java.util.List<SymptomsCatalog> pageContent = new java.util.ArrayList<>();
+        if (start < total) {
+            pageContent = filtered.subList(start, end);
+        }
+        return new org.springframework.data.domain.PageImpl<>(pageContent, pageable, total);
     }
 
     @Override

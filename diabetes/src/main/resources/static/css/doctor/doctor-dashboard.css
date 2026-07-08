@@ -399,7 +399,7 @@
     gap: 6px;
 }
 
-.pagination button {
+.pagination button, .pagination a {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -413,24 +413,26 @@
     font-size: 0.78rem;
     font-weight: 600;
     cursor: pointer;
+    text-decoration: none;
     transition: all 0.2s;
 }
 
-.pagination button:hover:not(:disabled) {
+.pagination button:hover:not(:disabled), .pagination a:hover:not(.disabled) {
     border-color: var(--doctor-primary);
     color: var(--doctor-primary);
     background-color: var(--doctor-primary-light);
 }
 
-.pagination button.active {
+.pagination button.active, .pagination a.active {
     background-color: var(--doctor-primary);
     color: #ffffff;
     border-color: var(--doctor-primary);
 }
 
-.pagination button:disabled {
+.pagination button:disabled, .pagination a.disabled {
     opacity: 0.4;
     cursor: not-allowed;
+    pointer-events: none;
 }
 
 /* Modals overlays & sizes */

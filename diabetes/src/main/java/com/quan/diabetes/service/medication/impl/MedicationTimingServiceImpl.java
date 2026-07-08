@@ -70,4 +70,14 @@ public class MedicationTimingServiceImpl
     public boolean existsByTimingNameAndTimingIdNot(String timingName, Integer timingId) {
         return repository.existsByTimingNameAndTimingIDNot(timingName, timingId);
     }
+
+    @Override
+    public List<MedicationTiming> searchByKeyword(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return repository.findAll();
+        }
+        return repository.findAll().stream()
+                .filter(t -> com.quan.diabetes.util.SearchUtil.matches(t.getTimingName(), keyword))
+                .collect(java.util.stream.Collectors.toList());
+    }
 }

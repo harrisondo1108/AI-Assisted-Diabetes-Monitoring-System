@@ -131,6 +131,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (urlParams.get('warning') === 'in-progress') {
         showToast('Bạn đang có một ca khám chưa hoàn thành! Vui lòng tiếp tục ca khám.', 'warning');
     }
+
+    // Check for validation error attribute
+    if (typeof thValidationError !== 'undefined' && thValidationError) {
+        showToast(thValidationError, 'error');
+    }
 });
 
 function formatLocalTime(timeStr) {
@@ -865,11 +870,8 @@ function saveExam() {
         form.appendChild(labInput);
     });
 
-    showToast(`Đang lưu kết quả khám lâm sàng...`, 'success');
     sessionStorage.removeItem('examineDraft');
-    setTimeout(() => {
-        form.submit();
-    }, 1000);
+    form.submit();
 }
 
 function cancelExam() {

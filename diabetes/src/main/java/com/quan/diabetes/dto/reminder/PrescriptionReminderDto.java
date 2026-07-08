@@ -8,17 +8,29 @@ import java.time.LocalDate;
  * DTO used to describe medication reminders for a clinical examination (session).
  */
 public class PrescriptionReminderDto {
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private String patientId;
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private String clinicalExamId;
+    @com.fasterxml.jackson.annotation.JsonProperty("Tên thuốc")
     private String medicationName;
+    @com.fasterxml.jackson.annotation.JsonProperty("Liều lượng")
     private String dosage;
+    @com.fasterxml.jackson.annotation.JsonProperty("Ngày bắt đầu uống")
     private LocalDate startDate;
+    @com.fasterxml.jackson.annotation.JsonProperty("Ngày kết thúc uống")
     private LocalDate endDate;
+    @com.fasterxml.jackson.annotation.JsonProperty("Dạng thuốc")
     private String form;
+    @com.fasterxml.jackson.annotation.JsonProperty("Đường dùng (cách dùng)")
     private String administrationRoute;
+    @com.fasterxml.jackson.annotation.JsonProperty("Hướng dẫn sử dụng")
     private String usageInstruction;
+    @com.fasterxml.jackson.annotation.JsonProperty("Thời điểm uống trong ngày")
     private String timingName;
+    @com.fasterxml.jackson.annotation.JsonProperty("Kế hoạch dùng thuốc")
     private String medicationPlan;
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private TreatmentPlan treatmentPlan;
 
     // Constructor used by JPQL new expression

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết nhắc nhở | Hệ thống chăm sóc tiểu đường</title>
+    <!-- Premium Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+          rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Page CSS -->
+    <link rel="stylesheet" th:href="@{/css/doctor/doctor-common.css}">
+    <link rel="stylesheet" th:href="@{/css/doctor/doctor-reminders.css}">
+</head>
+
+<body>
+<div class="doctor-layout">
+    <div class="doctor-main">
+        <!-- Header -->
+        <div th:replace="~{doctor/doctor_header :: header('Chi tiết nhắc nhở', 'reminders')}"></div>
+
+        <main class="doctor-content">
+            <div class="reminders-detail-header">
+                <div class="reminders-title-group">
+                    <h1 class="page-title">
+                        <a th:href="@{/doctor/reminders}" class="btn btn-secondary btn-sm" style="border-radius: 50%; padding: 8px 12px; margin-right: 10px;">
+                            <i class="fas fa-arrow-left"></i>
+                        </a>
+                        Chi tiết nhắc nhở hôm nay
+                    </h1>
+                    <p class="page-subtitle">Danh sách các nhắc nhở hệ thống gửi đến bệnh nhân trong ngày</p>
+                </div>
+            </div>
+
+            <!-- Patient Info Banner -->
+            <div class="patient-info-banner" th:if="${patient != null}">
+                <div class="patient-avatar-large">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="patient-details-banner">
+                    <h2 th:text="${patient.fullName}">Tên bệnh nhân</h2>
+                    <p th:text="${(patient.dob != null ? (T(java.time.Period).between(patient.dob, T(java.time.LocalDate).now()).getYears()) + ' tuổi' : 'N/A') + ' | ' + (patient.gender != null ? (patient.gender ? 'Nữ' : 'Nam') : 'N/A') + ' | SĐT: ' + (patient.phoneNumber != null ? patient.phoneNumber : 'N/A')}">
+                        Thông tin
+                    </p>
+                </div>
+            </div>
+
+            <div class="reminder-list-container" th:if="${reminders != null && !reminders.isEmpty()}">
+                <div class="reminder-card-item" th:each="reminder : ${reminders}" 
+                     th:classappend="${reminder.isRead != null && reminder.isRead ? 'status-read' : 'status-unread'}">
+                    
+                    <div class="reminder-status-stripe"></div>
+                    
+                    <div class="reminder-time-block">
+                        <span class="time-val" th:text="${#temporals.format(reminder.scheduledTime, 'HH:mm')}">08:00</span>
+                        <span class="time-lbl">Hôm nay</span>
+                    </div>
+                    
+                    <div class="reminder-content-block">
+                        <div class="reminder-header-row">
+                            <h3 class="reminder-title" th:text="${reminder.title}">Tiêu đề nhắc nhở</h3>
+                            
+                            <div style="display: flex; gap: 8px;">
+                                <span class="badge-sent-status sent" th:if="${reminder.isSent != null && reminder.isSent}">
+                                    <i class="fas fa-paper-plane"></i> Đã gửi
+                                </span>
+                                <span class="badge-sent-status unsent" th:if="${reminder.isSent == null || !reminder.isSent}">
+                                    <i class="fas fa-clock"></i> Chờ gửi
+                                </span>
+
+                                <span class="badge-read-status read" th:if="${reminder.isRead != null && reminder.isRead}">
+                                    <i class="fas fa-check-double"></i> Đã đọc
+                                </span>
+                                <span class="badge-read-status unread" th:if="${reminder.isRead == null || !reminder.isRead}">
+                                    <i class="fas fa-envelope"></i> Chưa đọc
+                                </span>
+                            </div>
+                        </div>
+                        <p class="reminder-message" th:text="${reminder.message}">Nội dung chi tiết của nhắc nhở sẽ được hiển thị ở đây.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" th:if="${reminders == null || reminders.isEmpty()}" style="background-color: white; border-radius: 12px; border: 1px solid var(--doctor-border);">
+                <i class="fas fa-check-circle" style="color: var(--doctor-success);"></i>
+                <h3 style="color: var(--doctor-text-main);">Không có nhắc nhở nào</h3>
+                <p style="color: var(--doctor-text-muted);">Bệnh nhân này không có nhắc nhở nào trong ngày hôm nay.</p>
+            </div>
+
+        </main>
+    </div>
+</div>
+</body>
+</html>

@@ -71,55 +71,6 @@ public class PatientNotificationController extends BasePatientController {
 
         List<AIReminder> allAiReminders = findRemindersByPatient(patient);
 
-        // Seed mock notifications if patient currently has 0 notifications
-        if (allAiReminders.isEmpty() && patient != null) {
-            LocalDateTime today = LocalDateTime.now();
-            LocalDateTime yesterday = today.minusDays(1);
-
-            AIReminder r1 = new AIReminder();
-            r1.setTitle("Nhắc nhở: Uống Metformin 500mg");
-            r1.setMessage("Vui lòng uống 1 viên sau bữa ăn sáng để duy trì đường huyết ổn định.");
-            r1.setScheduledTime(LocalDateTime.of(today.toLocalDate(), LocalTime.of(10, 30)));
-            r1.setIsRead(false);
-            r1.setPatient(patient);
-            aiReminderService.create(r1);
-
-            AIReminder r2 = new AIReminder();
-            r2.setTitle("Xác nhận lịch tái khám");
-            r2.setMessage("Lịch hẹn với BS. Lê Văn Anh vào 09:00 Thứ Tư (25/10) đã được xác nhận.");
-            r2.setScheduledTime(LocalDateTime.of(yesterday.toLocalDate(), LocalTime.of(15, 45)));
-            r2.setIsRead(true);
-            r2.setPatient(patient);
-            aiReminderService.create(r2);
-
-            AIReminder r3 = new AIReminder();
-            r3.setTitle("Kiến thức: Dinh dưỡng Type 2");
-            r3.setMessage("5 bí quyết cân bằng dinh dưỡng giúp kiểm soát đường huyết hiệu quả hơn.");
-            r3.setScheduledTime(LocalDateTime.of(yesterday.toLocalDate(), LocalTime.of(9, 20)));
-            r3.setIsRead(true);
-            r3.setPatient(patient);
-            aiReminderService.create(r3);
-
-            AIReminder r4 = new AIReminder();
-            r4.setTitle("Nhắc nhở: Uống Gliclazide 30mg");
-            r4.setMessage("Vui lòng uống 1 viên trước bữa ăn sáng để ổn định đường huyết.");
-            r4.setScheduledTime(LocalDateTime.of(today.getYear(), 10, 18, 18, 10));
-            r4.setIsRead(false);
-            r4.setPatient(patient);
-            aiReminderService.create(r4);
-
-            AIReminder r5 = new AIReminder();
-            r5.setTitle("Lịch tái khám định kỳ");
-            r5.setMessage("Hẹn gặp BS. Nguyễn Thị Lan vào lúc 08:30 sáng Thứ Hai tuần tới.");
-            r5.setScheduledTime(LocalDateTime.of(today.getYear(), 9, 25, 8, 30));
-            r5.setIsRead(true);
-            r5.setPatient(patient);
-            aiReminderService.create(r5);
-
-            // Re-fetch notifications after seeding
-            allAiReminders = findRemindersByPatient(patient);
-        }
-
         // Filter and Group
         List<AIReminder> todayNotifications = new ArrayList<>();
         List<AIReminder> yesterdayNotifications = new ArrayList<>();

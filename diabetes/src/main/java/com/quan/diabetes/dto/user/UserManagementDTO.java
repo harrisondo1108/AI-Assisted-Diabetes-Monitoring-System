@@ -35,6 +35,7 @@ public class UserManagementDTO {
     private String allergyNotes;
     private String supervisorName;
     private String supervisorPhone;
+    private String email;
     private String roomName;
 
     private String specialty;
@@ -90,6 +91,9 @@ public class UserManagementDTO {
     public String getSupervisorPhone() { return supervisorPhone; }
     public void setSupervisorPhone(String supervisorPhone) { this.supervisorPhone = supervisorPhone; }
 
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
     public String getRoomName() { return roomName; }
     public void setRoomName(String roomName) { this.roomName = roomName; }
 
@@ -115,6 +119,7 @@ public class UserManagementDTO {
                 ", allergyNotes='" + allergyNotes + '\'' +
                 ", supervisorName='" + supervisorName + '\'' +
                 ", supervisorPhone='" + supervisorPhone + '\'' +
+                ", email='" + email + '\'' +
                 ", roomName='" + roomName + '\'' +
                 ", specialty='" + specialty + '\'' +
                 '}';

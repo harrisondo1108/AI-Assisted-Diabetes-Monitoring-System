@@ -45,6 +45,9 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
     @Autowired
     private AppointmentSchedule appointmentSchedule;
 
+    @Autowired
+    private AIReminderRepository aiReminderRepository;
+
 
     public ClinicalExaminationServiceImpl(
             ClinicalExaminationRepository clinicalExaminationRepository,
@@ -769,5 +772,48 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                 throw new RuntimeException("Error deserializing prescription JSON: " + e.getMessage(), e);
             }
         }
+
+        // Lock các reminder cũ của phiên khám (set lockStatus = true)
+        List<AIReminder> oldReminders = aiReminderRepository.findByClinicalExamination_ClinicalExamId(examId);
+        if (oldReminders != null && !oldReminders.isEmpty()) {
+            for (AIReminder r : oldReminders) {
+                r.setLockStatus(true);
+            }
+            aiReminderRepository.saveAll(oldReminders);
+        }
+
+        // Tạo lại reminders mới dựa vào lịch tái khám và đơn thuốc
+        medicationSchedualeService.generateReminder(examId);
+        appointmentSchedule.generateAppointmentReminder(examId);
+    }
+
+    @Override
+    @Transactional
+    public void requestExamination(String patientId, String medicalHistory) {
+        User doctor = userRepository.findFirstByRole_RoleId("DOC").orElse(null);
+        if (doctor == null) {
+            throw new RuntimeException("Không tìm thấy bác sĩ nào trong hệ thống.");
+        }
+
+        // Check if there is an active exam (Pending, InProgress, Requested)
+        boolean hasActive = clinicalExaminationRepository
+                .findFirstByPatient_UserIdAndDoctor_UserIdAndStatusIn(
+                        patientId, doctor.getUserId(), List.of("Pending", "InProgress", "Completed", "Cancelled"))
+                .isPresent();
+
+        if (hasActive) {
+            throw new RuntimeException("Bạn đã có một yêu cầu khám đang chờ duyệt hoặc một ca khám đang diễn ra.");
+        }
+
+        ClinicalExamination exam = new ClinicalExamination();
+        exam.setClinicalExamId("EXM-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000));
+        exam.setPatient(patientRepository.findById(patientId)
+                .orElseThrow(() -> new EntityNotFoundException("Patient not found: " + patientId)));
+        exam.setDoctor(doctor);
+        exam.setExamDate(LocalDateTime.now());
+        exam.setStatus("Pending");
+        exam.setMedicalHistory(medicalHistory);
+        clinicalExaminationRepository.save(exam);
     }
 }
+

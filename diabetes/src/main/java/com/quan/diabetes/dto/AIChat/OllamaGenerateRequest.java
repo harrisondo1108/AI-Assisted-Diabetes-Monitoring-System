@@ -1,10 +1,13 @@
 package com.quan.diabetes.dto.AIChat;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public record OllamaGenerateRequest(
         String model,
         String prompt,
+        String system,
         boolean stream,
         Options options
 ) {

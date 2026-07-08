@@ -24,14 +24,13 @@ public class MedicationRescheduleService {
     @Transactional
     public void rescheduleFutureMedicationReminders(
             String patientId,
-            PatientRoutine newRoutine
-    ) {
-        if(!patientId.equals(newRoutine.getPatient().getUserId())){
+            PatientRoutine newRoutine) {
+        if (!patientId.equals(newRoutine.getPatient().getUserId())) {
             throw new IllegalArgumentException("patientId does not match the patient in the new routine");
         }
         LocalDateTime changedAt = LocalDateTime.now();
-        List<AIReminder> futureReminders =
-                aiReminderRepository.findByPatient_UserIdAndScheduledTimeGreaterThanEqualAndTitleOrderByScheduledTimeAsc(
+        List<AIReminder> futureReminders = aiReminderRepository
+                .findByPatient_UserIdAndScheduledTimeGreaterThanEqualAndTitleOrderByScheduledTimeAsc(
                         patientId,
                         changedAt,
                         MedicationSchedualeService.MEDICATION_REMINDER_TITLE);
@@ -45,8 +44,8 @@ public class MedicationRescheduleService {
                 continue;
             }
             LocalDate reminderDate = reminder.getScheduledTime().toLocalDate();
-            LocalTime newReminderTime =
-                    ReminderTimeCalculator.calculateReminderTime(reminder.getTiming().getTimingName(), newRoutine);
+            LocalTime newReminderTime = ReminderTimeCalculator
+                    .calculateReminderTime(reminder.getTiming().getTimingName(), newRoutine);
             reminder.setScheduledTime(LocalDateTime.of(reminderDate, newReminderTime));
             aiReminderRepository.save(reminder);
         }

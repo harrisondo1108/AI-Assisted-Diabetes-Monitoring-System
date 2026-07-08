@@ -3,51 +3,47 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Symptom Catalog - Admin | Diabetes Care System</title>
+  <title>Danh mục Triệu chứng - Admin | Hệ thống Tiểu đường</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" th:href="@{/css/admin/symptoms.css}">
-  <link rel="stylesheet" href="/static/css/admin/symptoms.css">
 </head>
 <body>
 <div class="admin-layout">
   <div th:replace="~{layout/sidebar :: sidebar('symptom')}"></div>
   <div class="admin-main">
-    <div th:replace="~{layout/header :: header('Symptom Catalog')}"></div>
+    <div th:replace="~{layout/header :: header('Danh mục Triệu chứng')}"></div>
     <main class="admin-content">
       <!-- CHỈ 3 THẺ STAT, BỎ CATEGORIES -->
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-icon"><i class="fas fa-notes-medical"></i></div>
-          <div class="stat-label">Total Symptoms</div><div class="stat-value" th:text="${totalSymptoms}">0</div></div>
+          <div class="stat-label">Tổng triệu chứng</div><div class="stat-value" id="statTotal" th:text="${totalSymptoms}">0</div></div>
         <div class="stat-card"><div class="stat-icon"><i class="fas fa-check-circle"></i></div>
-          <div class="stat-label">Active</div><div class="stat-value" th:text="${activeSymptoms}">0</div></div>
+          <div class="stat-label">Hoạt động</div><div class="stat-value" id="statActive" th:text="${activeSymptoms}">0</div></div>
         <div class="stat-card"><div class="stat-icon"><i class="fas fa-ban"></i></div>
-          <div class="stat-label">Clocked</div><div class="stat-value" th:text="${clockedSymptoms}">0</div></div>
+          <div class="stat-label">Đang khóa</div><div class="stat-value" id="statClocked" th:text="${clockedSymptoms}">0</div></div>
       </div>
 
       <div class="page-header">
-        <button type="button" class="btn btn-primary" id="btnShowAddModal"><i class="fas fa-plus"></i> Add Symptom</button>
+        <button type="button" class="btn btn-primary" id="btnShowAddModal"><i class="fas fa-plus"></i> Thêm Triệu chứng</button>
       </div>
 
       <div class="table-card">
         <div class="table-toolbar">
-          <!-- Form lọc theo trạng thái (GIỮ NGUYÊN, vẫn submit reload trang) -->
-          <form id="filterForm" th:action="@{/admin/symptoms}" method="get">
+          <form th:action="@{/admin/symptoms}" method="get" class="filter-form" style="display: flex; gap: 12px; align-items: center;" id="symptomSearchForm">
             <select name="status" id="statusSelect" class="filter-select" onchange="this.form.submit()">
-              <option value="">All Status</option>
-              <option value="active" th:selected="${selectedStatus == 'active'}">Active</option>
-              <option value="clocked" th:selected="${selectedStatus == 'clocked'}">Clocked</option>
+              <option value="">Tất cả trạng thái</option>
+              <option value="active" th:selected="${selectedStatus == 'active'}">Hoạt động</option>
+              <option value="clocked" th:selected="${selectedStatus == 'clocked'}">Tạm khóa</option>
             </select>
             <input type="hidden" name="size" th:value="${pageSize}">
             <input type="hidden" name="sortField" th:value="${sortField}">
             <input type="hidden" name="sortDirection" th:value="${sortDirection}">
+            <div class="header-search">
+              <i class="fas fa-search" id="searchIcon" style="cursor: pointer;"></i>
+              <input type="search" name="keyword" th:value="${searchKeyword}" id="searchKeyword" placeholder="Tìm kiếm theo ID hoặc tên triệu chứng...">
+            </div>
           </form>
-
-          <!-- Ô TÌM KIẾM REAL-TIME (KHÔNG CÓ NÚT, KHÔNG FORM) -->
-          <div class="header-search">
-            <i class="fas fa-search"></i>
-            <input type="text" id="searchKeyword" placeholder="Search by ID or name...">
-          </div>
         </div>
 
         <div class="table-wrap">
@@ -55,9 +51,9 @@
             <thead>
             <tr>
               <!-- GỘP CỘT ID VÀ NAME (giống Medicine) -->
-              <th>Symptom Name</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th>Tên triệu chứng</th>
+              <th>Trạng thái</th>
+              <th>Hành động</th>
             </thead>
             <tbody id="symptomTableBody">
             <!-- Dòng này sẽ được AJAX thay thế -->
@@ -69,44 +65,42 @@
                 </div>
               </td>
               <td>
-                <span th:class="${sym.status ? 'badge-active' : 'badge-clocked'}" th:text="${sym.status ? 'Active' : 'Clocked'}"></span>
+                <span th:class="${sym.status ? 'badge-active' : 'badge-clocked'}" th:text="${sym.status ? 'Hoạt động' : 'Tạm khóa'}"></span>
               </td>
               <td class="action-group">
-                <button class="action-btn edit" th:attr="data-id=${sym.symptomId}" onclick="openEditModal(this.getAttribute('data-id'))" title="Edit"><i class="fas fa-pen"></i></button>
-                <button class="action-btn soft-delete" th:attr="data-id=${sym.symptomId}, data-status=${sym.status ? 'Active' : 'Clocked'}, data-name=${sym.symptomName}" onclick="showConfirmModal(this.getAttribute('data-id'), this.getAttribute('data-status'), this.getAttribute('data-name'))" th:title="${sym.status ? 'Clock Symptom' : 'Restore Symptom'}">
+                <button class="action-btn edit" th:attr="data-id=${sym.symptomId}" onclick="openEditModal(this.getAttribute('data-id'))" title="Chỉnh sửa"><i class="fas fa-pen"></i></button>
+                <button class="action-btn soft-delete" th:attr="data-id=${sym.symptomId}, data-status=${sym.status ? 'Active' : 'Clocked'}, data-name=${sym.symptomName}" onclick="showConfirmModal(this.getAttribute('data-id'), this.getAttribute('data-status'), this.getAttribute('data-name'))" th:title="${sym.status ? 'Khóa triệu chứng' : 'Khôi phục triệu chứng'}">
                   <i th:class="${sym.status ? 'fas fa-lock' : 'fas fa-lock-open'}"></i>
                 </button>
               </td>
             </tr>
             <tr th:if="${symptoms.isEmpty()}">
-              <td colspan="3" class="empty-row"><i class="fas fa-head-side-medical"></i><p>No symptoms found</p></td>
+              <td colspan="3" class="empty-row"><i class="fas fa-head-side-medical"></i><p>Không tìm thấy triệu chứng nào</p></td>
             </tr>
             </tbody>
           </table>
         </div>
 
         <!-- PHÂN TRANG GIỮ NGUYÊN (thẻ a, reload trang) -->
-        <div class="pagination-container" th:if="${totalPages > 0}">
-          <div class="page-size-selector" style="display: flex; align-items: center; gap: 8px; font-size: 0.875rem; color: #5a6f68;">
-            <label>Hiển thị: </label>
-            <select id="pageSizeSelect" style="padding: 6px 12px; border: 1px solid #e2ebe7; border-radius: 8px; background-color: #fff; color: #0f2e26; font-size: 0.875rem; font-weight: 500; cursor: pointer;" onchange="changePageSize()">
-              <option value="4" th:selected="${pageSize == 4}">4 hàng / trang</option>
-              <option value="8" th:selected="${pageSize == 8}">8 hàng / trang</option>
-              <option value="15" th:selected="${pageSize == 15}">15 hàng / trang</option>
-              <option value="30" th:selected="${pageSize == 30}">30 hàng / trang</option>
-            </select>
-          </div>
-          <div class="pagination-controls">
-            <a th:if="${currentPage > 0}" th:href="@{/admin/symptoms(page=0, size=${pageSize}, status=${selectedStatus}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> First</a>
-            <a th:if="${currentPage > 0}" th:href="@{/admin/symptoms(page=${currentPage - 1}, size=${pageSize}, status=${selectedStatus}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> Previous</a>
-            <div class="pagination-pages">
+        <div class="pagination-container" th:if="${totalPages > 0}" style="display: flex; justify-content: space-between; align-items: center;">
+          <span class="pagination-info" style="font-size: 0.875rem; color: #5a6f68; flex: 1;" th:with="start=${totalItems == 0 ? 0 : currentPage * pageSize + 1}, end=${(currentPage + 1) * pageSize > totalItems ? totalItems : (currentPage + 1) * pageSize}" th:text="|Hiển thị ${start} - ${end} / ${totalItems} triệu chứng|">Hiển thị 0 - 0 / 0 triệu chứng</span>
+          <div class="pagination-controls" style="flex: 0 0 auto; display: flex; align-items: center; gap: 8px;">
+            <!-- Nút Trước -->
+            <a th:if="${currentPage > 0}" th:href="@{/admin/symptoms(page=${currentPage - 1}, size=${pageSize}, status=${selectedStatus}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection})}" class="pagination-btn">Trước</a>
+            <span th:unless="${currentPage > 0}" class="pagination-btn disabled" style="opacity: 0.38; cursor: not-allowed; display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; color: var(--text-muted); font-size: 0.875rem; font-weight: 500;">Trước</span>
+
+            <!-- Các số trang -->
+            <div class="pagination-pages" style="display: flex; gap: 4px;">
               <th:block th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}">
-                <a th:if="${pageNum >= currentPage - 2 and pageNum <= currentPage + 2}" th:href="@{/admin/symptoms(page=${pageNum}, size=${pageSize}, status=${selectedStatus}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection})}" class="page-number" th:classappend="${pageNum == currentPage} ? 'active' : ''" th:text="${pageNum + 1}"></a>
+                <a th:href="@{/admin/symptoms(page=${pageNum}, size=${pageSize}, status=${selectedStatus}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection})}" class="page-number" th:classappend="${pageNum == currentPage} ? 'active' : ''" th:text="${pageNum + 1}"></a>
               </th:block>
             </div>
-            <a th:if="${currentPage < totalPages - 1}" th:href="@{/admin/symptoms(page=${currentPage + 1}, size=${pageSize}, status=${selectedStatus}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection})}" class="pagination-btn">Next <i class="fas fa-chevron-right"></i></a>
-            <a th:if="${currentPage < totalPages - 1}" th:href="@{/admin/symptoms(page=${totalPages - 1}, size=${pageSize}, status=${selectedStatus}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection})}" class="pagination-btn">Last <i class="fas fa-chevron-right"></i></a>
+
+            <!-- Nút Sau -->
+            <a th:if="${currentPage < totalPages - 1}" th:href="@{/admin/symptoms(page=${currentPage + 1}, size=${pageSize}, status=${selectedStatus}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection})}" class="pagination-btn">Sau</a>
+            <span th:unless="${currentPage < totalPages - 1}" class="pagination-btn disabled" style="opacity: 0.38; cursor: not-allowed; display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; color: var(--text-muted); font-size: 0.875rem; font-weight: 500;">Sau</span>
           </div>
+          <div class="pagination-placeholder" style="flex: 1;"></div>
         </div>
       </div>
     </main>
@@ -120,7 +114,7 @@
     <div class="modal-header">
       <h2 id="confirmModalTitle">
         <i class="fas fa-shield-alt" style="margin-right: 8px; color: #f59e0b;"></i>
-        Confirm Action
+        Xác nhận Hành động
       </h2>
       <button type="button" class="modal-close" id="closeConfirmModalBtn">
         <i class="fas fa-times"></i>
@@ -130,15 +124,15 @@
       <div class="confirm-icon">
         <i class="fas fa-question-circle"></i>
       </div>
-      <p id="confirmMessage">Are you sure you want to perform this action?</p>
-      <p class="confirm-submessage" id="confirmSubMessage">This action cannot be undone.</p>
+      <p id="confirmMessage">Bạn có chắc chắn muốn thực hiện hành động này không?</p>
+      <p class="confirm-submessage" id="confirmSubMessage">Hành động này không thể hoàn tác.</p>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-secondary" id="cancelConfirmBtn">
-        <i class="fas fa-times"></i> Cancel
+        <i class="fas fa-times"></i> Hủy
       </button>
       <button type="button" class="btn btn-primary" id="okConfirmBtn">
-        <i class="fas fa-check"></i> Yes, Confirm
+        <i class="fas fa-check"></i> Xác nhận
       </button>
     </div>
   </div>
@@ -148,23 +142,23 @@
 <div class="modal-overlay" id="addModal">
   <div class="modal">
     <div class="modal-header">
-      <h2>Add New Symptom</h2>
+      <h2>Thêm Triệu chứng Mới</h2>
       <button type="button" class="modal-close" id="closeAddModalBtn">&times;</button>
     </div>
     <form id="addForm" th:action="@{/admin/symptoms/add}" method="post">
       <div class="form-grid">
         <div class="form-group full-width">
-          <label>Symptom Name <span class="required">*</span></label>
+          <label>Tên triệu chứng <span class="required">*</span></label>
           <input type="text" name="symptomName" id="symptomName" required
-                 placeholder="e.g., Fatigue, Polydipsia, Blurred Vision">
+                 placeholder="VD: Mệt mỏi, Thèm ăn, Mờ mắt">
           <div id="nameError" style="display: none; color: #dc2626; font-size: 13px; margin-top: 5px;">
             <i class="fas fa-exclamation-circle"></i> <span id="nameErrorText"></span>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" id="cancelAddModalBtn">Cancel</button>
-        <button type="submit" class="btn btn-primary">Save Symptom</button>
+        <button type="button" class="btn btn-secondary" id="cancelAddModalBtn">Hủy</button>
+        <button type="submit" class="btn btn-primary">Lưu Triệu chứng</button>
       </div>
     </form>
   </div>
@@ -174,27 +168,26 @@
 <div class="modal-overlay" id="editModal">
   <div class="modal">
     <div class="modal-header">
-      <h2 id="editModalTitle">Edit Symptom</h2>
+      <h2 id="editModalTitle">Chỉnh sửa Triệu chứng</h2>
       <button type="button" class="modal-close" id="closeEditModalBtn">&times;</button>
     </div>
     <form id="editForm" method="post">
       <input type="hidden" id="editSymptomId" name="symptomId">
       <div class="form-grid">
         <div class="form-group full-width">
-          <label>Symptom Name <span class="required">*</span></label>
+          <label>Tên triệu chứng <span class="required">*</span></label>
           <input type="text" id="editSymptomName" name="symptomName" required>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" id="cancelEditModalBtn">Cancel</button>
-        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <button type="button" class="btn btn-secondary" id="cancelEditModalBtn">Hủy</button>
+        <button type="submit" class="btn btn-primary">Lưu Thay đổi</button>
       </div>
     </form>
   </div>
 </div>
 
-<script th:src="@{/js/admin/symptoms.js}"></script>
-<script src="/static/js/admin/symptoms.js"></script>
+<script th:src="@{/js/admin/symptoms.js(v=${#dates.createNow().getTime()})}"></script>
 <script>
     function changePageSize() {
         var size = document.getElementById('pageSizeSelect').value;

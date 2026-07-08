@@ -45,13 +45,13 @@ let pendingName = null;
 
 window.showConfirmModal = function(id, currentStatus, symptomName) {
     const isActive = currentStatus === 'Active';
-    const title = isActive ? 'Clock Symptom' : 'Restore Symptom';
+    const title = isActive ? 'Khóa triệu chứng' : 'Khôi phục triệu chứng';
     const message = isActive
-        ? `Are you sure you want to clock "${symptomName}"?`
-        : `Are you sure you want to restore "${symptomName}"?`;
+        ? `Bạn có chắc chắn muốn khóa triệu chứng "${symptomName}"?`
+        : `Bạn có chắc chắn muốn khôi phục triệu chứng "${symptomName}"?`;
     const subMessage = isActive
-        ? 'This symptom will be hidden from active lists.'
-        : 'This symptom will become available again.';
+        ? 'Triệu chứng này sẽ bị tạm ẩn khỏi danh sách hoạt động.'
+        : 'Triệu chứng này sẽ hoạt động trở lại bình thường.';
 
     document.getElementById('confirmModalTitle').innerHTML = `<i class="fas fa-shield-alt" style="margin-right: 8px; color: #f59e0b;"></i> ${title}`;
     document.getElementById('confirmMessage').innerHTML = `<i class="fas fa-head-side-medical" style="margin-right: 8px; color: #f59e0b;"></i> ${message}`;
@@ -101,7 +101,7 @@ function executeAction() {
         // Disable button to prevent double submit
         const okBtn = document.getElementById('okConfirmBtn');
         const originalText = okBtn.innerHTML;
-        okBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        okBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
         okBtn.disabled = true;
         setTimeout(() => form.submit(), 100);
     }
@@ -144,14 +144,14 @@ window.openEditModal = function(id) {
         .then(result => {
             if (result.success) {
                 const sym = result.data;
-                document.getElementById('editModalTitle').innerText = `Edit Symptom: ${sym.symptomName}`;
+                document.getElementById('editModalTitle').innerText = `Chỉnh sửa Triệu chứng: ${sym.symptomName}`;
                 document.getElementById('editSymptomId').value = sym.symptomId;
                 document.getElementById('editSymptomName').value = sym.symptomName;
                 editForm.action = `/admin/symptoms/edit/${id}`;
                 editModal.classList.add('open');
                 document.body.classList.add('modal-open');
             } else {
-                showToast('Failed to load symptom data', 'error');
+                showToast('Tải dữ liệu triệu chứng thất bại', 'error');
             }
         })
         .catch(err => {
@@ -170,81 +170,30 @@ document.getElementById('cancelEditModalBtn').onclick = closeEditModal;
 editModal.onclick = (e) => {
     if (e.target === editModal) closeEditModal();
 };
-// ==================== THÊM MỚI: REAL-TIME SEARCH ====================
-// Lấy các phần tử
+// ==================== BACKEND SEARCH & AUTO-RESET ON CLEAR ====================
 const searchInput = document.getElementById('searchKeyword');
-const symptomTableBody = document.getElementById('symptomTableBody');
-let searchTimeout = null;
+const searchForm = document.getElementById('symptomSearchForm');
 
-// Hàm tải dữ liệu từ API
-function fetchSymptomsByKeyword(keyword) {
-    const statusSelect = document.getElementById('statusSelect');
-    const currentStatus = statusSelect ? statusSelect.value : '';
-    const url = `/admin/symptoms/list?keyword=${encodeURIComponent(keyword)}&status=${currentStatus}&page=0&size=8`;
-    fetch(url)
-        .then(res => res.json())
-        .then(data => {
-            // Cập nhật bảng
-            if (data.content && data.content.length > 0) {
-                let html = '';
-                data.content.forEach(sym => {
-                    const statusClass = sym.status ? 'badge-active' : 'badge-clocked';
-                    const statusText = sym.status ? 'Active' : 'Clocked';
-                    const lockIcon = sym.status ? 'fas fa-lock' : 'fas fa-lock-open';
-                    const lockTitle = sym.status ? 'Clock Symptom' : 'Restore Symptom';
-                    html += `
-                        <tr>
-                            <td>
-                                <div class="symptom-cell">
-                                    <span class="symptom-name">${escapeHtml(sym.symptomName)}</span>
-                                    <span class="symptom-id">${escapeHtml(sym.symptomId)}</span>
-                                </div>
-                            </td>
-                            <td><span class="${statusClass}">${statusText}</span></td>
-                            <td class="action-group">
-                                <button class="action-btn edit" data-id="${escapeHtml(sym.symptomId)}" onclick="openEditModal(this.getAttribute('data-id'))"><i class="fas fa-pen"></i></button>
-                                <button class="action-btn soft-delete" data-id="${escapeHtml(sym.symptomId)}" data-status="${statusText}" data-name="${escapeHtml(sym.symptomName)}" onclick="showConfirmModal(this.getAttribute('data-id'), this.getAttribute('data-status'), this.getAttribute('data-name'))" title="${lockTitle}"><i class="${lockIcon}"></i></button>
-                            </td>
-                        </tr>
-                    `;
-                });
-                symptomTableBody.innerHTML = html;
-            } else {
-                symptomTableBody.innerHTML = `<tr><td colspan="3" class="empty-row"><i class="fas fa-head-side-medical"></i><p>No symptoms found</p></td></tr>`;
-            }
-            // Cập nhật thống kê (nếu cần)
-            fetchStats();
-        })
-        .catch(err => console.error('Search error:', err));
-}
-
-function fetchStats() {
-    fetch('/admin/symptoms/stats')
-        .then(res => res.json())
-        .then(stats => {
-            document.getElementById('statTotal').innerText = stats.totalSymptoms || 0;
-            document.getElementById('statActive').innerText = stats.activeSymptoms || 0;
-            document.getElementById('statClocked').innerText = stats.clockedSymptoms || 0;
-        })
-        .catch(err => console.error('Stats error:', err));
-}
-
-function escapeHtml(str) {
-    if (!str) return '';
-    return String(str).replace(/[&<>"'`]/g, function(s) {
-        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'})[s];
-    });
-}
-
-// Gắn sự kiện real-time cho ô tìm kiếm
-if (searchInput) {
+if (searchForm && searchInput) {
+    // Tự động submit để hiển thị lại tất cả khi xóa trắng ô tìm kiếm
     searchInput.addEventListener('input', function() {
-        clearTimeout(searchTimeout);
-        const keyword = this.value.trim();
-        searchTimeout = setTimeout(() => {
-            fetchSymptomsByKeyword(keyword);
-        }, 300);
+        if (this.value.trim() === '') {
+            searchForm.submit();
+        }
     });
+
+    searchInput.addEventListener('search', function() {
+        if (this.value.trim() === '') {
+            searchForm.submit();
+        }
+    });
+
+    const searchIcon = document.getElementById('searchIcon');
+    if (searchIcon) {
+        searchIcon.addEventListener('click', function() {
+            searchForm.submit();
+        });
+    }
 }
 
 // Khi trang load, nếu có từ khóa trong URL (do filter status submit) thì vẫn hiển thị đúng

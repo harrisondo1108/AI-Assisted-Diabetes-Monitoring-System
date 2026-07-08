@@ -22,7 +22,24 @@ public class ReminderScheduledTask {
     @Scheduled(fixedRate = 60_000)
     @Transactional
     public void scanDueReminders() {
-        // Vô hiệu hóa do các cột IsSent, Status đã bị xóa trong database mới.
+        List<AIReminder> reminders = aiReminderRepository.findDueUnsentReminders(LocalDateTime.now());
+
+        for (AIReminder reminder : reminders) {
+            sendReminder(reminder);
+            String patientEmail = null;
+            if (reminder.getPatient() != null) {
+                patientEmail = reminder.getPatient().getEmail();
+            }
+            if (patientEmail != null && !patientEmail.trim().isEmpty()) {
+                emailService.sendSimpleEmail(patientEmail.trim(), reminder.getTitle(), reminder.getMessage());
+            } else {
+                System.out.println("Warning: Patient " + (reminder.getPatient() != null ? reminder.getPatient().getUserId() : "null") + " has no email configured, fallback to default recipient");
+                emailService.sendSimpleEmail("lequan13112005@gmail.com", reminder.getTitle(), reminder.getMessage());
+            }
+            reminder.setIsSent(true);
+        }
+
+        aiReminderRepository.saveAll(reminders);
     }
 
     private void sendReminder(AIReminder reminder) {

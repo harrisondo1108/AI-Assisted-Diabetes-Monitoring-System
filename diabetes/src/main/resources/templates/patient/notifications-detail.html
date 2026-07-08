@@ -2,7 +2,7 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Chi tiết Thông báo | Hệ thống Chăm sóc Tiểu đường</title>
+    <title>Chi tiết thông báo | Hệ thống chăm sóc tiểu đường</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/patient/patient.css}">
     <link rel="stylesheet" th:href="@{/css/patient/notifications-detail.css}">
@@ -95,7 +95,7 @@
                     </div>
                     <div class="header-info-box">
                         <span class="category-badge" th:text="${#strings.contains(reminder.title, 'Nhắc nhở') or #strings.contains(reminder.title, 'Uống') or #strings.contains(reminder.title, 'thuốc') or reminder.timing != null} ? 'NHẮC NHỞ Y TẾ' : 'KIẾN THỨC SỨC KHỎE'">NHẮC NHỞ Y TẾ</span>
-                        <h2 class="detail-title" th:text="${reminder.title}">Chi tiết Nhắc nhở dùng thuốc</h2>
+                        <h2 class="detail-title" th:text="${reminder.title}">Chi tiết nhắc nhở dùng thuốc</h2>
                         <div class="detail-subtitle-row">
                             <div class="detail-subtitle-item">
                                 <i class="far fa-clock"></i>

@@ -23,4 +23,6 @@ public interface LabTestCatalogService {
     boolean existsByTestNameAndLabTestIdNot(String testName, String labTestId);
 
     String generateLabTestId();
+
+    List<LabTestCatalog> searchByKeywordAndStatus(String keyword, Boolean status);
 }

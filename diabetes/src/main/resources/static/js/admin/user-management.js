@@ -4,7 +4,7 @@
 (function () {
     'use strict';
 
-    const GENDER_LABEL = { false: 'Male', true: 'Female', '0': 'Male', '1': 'Female' };
+    const GENDER_LABEL = { false: 'Nam', true: 'Nữ', '0': 'Nam', '1': 'Nữ' };
 
     function normalizeGenderKey(gender) {
         if (gender === true || gender === 1 || gender === '1' || gender === 'true') return '1';
@@ -24,14 +24,20 @@
     let resetValidationState = null;
 
     window.showConfirmModal = function(id, currentStatus, fullName) {
+        let displayName = fullName;
+        if (!fullName || fullName === 'null' || fullName === 'undefined' || fullName.trim() === '') {
+            const row = document.querySelector(`tr[data-user-id="${id}"]`);
+            const phone = row ? row.querySelector('.user-phone')?.innerText : '';
+            displayName = phone || 'Người dùng';
+        }
         const isActive = currentStatus === 'Active';
-        const title = isActive ? 'Clock Account' : 'Unlock Account';
+        const title = isActive ? 'Khóa tài khoản' : 'Mở khóa tài khoản';
         const message = isActive
-            ? 'Are you sure you want to clock "' + fullName + '"?'
-            : 'Are you sure you want to unlock "' + fullName + '"?';
+            ? 'Bạn có chắc chắn muốn khóa tài khoản "' + displayName + '"?'
+            : 'Bạn có chắc chắn muốn mở khóa tài khoản "' + displayName + '"?';
         const subMessage = isActive
-            ? 'This user will be hidden from active lists and cannot perform actions.'
-            : 'This user will become active again.';
+            ? 'Người dùng này sẽ bị tạm ngưng hoạt động trên hệ thống.'
+            : 'Người dùng này sẽ hoạt động trở lại bình thường.';
 
         document.getElementById('confirmModalTitle').innerHTML = '<i class="fas fa-shield-alt" style="margin-right: 8px; color: #f59e0b;"></i> ' + title;
         document.getElementById('confirmMessage').innerHTML = '<i class="fas fa-user-shield" style="margin-right: 8px; color: #f59e0b;"></i> ' + message;
@@ -80,7 +86,7 @@
             document.body.appendChild(form);
 
             const okBtn = document.getElementById('okConfirmBtn');
-            okBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            okBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
             okBtn.disabled = true;
 
             setTimeout(function() {
@@ -99,14 +105,14 @@
     };
 
     function roleLabel(role) {
-        const map = { doctor: 'Doctor', patient: 'Patient', admin: 'Admin', DOC: 'Doctor', PAT: 'Patient' };
+        const map = { doctor: 'Bác sĩ', patient: 'Bệnh nhân', admin: 'Quản trị viên', DOC: 'Bác sĩ', PAT: 'Bệnh nhân' };
         return map[role] || role;
     }
 
     function formatDate(iso) {
         if (!iso) return '—';
         const d = new Date(iso);
-        return d.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
+        return d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
     }
 
     function findUser(id) {
@@ -119,7 +125,7 @@
         document.getElementById('drawerName').textContent = user.fullName;
         const isClocked = user.status && user.status.toLowerCase() === 'clocked';
         document.getElementById('drawerMeta').textContent =
-            roleLabel(user.role) + ' • ' + (isClocked ? 'Clocked' : 'Active');
+            roleLabel(user.role) + ' • ' + (isClocked ? 'Đang khóa' : 'Hoạt động');
 
         setDrawerRow('drawerUserId', user.userId);
         setDrawerRow('drawerAccountPhone', user.accountPhone);
@@ -129,7 +135,7 @@
         setDrawerRow('drawerAddress', user.address || '—');
         setDrawerRow('drawerContactPhone', user.phoneNumber || '—');
         setDrawerRow('drawerRole', roleLabel(user.role));
-        setDrawerRow('drawerStatus', isClocked ? 'Clocked' : 'Active');
+        setDrawerRow('drawerStatus', isClocked ? 'Đang khóa' : 'Hoạt động');
 
         const doctorSec = document.querySelectorAll('.doctor-only-section');
         const patientSec = document.querySelectorAll('.patient-only-section');
@@ -687,173 +693,31 @@
             })();
         }
 
-        // Live search (debounced) - update table via AJAX JSON endpoint
+        // Backend search - submit form when clicking the search icon or when clearing input
         const searchInput = document.getElementById('globalSearch');
         const toolbarForm = document.querySelector('.toolbar-search');
-        if (toolbarForm) {
-            toolbarForm.addEventListener('submit', function (e) { e.preventDefault(); });
-        }
-
-        if (searchInput) {
-            const debounce = (fn, wait) => {
-                let t;
-                return function (...args) {
-                    clearTimeout(t);
-                    t = setTimeout(() => fn.apply(this, args), wait);
-                };
-            };
-
-            const fetchAndRender = async (page = 0) => {
-                try {
-                    const roleInput = document.querySelector('.toolbar-search input[name="role"]');
-                    const role = roleInput ? roleInput.value || 'all' : 'all';
-                    const search = (document.getElementById('globalSearch').value || '').trim();
-                    const size = parseInt(document.getElementById('pagination')?.dataset.pageSize || '8', 10) || 8;
-                    const url = `/admin/users/list?role=${encodeURIComponent(role)}&search=${encodeURIComponent(search)}&page=${page}&size=${size}`;
-                    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
-                    if (!res.ok) return;
-                    const data = await res.json();
-                    renderUsers(data.content || []);
-                    const container = document.getElementById('pagination');
-                    if (container) {
-                        container.dataset.currentPage = data.currentPage;
-                        container.dataset.totalPages = data.totalPages;
-                        container.dataset.pageSize = data.pageSize;
-                        container.dataset.search = role === 'all' ? (document.getElementById('globalSearch').value || '') : (document.getElementById('globalSearch').value || '');
-                        renderPagination();
-                    }
-                } catch (e) {
-                    console.error('Live search failed', e);
+        if (toolbarForm && searchInput) {
+            // Tự động submit để hiển thị lại tất cả khi xóa trắng ô tìm kiếm
+            searchInput.addEventListener('input', function () {
+                if (this.value.trim() === '') {
+                    toolbarForm.submit();
                 }
-            };
-
-            const debouncedFetch = debounce(() => fetchAndRender(0), 300);
-            searchInput.addEventListener('input', debouncedFetch);
-        }
-    }
-
-    function renderUsers(list) {
-        const tbody = document.getElementById('userTableBody');
-        if (!tbody) return;
-        const rows = list.map(user => {
-            const genderText = (user.gender == null) ? 'Empty' : (user.gender ? 'Female' : 'Male');
-            const roleText = user.role ? (user.role.charAt(0).toUpperCase() + user.role.slice(1)) : '—';
-            const statusClass = user.status === 'Active' ? 'active' : 'clocked';
-            return `
-            <tr data-user-id="${user.userId || ''}"
-                data-full-name="${escapeHtml(user.fullName || '')}"
-                data-account-phone="${escapeHtml(user.accountPhone || '')}"
-                data-role="${escapeHtml(user.role || '')}"
-                data-gender="${user.gender}"
-                data-status="${escapeHtml(user.status || '')}"
-                data-dob="${escapeHtml(user.dob || '')}"
-                data-address="${escapeHtml(user.address || '')}"
-                data-specialty="${escapeHtml(user.specialty || '')}"
-                data-room-name="${escapeHtml(user.roomName || '')}"
-                data-height="${user.height || ''}"
-                data-weight="${user.weight || ''}"
-                data-bloodgroup="${escapeHtml(user.bloodgroup || '')}"
-                data-permanent-medical-history="${escapeHtml(user.permanentMedicalHistory || '')}"
-                data-allergy-notes="${escapeHtml(user.allergyNotes || '')}"
-                data-supervisor-name="${escapeHtml(user.supervisorName || '')}"
-                data-supervisor-phone="${escapeHtml(user.supervisorPhone || '')}">
-                <td>
-                    <div class="user-cell">
-                        <div class="user-name">${escapeHtml(user.fullName || '')}</div>
-                        <div class="user-phone">${escapeHtml(user.accountPhone || '')}</div>
-                    </div>
-                </td>
-                <td><span class="badge">${escapeHtml(roleText)}</span></td>
-                <td>${escapeHtml(genderText)}</td>
-                <td><span class="status-badge ${statusClass}">${escapeHtml(user.status === 'Active' ? 'Active' : 'Clocked')}</span></td>
-                <td>
-                    <div class="action-group">
-                        <button type="button" class="action-btn view" title="View details" data-action="view" data-id="${user.userId || ''}"><i class="fas fa-eye"></i></button>
-                        ${(user.role === 'patient' || user.role === 'PAT') ? '' : `<button type="button" class="action-btn edit" title="Edit" data-action="edit" data-id="${user.userId || ''}"><i class="fas fa-pen"></i></button>`}
-                        <button type="button" class="action-btn ${user.status === 'Active' ? 'lock' : 'unlock'}" 
-                            data-id="${user.userId || ''}" 
-                            data-status="${user.status || ''}" 
-                            data-name="${escapeHtml(user.fullName || '')}" 
-                            onclick="showConfirmModal(this.getAttribute('data-id'), this.getAttribute('data-status'), this.getAttribute('data-name'))" 
-                            title="${user.status === 'Active' ? 'Clock account' : 'Unlock account'}">
-                            <i class="fas ${user.status === 'Active' ? 'fa-lock' : 'fa-lock-open'}"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>`;
-        }).join('\n');
-        tbody.innerHTML = rows;
-        // rebind actions
-        document.querySelectorAll('[data-action="view"]').forEach(btn => {
-            btn.onclick = function () {
-                const id = this.getAttribute('data-id');
-                const user = findUser(id);
-                if (user) openDrawer(user);
-            };
-        });
-        document.querySelectorAll('[data-action="edit"]').forEach(btn => {
-            btn.onclick = function () {
-                const id = this.getAttribute('data-id');
-                const user = findUser(id);
-                if (user) openModal('edit', user);
-            };
-        });
-    }
-
-    function escapeHtml(str) {
-        return String(str).replace(/[&<>"'`]/g, function (s) {
-            return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '`': '&#96;' })[s];
-        });
-    }
-
-    // Re-use existing renderer if present; otherwise, provide a minimal one
-    function renderPagination() {
-        const container = document.getElementById('pagination');
-        if (!container) return;
-        const total = parseInt(container.dataset.totalPages || '0', 10);
-        const current = parseInt(container.dataset.currentPage || '0', 10);
-        if (isNaN(total) || total <= 1) {
-            container.innerHTML = '';
-            return;
-        }
-        const range = 2;
-        const buildPageUrl = (page) => {
-            const role = document.querySelector('.toolbar-search input[name="role"]')?.value || 'all';
-            const search = document.getElementById('globalSearch')?.value || '';
-            const params = new URLSearchParams();
-            if (role && role !== 'all') params.set('role', role);
-            if (search) params.set('search', search);
-            params.set('page', page);
-            return '/admin/users?' + params.toString();
-        };
-        let html = '';
-        if (current > 0) html += `<a href="${buildPageUrl(current - 1)}" class="page-link prev">« Prev</a>`;
-        else html += `<span class="page-link prev disabled">« Prev</span>`;
-        if (0 < current - range) {
-            html += `<a href="${buildPageUrl(0)}" class="page-num">1</a>`;
-            if (1 < current - range) html += `<span class="ellipsis">…</span>`;
-        }
-        const start = Math.max(0, current - range);
-        const end = Math.min(total - 1, current + range);
-        for (let i = start; i <= end; i++) {
-            const cls = i === current ? 'page-num active' : 'page-num';
-            html += `<a href="${buildPageUrl(i)}" class="${cls}" data-page="${i}">${i + 1}</a>`;
-        }
-        if (current + range < total - 1) {
-            if (current + range + 1 < total - 1) html += `<span class="ellipsis">…</span>`;
-            html += `<a href="${buildPageUrl(total - 1)}" class="page-num">${total}</a>`;
-        }
-        if (current + 1 < total) html += `<a href="${buildPageUrl(current + 1)}" class="page-link next">Next »</a>`;
-        else html += `<span class="page-link next disabled">Next »</span>`;
-        container.innerHTML = html;
-        container.querySelectorAll('a').forEach(a => {
-            a.addEventListener('click', function (e) {
-                e.preventDefault();
-                const href = this.getAttribute('href');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                setTimeout(() => { window.location.href = href; }, 120);
             });
-        });
+
+            searchInput.addEventListener('search', function () {
+                if (this.value.trim() === '') {
+                    toolbarForm.submit();
+                }
+            });
+
+            const searchIcon = toolbarForm.querySelector('.fa-search');
+            if (searchIcon) {
+                searchIcon.style.cursor = 'pointer';
+                searchIcon.addEventListener('click', function () {
+                    toolbarForm.submit();
+                });
+            }
+        }
     }
 
     // Flash toast auto-show and auto-hide (4s)

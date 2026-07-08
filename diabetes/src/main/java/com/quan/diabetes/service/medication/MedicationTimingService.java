@@ -25,4 +25,6 @@ public interface MedicationTimingService {
     boolean existsByTimingName(String timingName);
 
     boolean existsByTimingNameAndTimingIdNot(String timingName, Integer timingId);
+
+    List<MedicationTiming> searchByKeyword(String keyword);
 }

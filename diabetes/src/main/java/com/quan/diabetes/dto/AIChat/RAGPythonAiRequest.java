@@ -11,13 +11,17 @@ public class RAGPythonAiRequest {
     @JsonProperty("context_data")
     private String contextData;
 
+    @JsonProperty("conversation_history")
+    private String conversationHistory;
+
     public RAGPythonAiRequest() {
     }
 
-    public RAGPythonAiRequest(String patientId, String message, String contextData) {
+    public RAGPythonAiRequest(String patientId, String message, String contextData, String conversationHistory) {
         this.patientId = patientId;
         this.message = message;
         this.contextData = contextData;
+        this.conversationHistory = conversationHistory;
     }
 
     public String getPatientId() {
@@ -42,5 +46,23 @@ public class RAGPythonAiRequest {
 
     public void setContextData(String contextData) {
         this.contextData = contextData;
+    }
+
+    public String getConversationHistory() {
+        return conversationHistory;
+    }
+
+    public void setConversationHistory(String conversationHistory) {
+        this.conversationHistory = conversationHistory;
+    }
+
+    @Override
+    public String toString() {
+        return "RAGPythonAiRequest{" +
+                "patientId='" + patientId + '\'' +
+                ", message='" + message + '\'' +
+                ", contextData='" + contextData + '\'' +
+                ", conversationHistory='" + conversationHistory + '\'' +
+                '}';
     }
 }

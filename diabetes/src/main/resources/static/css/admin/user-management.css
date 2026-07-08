@@ -28,8 +28,8 @@
     --action-view-text: #2b4acb;
     --action-edit-bg: #fef9e6;
     --action-edit-text: #b7791f;
-    --action-lock-bg: #fdeaea;
-    --action-lock-text: #c53030;
+    --action-lock-bg: #fef3c7;
+    --action-lock-text: #d97706;
     --action-unlock-bg: #e8f8ef;
     --action-unlock-text: #1a7a4a;
 }
@@ -89,8 +89,28 @@ body {
 
 .sidebar-nav {
     flex: 1;
+    min-height: 0;
     padding: 16px 12px;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.35);
 }
 
 .nav-item {
@@ -477,6 +497,7 @@ body {
 .user-cell .user-name {
     font-weight: 600;
     color: var(--text-primary);
+    min-height: 20px;
 }
 
 .user-cell .user-phone {

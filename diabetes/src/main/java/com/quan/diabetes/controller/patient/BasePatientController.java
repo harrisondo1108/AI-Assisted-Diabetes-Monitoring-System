@@ -15,6 +15,7 @@ import com.quan.diabetes.service.medication.PrescriptionService;
 import com.quan.diabetes.service.medication.PrescriptionTimingService;
 import com.quan.diabetes.service.user.PatientRoutineService;
 import com.quan.diabetes.service.user.PatientService;
+import com.quan.diabetes.service.user.UserService;
 import com.quan.diabetes.util.ReminderTimeCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
@@ -32,6 +33,8 @@ public abstract class BasePatientController {
 
     @Autowired
     protected PatientService patientService;
+    @Autowired
+    protected UserService userService;
     @Autowired
     protected PatientRoutineService patientRoutineService;
     @Autowired
@@ -55,14 +58,15 @@ public abstract class BasePatientController {
     @Autowired
     protected TreatmentPlanService treatmentPlanService;
 
-
     protected Patient addCommonData(Model model, HttpSession session, String activeMenu) {
         Patient patient = getCurrentPatient(session);
+        User currentUser = getCurrentUser(session);
 
         model.addAttribute("activeMenu", activeMenu);
         model.addAttribute("patient", patient);
         model.addAttribute("patientCode", patient != null ? patient.getUserId() : "");
         model.addAttribute("pageRole", "Cổng thông tin bệnh nhân");
+        model.addAttribute("userPhone", currentUser != null ? currentUser.getPhoneNumber() : "");
 
         boolean hasUnreadNotifications = false;
         if (patient != null) {
@@ -76,27 +80,44 @@ public abstract class BasePatientController {
 
     protected User getCurrentUser(HttpSession session) {
         Object loggedInUser = session.getAttribute("loggedInUser");
-
-        if (loggedInUser instanceof User user) {
-            return user;
+        if (loggedInUser != null) {
+            if (loggedInUser instanceof User user) {
+                return user;
+            }
+            try {
+                if (loggedInUser.getClass().getName().endsWith(".User")) {
+                    java.lang.reflect.Method getUserIdMethod = loggedInUser.getClass().getMethod("getUserId");
+                    String userId = (String) getUserIdMethod.invoke(loggedInUser);
+                    return userService.findById(userId).orElse(null);
+                }
+            } catch (Exception e) {
+                // ignore and fall back
+            }
         }
-
         return null;
     }
 
     protected Patient getCurrentPatient(HttpSession session) {
         Object userProfile = session.getAttribute("userProfile");
-
-        if (userProfile instanceof Patient patient) {
-            return patient;
+        if (userProfile != null) {
+            if (userProfile instanceof Patient patient) {
+                return patient;
+            }
+            try {
+                if (userProfile.getClass().getName().endsWith(".Patient")) {
+                    java.lang.reflect.Method getUserIdMethod = userProfile.getClass().getMethod("getUserId");
+                    String userId = (String) getUserIdMethod.invoke(userProfile);
+                    return patientService.findById(userId).orElse(null);
+                }
+            } catch (Exception e) {
+                // ignore and fall back
+            }
         }
 
         User currentUser = getCurrentUser(session);
-
         if (currentUser != null) {
             return patientService.findById(currentUser.getUserId()).orElse(null);
         }
-
         return null;
     }
 
@@ -119,8 +140,7 @@ public abstract class BasePatientController {
                 .filter(exam -> patient.getUserId().equals(exam.getPatient().getUserId()))
                 .sorted(Comparator.comparing(
                         ClinicalExamination::getExamDate,
-                        Comparator.nullsLast(Comparator.reverseOrder())
-                ))
+                        Comparator.nullsLast(Comparator.reverseOrder())))
                 .collect(Collectors.toList());
     }
 
@@ -199,7 +219,7 @@ public abstract class BasePatientController {
     }
 
     protected Map<String, List<LabOrder>> groupLabOrdersByExam(List<ClinicalExamination> examinations,
-                                                             List<LabOrder> labOrders) {
+            List<LabOrder> labOrders) {
         Map<String, List<LabOrder>> result = new LinkedHashMap<>();
 
         for (ClinicalExamination examination : examinations) {
@@ -217,7 +237,7 @@ public abstract class BasePatientController {
     }
 
     protected Map<String, List<LabResult>> groupLabResultsByOrder(List<LabOrder> labOrders,
-                                                                List<LabResult> labResults) {
+            List<LabResult> labResults) {
         Map<String, List<LabResult>> result = new LinkedHashMap<>();
 
         for (LabOrder labOrder : labOrders) {
@@ -234,8 +254,9 @@ public abstract class BasePatientController {
         return result;
     }
 
-    protected Map<String, List<PrescriptionDetail>> groupPrescriptionDetailsByExam(List<ClinicalExamination> examinations,
-                                                                                 List<PrescriptionDetail> details) {
+    protected Map<String, List<PrescriptionDetail>> groupPrescriptionDetailsByExam(
+            List<ClinicalExamination> examinations,
+            List<PrescriptionDetail> details) {
         Map<String, List<PrescriptionDetail>> result = new LinkedHashMap<>();
 
         for (ClinicalExamination examination : examinations) {
@@ -244,7 +265,8 @@ public abstract class BasePatientController {
             List<PrescriptionDetail> examDetails = details.stream()
                     .filter(detail -> detail.getPrescription() != null)
                     .filter(detail -> detail.getPrescription().getClinicalExamination() != null)
-                    .filter(detail -> examId.equals(detail.getPrescription().getClinicalExamination().getClinicalExamId()))
+                    .filter(detail -> examId
+                            .equals(detail.getPrescription().getClinicalExamination().getClinicalExamId()))
                     .collect(Collectors.toList());
 
             result.put(examId, examDetails);
@@ -294,8 +316,7 @@ public abstract class BasePatientController {
                 .filter(conversation -> patient.getUserId().equals(conversation.getPatient().getUserId()))
                 .sorted(Comparator.comparing(
                         AIConversation::getCreatedAt,
-                        Comparator.nullsLast(Comparator.reverseOrder())
-                ))
+                        Comparator.nullsLast(Comparator.reverseOrder())))
                 .collect(Collectors.toList());
     }
 
@@ -311,8 +332,7 @@ public abstract class BasePatientController {
                         .equals(message.getAiConversation().getAiConversationId()))
                 .sorted(Comparator.comparing(
                         AIMessage::getTime,
-                        Comparator.nullsLast(Comparator.naturalOrder())
-                ))
+                        Comparator.nullsLast(Comparator.naturalOrder())))
                 .collect(Collectors.toList());
     }
 
@@ -532,66 +552,66 @@ public abstract class BasePatientController {
             return List.of();
         }
 
-        PatientRoutine routine = findRoutineByPatient(patient);
         List<PrescriptionDetail> prescriptionDetails = findPrescriptionDetailsByPatient(patient);
-
         if (prescriptionDetails.isEmpty()) {
             return List.of();
         }
 
-        Set<String> prescriptionDetailIds = prescriptionDetails.stream()
-                .map(PrescriptionDetail::getPrescriptionDetailId)
-                .collect(Collectors.toSet());
-
-        Map<String, PrescriptionDetail> detailMap = prescriptionDetails.stream()
-                .collect(Collectors.toMap(
-                        PrescriptionDetail::getPrescriptionDetailId,
-                        detail -> detail,
-                        (oldValue, newValue) -> oldValue
-                ));
-
-        LocalDate today = LocalDate.now();
         LocalDateTime now = LocalDateTime.now();
 
+        // Lấy tất cả nhắc nhở hoạt động của bệnh nhân trong ngày hôm nay (lockStatus =
+        // false)
+        List<AIReminder> todayReminders = aiReminderService.getPatientRemindersToday(patient.getUserId());
         List<MedicationReminderView> reminders = new ArrayList<>();
 
-        List<PrescriptionTiming> prescriptionTimings = prescriptionTimingService.findAll()
-                .stream()
-                .filter(timing -> timing.getPrescriptionDetail() != null)
-                .filter(timing -> timing.getTiming() != null)
-                .filter(timing -> prescriptionDetailIds.contains(
-                        timing.getPrescriptionDetail().getPrescriptionDetailId()
-                ))
-                .collect(Collectors.toList());
+        for (AIReminder reminder : todayReminders) {
+            if (reminder.getTiming() == null) {
+                continue;
+            }
+            int timingId = reminder.getTiming().getTimingID();
 
-        for (PrescriptionTiming prescriptionTiming : prescriptionTimings) {
-            PrescriptionDetail detail = detailMap.get(
-                    prescriptionTiming.getPrescriptionDetail().getPrescriptionDetailId()
-            );
+            // Tìm chi tiết đơn thuốc khớp với khung giờ (timingId) của nhắc nhở
+            PrescriptionDetail matchingDetail = null;
+            for (PrescriptionDetail detail : prescriptionDetails) {
+                if (detail.getPrescriptionTimings() != null) {
+                    boolean matches = detail.getPrescriptionTimings().stream()
+                            .anyMatch(pt -> pt.getTiming() != null && pt.getTiming().getTimingID() == timingId);
+                    if (matches) {
+                        matchingDetail = detail;
+                        break;
+                    }
+                }
+            }
 
-            if (detail == null) {
+            if (matchingDetail == null) {
                 continue;
             }
 
-            String timingName = prescriptionTiming.getTiming().getTimingName();
-            LocalTime medicationTime = ReminderTimeCalculator.calculateReminderTime(timingName, routine);
+            boolean isSent = reminder.getIsSent() != null && reminder.getIsSent();
+            boolean dueNow = false;
+            boolean past = false;
 
-            if (medicationTime == null) {
-                continue;
+            if (isSent) {
+                LocalDateTime sentTime = reminder.getScheduledTime();
+                LocalDateTime tenMinsAfter = sentTime.plusMinutes(10);
+                if (now.isAfter(tenMinsAfter)) {
+                    past = true;
+                } else {
+                    dueNow = true;
+                }
+            } else {
+                // Chưa gửi thì trạng thái là sắp diễn ra (dueNow = false, past = false)
+                dueNow = false;
+                past = false;
             }
-
-            LocalDateTime medicationDateTime = LocalDateTime.of(today, medicationTime);
-
 
             reminders.add(createMedicationReminderView(
-                    detail,
-                    timingName,
-                    medicationDateTime.plusMinutes(10),
-                    medicationDateTime,
-//                    30,
-                    now
-            ));
-
+                    matchingDetail,
+                    reminder.getTiming().getTimingName(),
+                    reminder.getScheduledTime().plusMinutes(10),
+                    reminder.getScheduledTime(),
+                    dueNow,
+                    past));
         }
 
         return reminders.stream()
@@ -600,11 +620,11 @@ public abstract class BasePatientController {
     }
 
     protected MedicationReminderView createMedicationReminderView(PrescriptionDetail detail,
-                                                                 String timingName,
-                                                                 LocalDateTime endTime,
-                                                                 LocalDateTime reminderTime,
-//                                                                 int minutesBefore,
-                                                                 LocalDateTime now) {
+            String timingName,
+            LocalDateTime endTime,
+            LocalDateTime reminderTime,
+            boolean isDueNow,
+            boolean isPast) {
         String medicationName = detail.getMedication() != null
                 ? detail.getMedication().getMedicationName()
                 : "Thuốc";
@@ -618,9 +638,6 @@ public abstract class BasePatientController {
                 : "";
 
         String medicationPlan = detail.getMedicationPlan();
-
-        boolean isDueNow = !now.isBefore(reminderTime) && now.isBefore(endTime);
-        boolean isPast = now.isAfter(endTime);
 
         String title = "Nhắc nhở dùng thuốc";
         String message = "Uống " + medicationName + " - " + dosage + " lúc "
@@ -636,9 +653,7 @@ public abstract class BasePatientController {
                 medicationPlan,
                 endTime,
                 reminderTime,
-//                minutesBefore,
                 isDueNow,
-                isPast
-        );
+                isPast);
     }
 }

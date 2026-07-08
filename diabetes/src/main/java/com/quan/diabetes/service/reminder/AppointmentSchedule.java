@@ -34,7 +34,10 @@ public class AppointmentSchedule {
         // Lock any existing appointment reminders for this examination
         List<AIReminder> existingReminders = aiReminderRepo.findByPatient_UserIdAndTitle(clinicalExamination.getPatient().getUserId(), APPOINTMENT_REMINDER_TITLE);
         if (existingReminders != null && !existingReminders.isEmpty()) {
-            aiReminderRepo.deleteAll(existingReminders);
+            for (AIReminder r : existingReminders) {
+                r.setLockStatus(true);
+            }
+            aiReminderRepo.saveAll(existingReminders);
         }
 
         LocalDateTime nextAppointment = clinicalExamination.getNextAppointment();
@@ -60,6 +63,8 @@ public class AppointmentSchedule {
             reminderDayBefore.setScheduledTime(timeDayBefore);
             reminderDayBefore.setPatient(clinicalExamination.getPatient());
             reminderDayBefore.setIsRead(false);
+            reminderDayBefore.setClinicalExamination(clinicalExamination);
+            reminderDayBefore.setLockStatus(false);
             aiReminderRepo.save(reminderDayBefore);
 
             // Reminder 2: On the day of next appointment at 7:00 AM
@@ -70,6 +75,8 @@ public class AppointmentSchedule {
             reminderOnDay.setScheduledTime(timeOnDay);
             reminderOnDay.setPatient(clinicalExamination.getPatient());
             reminderOnDay.setIsRead(false);
+            reminderOnDay.setClinicalExamination(clinicalExamination);
+            reminderOnDay.setLockStatus(false);
             aiReminderRepo.save(reminderOnDay);
         }
     }

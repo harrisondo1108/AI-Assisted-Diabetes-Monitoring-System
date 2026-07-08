@@ -31,7 +31,7 @@
 }
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--bg-page);
     color: var(--text-primary);
     min-height: 100vh;
@@ -92,8 +92,28 @@ body {
 
 .sidebar-nav {
     flex: 1;
+    min-height: 0;
     padding: 16px 12px;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.35);
 }
 
 .nav-item {
@@ -768,3 +788,118 @@ body {
     color: #dc2626;
     margin-left: 2px;
 }
+
+/* ── Custom validation & counter styles ── */
+.validation-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    margin-top: 4px;
+}
+
+.error-msg {
+    color: #ef4444;
+}
+
+.char-count {
+    color: var(--text-muted);
+}
+
+.room-number-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background-color: var(--mint-200);
+    color: var(--green-900);
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+/* Confirm Modal Styles */
+.confirm-modal {
+    max-width: 450px;
+    animation: modalFadeIn 0.3s ease;
+}
+
+.confirm-modal .modal-body {
+    text-align: center;
+    padding: 32px 28px;
+}
+
+.confirm-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #fff3e0, #ffe8cc);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    animation: iconPulse 0.5s ease;
+}
+
+.confirm-icon i {
+    font-size: 40px;
+    color: #f59e0b;
+    animation: iconBounce 0.5s ease;
+}
+
+#confirmMessage {
+    font-size: 1rem;
+    color: var(--text-primary);
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+.confirm-submessage {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 8px;
+}
+
+.confirm-modal .modal-footer {
+    justify-content: center;
+    gap: 16px;
+    padding: 20px 24px 24px;
+    display: flex;
+    border-top: 1px solid var(--border);
+}
+
+.confirm-modal .btn {
+    min-width: 110px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.confirm-modal .btn-secondary {
+    background: #f1f5f9;
+    color: #475569;
+    border: none;
+}
+
+.confirm-modal .btn-secondary:hover {
+    background: #e2e8f0;
+}
+
+.confirm-modal .btn-primary {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #fff;
+    border: none;
+}
+
+.confirm-modal .btn-primary:hover {
+    background: linear-gradient(135deg, #d97706, #b45309);
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes iconPulse {
+    0% { transform: scale(0.9); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+

@@ -21,4 +21,10 @@ public interface AIReminderService {
     public boolean existsById(Long id);
 
     List<AIReminder> getListByIdAndScheduledTimeLessThanEqual(String id, LocalDateTime scheduledTimeIsLessThan);
+
+    boolean existsActiveReminder(String userId, LocalDateTime scheduledTime, String title, Integer timingId);
+
+    List<com.quan.diabetes.entity.Patient> getPatientsWithRemindersToday();
+
+    List<AIReminder> getPatientRemindersToday(String patientId);
 }

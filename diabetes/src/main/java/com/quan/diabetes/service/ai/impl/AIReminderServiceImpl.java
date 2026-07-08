@@ -59,4 +59,25 @@ public class AIReminderServiceImpl implements AIReminderService {
     public boolean existsById(Long id) {
         return aIReminderRepository.existsById(id);
     }
+
+    @Override
+    public boolean existsActiveReminder(String userId, LocalDateTime scheduledTime, String title, Integer timingId) {
+        return aIReminderRepository.existsByPatient_UserIdAndScheduledTimeAndTitleAndTiming_TimingIDAndLockStatus(
+                userId, scheduledTime, title, timingId, false
+        );
+    }
+
+    @Override
+    public List<com.quan.diabetes.entity.Patient> getPatientsWithRemindersToday() {
+        LocalDateTime startOfDay = java.time.LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = java.time.LocalDate.now().atTime(java.time.LocalTime.MAX);
+        return aIReminderRepository.findPatientsWithRemindersBetween(startOfDay, endOfDay);
+    }
+
+    @Override
+    public List<AIReminder> getPatientRemindersToday(String patientId) {
+        LocalDateTime startOfDay = java.time.LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = java.time.LocalDate.now().atTime(java.time.LocalTime.MAX);
+        return aIReminderRepository.findActiveRemindersByPatientAndDateRange(patientId, startOfDay, endOfDay);
+    }
 }
