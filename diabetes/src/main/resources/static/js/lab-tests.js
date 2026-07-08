@@ -1,7 +1,7 @@
 'use strict';
 
 let currentPage  = 1;
-const PAGE_SIZE  = 8;
+const PAGE_SIZE  = 7;
 let activeFilter = 'all';
 let searchKeyword = '';
 
@@ -132,10 +132,10 @@ function validateBaseForm(form, isEdit) {
     const testName = form.querySelector('[name="testName"]');
     const unit     = form.querySelector('[name="unit"]');
     const roomId   = form.querySelector('[name="roomId"]');
-    if (!testName?.value.trim())           return alert('Vui lòng nhập Test Name'), false;
-    if (testName.value.trim().length > 100) return alert('Test Name tối đa 100 ký tự'), false;
-    if (!unit?.value.trim())               return alert('Vui lòng nhập Unit'), false;
-    if (unit.value.trim().length > 20)     return alert('Unit tối đa 20 ký tự'), false;
+    if (!testName?.value.trim())           return alert('Vui lòng nhập Tên xét nghiệm'), false;
+    if (testName.value.trim().length > 100) return alert('Tên xét nghiệm tối đa 100 ký tự'), false;
+    if (!unit?.value.trim())               return alert('Vui lòng nhập Đơn vị'), false;
+    if (unit.value.trim().length > 20)     return alert('Đơn vị tối đa 20 ký tự'), false;
     if (!roomId?.value)                    return alert('Vui lòng chọn phòng xét nghiệm'), false;
     return true;
 }
@@ -230,7 +230,7 @@ function fillViewFromDataset(ds, thr) {
     setText('detailName',        ds.name);
     setText('detailUnit',        ds.unit);
     setText('detailRoom',        ds.room);
-    setText('detailStatus',      ds.status === 'true' ? 'Active' : 'Inactive');
+    setText('detailStatus',      ds.status === 'true' ? 'Hoạt động' : 'Tạm ngưng');
     setText('detailDescription', ds.description || '---');
     const t = thr || { young:{min:ds.min??0,max:ds.max??0}, middle:{min:ds.min??0,max:ds.max??0}, elder:{min:ds.min??0,max:ds.max??0}, pregnant:{min:ds.min??0,max:ds.max??0} };
     setText('youngMin',t.young.min); setText('youngMax',t.young.max);
@@ -244,7 +244,7 @@ function fillViewFromApi(d, thr) {
     setText('detailName',        d.testName);
     setText('detailUnit',        d.unit);
     setText('detailRoom',        d.roomId);
-    setText('detailStatus',      d.status === true ? 'Active' : 'Inactive');
+    setText('detailStatus',      d.status === true ? 'Hoạt động' : 'Tạm ngưng');
     setText('detailDescription', d.description || '---');
     const t = thr || { young:{min:d.minValue??0,max:d.maxValue??0}, middle:{min:d.minValue??0,max:d.maxValue??0}, elder:{min:d.minValue??0,max:d.maxValue??0}, pregnant:{min:d.minValue??0,max:d.maxValue??0} };
     setText('youngMin',t.young.min); setText('youngMax',t.young.max);
@@ -269,7 +269,7 @@ function initTabs() {
     });
 }
 
-/* ── SEARCH (Enter key trigger) ── */
+/* ── SEARCH (Backend-side search, reset on clear) ── */
 function initSearch() {
     const input = document.getElementById('tableSearch');
     if (input) {
@@ -280,6 +280,28 @@ function initSearch() {
                 window.location.href = `/admin/lab-tests?status=${status}&keyword=${encodeURIComponent(input.value.trim())}`;
             }
         });
+
+        input.addEventListener('input', function() {
+            if (this.value.trim() === '') {
+                const status = activeFilter;
+                window.location.href = `/admin/lab-tests?status=${status}`;
+            }
+        });
+
+        input.addEventListener('search', function() {
+            if (this.value.trim() === '') {
+                const status = activeFilter;
+                window.location.href = `/admin/lab-tests?status=${status}`;
+            }
+        });
+
+        const icon = document.querySelector('.lab-search-icon');
+        if (icon) {
+            icon.addEventListener('click', function() {
+                const status = activeFilter;
+                window.location.href = `/admin/lab-tests?status=${status}&keyword=${encodeURIComponent(input.value.trim())}`;
+            });
+        }
     }
 }
 

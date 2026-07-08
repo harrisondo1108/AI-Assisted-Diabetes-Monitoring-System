@@ -64,7 +64,6 @@ CREATE TABLE [Patient] (
     SupervisorName NVARCHAR(90),
     SupervisorPhone VARCHAR(15),
 	ImageURL NVARCHAR(255) NULL,
-	Email NVARCHAR(100) NULL,
     FOREIGN KEY (UserID) REFERENCES [Account](UserID) ON DELETE CASCADE ON UPDATE CASCADE,
     CHECK (Bloodgroup IN ('A+','A-','B+','B-','AB+','AB-','O+','O-'))
 );
@@ -298,16 +297,12 @@ CREATE TABLE [AI_Reminder] (
     Message NVARCHAR(MAX),
     ScheduledTime DATETIME,
     IsRead BIT DEFAULT 0,
-    IsSent BIT DEFAULT 0,
 	AIAssistantID INT,
     PatientID VARCHAR(50),
 	TimingID INT,
-    ClinicalExamID VARCHAR(50),
-    LockStatus BIT DEFAULT 0,
     FOREIGN KEY (PatientID) REFERENCES Patient(UserID) ON DELETE CASCADE,
 	FOREIGN KEY (AIAssistantID) REFERENCES AI_Assistant(AIAssistantID) ON DELETE CASCADE,
-	FOREIGN KEY (TimingID) REFERENCES MedicationTiming(TimingID),
-    FOREIGN KEY (ClinicalExamID) REFERENCES ClinicalExamination(ClinicalExamID)
+	FOREIGN KEY (TimingID) REFERENCES MedicationTiming(TimingID)
 );
 
 ------------------  INSERT  ----------------------------------------
@@ -326,8 +321,8 @@ VALUES
 
 INSERT INTO [Room] ([RoomName])
 VALUES
-(N'Phòn xét nghiệm'),
-(N'Phòng điều dưỡng');
+('Endocrinology Clinic'),
+('Laboratory');
 
 INSERT INTO [Symptoms_Catalog] (SymptomID, SymptomName, Status)
 VALUES

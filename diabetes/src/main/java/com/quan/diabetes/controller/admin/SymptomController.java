@@ -30,7 +30,7 @@ public class SymptomController {
             @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(name = "status", required = false) String status,
             @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "8") int size,
+            @RequestParam(name = "size", defaultValue = "7") int size,
             @RequestParam(name = "sortField", defaultValue = "symptomName") String sortField,
             @RequestParam(name = "sortDirection", defaultValue = "asc") String sortDirection,
             Model model) {
@@ -75,7 +75,7 @@ public class SymptomController {
             @RequestParam(name = "keyword", required = false, defaultValue = "") String keyword,
             @RequestParam(name = "status", required = false) String status,
             @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "8") int size) {
+            @RequestParam(name = "size", defaultValue = "7") int size) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("symptomName").ascending());
         Boolean statusBool = null;

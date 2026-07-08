@@ -5,20 +5,28 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cd82aed5-747b-44b9-892e-efbe52d1dbd5" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/logs/application.log" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/logs/application.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorDashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorDashboardController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientMedicalHistoryController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientMedicalHistoryController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/doctor/doctor-profile.css" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/doctor/doctor-profile.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/patient/patient.css" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/patient/patient.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/doctor/dashboard.js" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/doctor/dashboard.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/dashboard.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/doctor_header.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/doctor_header.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/examine.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/examine.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/patients.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/patients.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/profile.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/profile.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/history-detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/history-detail.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/progress.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/progress.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/CreateTable.sql" beforeDir="false" afterPath="$PROJECT_DIR$/database/CreateTable.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/admin/AdminUserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/admin/AdminUserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/admin/MedicationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/admin/MedicationController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/admin/SymptomController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/admin/SymptomController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/user/impl/AdminUserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/user/impl/AdminUserServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/admin/configure.css" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/admin/configure.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/admin/lab-tests.css" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/admin/lab-tests.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/admin/user-management.css" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/admin/user-management.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/admin/medicine_management.js" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/admin/medicine_management.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/admin/symptoms.js" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/admin/symptoms.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/admin/user-management.js" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/admin/user-management.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/configure.js" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/configure.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/lab-tests.js" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/lab-tests.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/Admin/Configure.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/Admin/Configure.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/Admin/LabTest.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/Admin/LabTest.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/admin/dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/admin/dashboard.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/admin/medicine_Management.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/admin/medicine_Management.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/admin/symptoms.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/admin/symptoms.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/admin/user-management.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/admin/user-management.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/header.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/header.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/sidebar.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/sidebar.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
