@@ -11,6 +11,8 @@ const weightInput = document.getElementById("weight");
 const heightInput = document.getElementById("height");
 const weightHint = document.getElementById("weightHint");
 const heightHint = document.getElementById("heightHint");
+const emailInput = document.getElementById('email');
+const emailHint = document.getElementById('emailHint');
 // Hiển thị form theo role
 // roleSelect.addEventListener('change', function() {
 //     if (this.value === 'DOC') {
@@ -57,16 +59,68 @@ phoneInput.addEventListener('input', function() {
     }
 });
 
+// Validate email
+emailInput.addEventListener('input', function() {
+    const emailVal = this.value.trim();
+    if (emailVal.length > 0 && (!/^[A-Za-z0-9+_.-]+@.+$/.test(emailVal) || emailVal.length > 100)) {
+        emailHint.style.display = 'block';
+        this.classList.add('error');
+    } else {
+        emailHint.style.display = 'none';
+        this.classList.remove('error');
+    }
+});
+
 // Validate password
+const pwdCard = document.getElementById('pwdValidatorCard');
+const reqLength = document.getElementById('reqLength');
+const reqCase = document.getElementById('reqCase');
+const reqDigit = document.getElementById('reqDigit');
+const reqSpecial = document.getElementById('reqSpecial');
+
+function updateRequirement(el, isValid) {
+    const icon = el.querySelector('i');
+    if (isValid) {
+        el.classList.add('valid');
+        icon.className = 'fas fa-circle-check';
+    } else {
+        el.classList.remove('valid');
+        icon.className = 'far fa-circle-check';
+    }
+}
+
+function checkPasswordStrength(val) {
+    const isLenVal = val.length >= 8;
+    const isCaseVal = /[a-z]/.test(val) && /[A-Z]/.test(val);
+    const isDigitVal = /\d/.test(val);
+    const isSpecialVal = /[!@#$]/.test(val);
+
+    updateRequirement(reqLength, isLenVal);
+    updateRequirement(reqCase, isCaseVal);
+    updateRequirement(reqDigit, isDigitVal);
+    updateRequirement(reqSpecial, isSpecialVal);
+
+    return isLenVal && isCaseVal && isDigitVal && isSpecialVal;
+}
+
+passwordInput.addEventListener('focus', function() {
+    pwdCard.classList.add('open');
+});
+
 passwordInput.addEventListener('input', function() {
-    if (this.value.length > 0 && this.value.length < 6) {
+    const val = this.value;
+    pwdCard.classList.add('open');
+    const isValid = checkPasswordStrength(val);
+
+    if (val.length > 0 && !isValid) {
         passwordHint.style.display = 'block';
         this.classList.add('error');
     } else {
         passwordHint.style.display = 'none';
         this.classList.remove('error');
     }
-    if (confirmInput.value.length > 0 && confirmInput.value !== this.value) {
+
+    if (confirmInput.value.length > 0 && confirmInput.value !== val) {
         confirmHint.style.display = 'block';
         confirmInput.classList.add('error');
     } else {
@@ -115,7 +169,6 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
     intHeight = parseInt(heightInput.value);
     intWeight = parseInt(weightInput.value);
 
-
     if (!fullName) {
         e.preventDefault();
         errorDiv.style.display = 'block';
@@ -128,10 +181,25 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
         errorDiv.textContent = 'Số điện thoại không hợp lệ!';
         return;
     }
-    if (!password || password.length < 6) {
+
+    const email = emailInput.value.trim();
+    if (email.length > 0 && (!/^[A-Za-z0-9+_.-]+@.+$/.test(email) || email.length > 100)) {
         e.preventDefault();
         errorDiv.style.display = 'block';
-        errorDiv.textContent = 'Mật khẩu phải có ít nhất 6 ký tự!';
+        errorDiv.textContent = 'Địa chỉ email không hợp lệ!';
+        return;
+    }
+
+    const isLenVal = password.length >= 8;
+    const isCaseVal = /[a-z]/.test(password) && /[A-Z]/.test(password);
+    const isDigitVal = /\d/.test(password);
+    const isSpecialVal = /[!@#$]/.test(password);
+    const isPasswordValid = isLenVal && isCaseVal && isDigitVal && isSpecialVal;
+
+    if (!password || !isPasswordValid) {
+        e.preventDefault();
+        errorDiv.style.display = 'block';
+        errorDiv.textContent = 'Mật khẩu chưa đạt yêu cầu bảo mật!';
         return;
     }
     if (password !== confirmPassword) {
@@ -142,14 +210,14 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
     }
     if(intHeight <= 0 || intHeight >= 300){
         e.preventDefault();
-        errorDiv.style.display = 'block'
-        errorDiv.textContent = 'Chiều cao không hợp lệ!'
+        errorDiv.style.display = 'block';
+        errorDiv.textContent = 'Chiều cao không hợp lệ!';
         return;
     }
     if(intWeight <= 0 || intWeight >= 1000){
         e.preventDefault();
-        errorDiv.style.display = 'block'
-        errorDiv.textContent = 'Cân nặng không hợp lệ!'
+        errorDiv.style.display = 'block';
+        errorDiv.textContent = 'Cân nặng không hợp lệ!';
         return;
     }
 

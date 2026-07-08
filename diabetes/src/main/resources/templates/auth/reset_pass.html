@@ -53,15 +53,18 @@
                         <input type="password" id="newPassword" name="newPassword" placeholder="••••••••" required>
                         <i class="fas fa-lock input-icon"></i>
                         <i class="fas fa-eye password-toggle" id="togglePswd" aria-label="Hiện mật khẩu" role="button"></i>
-                        <div class="password-strength-container" id="strengthContainer">
-                            <div class="strength-lines" id="strengthLines">
-                                <div class="line" id="line1"></div>
-                                <div class="line" id="line2"></div>
-                                <div class="line" id="line3"></div>
-                            </div>
-                            <span class="strength-text" id="strengthText">Độ mạnh mật khẩu</span>
+                        <div class="error-hint" id="passwordHint">Mật khẩu chưa đạt yêu cầu bảo mật.</div>
+
+                        <!-- PWD Validator Card -->
+                        <div class="pwd-validator-card" id="pwdValidatorCard">
+                            <h4><i class="fas fa-lightbulb"></i> Mật khẩu mạnh</h4>
+                            <ul>
+                                <li id="reqLength"><i class="far fa-circle-check"></i> Chứa ít nhất 8 ký tự</li>
+                                <li id="reqCase"><i class="far fa-circle-check"></i> Bao gồm chữ hoa và chữ thường</li>
+                                <li id="reqDigit"><i class="far fa-circle-check"></i> Chứa ít nhất một chữ số</li>
+                                <li id="reqSpecial"><i class="far fa-circle-check"></i> Chứa ký tự đặc biệt (!@#$)</li>
+                            </ul>
                         </div>
-                        <div class="error-hint" id="passwordHint">Mật khẩu phải chứa ít nhất 6 ký tự</div>
                     </div>
 
                     <div class="input-group">
