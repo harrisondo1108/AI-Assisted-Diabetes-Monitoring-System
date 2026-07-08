@@ -21,7 +21,7 @@
         <a th:href="@{/admin/lab-tests}" class="nav-item" th:classappend="${activeMenu == 'lab'} ? 'active' : ''"><i class="fas fa-flask"></i> Chỉ số xét nghiệm</a>
         <a th:href="@{/admin/symptoms}" class="nav-item" th:classappend="${activeMenu == 'symptom'} ? 'active' : ''"><i class="fas fa-notes-medical"></i> Danh mục triệu chứng</a>
         <a th:href="@{/admin/configure}" class="nav-item" th:classappend="${activeMenu == 'configure'} ? 'active' : ''"><i class="fas fa-sliders"></i> Cấu hình hệ thống</a>
-        <a href="#" class="nav-item" th:classappend="${activeMenu == 'monitoring'} ? 'active' : ''"><i class="fas fa-desktop"></i> Giám sát</a>
+        <a th:href="@{/admin/monitoring}" class="nav-item" th:classappend="${activeMenu == 'monitoring'} ? 'active' : ''"><i class="fas fa-desktop"></i> Giám sát</a>
     </nav>
     <div class="sidebar-footer">
         <div class="sidebar-footer-links">

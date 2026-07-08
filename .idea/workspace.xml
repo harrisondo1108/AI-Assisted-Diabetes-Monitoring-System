@@ -5,28 +5,26 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cd82aed5-747b-44b9-892e-efbe52d1dbd5" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/database/CreateTable.sql" beforeDir="false" afterPath="$PROJECT_DIR$/database/CreateTable.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/admin/AdminUserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/admin/AdminUserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/admin/MedicationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/admin/MedicationController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/admin/SymptomController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/admin/SymptomController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/user/impl/AdminUserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/user/impl/AdminUserServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/database/CreateMonitoringTables.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/admin/MonitoringController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/aop/AiToolAspect.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/dto/AiPatientAccessLogDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/entity/AiPatientAccessLog.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/repository/AiPatientAccessLogRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/service/AiMonitoringService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/service/impl/AiMonitoringServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/admin/monitoring.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/Admin/monitoring.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/logs/application.log" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/logs/application.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AIChatServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AIChatServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/exam/impl/SymptomsCatalogServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/exam/impl/SymptomsCatalogServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/medication/impl/MedicationServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/medication/impl/MedicationServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/util/SearchUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/util/SearchUtil.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/admin/configure.css" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/admin/configure.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/admin/lab-tests.css" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/admin/lab-tests.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/admin/user-management.css" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/admin/user-management.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/admin/medicine_management.js" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/admin/medicine_management.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/admin/symptoms.js" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/admin/symptoms.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/admin/user-management.js" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/admin/user-management.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/configure.js" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/configure.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/lab-tests.js" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/lab-tests.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/Admin/Configure.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/Admin/Configure.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/Admin/LabTest.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/Admin/LabTest.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/admin/dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/admin/dashboard.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/admin/medicine_Management.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/admin/medicine_Management.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/admin/symptoms.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/admin/symptoms.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/admin/user-management.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/admin/user-management.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/header.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/header.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/admin/dashboard.js" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/admin/dashboard.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/sidebar.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/sidebar.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logs/application.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/application.log" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -119,31 +117,31 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RequestMappingsPanelOrder0": "0",
-    "RequestMappingsPanelOrder1": "1",
-    "RequestMappingsPanelWidth0": "75",
-    "RequestMappingsPanelWidth1": "75",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "Spring Boot.DiabetesApplication.executor": "Run",
-    "git-widget-placeholder": "Merging quan__le",
-    "kotlin-language-version-configured": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "SDKs",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;Spring Boot.DiabetesApplication.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;Merging quan__le&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;SDKs&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="DiabetesApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />

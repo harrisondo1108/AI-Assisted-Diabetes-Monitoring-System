@@ -19,16 +19,16 @@ document.addEventListener('DOMContentLoaded', function() {
         new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+                labels: ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ nhật'],
                 datasets: [
                     {
-                        label: 'AI Interactions',
+                        label: 'Tương tác AI',
                         data: typeof aiDataFromBackend !== 'undefined' ? aiDataFromBackend : [120, 190, 150, 220, 180, 250, 210],
                         backgroundColor: '#145c4a',
                         borderWidth: 1
                     },
                     {
-                        label: 'Reminders Sent',
+                        label: 'Nhắc nhở đã gửi',
                         data: typeof reminderDataFromBackend !== 'undefined' ? reminderDataFromBackend : [80, 110, 95, 140, 120, 160, 130],
                         backgroundColor: '#7ee8b5',
                         borderWidth: 1

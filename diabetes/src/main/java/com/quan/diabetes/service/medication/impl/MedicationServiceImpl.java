@@ -67,7 +67,19 @@ public class MedicationServiceImpl implements MedicationService {
         if (keyword == null || keyword.trim().isEmpty()) {
             return findAll(pageable);
         }
-        return medicationRepository.searchByKeyword(keyword, pageable);
+        List<Medication> filtered = medicationRepository.findAll().stream()
+                .filter(m -> com.quan.diabetes.util.SearchUtil.matches(m.getMedicationName(), keyword)
+                        || com.quan.diabetes.util.SearchUtil.matches(m.getAdministrationRoute(), keyword))
+                .collect(java.util.stream.Collectors.toList());
+
+        int total = filtered.size();
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), total);
+        List<Medication> pageContent = new java.util.ArrayList<>();
+        if (start < total) {
+            pageContent = filtered.subList(start, end);
+        }
+        return new org.springframework.data.domain.PageImpl<>(pageContent, pageable, total);
     }
 
     @Override
@@ -165,7 +177,11 @@ public class MedicationServiceImpl implements MedicationService {
         if (keyword == null || keyword.trim().isEmpty()) {
             return findAllList();
         }
-        return medicationRepository.searchByKeywordList(keyword);
+        return medicationRepository.findAll().stream()
+                .filter(m -> com.quan.diabetes.util.SearchUtil.matches(m.getMedicationName(), keyword)
+                        || com.quan.diabetes.util.SearchUtil.matches(m.getConcentration(), keyword)
+                        || com.quan.diabetes.util.SearchUtil.matches(m.getAdministrationRoute(), keyword))
+                .collect(java.util.stream.Collectors.toList());
     }
 
     @Override

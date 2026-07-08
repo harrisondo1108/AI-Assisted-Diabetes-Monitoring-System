@@ -35,6 +35,7 @@ import com.quan.diabetes.service.ai.AIChatService;
 import com.quan.diabetes.service.ai.AIConversationService;
 import com.quan.diabetes.service.ai.AIMessageService;
 import com.quan.diabetes.service.user.PatientService;
+import com.quan.diabetes.monitoring.service.AiMonitoringService;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -81,6 +82,7 @@ public class AIChatServiceImpl implements AIChatService {
     private final AIAssistantService aiAssistantService;
     private final PatientService patientService;
     private final com.quan.diabetes.service.ai.AiTool aiTool;
+    private final AiMonitoringService aiMonitoringService;
 
     public AIChatServiceImpl(
             RestTemplate restTemplate,
@@ -88,13 +90,15 @@ public class AIChatServiceImpl implements AIChatService {
             AIConversationService aiConversationService,
             AIAssistantService aiAssistantService,
             PatientService patientService,
-            com.quan.diabetes.service.ai.AiTool aiTool) {
+            com.quan.diabetes.service.ai.AiTool aiTool,
+            AiMonitoringService aiMonitoringService) {
         this.restTemplate = restTemplate;
         this.aiMessageService = aiMessageService;
         this.aiConversationService = aiConversationService;
         this.aiAssistantService = aiAssistantService;
         this.patientService = patientService;
         this.aiTool = aiTool;
+        this.aiMonitoringService = aiMonitoringService;
     }
 
     @Override
@@ -104,6 +108,10 @@ public class AIChatServiceImpl implements AIChatService {
 
     @Override
     public ChatResponseDto sendMessageWithAssistant(AiChatRequestDto request, Integer assistantId) {
+        if (!aiMonitoringService.isAiEnabled()) {
+            logger.warn("AI system is currently disabled by admin.");
+            return ChatResponseDto.success(request.conversationId(), "⚠️ **Hệ thống Trợ lý AI hiện đang được tạm tắt để bảo trì hoặc giám sát.**\n\nVui lòng quay lại sau, hoặc liên hệ quản trị viên để biết thêm chi tiết.");
+        }
         try {
             long startTime = System.currentTimeMillis();
 
@@ -188,7 +196,7 @@ public class AIChatServiceImpl implements AIChatService {
             String chang2Prompt = buildStage2Prompt(request.question(), sqlData);
             System.out.println("=================== Final System Prompt :\n" + finalSystemPrompt);
             System.out.println("=================== Stage 2 Prompt :\n" + chang2Prompt);
-            
+
             OllamaGenerateRequest.Options options = new OllamaGenerateRequest.Options(0.2, 0.9, 40, 1.15, 4096, 1024);
             aiResponse = callOllamaGenerate(modelToUse, chang2Prompt, finalSystemPrompt, options);
             if (aiResponse == null || aiResponse.trim().isEmpty()) {
@@ -279,6 +287,10 @@ public class AIChatServiceImpl implements AIChatService {
             return null;
         }
         String msgLower = message.toLowerCase();
+        // Lọc ngay các câu hỏi kiến thức y khoa chung hoặc chào hỏi thông thường
+        if (msgLower.contains("nguyên nhân") || msgLower.contains("triệu chứng") || msgLower.contains("phòng ngừa") || msgLower.contains("khái niệm") || (msgLower.contains("bệnh tiểu đường") && !msgLower.contains("của tôi")) || msgLower.equals("chào") || msgLower.equals("xin chào") || msgLower.contains("chào bác sĩ") || msgLower.contains("hello")) {
+            return null;
+        }
         if (msgLower.contains("đơn thuốc") || msgLower.contains("toa thuốc") || msgLower.contains("thuốc của tôi") || msgLower.contains("thuốc đang uống") || msgLower.contains("lịch sử dùng thuốc")) {
             return Map.of("action", "get_prescriptions", "patient_id", patientId);
         }
@@ -527,6 +539,7 @@ public class AIChatServiceImpl implements AIChatService {
     }
 
     @Override
+    @Transactional
     public void deleteConversation(String conversationId) {
         if (!aiConversationService.existsById(conversationId)) {
             throw new EntityNotFoundException("Conversation not found: " + conversationId);
