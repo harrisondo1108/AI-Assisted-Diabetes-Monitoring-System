@@ -5,25 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cd82aed5-747b-44b9-892e-efbe52d1dbd5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/database/CreateMonitoringTables.sql" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/admin/MonitoringController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/aop/AiToolAspect.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/dto/AiPatientAccessLogDto.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/entity/AiPatientAccessLog.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/repository/AiPatientAccessLogRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/service/AiMonitoringService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/service/impl/AiMonitoringServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/admin/monitoring.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/Admin/monitoring.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/requests.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/logs/application.log" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/logs/application.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AIChatServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AIChatServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/exam/impl/SymptomsCatalogServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/exam/impl/SymptomsCatalogServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/medication/impl/MedicationServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/medication/impl/MedicationServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/util/SearchUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/util/SearchUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/admin/dashboard.js" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/admin/dashboard.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/sidebar.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/sidebar.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/examine.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/examine.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/history.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/history.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logs/application.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/application.log" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
