@@ -4,20 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="35d4ee31-efef-433e-940d-fdb413c90a79" name="Changes" comment="chỉnh sửa giao diện bệnh nhân và thêm phần yêu cầu khám bệnh">
+    <list default="true" id="35d4ee31-efef-433e-940d-fdb413c90a79" name="Changes" comment="chỉnh sửa giao diện bệnh nhân và thêm phần yêu cầu khám bệnh 2">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorDashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorDashboardController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientMedicalHistoryController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientMedicalHistoryController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/doctor/doctor-profile.css" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/doctor/doctor-profile.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/patient/patient.css" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/patient/patient.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/doctor/dashboard.js" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/doctor/dashboard.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/dashboard.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/doctor_header.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/doctor_header.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/examine.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/examine.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/patients.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/patients.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/profile.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/profile.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/history-detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/history-detail.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/progress.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/progress.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,7 +19,7 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="253" />
+    <option name="cachedIndexableFilesCount" value="254" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -66,22 +54,22 @@
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
       <entry key="MS100" value="1.0" />
-      <entry key="MS500" value="1.0003825301554596" />
-      <entry key="S2" value="1.334413880925397" />
-      <entry key="S5" value="2.6422032345362876" />
-      <entry key="S10" value="3.851335573882558" />
-      <entry key="S30" value="5.141913972762761" />
-      <entry key="S60" value="5.550347219296159" />
-      <entry key="M2" value="5.836634775022797" />
-      <entry key="M5" value="8.496294974240431" />
-      <entry key="M10" value="15.207358577974919" />
-      <entry key="M15" value="20.3933391372612" />
-      <entry key="M30" value="28.83333011719678" />
-      <entry key="H1" value="34.97547794572882" />
-      <entry key="H2" value="38.71521866418217" />
-      <entry key="H4" value="40.784084846218136" />
-      <entry key="D1" value="42.61997121506347" />
-      <entry key="W1" value="42.94544111517444" />
+      <entry key="MS500" value="1.0" />
+      <entry key="S2" value="1.0" />
+      <entry key="S5" value="1.0" />
+      <entry key="S10" value="1.0" />
+      <entry key="S30" value="1.0" />
+      <entry key="S60" value="1.000000000000697" />
+      <entry key="M2" value="1.0000020684814663" />
+      <entry key="M5" value="1.0223370197426294" />
+      <entry key="M10" value="1.7797432241884237" />
+      <entry key="M15" value="3.8146229441081605" />
+      <entry key="M30" value="11.71175782256767" />
+      <entry key="H1" value="22.318008372056962" />
+      <entry key="H2" value="31.225479673315046" />
+      <entry key="H4" value="37.03599054115974" />
+      <entry key="D1" value="42.7497721028253" />
+      <entry key="W1" value="43.8190674567644" />
     </decayedCancelled>
     <decayedSelected>
       <entry key="MS100" value="0.0" />
@@ -103,23 +91,23 @@
       <entry key="W1" value="0.0" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.003644660123190655" />
-      <entry key="MS500" value="0.32542436777770206" />
-      <entry key="S2" value="1.0136048941211064" />
-      <entry key="S5" value="2.3956091354066706" />
-      <entry key="S10" value="3.678233747111881" />
-      <entry key="S30" value="5.067143820471635" />
-      <entry key="S60" value="5.510307673760521" />
-      <entry key="M2" value="5.81568149675699" />
-      <entry key="M5" value="8.484762850755706" />
-      <entry key="M10" value="15.197891858695405" />
-      <entry key="M15" value="20.385187893996267" />
-      <entry key="M30" value="28.82779231749862" />
-      <entry key="H1" value="34.97218693108831" />
-      <entry key="H2" value="38.713415846092495" />
-      <entry key="H4" value="40.78314016077635" />
-      <entry key="D1" value="42.619807388998" />
-      <entry key="W1" value="42.94541755020674" />
+      <entry key="MS100" value="0.9330329915368074" />
+      <entry key="MS500" value="0.9862327044933592" />
+      <entry key="S2" value="0.9965402628278678" />
+      <entry key="S5" value="0.9986146661010289" />
+      <entry key="S10" value="0.9993070929904525" />
+      <entry key="S30" value="0.9997689776295918" />
+      <entry key="S60" value="0.9998844821433003" />
+      <entry key="M2" value="0.999944300458864" />
+      <entry key="M5" value="1.022283596797638" />
+      <entry key="M10" value="1.7792462745403084" />
+      <entry key="M15" value="3.8134902341768644" />
+      <entry key="M30" value="11.709696645427245" />
+      <entry key="H1" value="22.316000530454417" />
+      <entry key="H2" value="31.22407122685137" />
+      <entry key="H4" value="37.035155354903196" />
+      <entry key="D1" value="42.74961154147564" />
+      <entry key="W1" value="43.81904394967953" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
@@ -225,7 +213,9 @@
       <workItem from="1782633506621" duration="4829000" />
       <workItem from="1782693548590" duration="392000" />
       <workItem from="1782694029592" duration="5979000" />
-      <workItem from="1783350846582" duration="3745000" />
+      <workItem from="1783350846582" duration="4283000" />
+      <workItem from="1783397279462" duration="29000" />
+      <workItem from="1783397420724" duration="10000" />
     </task>
     <task id="LOCAL-00001" summary="luan_ha&#10;thêm phần upload ảnh profile cho patient">
       <option name="closed" value="true" />
@@ -259,7 +249,15 @@
       <option name="project" value="LOCAL" />
       <updated>1782699529404</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="chỉnh sửa giao diện bệnh nhân và thêm phần yêu cầu khám bệnh 2">
+      <option name="closed" value="true" />
+      <created>1783354686065</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1783354686065</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -269,6 +267,7 @@
     <MESSAGE value="luan_ha&#10;thêm phần upload ảnh profile cho patient" />
     <MESSAGE value="luan_ha&#10;thêm phần upload ảnh profile cho patient 2" />
     <MESSAGE value="luan_ha&#10;thêm phần upload ảnh profile cho patient 3" />
-    <option name="LAST_COMMIT_MESSAGE" value="luan_ha&#10;thêm phần upload ảnh profile cho patient 3" />
+    <MESSAGE value="chỉnh sửa giao diện bệnh nhân và thêm phần yêu cầu khám bệnh 2" />
+    <option name="LAST_COMMIT_MESSAGE" value="chỉnh sửa giao diện bệnh nhân và thêm phần yêu cầu khám bệnh 2" />
   </component>
 </project>
