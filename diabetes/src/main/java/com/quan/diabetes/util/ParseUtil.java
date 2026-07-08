@@ -27,4 +27,15 @@ public class ParseUtil {
     public static BigDecimal parseBigDecimal(String value) {
         return isBlank(value) ? null : new BigDecimal(value);
     }
+
+    public static boolean isValidPassword(String password) {
+        if (password == null) {
+            return false;
+        }
+        return password.length() >= 8
+                && password.matches(".*[a-z].*")
+                && password.matches(".*[A-Z].*")
+                && password.matches(".*\\d.*")
+                && password.matches(".*[!@#$].*");
+    }
 }

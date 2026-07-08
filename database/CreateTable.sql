@@ -64,6 +64,7 @@ CREATE TABLE [Patient] (
     SupervisorName NVARCHAR(90),
     SupervisorPhone VARCHAR(15),
 	ImageURL NVARCHAR(255) NULL,
+    Email VARCHAR(100) NULL,
     FOREIGN KEY (UserID) REFERENCES [Account](UserID) ON DELETE CASCADE ON UPDATE CASCADE,
     CHECK (Bloodgroup IN ('A+','A-','B+','B-','AB+','AB-','O+','O-'))
 );
@@ -85,7 +86,7 @@ CREATE TABLE PatientRoutine (
 CREATE TABLE [ClinicalExamination] (
     ClinicalExamID VARCHAR(50) PRIMARY KEY,
     ExamDate DATETIME DEFAULT GETDATE(),
-    MedicalHistory NVARCHAR(MAX), -- tiền sử bệnh
+    MedicalHistory NVARCHAR(MAX), -- li do khám bệnh
     DiagnosisNote NVARCHAR(MAX), -- chẩn đoán
     CancelReason NVARCHAR(MAX), -- lý do hủy
     NextAppointment DATETIME, -- lịch tái khám

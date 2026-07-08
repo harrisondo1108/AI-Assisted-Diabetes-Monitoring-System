@@ -154,6 +154,7 @@ public class AuthenticationController {
                                 @RequestParam String fullName,
                                 @RequestParam String phoneNumber,
                                 @RequestParam String password,
+                                @RequestParam(required = false) String email,
                                 @RequestParam(required = false) String dob,
                                 @RequestParam(required = false) String gender,
                                 @RequestParam(required = false) String bloodGroup,
@@ -171,6 +172,22 @@ public class AuthenticationController {
         if (ParseUtil.isBlank(roleId) || ParseUtil.isBlank(fullName) || ParseUtil.isBlank(phoneNumber) || ParseUtil.isBlank(password)) {
             model.addAttribute("errorMsg", "Vui lòng nhập đầy đủ các thông tin bắt buộc.");
             return "auth/register";
+        }
+
+        if (!ParseUtil.isValidPassword(password)) {
+            model.addAttribute("errorMsg", "Mật khẩu phải chứa ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, ít nhất một chữ số và ký tự đặc biệt (!@#$).");
+            return "auth/register";
+        }
+
+        if (!ParseUtil.isBlank(email)) {
+            if (email.trim().length() > 100) {
+                model.addAttribute("errorMsg", "Email không được vượt quá 100 ký tự.");
+                return "auth/register";
+            }
+            if (!email.trim().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+                model.addAttribute("errorMsg", "Địa chỉ email không hợp lệ.");
+                return "auth/register";
+            }
         }
 
         // Kiểm tra số điện thoại đã tồn tại chưa (tránh đăng ký trùng)
@@ -192,6 +209,7 @@ public class AuthenticationController {
         regData.put("fullName", fullName);
         regData.put("phoneNumber", phoneNumber);
         regData.put("password", password);
+        regData.put("email", email != null ? email.trim() : null);
         regData.put("dob", dob);
         regData.put("gender", gender);
         regData.put("bloodGroup", bloodGroup);
@@ -280,6 +298,7 @@ public class AuthenticationController {
         String fullName = (String) regData.get("fullName");
         String phoneNumber = (String) regData.get("phoneNumber");
         String password = (String) regData.get("password");
+        String email = (String) regData.get("email");
         String dob = (String) regData.get("dob");
         String gender = (String) regData.get("gender");
         String bloodGroup = (String) regData.get("bloodGroup");
@@ -311,6 +330,7 @@ public class AuthenticationController {
             patient.setUser(user);
             patient.setFullName(fullName);
             patient.setPhoneNumber(phoneNumber);
+            patient.setEmail(ParseUtil.parseString(email));
             patient.setDob(ParseUtil.parseDate(dob));
             patient.setGender(ParseUtil.parseGender(gender));
             patient.setBloodgroup(ParseUtil.parseString(bloodGroup));

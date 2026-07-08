@@ -107,6 +107,11 @@ public class ResetPasswordController {
             return "redirect:/forgot-password";
         }
 
+        if (!com.quan.diabetes.util.ParseUtil.isValidPassword(newPassword)) {
+            model.addAttribute("errorMsg", "Mật khẩu phải chứa ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, ít nhất một chữ số và ký tự đặc biệt (!@#$).");
+            return "auth/reset_pass";
+        }
+
         if (!newPassword.equals(confirmPassword)) {
             model.addAttribute("errorMsg", "Mật khẩu xác nhận không khớp.");
             return "auth/reset_pass";

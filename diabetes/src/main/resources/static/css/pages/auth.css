@@ -303,7 +303,7 @@ body {
 /* Textarea in input-group (moved from inline) */
 .input-group textarea {
     width: 100%;
-    padding: 12px;
+    padding: 14px 15px 14px 45px;
     border: 2px solid #e2e8f0;
     border-radius: 12px;
     font-family: inherit;
@@ -312,11 +312,12 @@ body {
 
 /* Specific icon position for textarea's notes icon */
 .input-group .notes-icon {
-    top: 45px;
+    top: 42px;
 }
 
 .input-group input:focus,
-.input-group select:focus {
+.input-group select:focus,
+.input-group textarea:focus {
     outline: none;
     border-color: #059669;
     box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
@@ -634,4 +635,67 @@ footer {
 .strength-text {
     font-size: 12px;
     font-weight: 500;
+}
+
+/* Premium Password Validator Widget matching the image */
+.pwd-validator-card {
+    background: #25785d;
+    border-radius: 16px;
+    padding: 16px 20px;
+    color: white;
+    margin-top: 12px;
+    font-size: 0.85rem;
+    box-shadow: 0 4px 15px rgba(10, 61, 50, 0.15);
+    display: none;
+    border: 1px solid rgba(255,255,255,0.1);
+    text-align: left;
+}
+
+.pwd-validator-card.open {
+    display: block;
+}
+
+.pwd-validator-card h4 {
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-top: 0;
+}
+
+.pwd-validator-card h4 i {
+    color: #f59e0b;
+}
+
+.pwd-validator-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.pwd-validator-card li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0.7;
+    transition: all 0.2s ease;
+}
+
+.pwd-validator-card li.valid {
+    opacity: 1;
+}
+
+.pwd-validator-card li i {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.5);
+    transition: all 0.2s ease;
+}
+
+.pwd-validator-card li.valid i {
+    color: #a8f5d0;
 }
