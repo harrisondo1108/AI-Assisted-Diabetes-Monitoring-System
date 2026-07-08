@@ -71,8 +71,6 @@ public class PatientNotificationController extends BasePatientController {
 
         List<AIReminder> allAiReminders = findRemindersByPatient(patient);
 
-        // Seed mock notifications if patient currently has 0 notifications - Removed mock seeding to keep AIReminder clean
-
         // Filter and Group
         List<AIReminder> todayNotifications = new ArrayList<>();
         List<AIReminder> yesterdayNotifications = new ArrayList<>();
