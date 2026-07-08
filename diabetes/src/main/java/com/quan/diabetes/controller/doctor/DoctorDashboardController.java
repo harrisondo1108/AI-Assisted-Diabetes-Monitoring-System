@@ -67,7 +67,8 @@ public class DoctorDashboardController {
         Optional<ClinicalExamination> activeExam = clinicalExaminationRepository
                 .findFirstByDoctor_UserIdAndStatus(doctorId, "InProgress");
         if (activeExam.isPresent()) {
-            return "redirect:/doctor/examine?patientId=" + activeExam.get().getPatient().getUserId() + "&warning=in-progress";
+            return "redirect:/doctor/examine?patientId=" + activeExam.get().getPatient().getUserId()
+                    + "&warning=in-progress";
         }
 
         // Lấy tất cả ca khám của bác sĩ
@@ -93,8 +94,11 @@ public class DoctorDashboardController {
                     }
                     // Lọc tìm kiếm
                     if (search != null && !search.trim().isEmpty()) {
-                        String patientName = e.getPatient().getFullName() != null ? e.getPatient().getFullName().toLowerCase() : "";
-                        String patientId = e.getPatient().getUserId() != null ? e.getPatient().getUserId().toLowerCase() : "";
+                        String patientName = e.getPatient().getFullName() != null
+                                ? e.getPatient().getFullName().toLowerCase()
+                                : "";
+                        String patientId = e.getPatient().getUserId() != null ? e.getPatient().getUserId().toLowerCase()
+                                : "";
                         String query = search.trim().toLowerCase();
                         return patientName.contains(query) || patientId.contains(query);
                     }
@@ -110,8 +114,10 @@ public class DoctorDashboardController {
             totalPages = 1;
         }
 
-        if (page < 1) page = 1;
-        if (page > totalPages) page = totalPages;
+        if (page < 1)
+            page = 1;
+        if (page > totalPages)
+            page = totalPages;
 
         int fromIndex = (page - 1) * pageSize;
         int toIndex = Math.min(fromIndex + pageSize, totalElements);
@@ -128,7 +134,8 @@ public class DoctorDashboardController {
 
         model.addAttribute("queueCount", pending + inProgress);
         model.addAttribute("completedCount", completed);
-        long alertCount = labResultRepository.countByLabOrder_ClinicalExamination_Doctor_UserIdAndFlag(doctorId, "HIGH");
+        long alertCount = labResultRepository.countByLabOrder_ClinicalExamination_Doctor_UserIdAndFlag(doctorId,
+                "HIGH");
         model.addAttribute("alertCount", alertCount);
 
         return "doctor/dashboard";
@@ -154,15 +161,41 @@ public class DoctorDashboardController {
         model.addAttribute("labResults", labResults);
 
         // Nạp chi tiết đơn thuốc
-        Prescription prescription = prescriptionRepository.findByClinicalExamination_ClinicalExamId(examId).orElse(null);
+        Prescription prescription = prescriptionRepository.findByClinicalExamination_ClinicalExamId(examId)
+                .orElse(null);
         if (prescription != null) {
-            List<PrescriptionDetail> details = prescriptionDetailRepository.findByPrescription_PrescriptionId(prescription.getPrescriptionId());
+            List<PrescriptionDetail> details = prescriptionDetailRepository
+                    .findByPrescription_PrescriptionId(prescription.getPrescriptionId());
             model.addAttribute("prescriptionDetails", details);
         } else {
             model.addAttribute("prescriptionDetails", Collections.emptyList());
         }
 
         return "doctor/dashboard :: examDetail";
+    }
+
+    @GetMapping("/requests")
+    public String requestsPage(HttpSession session, Model model) {
+        User loggedInUser = (User) session.getAttribute("loggedInUser");
+        if (loggedInUser == null || !"DOC".equalsIgnoreCase(loggedInUser.getRole().getRoleId())) {
+            return "redirect:/login";
+        }
+
+        String doctorId = loggedInUser.getUserId();
+        Profile profile = profileService.findById(doctorId).orElse(null);
+        if (profile != null) {
+            model.addAttribute("doctorProfile", profile);
+            session.setAttribute("userProfile", profile);
+        }
+
+        List<ClinicalExamination> allExams = clinicalExaminationService.findByDoctorId(doctorId);
+        List<ClinicalExamination> requestedExams = allExams.stream()
+                .filter(e -> "Requested".equalsIgnoreCase(e.getStatus()))
+                .sorted((e1, e2) -> e2.getExamDate().compareTo(e1.getExamDate()))
+                .collect(Collectors.toList());
+
+        model.addAttribute("requestedExams", requestedExams);
+        return "doctor/requests";
     }
 
     @PostMapping("/request/approve/{examId}")
@@ -182,7 +215,8 @@ public class DoctorDashboardController {
                 exam.setStatus("Pending");
                 exam.setExamDate(LocalDateTime.now()); // Set date to today so it appears in today's queue
                 clinicalExaminationRepository.save(exam);
-                redirectAttributes.addFlashAttribute("successMessage", "Đã duyệt yêu cầu khám của bệnh nhân " + exam.getPatient().getFullName() + ".");
+                redirectAttributes.addFlashAttribute("successMessage",
+                        "Đã duyệt yêu cầu khám của bệnh nhân " + exam.getPatient().getFullName() + ".");
             } else {
                 redirectAttributes.addFlashAttribute("errorMessage", "Yêu cầu khám này đã được xử lý từ trước.");
             }
@@ -210,7 +244,8 @@ public class DoctorDashboardController {
                 exam.setStatus("Cancelled");
                 exam.setCancelReason("Bác sĩ từ chối yêu cầu khám");
                 clinicalExaminationRepository.save(exam);
-                redirectAttributes.addFlashAttribute("successMessage", "Đã từ chối yêu cầu khám của bệnh nhân " + exam.getPatient().getFullName() + ".");
+                redirectAttributes.addFlashAttribute("successMessage",
+                        "Đã từ chối yêu cầu khám của bệnh nhân " + exam.getPatient().getFullName() + ".");
             } else {
                 redirectAttributes.addFlashAttribute("errorMessage", "Yêu cầu khám này đã được xử lý từ trước.");
             }
