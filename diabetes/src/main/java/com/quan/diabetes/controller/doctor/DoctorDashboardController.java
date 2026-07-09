@@ -141,38 +141,7 @@ public class DoctorDashboardController {
         return "doctor/dashboard";
     }
 
-    @GetMapping("/dashboard/view-exam/{examId}")
-    public String viewExamDetail(@PathVariable("examId") String examId, Model model) {
-        ClinicalExamination exam = clinicalExaminationService.findById(examId).orElse(null);
-        if (exam == null) {
-            return "doctor/dashboard :: examDetail";
-        }
 
-        model.addAttribute("exam", exam);
-
-        // Nạp triệu chứng liên quan
-        List<ExamSymptom> symptoms = examSymptomRepository.findAll().stream()
-                .filter(s -> s.getId().getClinicalExamId().equals(examId))
-                .collect(Collectors.toList());
-        model.addAttribute("symptoms", symptoms);
-
-        // Nạp kết quả xét nghiệm liên quan
-        List<LabResult> labResults = labResultRepository.findByLabOrder_ClinicalExamination_ClinicalExamId(examId);
-        model.addAttribute("labResults", labResults);
-
-        // Nạp chi tiết đơn thuốc
-        Prescription prescription = prescriptionRepository.findByClinicalExamination_ClinicalExamId(examId)
-                .orElse(null);
-        if (prescription != null) {
-            List<PrescriptionDetail> details = prescriptionDetailRepository
-                    .findByPrescription_PrescriptionId(prescription.getPrescriptionId());
-            model.addAttribute("prescriptionDetails", details);
-        } else {
-            model.addAttribute("prescriptionDetails", Collections.emptyList());
-        }
-
-        return "doctor/dashboard :: examDetail";
-    }
 
     @GetMapping("/requests")
     public String requestsPage(HttpSession session, Model model) {

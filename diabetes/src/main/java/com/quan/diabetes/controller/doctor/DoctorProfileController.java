@@ -2,7 +2,10 @@ package com.quan.diabetes.controller.doctor;
 
 import com.quan.diabetes.entity.*;
 import com.quan.diabetes.repository.*;
+import com.quan.diabetes.dto.doctor.DoctorProfileForm;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
+import org.springframework.validation.BindingResult;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -69,12 +72,8 @@ public class DoctorProfileController {
 
     @PostMapping("/profile/update")
     public String updateProfile(
-            @RequestParam("fullName") String fullName,
-            @RequestParam(value = "dob", required = false) String dobStr,
-            @RequestParam("gender") Boolean gender,
-            @RequestParam("specialty") String specialty,
-            @RequestParam("address") String address,
-            @RequestParam("roomId") Integer roomId,
+            @Valid @ModelAttribute("profileForm") DoctorProfileForm form,
+            BindingResult bindingResult,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
             HttpSession session,
             RedirectAttributes redirectAttributes) {
@@ -92,14 +91,14 @@ public class DoctorProfileController {
             return "redirect:/doctor/examine?patientId=" + activeExam.get().getPatient().getUserId() + "&warning=in-progress";
         }
 
+        if (bindingResult.hasErrors()) {
+            String errorMsg = bindingResult.getFieldError().getDefaultMessage();
+            redirectAttributes.addFlashAttribute("errorMsg", errorMsg);
+            return "redirect:/doctor/profile";
+        }
+
         Profile profile = profileRepository.findById(doctorId).orElse(null);
         if (profile != null) {
-            // Validate inputs
-            if (fullName == null || fullName.trim().isEmpty()) {
-                redirectAttributes.addFlashAttribute("errorMsg", "Họ và tên bắt buộc phải điền.");
-                return "redirect:/doctor/profile";
-            }
-
             // Handle file upload to Cloudinary
             if (avatarFile != null && !avatarFile.isEmpty()) {
                 try {
@@ -113,54 +112,15 @@ public class DoctorProfileController {
                 }
             }
 
-            if (fullName.trim().length() < 2 || fullName.trim().length() > 60) {
-                redirectAttributes.addFlashAttribute("errorMsg", "Full Name must be between 2 and 60 characters.");
-                return "redirect:/doctor/profile";
-            }
+            profile.setFullName(form.getFullName().trim());
+            profile.setAddress(form.getAddress() != null ? form.getAddress().trim() : "");
+            profile.setSpecialty(form.getSpecialty() != null ? form.getSpecialty().trim() : "");
+            profile.setGender(form.getGender());
+            profile.setEmail(form.getEmail() != null ? form.getEmail().trim() : "");
 
-            if (!fullName.trim().matches("^[A-Za-zÀ-ỹ\\s]+$")) {
-                redirectAttributes.addFlashAttribute("errorMsg", "Full Name can only contain letters and spaces.");
-                return "redirect:/doctor/profile";
-            }
-
-            if (address != null && address.trim().length() > 200) {
-                redirectAttributes.addFlashAttribute("errorMsg", "Address cannot exceed 200 characters.");
-                return "redirect:/doctor/profile";
-            }
-
-            if (specialty != null && specialty.trim().length() > 60) {
-                redirectAttributes.addFlashAttribute("errorMsg", "Specialty cannot exceed 60 characters.");
-                return "redirect:/doctor/profile";
-            }
-
-            if (fullName.trim().length() < 2 || fullName.trim().length() > 60) {
-                redirectAttributes.addFlashAttribute("errorMsg", "Full Name must be between 2 and 60 characters.");
-                return "redirect:/doctor/profile";
-            }
-
-            if (!fullName.trim().matches("^[A-Za-zÀ-ỹ\\s]+$")) {
-                redirectAttributes.addFlashAttribute("errorMsg", "Full Name can only contain letters and spaces.");
-                return "redirect:/doctor/profile";
-            }
-
-            if (address != null && address.trim().length() > 200) {
-                redirectAttributes.addFlashAttribute("errorMsg", "Address cannot exceed 200 characters.");
-                return "redirect:/doctor/profile";
-            }
-
-            if (specialty != null && specialty.trim().length() > 60) {
-                redirectAttributes.addFlashAttribute("errorMsg", "Specialty cannot exceed 60 characters.");
-                return "redirect:/doctor/profile";
-            }
-
-            profile.setFullName(fullName.trim());
-            profile.setAddress(address != null ? address.trim() : "");
-            profile.setSpecialty(specialty != null ? specialty.trim() : "");
-            profile.setGender(gender);
-
-            if (dobStr != null && !dobStr.trim().isEmpty()) {
+            if (form.getDob() != null && !form.getDob().trim().isEmpty()) {
                 try {
-                    profile.setDob(LocalDate.parse(dobStr));
+                    profile.setDob(LocalDate.parse(form.getDob().trim()));
                 } catch (Exception e) {
                     // Ignore parsing errors
                 }
@@ -168,7 +128,7 @@ public class DoctorProfileController {
                 profile.setDob(null);
             }
 
-            Room room = roomRepository.findById(roomId).orElse(null);
+            Room room = roomRepository.findById(form.getRoomId()).orElse(null);
             if (room != null) {
                 profile.setRoom(room);
             }
@@ -232,9 +192,9 @@ public class DoctorProfileController {
             return "redirect:/doctor/profile";
         }
 
-        // 4. Kiểm tra độ mạnh mật khẩu mới: Tối thiểu 6 ký tự
-        if (newPassword.length() < 6) {
-            redirectAttributes.addFlashAttribute("errorMsg", "Mật khẩu mới phải có độ dài tối thiểu 6 ký tự.");
+        // 4. Kiểm tra độ mạnh mật khẩu mới: sử dụng ParseUtil.isValidPassword
+        if (!com.quan.diabetes.util.ParseUtil.isValidPassword(newPassword)) {
+            redirectAttributes.addFlashAttribute("errorMsg", "Mật khẩu mới phải có độ dài tối thiểu 8 ký tự, chứa ít nhất 1 chữ hoa, 1 chữ thường, 1 chữ số và 1 ký tự đặc biệt (!@#$).");
             return "redirect:/doctor/profile";
         }
 

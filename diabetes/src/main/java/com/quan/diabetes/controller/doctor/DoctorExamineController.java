@@ -485,6 +485,14 @@ public class DoctorExamineController {
             return "redirect:/doctor/dashboard";
         }
 
+        if (exam.getExamDate() != null) {
+            java.time.LocalDate examLocalDate = exam.getExamDate().toLocalDate();
+            java.time.LocalDate today = java.time.LocalDate.now();
+            if (!examLocalDate.equals(today)) {
+                throw new IllegalStateException("Chỉ được phép chỉnh sửa ca khám được thực hiện trong ngày hôm nay.");
+            }
+        }
+
         String patientId = exam.getPatient().getUserId();
         session.setAttribute("selectedPatientId", patientId);
         session.setAttribute("examineViewOnly", "false");
@@ -694,6 +702,14 @@ public class DoctorExamineController {
 
         ClinicalExamination exam = clinicalExaminationRepository.findById(examId)
                 .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException("Không tìm thấy ca khám: " + examId));
+
+        if (exam.getExamDate() != null) {
+            java.time.LocalDate examLocalDate = exam.getExamDate().toLocalDate();
+            java.time.LocalDate today = java.time.LocalDate.now();
+            if (!examLocalDate.equals(today)) {
+                throw new IllegalStateException("Chỉ được phép chỉnh sửa ca khám được thực hiện trong ngày hôm nay.");
+            }
+        }
 
         if (bindingResult.hasErrors()) {
             String patientId = exam.getPatient().getUserId();

@@ -11,15 +11,14 @@ import jakarta.validation.constraints.Pattern;
  */
 public class ClinicalExamForm {
 
-    @NotBlank(message = "Lý do khám & bệnh sử không được để trống")
+    @NotBlank(message = "Lý do khám không được để trống")
     private String medicalHistory;
     @NotBlank(message = "Ghi chú chẩn đoán lâm sàng không được để trống")
     private String diagnosisNote;
-    private String nextAppointment; // Receives yyyy-MM-dd date string
-    @NotEmpty(message = "Vui lòng chọn ít nhất một triệu chứng")
+    private String nextAppointment;
     private List<String> symptomIds;
     private List<String> labTestIds;
-    private String prescriptionJson; // Receives serialized JSON string of medications
+    private String prescriptionJson;
 
     // Treatment plan details
     @Pattern(regexp = "^$|.*\\S.*", message = "Mục tiêu điều trị không được chỉ chứa khoảng trắng")

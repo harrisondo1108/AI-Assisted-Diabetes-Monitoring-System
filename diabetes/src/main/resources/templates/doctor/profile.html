@@ -36,9 +36,15 @@
                             </div>
                         </div>
 
-                        <!-- Flash messages data elements for JS toast -->
-                        <div th:if="${successMsg != null}" id="success-message-data" th:data-message="${successMsg}" style="display: none;"></div>
-                        <div th:if="${errorMsg != null}" id="error-message-data" th:data-message="${errorMsg}" style="display: none;"></div>
+                        <!-- Static Flash messages (No JS) -->
+                        <div th:if="${successMsg != null}" class="alert alert-success" style="padding: 12px 16px; margin-bottom: 20px; border-radius: 8px; background-color: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); display: flex; align-items: center; gap: 8px; font-size: 0.9rem;">
+                            <i class="fas fa-circle-check"></i>
+                            <span th:text="${successMsg}"></span>
+                        </div>
+                        <div th:if="${errorMsg != null}" class="alert alert-danger" style="padding: 12px 16px; margin-bottom: 20px; border-radius: 8px; background-color: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); display: flex; align-items: center; gap: 8px; font-size: 0.9rem;">
+                            <i class="fas fa-circle-xmark"></i>
+                            <span th:text="${errorMsg}"></span>
+                        </div>
 
                         <form th:action="@{/doctor/profile/update}" method="POST" enctype="multipart/form-data" class="profile-form">
                             <div class="form-section-title">
@@ -70,6 +76,14 @@
                                         <input type="text" id="phoneNumber" name="phoneNumber" th:value="${doctorProfile.phoneNumber}" disabled>
                                     </div>
                                     <span class="field-hint">Số điện thoại được sử dụng để đăng nhập và chỉ được thay đổi trực tiếp qua quản trị viên.</span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="email">Email</label>
+                                    <div class="input-with-icon">
+                                        <i class="fas fa-envelope"></i>
+                                        <input type="email" id="email" name="email" th:value="${doctorProfile.email}" placeholder="VD: bacsi@gmail.com">
+                                    </div>
                                 </div>
 
                                 <div class="form-group">
@@ -150,13 +164,10 @@
                                         <div style="font-size: 0.8rem; color: var(--doctor-text-muted);">Đã được cấu hình bảo mật</div>
                                     </div>
                                 </div>
-                                <button type="button" id="togglePasswordBtn" class="btn btn-secondary btn-sm" style="padding: 6px 16px;">
-                                    Đổi mật khẩu
-                                </button>
                             </div>
 
-                            <!-- Khung nhập đổi mật khẩu (Ẩn mặc định) -->
-                            <form th:action="@{/doctor/profile/change-password}" method="POST" id="passwordForm" style="display: none; padding-top: 20px;">
+                            <!-- Khung nhập đổi mật khẩu (Hiển thị trực tiếp) -->
+                            <form th:action="@{/doctor/profile/change-password}" method="POST" id="passwordForm" style="padding-top: 20px;">
                                 <div class="form-grid" style="grid-template-columns: 1fr; gap: 16px; margin-bottom: 20px;">
                                     <div class="form-group">
                                         <label for="currentPassword">Mật khẩu hiện tại <span class="required">*</span></label>
@@ -171,7 +182,7 @@
                                         <label for="newPassword">Mật khẩu mới <span class="required">*</span></label>
                                         <div class="input-with-icon">
                                             <i class="fas fa-key"></i>
-                                            <input type="password" id="newPassword" name="newPassword" required placeholder="Tối thiểu 6 ký tự">
+                                            <input type="password" id="newPassword" name="newPassword" required placeholder="Tối thiểu 8 ký tự, có chữ hoa, thường, số và ký tự đặc biệt">
                                         </div>
                                         <div class="validation-feedback" id="newPasswordFeedback"></div>
                                     </div>
@@ -257,49 +268,20 @@
             const newPassword = document.getElementById('newPassword');
             const confirmPassword = document.getElementById('confirmPassword');
             const submitBtn = document.getElementById('submitPasswordBtn');
+            const passwordForm = document.getElementById('passwordForm');
 
             const currentFeedback = document.getElementById('currentPasswordFeedback');
             const newFeedback = document.getElementById('newPasswordFeedback');
             const confirmFeedback = document.getElementById('confirmPasswordFeedback');
 
-            // Toggle Password Form Display (GitHub style)
-            const togglePasswordBtn = document.getElementById('togglePasswordBtn');
-            const passwordForm = document.getElementById('passwordForm');
-
-            togglePasswordBtn.addEventListener('click', () => {
-                if (passwordForm.style.display === 'none') {
-                    passwordForm.style.display = 'block';
-                    togglePasswordBtn.textContent = 'Ẩn';
-                } else {
-                    passwordForm.style.display = 'none';
-                    togglePasswordBtn.textContent = 'Đổi mật khẩu';
-                    
-                    // Reset fields & feedback
-                    currentPassword.value = '';
-                    newPassword.value = '';
-                    confirmPassword.value = '';
-                    
-                    currentFeedback.textContent = '';
-                    currentFeedback.className = 'validation-feedback';
-                    currentPassword.classList.remove('input-invalid');
-
-                    newFeedback.textContent = '';
-                    newFeedback.className = 'validation-feedback';
-                    newPassword.classList.remove('input-invalid');
-
-                    confirmFeedback.textContent = '';
-                    confirmFeedback.className = 'validation-feedback';
-                    confirmPassword.classList.remove('input-invalid');
-                }
-            });
-
-            // Auto expand password form if there was a redirect error message related to password
-            if (errorEl && errorEl.getAttribute('data-message')) {
-                const msg = errorEl.getAttribute('data-message').toLowerCase();
-                if (msg.includes('password') || msg.includes('mật khẩu')) {
-                    passwordForm.style.display = 'block';
-                    togglePasswordBtn.textContent = 'Ẩn';
-                }
+            // Strong password validator matching ParseUtil
+            function isValidPassword(pwd) {
+                if (pwd.length < 8) return false;
+                if (!/[a-z]/.test(pwd)) return false;
+                if (!/[A-Z]/.test(pwd)) return false;
+                if (!/\d/.test(pwd)) return false;
+                if (!/[!@#$]/.test(pwd)) return false;
+                return true;
             }
 
             // Password validation on form submit
@@ -324,8 +306,8 @@
                     newFeedback.className = "validation-feedback invalid";
                     newPassword.classList.add('input-invalid');
                     isValid = false;
-                } else if (newPassword.value.length < 6) {
-                    newFeedback.textContent = "Mật khẩu mới phải có ít nhất 6 ký tự.";
+                } else if (!isValidPassword(newPassword.value)) {
+                    newFeedback.textContent = "Mật khẩu mới phải có ít nhất 8 ký tự, chứa ít nhất 1 chữ hoa, 1 chữ thường, 1 chữ số và 1 ký tự đặc biệt (!@#$).";
                     newFeedback.className = "validation-feedback invalid";
                     newPassword.classList.add('input-invalid');
                     isValid = false;

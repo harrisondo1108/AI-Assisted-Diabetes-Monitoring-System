@@ -15,36 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Show completed exam details modal using Thymeleaf Fragment loaded via AJAX
-function viewCompletedExam(examId) {
-    const modal = document.getElementById('completedExamModal');
-    if (modal) modal.classList.add('open');
 
-    const modalBody = document.getElementById('completedExamModalBody');
-    if (modalBody) {
-        modalBody.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--doctor-text-muted);"><i class="fas fa-spinner fa-spin fa-2x"></i><p style="margin-top: 10px;">Đang tải chi tiết ca khám...</p></div>';
-
-        fetch(`/doctor/dashboard/view-exam/${examId}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Không thể tải chi tiết ca khám');
-                }
-                return response.text();
-            })
-            .then(html => {
-                modalBody.innerHTML = html;
-            })
-            .catch(error => {
-                console.error(error);
-                modalBody.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--doctor-danger);"><i class="fas fa-exclamation-triangle fa-2x"></i><p style="margin-top: 10px;">Lỗi khi tải chi tiết ca khám.</p></div>';
-            });
-    }
-}
-
-function closeCompletedExam() {
-    const modal = document.getElementById('completedExamModal');
-    if (modal) modal.classList.remove('open');
-}
 
 
 

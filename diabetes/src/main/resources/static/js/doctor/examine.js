@@ -765,12 +765,11 @@ function renderPrescriptionLines() {
                     </div>
                 </div>
                 <div class="presc-card-actions" style="display: flex; gap: 8px;">
-                    <button type="button" class="btn-presc-action detail-btn" onclick="togglePrescriptionDetail(${index})" title="Chi tiết" style="background-color: #f3f4f6; color: #4b5563; border: 1px solid #d1d5db; border-radius: 6px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;"><i class="fas fa-eye"></i></button>
                     <button type="button" class="btn-presc-action edit-btn" onclick="editPrescriptionLine(${index})" title="Sửa" style="background-color: #f3f4f6; color: var(--doctor-primary); border: 1px solid #d1d5db; border-radius: 6px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;"><i class="fas fa-pen"></i></button>
                     <button type="button" class="btn-presc-action delete-btn" onclick="if(confirm('Bạn có chắc chắn muốn xóa thuốc này khỏi đơn?')) removePrescriptionLine(${index})" title="Xóa" style="background-color: #f3f4f6; color: var(--doctor-danger); border: 1px solid #d1d5db; border-radius: 6px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;"><i class="fas fa-trash"></i></button>
                 </div>
             </div>
-            <div class="presc-card-dropdown" id="presc-dropdown-${index}" style="display: none; padding: 12px 16px; background-color: #f9fafb; border-top: 1px solid #e5e7eb; font-size: 0.85rem; color: #374151; line-height: 1.6;">
+            <div class="presc-card-dropdown" id="presc-dropdown-${index}" style="display: block; padding: 12px 16px; background-color: #f9fafb; border-top: 1px solid #e5e7eb; font-size: 0.85rem; color: #374151; line-height: 1.6;">
                 <div style="margin-bottom: 6px;"><strong style="color: var(--doctor-text-muted);"><i class="fas fa-cubes"></i> Dạng bào chế:</strong> ${line.form}</div>
                 ${line.startDate && line.endDate ? `<div style="margin-bottom: 6px;"><strong style="color: var(--doctor-text-muted);"><i class="far fa-calendar-alt"></i> Liệu trình:</strong> Từ ${formatDateDMY(line.startDate)} đến ${formatDateDMY(line.endDate)}</div>` : ''}
                 <div style="margin-bottom: 6px;"><strong style="color: var(--doctor-text-muted);"><i class="fas fa-prescription-bottle"></i> Liều dùng:</strong> ${line.dosage}</div>
@@ -782,20 +781,6 @@ function renderPrescriptionLines() {
         `;
         list.appendChild(div);
     });
-}
-
-function togglePrescriptionDetail(index) {
-    const dropdown = document.getElementById(`presc-dropdown-${index}`);
-    if (dropdown) {
-        const btn = dropdown.previousElementSibling.querySelector('.detail-btn i');
-        if (dropdown.style.display === 'none') {
-            dropdown.style.display = 'block';
-            if (btn) btn.className = 'fas fa-eye-slash';
-        } else {
-            dropdown.style.display = 'none';
-            if (btn) btn.className = 'fas fa-eye';
-        }
-    }
 }
 
 // Complete Clinical Checkup
@@ -983,151 +968,65 @@ window.addEventListener('beforeunload', (e) => {
 
 function validateMedicationFields() {
     let isValid = true;
+    const getEl = id => document.getElementById(id);
+    const getVal = id => getEl(id)?.value?.trim();
+    const showErr = (id, msg) => {
+        const err = getEl('error-' + id);
+        if (err) { err.textContent = msg; err.style.display = 'block'; }
+        isValid = false;
+    };
 
-    const dosageInput = document.getElementById('medDosage');
-    const durationInput = document.getElementById('medDuration');
-    const quantityInput = document.getElementById('medQuantity');
-    const startDateInput = document.getElementById('medStartDate');
+    ['medDosage', 'medDuration', 'medQuantity', 'medStartDate', 'medTiming'].forEach(id => {
+        const err = getEl('error-' + id);
+        if (err) err.style.display = 'none';
+    });
 
-    const dosageErr = document.getElementById('error-medDosage');
-    const durationErr = document.getElementById('error-medDuration');
-    const quantityErr = document.getElementById('error-medQuantity');
-    const startDateErr = document.getElementById('error-medStartDate');
+    const dosage = getVal('medDosage');
+    if (!dosage) showErr('medDosage', 'Vui lòng nhập liều lượng mỗi lần dùng');
+    else if (isNaN(dosage) || Number(dosage) <= 0) showErr('medDosage', 'Liều lượng phải là số dương');
 
-    // Reset errors
-    if (dosageErr) dosageErr.style.display = 'none';
-    if (durationErr) durationErr.style.display = 'none';
-    if (quantityErr) quantityErr.style.display = 'none';
-    if (startDateErr) startDateErr.style.display = 'none';
+    const duration = getVal('medDuration');
+    if (!duration) showErr('medDuration', 'Vui lòng nhập số ngày sử dụng');
+    else if (isNaN(duration) || !Number.isInteger(Number(duration)) || Number(duration) <= 0) showErr('medDuration', 'Số ngày sử dụng phải là số nguyên dương');
 
-    // Validate Dosage
-    if (dosageInput) {
-        const dosageVal = dosageInput.value.trim();
-        if (!dosageVal) {
-            if (dosageErr) {
-                dosageErr.textContent = 'Vui lòng nhập liều lượng mỗi lần dùng';
-                dosageErr.style.display = 'block';
-            }
-            isValid = false;
-        } else {
-            const num = Number(dosageVal);
-            if (isNaN(num) || num <= 0) {
-                if (dosageErr) {
-                    dosageErr.textContent = 'Liều lượng phải là số dương';
-                    dosageErr.style.display = 'block';
-                }
-                isValid = false;
-            }
-        }
-    }
+    if (!getVal('medStartDate')) showErr('medStartDate', 'Vui lòng chọn ngày bắt đầu sử dụng thuốc');
 
-    // Validate Duration
-    if (durationInput) {
-        const durationVal = durationInput.value;
-        if (!durationVal) {
-            if (durationErr) {
-                durationErr.textContent = 'Vui lòng nhập số ngày sử dụng';
-                durationErr.style.display = 'block';
-            }
-            isValid = false;
-        } else {
-            const num = Number(durationVal);
-            if (isNaN(num) || !Number.isInteger(num) || num <= 0) {
-                if (durationErr) {
-                    durationErr.textContent = 'Số ngày sử dụng phải là số nguyên dương';
-                    durationErr.style.display = 'block';
-                }
-                isValid = false;
-            }
-        }
-    }
-
-    // Validate Start Date
-    if (startDateInput) {
-        const startDateVal = startDateInput.value;
-        if (!startDateVal) {
-            if (startDateErr) {
-                startDateErr.textContent = 'Vui lòng chọn ngày bắt đầu sử dụng thuốc';
-                startDateErr.style.display = 'block';
-            }
-            isValid = false;
-        }
-    }
-
-    // Validate Medication Timing
-    const timingContainer = document.getElementById('medTimingContainer');
-    const timingErr = document.getElementById('error-medTiming');
-    if (timingErr) timingErr.style.display = 'none';
+    const timingContainer = getEl('medTimingContainer');
     if (timingContainer) {
-        const checkedCount = Array.from(timingContainer.querySelectorAll('.custom-multiselect-option input[type="checkbox"]')).filter(cb => cb.checked).length;
-        if (checkedCount === 0) {
-            if (timingErr) {
-                timingErr.textContent = 'Vui lòng chọn ít nhất một thời điểm sử dụng thuốc';
-                timingErr.style.display = 'block';
-            }
-            isValid = false;
-        }
+        const checked = Array.from(timingContainer.querySelectorAll('.custom-multiselect-option input[type="checkbox"]')).some(cb => cb.checked);
+        if (!checked) showErr('medTiming', 'Vui lòng chọn ít nhất một thời điểm sử dụng thuốc');
     }
-
     return isValid;
 }
 
 function updateEndDate() {
-    const startDateInput = document.getElementById('medStartDate');
-    const durationInput = document.getElementById('medDuration');
-    const endDateInput = document.getElementById('medEndDate');
+    const startVal = document.getElementById('medStartDate')?.value;
+    const durationVal = parseInt(document.getElementById('medDuration')?.value?.trim(), 10);
+    const endEl = document.getElementById('medEndDate');
+    if (!endEl) return;
 
-    if (!startDateInput || !durationInput || !endDateInput) return;
-
-    const startDateVal = startDateInput.value;
-    const durationVal = durationInput.value.trim();
-
-    if (!startDateVal || !durationVal) {
-        endDateInput.value = '';
+    if (!startVal || isNaN(durationVal) || durationVal <= 0) {
+        endEl.value = '';
         return;
     }
-
-    const durationDays = parseInt(durationVal, 10);
-    if (isNaN(durationDays) || durationDays <= 0) {
-        endDateInput.value = '';
-        return;
-    }
-
-    const startDate = new Date(startDateVal);
-    if (isNaN(startDate.getTime())) {
-        endDateInput.value = '';
-        return;
-    }
-
-    const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + durationDays - 1);
-
-    const yyyy = endDate.getFullYear();
-    const mm = String(endDate.getMonth() + 1).padStart(2, '0');
-    const dd = String(endDate.getDate()).padStart(2, '0');
-
-    endDateInput.value = `${yyyy}-${mm}-${dd}`;
+    const d = new Date(startVal);
+    d.setDate(d.getDate() + durationVal - 1);
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    endEl.value = `${d.getFullYear()}-${mm}-${dd}`;
 }
 
 function formatDateDMY(dateStr) {
     if (!dateStr) return 'N/A';
     const parts = dateStr.split('-');
-    if (parts.length === 3) {
-        return `${parts[2]}/${parts[1]}/${parts[0]}`;
-    }
-    return dateStr;
+    return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : dateStr;
 }
 
-// Toggle timing dropdown
 function toggleTimingDropdown(event) {
     if (event) event.stopPropagation();
-    const container = document.getElementById('medTimingContainer');
-    if (container) {
-        container.classList.toggle('open');
-    }
+    document.getElementById('medTimingContainer')?.classList.toggle('open');
 }
 
-// Select/toggle timing checkbox
 function selectTimingOption(optionDiv, event) {
     if (event) event.stopPropagation();
     const checkbox = optionDiv.querySelector('input[type="checkbox"]');
@@ -1137,7 +1036,6 @@ function selectTimingOption(optionDiv, event) {
     }
 }
 
-// Update select placeholder text
 function updateTimingPlaceholder() {
     const container = document.getElementById('medTimingContainer');
     if (!container) return;
@@ -1146,9 +1044,7 @@ function updateTimingPlaceholder() {
     checkboxes.forEach(cb => {
         if (cb.checked) {
             const label = cb.parentNode.querySelector('label');
-            if (label) {
-                selectedTexts.push(label.textContent.trim());
-            }
+            if (label) selectedTexts.push(label.textContent.trim());
         }
     });
 
@@ -1165,7 +1061,6 @@ function updateTimingPlaceholder() {
     calculateTotalQuantity();
 }
 
-// Close dropdown on click outside
 document.addEventListener('click', function(event) {
     const container = document.getElementById('medTimingContainer');
     if (container && !container.contains(event.target)) {
@@ -1176,60 +1071,26 @@ document.addEventListener('click', function(event) {
 function restoreExamineDraft() {
     const draftStr = sessionStorage.getItem('examineDraft');
     if (!draftStr) return;
-
     try {
         const draft = JSON.parse(draftStr);
         if (currentPatient && draft.patientId === currentPatient.id) {
-            if (draft.isPregnant !== undefined) {
-                const chk = document.getElementById('isPregnant');
-                if (chk) {
-                    chk.checked = draft.isPregnant;
+            const fields = {
+                isPregnant: 'isPregnant', examDiagnosis: 'examDiagnosis', examHistory: 'examHistory',
+                examNextDate: 'examNextDate', planGoal: 'planGoal', planDiet: 'planDiet',
+                planExercise: 'planExercise', planGlucose: 'planGlucose'
+            };
+            Object.entries(fields).forEach(([key, id]) => {
+                const el = document.getElementById(id);
+                if (el && draft[key] !== undefined) {
+                    if (el.type === 'checkbox') el.checked = draft[key];
+                    else el.value = draft[key];
                 }
-            }
-            if (draft.examDiagnosis) {
-                const el = document.getElementById('examDiagnosis');
-                if (el) el.value = draft.examDiagnosis;
-            }
-            if (draft.examHistory) {
-                const el = document.getElementById('examHistory');
-                if (el) el.value = draft.examHistory;
-            }
-            if (draft.examNextDate) {
-                const el = document.getElementById('examNextDate');
-                if (el) el.value = draft.examNextDate;
-            }
-            if (draft.planGoal) {
-                const el = document.getElementById('planGoal');
-                if (el) el.value = draft.planGoal;
-            }
-            if (draft.planDiet) {
-                const el = document.getElementById('planDiet');
-                if (el) el.value = draft.planDiet;
-            }
-            if (draft.planExercise) {
-                const el = document.getElementById('planExercise');
-                if (el) el.value = draft.planExercise;
-            }
-            if (draft.planGlucose) {
-                const el = document.getElementById('planGlucose');
-                if (el) el.value = draft.planGlucose;
-            }
+            });
 
-            if (draft.prescriptionLines) {
-                prescriptionLines = draft.prescriptionLines;
-                renderPrescriptionLines();
-            }
-            if (draft.selectedSymptoms) {
-                selectedSymptoms = draft.selectedSymptoms;
-                renderSymptomsGrid();
-            }
-            if (draft.orderedLabs) {
-                orderedLabs = draft.orderedLabs;
-            }
-            if (draft.simulatedResults) {
-                simulatedResults = draft.simulatedResults;
-                simulateLabResults();
-            }
+            if (draft.prescriptionLines) { prescriptionLines = draft.prescriptionLines; renderPrescriptionLines(); }
+            if (draft.selectedSymptoms) { selectedSymptoms = draft.selectedSymptoms; renderSymptomsGrid(); }
+            if (draft.orderedLabs) orderedLabs = draft.orderedLabs;
+            if (draft.simulatedResults) { simulatedResults = draft.simulatedResults; simulateLabResults(); }
         } else {
             sessionStorage.removeItem('examineDraft');
         }
@@ -1250,23 +1111,17 @@ function calculateTotalQuantity() {
     const durationVal = parseInt(durationInput.value, 10) || 0;
     const checkedTimings = timingContainer.querySelectorAll('.custom-multiselect-option input[type="checkbox"]:checked').length;
 
-    const total = Math.ceil(dosageVal * checkedTimings * durationVal);
-    quantityInput.value = total;
+    quantityInput.value = Math.ceil(dosageVal * checkedTimings * durationVal);
 }
 
 function parseDosagePerDose(dosageStr) {
     if (!dosageStr || dosageStr === 'Auto') return 1;
     const match = dosageStr.match(/^([\d.]+)/);
-    if (match) {
-        const val = parseFloat(match[1]);
-        return isNaN(val) ? 1 : val;
-    }
-    return 1;
+    return match && !isNaN(parseFloat(match[1])) ? parseFloat(match[1]) : 1;
 }
 
 function clearMedicationErrors() {
-    const ids = ['error-medDosage', 'error-medDuration', 'error-medQuantity', 'error-medStartDate', 'error-medTiming'];
-    ids.forEach(id => {
+    ['error-medDosage', 'error-medDuration', 'error-medQuantity', 'error-medStartDate', 'error-medTiming'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
     });

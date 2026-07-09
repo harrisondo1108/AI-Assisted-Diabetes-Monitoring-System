@@ -3,7 +3,6 @@ package com.quan.diabetes.controller.doctor;
 import com.quan.diabetes.entity.*;
 import com.quan.diabetes.repository.*;
 
-
 import com.quan.diabetes.service.exam.ClinicalExaminationService;
 import com.quan.diabetes.service.user.PatientService;
 import com.quan.diabetes.service.user.ProfileService;
@@ -89,9 +88,15 @@ public class DoctorPatientController {
         if (patient == null) {
             return "redirect:/doctor/dashboard";
         }
-        model.addAttribute("patient", patient);
 
-        // Nạp lịch sử các ca khám (Timeline) của bệnh nhân này (Chỉ lấy Completed hoặc Cancelled)
+        java.util.Map<String, Object> patientMap = new java.util.HashMap<>();
+        patientMap.put("userId", patient.getUserId());
+        patientMap.put("fullName", patient.getFullName());
+        patientMap.put("imageUrl", patient.getImageUrl());
+        model.addAttribute("patient", patientMap);
+
+        // Nạp lịch sử các ca khám (Timeline) của bệnh nhân này (Chỉ lấy Completed hoặc
+        // Cancelled)
         List<ClinicalExamination> timeline = clinicalExaminationService.findByPatientId(selectedPatientId).stream()
                 .filter(e -> "Completed".equalsIgnoreCase(e.getStatus()) || "Cancelled".equalsIgnoreCase(e.getStatus()))
                 .collect(Collectors.toList());
@@ -127,7 +132,37 @@ public class DoctorPatientController {
             }
         }
 
-        model.addAttribute("timeline", timeline);
+        List<Map<String, Object>> timelineDetailsList = new java.util.ArrayList<>();
+        for (ClinicalExamination exam : timeline) {
+            Map<String, Object> map = new java.util.HashMap<>();
+            map.put("exam", exam);
+
+            // Nạp triệu chứng liên quan
+            List<ExamSymptom> symptoms = examSymptomRepository.findAll().stream()
+                    .filter(s -> s.getId().getClinicalExamId().equals(exam.getClinicalExamId()))
+                    .collect(Collectors.toList());
+            map.put("symptoms", symptoms);
+
+            // Nạp kết quả xét nghiệm liên quan
+            List<LabResult> labResults = labResultRepository
+                    .findByLabOrder_ClinicalExamination_ClinicalExamId(exam.getClinicalExamId());
+            map.put("labResults", labResults);
+
+            // Nạp chi tiết đơn thuốc
+            Prescription prescription = prescriptionRepository
+                    .findByClinicalExamination_ClinicalExamId(exam.getClinicalExamId()).orElse(null);
+            if (prescription != null) {
+                List<PrescriptionDetail> details = prescriptionDetailRepository
+                        .findByPrescription_PrescriptionId(prescription.getPrescriptionId());
+                map.put("prescriptionDetails", details);
+            } else {
+                map.put("prescriptionDetails", Collections.emptyList());
+            }
+
+            timelineDetailsList.add(map);
+        }
+
+        model.addAttribute("timelineDetails", timelineDetailsList);
         model.addAttribute("currentFromDate", fromDate);
         model.addAttribute("currentToDate", toDate);
         model.addAttribute("from", from);
@@ -135,34 +170,58 @@ public class DoctorPatientController {
         return "doctor/patients";
     }
 
-    @GetMapping("/history/view-exam/{examId}")
-    public String viewTimelineExamDetail(@PathVariable("examId") String examId, Model model) {
-        ClinicalExamination exam = clinicalExaminationService.findById(examId).orElse(null);
-        if (exam == null) {
-            return "doctor/patients :: timelineDetail";
+    @GetMapping("/history/detail/{examId}")
+    public String patientHistoryDetailPage(
+            @PathVariable("examId") String examId,
+            @RequestParam(value = "from", required = false) String from,
+            HttpSession session,
+            Model model) {
+        User loggedInUser = (User) session.getAttribute("loggedInUser");
+        if (loggedInUser == null || !"DOC".equalsIgnoreCase(loggedInUser.getRole().getRoleId())) {
+            return "redirect:/login";
         }
+        model.addAttribute("loggedInUser", loggedInUser);
 
-        model.addAttribute("exam", exam);
+        String doctorId = loggedInUser.getUserId();
+        Profile profile = profileService.findById(doctorId).orElse(null);
+        model.addAttribute("doctorProfile", profile);
 
-        // Nạp triệu chứng liên quan
+        ClinicalExamination exam = clinicalExaminationRepository.findById(examId)
+                .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException("Không tìm thấy ca khám này."));
+
+        // Minimal patient info for header/sidebar
+        Patient patient = exam.getPatient();
+        java.util.Map<String, Object> patientMap = new java.util.HashMap<>();
+        patientMap.put("userId", patient.getUserId());
+        patientMap.put("fullName", patient.getFullName());
+        patientMap.put("imageUrl", patient.getImageUrl());
+        model.addAttribute("patient", patientMap);
+
+        // Fetch exam related data
+        java.util.Map<String, Object> td = new java.util.HashMap<>();
+        td.put("exam", exam);
+
         List<ExamSymptom> symptoms = examSymptomRepository.findAll().stream()
-                .filter(s -> s.getId().getClinicalExamId().equals(examId))
+                .filter(s -> s.getId().getClinicalExamId().equals(exam.getClinicalExamId()))
                 .collect(Collectors.toList());
-        model.addAttribute("symptoms", symptoms);
+        td.put("symptoms", symptoms);
 
-        // Nạp kết quả xét nghiệm liên quan
-        List<LabResult> labResults = labResultRepository.findByLabOrder_ClinicalExamination_ClinicalExamId(examId);
-        model.addAttribute("labResults", labResults);
+        List<LabResult> labResults = labResultRepository
+                .findByLabOrder_ClinicalExamination_ClinicalExamId(exam.getClinicalExamId());
+        td.put("labResults", labResults);
 
-        // Nạp chi tiết đơn thuốc
-        Prescription prescription = prescriptionRepository.findByClinicalExamination_ClinicalExamId(examId).orElse(null);
-        if (prescription != null) {
-            List<PrescriptionDetail> details = prescriptionDetailRepository.findByPrescription_PrescriptionId(prescription.getPrescriptionId());
-            model.addAttribute("prescriptionDetails", details);
-        } else {
-            model.addAttribute("prescriptionDetails", Collections.emptyList());
+        List<PrescriptionDetail> prescriptionDetails = java.util.Collections.emptyList();
+        Optional<Prescription> prescription = prescriptionRepository
+                .findByClinicalExamination_ClinicalExamId(exam.getClinicalExamId());
+        if (prescription.isPresent()) {
+            prescriptionDetails = prescriptionDetailRepository
+                    .findByPrescription_PrescriptionId(prescription.get().getPrescriptionId());
         }
+        td.put("prescriptionDetails", prescriptionDetails);
 
-        return "doctor/patients :: timelineDetail";
+        model.addAttribute("td", td);
+        model.addAttribute("from", from != null ? from : "history");
+
+        return "doctor/history_detail";
     }
 }
