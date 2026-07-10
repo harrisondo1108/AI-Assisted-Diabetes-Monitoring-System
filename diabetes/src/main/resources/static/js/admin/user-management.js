@@ -45,10 +45,7 @@
     }
 
     function openDrawer(user) {
-        document.getElementById('drawerName').textContent = user.fullName;
         const isClocked = user.status && user.status.toLowerCase() === 'clocked';
-        document.getElementById('drawerMeta').textContent =
-            roleLabel(user.role) + ' • ' + (isClocked ? 'Đang khóa' : 'Hoạt động');
 
         setDrawerRow('drawerUserId', user.userId);
         setDrawerRow('drawerAccountPhone', user.accountPhone);

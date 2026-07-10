@@ -65,7 +65,8 @@ public class DoctorQueueController {
 
         // Lọc danh sách ca khám hôm nay
         List<ClinicalExamination> todayQueue = allExams.stream()
-                .filter(e -> e.getExamDate() != null && e.getExamDate().toLocalDate().isEqual(today) && !"Requested".equalsIgnoreCase(e.getStatus()))
+                .filter(e -> e.getExamDate() != null && e.getExamDate().toLocalDate().isEqual(today)
+                        && !"Requested".equalsIgnoreCase(e.getStatus()))
                 .collect(Collectors.toList());
 
         // Lọc theo bộ lọc status và search
@@ -90,7 +91,7 @@ public class DoctorQueueController {
                 .collect(Collectors.toList());
 
         // Phân trang
-        int pageSize = 10;
+        int pageSize = 8;
         int totalElements = filteredQueue.size();
         int totalPages = (int) Math.ceil((double) totalElements / pageSize);
         if (totalPages == 0) {

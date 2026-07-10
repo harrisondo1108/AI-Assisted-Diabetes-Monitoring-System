@@ -293,8 +293,8 @@ CREATE TABLE [AI_Message] (
 );
 
 -- 17. Notification
-CREATE TABLE [AI_Reminder] (
-    AIReminderID BIGINT IDENTITY(1,1)PRIMARY KEY,
+CREATE TABLE [Reminder] (
+    ReminderID BIGINT IDENTITY(1,1)PRIMARY KEY,
     Title NVARCHAR(50),
     Message NVARCHAR(MAX),
     ScheduledTime DATETIME,

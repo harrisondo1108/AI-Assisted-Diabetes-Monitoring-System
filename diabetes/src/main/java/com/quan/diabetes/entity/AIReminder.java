@@ -11,12 +11,12 @@ import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "AI_Reminder")
+@Table(name = "Reminder")
 public class AIReminder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "AIReminderID")
+    @Column(name = "ReminderID")
     private long aiReminderId;
 
     @Column(name = "Title", length = 50, columnDefinition = "NVARCHAR(50)")
