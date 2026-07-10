@@ -11,10 +11,10 @@
 
 <body>
 <div class="admin-layout">
-    <div th:replace="~{layout/patient-sidebar :: patientSidebar('notifications')}"></div>
+    <div th:replace="~{layout/patient/sidebar :: patientSidebar('notifications')}"></div>
 
     <div class="admin-main">
-        <div th:replace="~{layout/patient-header :: patientHeader('Chi tiết thông báo')}"></div>
+        <div th:replace="~{layout/patient/header :: patientHeader('Chi tiết thông báo')}"></div>
 
         <main class="admin-content">
             <!-- Back to list link -->
@@ -168,7 +168,7 @@
             </th:block>
         </main>
 
-        <div th:replace="~{layout/footer :: footer}"></div>
+        <div th:replace="~{layout/patient/footer :: footer}"></div>
     </div>
 </div>
 </body>

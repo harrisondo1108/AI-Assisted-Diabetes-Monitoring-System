@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
@@ -15,7 +15,7 @@
     <div class="doctor-layout">
         <div class="doctor-main">
             <!-- Header -->
-            <div th:replace="~{doctor/doctor_header :: header('Hồ sơ lâm sàng của tôi', 'profile')}"></div>
+            <div th:replace="~{layout/doctor/header :: header('Hồ sơ lâm sàng của tôi', 'profile')}"></div>
 
             <main class="doctor-content profile-layout">
                 <div class="profile-container" style="width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 24px;">
@@ -175,7 +175,7 @@
                                             <i class="fas fa-lock"></i>
                                             <input type="password" id="currentPassword" name="currentPassword" required placeholder="Nhập mật khẩu hiện tại">
                                         </div>
-                                        <div class="validation-feedback" id="currentPasswordFeedback"></div>
+                                        
                                     </div>
 
                                     <div class="form-group">
@@ -184,7 +184,7 @@
                                             <i class="fas fa-key"></i>
                                             <input type="password" id="newPassword" name="newPassword" required placeholder="Tối thiểu 8 ký tự, có chữ hoa, thường, số và ký tự đặc biệt">
                                         </div>
-                                        <div class="validation-feedback" id="newPasswordFeedback"></div>
+                                        
                                     </div>
 
                                     <div class="form-group">
@@ -193,7 +193,7 @@
                                             <i class="fas fa-shield-halved"></i>
                                             <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Nhập lại mật khẩu mới">
                                         </div>
-                                        <div class="validation-feedback" id="confirmPasswordFeedback"></div>
+                                        
                                     </div>
                                 </div>
 
@@ -210,140 +210,6 @@
         </div>
     </div>
 
-    <script>
-        // Toast Notification System
-        function showToast(message, type = 'success') {
-            let container = document.getElementById('toast-container');
-            if (!container) {
-                container = document.createElement('div');
-                container.id = 'toast-container';
-                container.className = 'toast-container';
-                document.body.appendChild(container);
-            }
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            const icon = type === 'success' ? 'fa-circle-check' : (type === 'error' ? 'fa-circle-xmark' : 'fa-triangle-exclamation');
-            toast.innerHTML = `
-                <i class="fas ${icon}"></i>
-                <span>${message}</span>
-                <button type="button" class="toast-close-btn"><i class="fas fa-times"></i></button>
-            `;
-            container.appendChild(toast);
-            
-            const closeBtn = toast.querySelector('.toast-close-btn');
-            closeBtn.onclick = () => {
-                toast.classList.remove('show');
-                setTimeout(() => { if (toast.parentNode) toast.remove(); }, 300);
-            };
-            
-            setTimeout(() => toast.classList.add('show'), 10);
-            setTimeout(() => {
-                if (toast.parentNode) {
-                    toast.classList.remove('show');
-                    setTimeout(() => { if (toast.parentNode) toast.remove(); }, 300);
-                }
-            }, 4000);
-        }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            // Set max date of birth to today
-            const dobInput = document.getElementById('dob');
-            if (dobInput) {
-                const today = new Date().toISOString().split('T')[0];
-                dobInput.max = today;
-            }
-
-            // Show flash messages as toasts
-            const successEl = document.getElementById('success-message-data');
-            const errorEl = document.getElementById('error-message-data');
-            if (successEl) {
-                showToast(successEl.getAttribute('data-message'), 'success');
-            }
-            if (errorEl) {
-                showToast(errorEl.getAttribute('data-message'), 'error');
-            }
-
-            // Password elements
-            const currentPassword = document.getElementById('currentPassword');
-            const newPassword = document.getElementById('newPassword');
-            const confirmPassword = document.getElementById('confirmPassword');
-            const submitBtn = document.getElementById('submitPasswordBtn');
-            const passwordForm = document.getElementById('passwordForm');
-
-            const currentFeedback = document.getElementById('currentPasswordFeedback');
-            const newFeedback = document.getElementById('newPasswordFeedback');
-            const confirmFeedback = document.getElementById('confirmPasswordFeedback');
-
-            // Strong password validator matching ParseUtil
-            function isValidPassword(pwd) {
-                if (pwd.length < 8) return false;
-                if (!/[a-z]/.test(pwd)) return false;
-                if (!/[A-Z]/.test(pwd)) return false;
-                if (!/\d/.test(pwd)) return false;
-                if (!/[!@#$]/.test(pwd)) return false;
-                return true;
-            }
-
-            // Password validation on form submit
-            passwordForm.addEventListener('submit', (e) => {
-                let isValid = true;
-
-                // 1. Validate Current Password
-                if (!currentPassword.value) {
-                    currentFeedback.textContent = "Mật khẩu hiện tại không được để trống.";
-                    currentFeedback.className = "validation-feedback invalid";
-                    currentPassword.classList.add('input-invalid');
-                    isValid = false;
-                } else {
-                    currentFeedback.textContent = "";
-                    currentFeedback.className = "validation-feedback";
-                    currentPassword.classList.remove('input-invalid');
-                }
-
-                // 2. Validate New Password
-                if (!newPassword.value) {
-                    newFeedback.textContent = "Mật khẩu mới không được để trống.";
-                    newFeedback.className = "validation-feedback invalid";
-                    newPassword.classList.add('input-invalid');
-                    isValid = false;
-                } else if (!isValidPassword(newPassword.value)) {
-                    newFeedback.textContent = "Mật khẩu mới phải có ít nhất 8 ký tự, chứa ít nhất 1 chữ hoa, 1 chữ thường, 1 chữ số và 1 ký tự đặc biệt (!@#$).";
-                    newFeedback.className = "validation-feedback invalid";
-                    newPassword.classList.add('input-invalid');
-                    isValid = false;
-                } else if (newPassword.value === currentPassword.value) {
-                    newFeedback.textContent = "Mật khẩu mới không được giống mật khẩu hiện tại.";
-                    newFeedback.className = "validation-feedback invalid";
-                    newPassword.classList.add('input-invalid');
-                    isValid = false;
-                } else {
-                    newFeedback.textContent = "Mật khẩu hợp lệ.";
-                    newFeedback.className = "validation-feedback valid";
-                    newPassword.classList.remove('input-invalid');
-                }
-
-                // 3. Validate Confirm Password
-                if (!confirmPassword.value) {
-                    confirmFeedback.textContent = "Vui lòng xác nhận mật khẩu mới.";
-                    confirmFeedback.className = "validation-feedback invalid";
-                    confirmPassword.classList.add('input-invalid');
-                    isValid = false;
-                } else if (confirmPassword.value !== newPassword.value) {
-                    confirmFeedback.textContent = "Xác nhận mật khẩu không trùng khớp.";
-                    confirmFeedback.className = "validation-feedback invalid";
-                    confirmPassword.classList.add('input-invalid');
-                    isValid = false;
-                } else {
-                    confirmFeedback.textContent = "Xác nhận mật khẩu khớp.";
-                    confirmFeedback.className = "validation-feedback valid";
-                    confirmPassword.classList.remove('input-invalid');
-                }
-
-                if (!isValid) {
-                    e.preventDefault(); // Prevent submit if invalid
-                }
-            });
-        });
-    </script>
 </body>
 </html>

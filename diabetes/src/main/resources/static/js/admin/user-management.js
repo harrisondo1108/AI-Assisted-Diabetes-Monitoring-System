@@ -18,83 +18,6 @@
     }
 
     let editingUserId = null;
-    let pendingUserId = null;
-    let pendingUserStatus = null;
-    let pendingUserName = null;
-    let resetValidationState = null;
-
-    window.showConfirmModal = function(id, currentStatus, fullName) {
-        let displayName = fullName;
-        if (!fullName || fullName === 'null' || fullName === 'undefined' || fullName.trim() === '') {
-            const row = document.querySelector(`tr[data-user-id="${id}"]`);
-            const phone = row ? row.querySelector('.user-phone')?.innerText : '';
-            displayName = phone || 'Người dùng';
-        }
-        const isActive = currentStatus === 'Active';
-        const title = isActive ? 'Khóa tài khoản' : 'Mở khóa tài khoản';
-        const message = isActive
-            ? 'Bạn có chắc chắn muốn khóa tài khoản "' + displayName + '"?'
-            : 'Bạn có chắc chắn muốn mở khóa tài khoản "' + displayName + '"?';
-        const subMessage = isActive
-            ? 'Người dùng này sẽ bị tạm ngưng hoạt động trên hệ thống.'
-            : 'Người dùng này sẽ hoạt động trở lại bình thường.';
-
-        document.getElementById('confirmModalTitle').innerHTML = '<i class="fas fa-shield-alt" style="margin-right: 8px; color: #f59e0b;"></i> ' + title;
-        document.getElementById('confirmMessage').innerHTML = '<i class="fas fa-user-shield" style="margin-right: 8px; color: #f59e0b;"></i> ' + message;
-        document.getElementById('confirmSubMessage').innerText = subMessage;
-
-        const iconElement = document.querySelector('#confirmModal .confirm-icon i');
-        const iconDiv = document.querySelector('#confirmModal .confirm-icon');
-        const okBtn = document.getElementById('okConfirmBtn');
-
-        if (isActive) {
-            iconElement.className = 'fas fa-lock';
-            iconElement.style.color = '#d97706';
-            iconDiv.style.background = 'linear-gradient(135deg, #fff3e0, #ffe8cc)';
-            okBtn.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
-        } else {
-            iconElement.className = 'fas fa-lock-open';
-            iconElement.style.color = '#10b981';
-            iconDiv.style.background = 'linear-gradient(135deg, #d1fae5, #a7f3d0)';
-            okBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
-        }
-
-        pendingUserId = id;
-        pendingUserStatus = currentStatus;
-        pendingUserName = fullName;
-
-        document.getElementById('confirmModal').classList.add('open');
-        document.body.classList.add('modal-open');
-    };
-
-    function closeConfirmModal() {
-        document.getElementById('confirmModal').classList.remove('open');
-        document.body.classList.remove('modal-open');
-        setTimeout(function() {
-            pendingUserId = null;
-            pendingUserStatus = null;
-            pendingUserName = null;
-        }, 300);
-    }
-
-    function executeAction() {
-        if (pendingUserId) {
-            const url = '/admin/users/toggle-lock/' + pendingUserId;
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = url;
-            document.body.appendChild(form);
-
-            const okBtn = document.getElementById('okConfirmBtn');
-            okBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
-            okBtn.disabled = true;
-
-            setTimeout(function() {
-                form.submit();
-            }, 500);
-        }
-        closeConfirmModal();
-    }
 
     const els = {
         drawerOverlay: document.getElementById('drawerOverlay'),
@@ -147,6 +70,7 @@
         if (isDoc) {
             setDrawerRow('drawerRoom', user.roomName || '—');
             setDrawerRow('drawerSpecialty', user.specialty || '—');
+            setDrawerRow('drawerDoctorEmail', user.email || '—');
         }
         if (isPat) {
             setDrawerRow('drawerHeight', user.height ? user.height + ' cm' : '—');
@@ -172,72 +96,12 @@
         els.detailDrawer.classList.remove('open');
     }
 
-    function resetRoleFields() {
-        document.getElementById('doctorFields').classList.remove('visible');
-        document.getElementById('patientFields').classList.remove('visible');
-    }
-
-    function setFieldsDisabled(container, disabled) {
-        const fields = container.querySelectorAll('input, select, textarea');
-        fields.forEach(field => {
-            if (disabled) {
-                field.setAttribute('disabled', 'disabled');
-            } else {
-                field.removeAttribute('disabled');
-            }
-        });
-    }
-
-    function syncDisabledFieldsByRole() {
-        const isDoctor = document.getElementById('roleDoctor').checked;
-        const doctorContainer = document.getElementById('doctorFields');
-        const patientContainer = document.getElementById('patientFields');
-        setFieldsDisabled(doctorContainer, !isDoctor);
-        setFieldsDisabled(patientContainer, isDoctor);
-    }
-
-    function onRoleTypeChange() {
-        const isDoctor = document.getElementById('roleDoctor').checked;
-        document.getElementById('doctorFields').classList.toggle('visible', isDoctor);
-        document.getElementById('patientFields').classList.toggle('visible', !isDoctor);
-        syncDisabledFieldsByRole();
-    }
-
-    function enableAllFields() {
-        const doctorContainer = document.getElementById('doctorFields');
-        const patientContainer = document.getElementById('patientFields');
-        setFieldsDisabled(doctorContainer, false);
-        setFieldsDisabled(patientContainer, false);
-    }
-
-    // Xóa hidden role cũ (nếu có)
-    function removeHiddenRole() {
-        const hidden = document.querySelector('#userForm input[name="role"][type="hidden"]');
-        if (hidden) hidden.remove();
-    }
-
-    // Tạo hidden role với giá trị (chỉ dùng khi edit)
-    function addHiddenRole(value) {
-        removeHiddenRole();
-        const hidden = document.createElement('input');
-        hidden.type = 'hidden';
-        hidden.name = 'role';
-        hidden.value = value;
-        document.getElementById('userForm').appendChild(hidden);
-    }
-
     function openModal(mode, user) {
         editingUserId = mode === 'edit' ? (user && user.userId) : null;
-        els.modalTitle.textContent = mode === 'edit' ? 'Edit User' : 'Add New User';
+        els.modalTitle.textContent = mode === 'edit' ? 'Chỉnh sửa Bác sĩ' : 'Thêm Bác sĩ Mới';
         els.userForm.reset();
-        if (resetValidationState) resetValidationState();
+        clearErrors();
 
-        enableAllFields();
-        resetRoleFields();
-        removeHiddenRole(); // xóa hidden cũ
-
-        const roleDoctor = document.getElementById('roleDoctor');
-        const rolePatient = document.getElementById('rolePatient');
         const pwdGroup = document.getElementById('passwordGroup');
         const userIdInput = document.getElementById('formUserId');
 
@@ -248,64 +112,27 @@
             document.getElementById('formPassword').removeAttribute('required');
 
             const genderVal = normalizeGenderKey(user.gender) || '0';
-
-            if (user.role && (user.role.toLowerCase() === 'doctor' || user.role.toLowerCase() === 'doc')) {
-                roleDoctor.checked = true;
-                document.getElementById('formFullName').value = user.fullName || '';
-                const contactPhoneInput = document.getElementById('formContactPhone');
-                if (contactPhoneInput) contactPhoneInput.value = user.phoneNumber || '';
-                document.getElementById('formAddress').value = user.address || '';
-                document.getElementById('formDob').value = user.dob || '';
-                document.getElementById('formGender').value = genderVal;
-                document.getElementById('formSpecialty').value = user.specialty || '';
-                document.getElementById('formRoom').value = user.roomName || '';
-                addHiddenRole('DOC');
-            } else {
-                rolePatient.checked = true;
-                document.getElementById('formPatFullName').value = user.fullName || '';
-                const patPhoneInput = document.getElementById('formPatPhone');
-                if (patPhoneInput) patPhoneInput.value = user.phoneNumber || '';
-                document.getElementById('formPatAddress').value = user.address || '';
-                document.getElementById('formPatDob').value = user.dob || '';
-                document.getElementById('formPatGender').value = genderVal;
-                document.getElementById('formHeight').value = user.height || '';
-                document.getElementById('formWeight').value = user.weight ?? '';
-                document.getElementById('formBloodgroup').value = user.bloodgroup || '';
-                document.getElementById('formHistory').value = user.permanentMedicalHistory || '';
-                document.getElementById('formAllergy').value = user.allergyNotes || '';
-                document.getElementById('formSupervisorName').value = user.supervisorName || '';
-                document.getElementById('formSupervisorPhone').value = user.supervisorPhone || '';
-                addHiddenRole('PAT');
-            }
-            // Disable radio để chúng không được gửi
-            roleDoctor.disabled = true;
-            rolePatient.disabled = true;
+            
+            document.getElementById('formFullName').value = user.fullName || '';
+            document.getElementById('formAddress').value = user.address || '';
+            document.getElementById('formDob').value = user.dob || '';
+            document.getElementById('formGender').value = genderVal;
+            document.getElementById('formSpecialty').value = user.specialty || '';
+            document.getElementById('formDoctorEmail').value = user.email || '';
+            document.getElementById('formRoom').value = user.roomName || '';
         } else {
-            // Add mode: radio hoạt động bình thường, không có hidden
             if (userIdInput) userIdInput.value = '';
             if (pwdGroup) pwdGroup.style.display = '';
             document.getElementById('formPassword').setAttribute('required', 'required');
-            roleDoctor.disabled = false;
-            rolePatient.disabled = false;
-            roleDoctor.checked = true; // mặc định doctor
-            removeHiddenRole(); // chắc chắn không có hidden
         }
 
-        onRoleTypeChange();
         els.modalOverlay.classList.add('open');
         document.body.classList.add('modal-open');
         const body = els.modalOverlay.querySelector('.modal-body');
         if (body) body.scrollTop = 0;
     }
 
-    function showError(inputEl, message) {
-        if (!inputEl) return;
-        inputEl.classList.add('is-invalid');
-        const feedback = inputEl.parentNode.querySelector('.error-feedback');
-        if (feedback) {
-            feedback.textContent = message;
-        }
-    }
+
 
     function clearErrors() {
         if (!els.userForm) return;
@@ -321,14 +148,6 @@
         els.modalOverlay.classList.remove('open');
         document.body.classList.remove('modal-open');
         editingUserId = null;
-
-        const roleDoctor = document.getElementById('roleDoctor');
-        const rolePatient = document.getElementById('rolePatient');
-        if (roleDoctor) roleDoctor.disabled = false;
-        if (rolePatient) rolePatient.disabled = false;
-
-        removeHiddenRole();
-        enableAllFields();
         clearErrors();
     }
 
@@ -390,39 +209,8 @@
             if (e.target === els.modalOverlay) closeModal();
         });
 
-        // Confirm Modal Event Listeners
-        const closeConfirmModalBtn = document.getElementById('closeConfirmModalBtn');
-        if (closeConfirmModalBtn) closeConfirmModalBtn.onclick = closeConfirmModal;
-
-        const cancelConfirmBtn = document.getElementById('cancelConfirmBtn');
-        if (cancelConfirmBtn) cancelConfirmBtn.onclick = closeConfirmModal;
-
-        const okConfirmBtn = document.getElementById('okConfirmBtn');
-        if (okConfirmBtn) okConfirmBtn.onclick = executeAction;
-
-        const confirmModal = document.getElementById('confirmModal');
-        if (confirmModal) {
-            confirmModal.onclick = function(e) { if (e.target === confirmModal) closeConfirmModal(); };
-        }
-
-        const roleRadios = document.querySelectorAll('input[name="role"]');
-        roleRadios.forEach(r => r.addEventListener('change', onRoleTypeChange));
-
-        // Submit form validation
+        // Submit form validation logic
         if (els.userForm) {
-
-            const nameRegex = /^[\p{L}\s]+$/u;
-            const phoneRegex = /^(0[35789])[0-9]{8}$/;
-
-            const show = (input, msg) => {
-                showError(input, msg);
-                return true;
-            };
-
-            const isFutureDate = (dateStr) => {
-                return new Date(dateStr) >= new Date();
-            };
-
             // Auto clear error when user edits
             els.userForm.querySelectorAll('input, select, textarea').forEach(field => {
                 const clear = function () {
@@ -434,282 +222,11 @@
                 field.addEventListener('input', clear);
                 field.addEventListener('change', clear);
             });
-
-            // Live/inline validators: validate while typing and disable submit if any error
-            (function attachLiveValidators() {
-                const phoneRegex = /^(0[35789])[0-9]{8}$/;
-                const nameRegex = /^[\p{L}\s]+$/u;
-
-                // Only perform validation checks after the user starts interacting
-                let phoneTouched = false;
-                let debouncedRemoteCheck = null;
-                const touched = {}; // track interactions per-field
-
-                const phoneInput = document.getElementById('formAccountPhone');
-                const pwdInput = document.getElementById('formPassword');
-                const docName = document.getElementById('formFullName');
-                const patName = document.getElementById('formPatFullName');
-                const dobDoc = document.getElementById('formDob');
-                const dobPat = document.getElementById('formPatDob');
-                const submitBtn = els.userForm.querySelector('button[type="submit"]');
-
-                const setSubmitState = () => {
-                    if (!submitBtn) return;
-                    submitBtn.disabled = !!els.userForm.querySelector('.is-invalid');
-                };
-
-                resetValidationState = function() {
-                    phoneTouched = false;
-                    for (const key in touched) {
-                        delete touched[key];
-                    }
-                    clearErrors();
-                    setSubmitState();
-                };
-
-                const validatePhone = () => {
-                    if (!phoneInput) return false;
-                    const v = (phoneInput.value || '').trim();
-                    if (!v) {
-                        if (phoneTouched) {
-                            showError(phoneInput, 'Account phone number must not be empty');
-                            return true;
-                        }
-                        return false;
-                    }
-                    if (!phoneRegex.test(v)) {
-                        if (phoneTouched) {
-                            showError(phoneInput, 'Phone number must be a valid Vietnamese mobile number (10 digits, starting with 03, 05, 07, 08, 09)');
-                            return true;
-                        }
-                        return false;
-                    }
-                    // clear local format error then (only if user interacted) run remote uniqueness check
-                    phoneInput.classList.remove('is-invalid');
-                    const f = phoneInput.parentNode.querySelector('.error-feedback'); if (f) f.textContent = '';
-                    if (phoneTouched && debouncedRemoteCheck) debouncedRemoteCheck(v);
-                    return false;
-                };
-
-                const validatePassword = () => {
-                    if (!pwdInput) return false;
-                    const v = pwdInput.value || '';
-                    const isEdit = !!editingUserId;
-                    const isTouched = touched['formPassword'];
-                    if (!isEdit) {
-                        if (v.trim().length === 0) {
-                            if (isTouched) {
-                                showError(pwdInput, 'Password must not be empty');
-                                return true;
-                            }
-                        } else if (v.length < 6) {
-                            if (isTouched) {
-                                showError(pwdInput, 'Password must be at least 6 characters');
-                                return true;
-                            }
-                        }
-                    } else {
-                        // edit mode: only validate if provided (and only after interaction)
-                        if (v && v.length > 0 && v.length < 6) {
-                            if (isTouched) {
-                                showError(pwdInput, 'Password must be at least 6 characters');
-                                return true;
-                            }
-                        }
-                    }
-                    pwdInput.classList.remove('is-invalid');
-                    const f = pwdInput.parentNode.querySelector('.error-feedback'); if (f) f.textContent = '';
-                    return false;
-                };
-
-                const validateName = (inputEl, label) => {
-                    if (!inputEl) return false;
-                    const id = inputEl.id;
-                    const v = (inputEl.value || '').trim();
-                    const isTouched = touched[id];
-                    if (!v) {
-                        if (isTouched) {
-                            showError(inputEl, `${label} must not be empty`);
-                            return true;
-                        }
-                        return false;
-                    }
-                    if (!nameRegex.test(v)) {
-                        if (isTouched) {
-                            showError(inputEl, 'Full name must contain only letters and spaces');
-                            return true;
-                        }
-                        return false;
-                    }
-                    if (v.length > 60) {
-                        if (isTouched) {
-                            showError(inputEl, 'Full name must not exceed 60 characters');
-                            return true;
-                        }
-                        return false;
-                    }
-
-                    inputEl.classList.remove('is-invalid');
-                    const f = inputEl.parentNode.querySelector('.error-feedback'); if (f) f.textContent = '';
-                    return false;
-                };
-
-                const validateDob = (inputEl) => {
-                    if (!inputEl) return false;
-                    const id = inputEl.id;
-                    const v = inputEl.value;
-                    const isTouched = touched[id];
-                    if (!v) {
-                        if (isTouched) {
-                            showError(inputEl, 'Please select date of birth');
-                            return true;
-                        }
-                        return false;
-                    }
-                    if (new Date(v) >= new Date()) {
-                        if (isTouched) {
-                            showError(inputEl, 'Date of birth must be in the past');
-                            return true;
-                        }
-                        return false;
-                    }
-                    inputEl.classList.remove('is-invalid');
-                    const f = inputEl.parentNode.querySelector('.error-feedback'); if (f) f.textContent = '';
-                    return false;
-                };
-
-                // Attach events
-                if (phoneInput) {
-                    phoneInput.addEventListener('keydown', () => { phoneTouched = true; touched['formAccountPhone'] = true; });
-                    phoneInput.addEventListener('mousedown', () => { phoneTouched = true; touched['formAccountPhone'] = true; });
-                    phoneInput.addEventListener('input', (e) => { validatePhone(); setSubmitState(); });
-                    phoneInput.addEventListener('blur', () => { validatePhone(); setSubmitState(); });
-                }
-                if (pwdInput) {
-                    pwdInput.addEventListener('keydown', () => { touched['formPassword'] = true; });
-                    pwdInput.addEventListener('mousedown', () => { touched['formPassword'] = true; });
-                    pwdInput.addEventListener('input', (e) => { validatePassword(); setSubmitState(); });
-                    pwdInput.addEventListener('blur', () => { validatePassword(); setSubmitState(); });
-                }
-                if (docName) {
-                    docName.addEventListener('keydown', () => { touched['formFullName'] = true; });
-                    docName.addEventListener('mousedown', () => { touched['formFullName'] = true; });
-                    docName.addEventListener('input', (e) => { validateName(docName, 'Doctor full name'); setSubmitState(); });
-                    docName.addEventListener('blur', () => { validateName(docName, 'Doctor full name'); setSubmitState(); });
-                }
-                if (patName) {
-                    patName.addEventListener('keydown', () => { touched['formPatFullName'] = true; });
-                    patName.addEventListener('mousedown', () => { touched['formPatFullName'] = true; });
-                    patName.addEventListener('input', (e) => { validateName(patName, 'Patient full name'); setSubmitState(); });
-                    patName.addEventListener('blur', () => { validateName(patName, 'Patient full name'); setSubmitState(); });
-                }
-                if (dobDoc) {
-                    dobDoc.addEventListener('keydown', () => { touched['formDob'] = true; });
-                    dobDoc.addEventListener('mousedown', () => { touched['formDob'] = true; });
-                    dobDoc.addEventListener('change', (e) => { touched['formDob'] = true; validateDob(dobDoc); setSubmitState(); });
-                    dobDoc.addEventListener('blur', () => { validateDob(dobDoc); setSubmitState(); });
-                }
-                if (dobPat) {
-                    dobPat.addEventListener('keydown', () => { touched['formPatDob'] = true; });
-                    dobPat.addEventListener('mousedown', () => { touched['formPatDob'] = true; });
-                    dobPat.addEventListener('change', (e) => { touched['formPatDob'] = true; validateDob(dobPat); setSubmitState(); });
-                    dobPat.addEventListener('blur', () => { validateDob(dobPat); setSubmitState(); });
-                }
-
-                // Submit validation check
-                els.userForm.addEventListener('submit', function (e) {
-                    phoneTouched = true;
-                    touched['formAccountPhone'] = true;
-                    touched['formPassword'] = true;
-                    touched['formFullName'] = true;
-                    touched['formPatFullName'] = true;
-                    touched['formDob'] = true;
-                    touched['formPatDob'] = true;
-
-                    const hasPhoneError = validatePhone();
-                    const hasPwdError = validatePassword();
-                    const isDocRole = document.getElementById('roleDoctor').checked;
-                    let hasNameError = false;
-                    let hasDobError = false;
-
-                    if (isDocRole) {
-                        hasNameError = validateName(docName, 'Doctor full name');
-                        hasDobError = validateDob(dobDoc);
-                    } else {
-                        hasNameError = validateName(patName, 'Patient full name');
-                        hasDobError = validateDob(dobPat);
-                    }
-
-                    if (hasPhoneError || hasPwdError || hasNameError || hasDobError || els.userForm.querySelector('.is-invalid')) {
-                        e.preventDefault();
-                        setSubmitState();
-                        const firstError = els.userForm.querySelector('.is-invalid');
-                        if (firstError) {
-                            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            try { firstError.focus(); } catch (err) { /* ignore */ }
-                        }
-                    }
-                });
-
-                // Remote uniqueness helper and initial checks
-                let phoneAvailable = true;
-                const debounce = (fn, wait) => {
-                    let t;
-                    return function (...args) {
-                        clearTimeout(t);
-                        t = setTimeout(() => fn.apply(this, args), wait);
-                    };
-                };
-
-                const remoteCheck = async (val) => {
-                    if (!phoneInput) return;
-                    if (!val) { phoneAvailable = true; setSubmitState(); return; }
-                    try {
-                        const url = '/admin/users/check-phone?phone=' + encodeURIComponent(val) + (editingUserId ? '&userId=' + encodeURIComponent(editingUserId) : '');
-                        const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
-                        if (!res.ok) { phoneAvailable = true; setSubmitState(); return; }
-                        const data = await res.json();
-                        
-                        // Prevent race condition: if the user changed the input value since this request was sent, ignore the result.
-                        if (phoneInput.value.trim() !== val) {
-                            return;
-                        }
-
-                        if (!data.available) {
-                            showError(phoneInput, 'Phone Number is already in use by another account');
-                            phoneAvailable = false;
-                        } else {
-                            phoneAvailable = true;
-                            const f2 = phoneInput.parentNode.querySelector('.error-feedback'); if (f2) f2.textContent = '';
-                            phoneInput.classList.remove('is-invalid');
-                        }
-                    } catch (e) {
-                        phoneAvailable = true;
-                    }
-                    setSubmitState();
-                };
-
-                debouncedRemoteCheck = debounce(remoteCheck, 350);
-            })();
         }
 
-        // Backend search - submit form when clicking the search icon or when clearing input
-        const searchInput = document.getElementById('globalSearch');
+        // Backend search - submit form when clicking the search icon
         const toolbarForm = document.querySelector('.toolbar-search');
-        if (toolbarForm && searchInput) {
-            // Tự động submit để hiển thị lại tất cả khi xóa trắng ô tìm kiếm
-            searchInput.addEventListener('input', function () {
-                if (this.value.trim() === '') {
-                    toolbarForm.submit();
-                }
-            });
-
-            searchInput.addEventListener('search', function () {
-                if (this.value.trim() === '') {
-                    toolbarForm.submit();
-                }
-            });
-
+        if (toolbarForm) {
             const searchIcon = toolbarForm.querySelector('.fa-search');
             if (searchIcon) {
                 searchIcon.style.cursor = 'pointer';

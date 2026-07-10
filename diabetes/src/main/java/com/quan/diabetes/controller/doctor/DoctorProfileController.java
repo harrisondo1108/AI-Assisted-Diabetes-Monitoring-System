@@ -61,7 +61,7 @@ public class DoctorProfileController {
 
         Profile profile = profileRepository.findById(doctorId).orElse(null);
         if (profile == null) {
-            return "redirect:/doctor/dashboard";
+            return "redirect:/doctor/queue";
         }
 
         model.addAttribute("doctorProfile", profile);

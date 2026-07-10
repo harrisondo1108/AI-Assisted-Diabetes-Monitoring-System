@@ -81,4 +81,6 @@ public interface AIReminderRepository extends JpaRepository<AIReminder, Long> {
             ORDER BY reminder.scheduledTime ASC
             """)
     List<AIReminder> findDueUnsentReminders(@Param("now") LocalDateTime now);
+
+    List<AIReminder> findTop10ByClinicalExamination_Doctor_UserIdOrderByScheduledTimeDesc(String doctorId);
 }

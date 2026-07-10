@@ -4,6 +4,7 @@ import com.quan.diabetes.dto.user.UserManagementDTO;
 import com.quan.diabetes.service.user.AdminUserService;
 import com.quan.diabetes.service.masterdata.RoomService;
 import jakarta.validation.Valid;
+import com.quan.diabetes.util.ParseUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -69,10 +70,15 @@ public class AdminUserController {
             if (userDto.getRole() == null || (!"DOC".equalsIgnoreCase(userDto.getRole()) && !"doctor".equalsIgnoreCase(userDto.getRole()))) {
                 result.rejectValue("role", "error.role", "Admin chỉ được phép tạo tài khoản Bác sĩ (Doctor)");
             }
-            if (userDto.getPassword() == null || userDto.getPassword().trim().length() < 6) {
-                result.rejectValue("password", "error.password", "Mật khẩu cho tài khoản mới phải có ít nhất 6 ký tự");
+            if (userDto.getPassword() == null || userDto.getPassword().trim().isEmpty()) {
+                result.rejectValue("password", "error.password", "Mật khẩu không được để trống");
+            } else if (!ParseUtil.isValidPassword(userDto.getPassword())) {
+                result.rejectValue("password", "error.password", "Mật khẩu phải từ 8 ký tự trở lên, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt (!@#$)");
             }
         } else {
+            if (userDto.getPassword() != null && !userDto.getPassword().trim().isEmpty() && !ParseUtil.isValidPassword(userDto.getPassword())) {
+                result.rejectValue("password", "error.password", "Mật khẩu phải từ 8 ký tự trở lên, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt (!@#$)");
+            }
             try {
                 UserManagementDTO existingUser = adminUserService.getUserManagementDTOById(userDto.getUserId());
                 if ("PAT".equalsIgnoreCase(existingUser.getRole()) || "patient".equalsIgnoreCase(existingUser.getRole())) {
@@ -91,18 +97,24 @@ public class AdminUserController {
         }
 
         if (result.hasErrors()) {
-            List<UserManagementDTO> users = adminUserService.getAllUserManagementDTOs("all", "");
-            model.addAttribute("users", users);
+            org.springframework.data.domain.Page<UserManagementDTO> userPage = adminUserService
+                    .getPagedUserManagementDTOs("all", "", 0, 7);
+            model.addAttribute("users", userPage.getContent());
+            model.addAttribute("currentPage", 0);
+            model.addAttribute("totalPages", userPage.getTotalPages());
+            model.addAttribute("totalItems", userPage.getTotalElements());
+            model.addAttribute("pageSize", 7);
             model.addAttribute("currentRole", "all");
             model.addAttribute("currentSearch", "");
             model.addAttribute("rooms", roomService.findAll());
 
-            long totalPatients = users.stream()
+            List<UserManagementDTO> allUsers = adminUserService.getAllUserManagementDTOs("all", "");
+            long totalPatients = allUsers.stream()
                     .filter(u -> "PAT".equalsIgnoreCase(u.getRole()) || "patient".equalsIgnoreCase(u.getRole()))
                     .count();
-            long totalDoctors = users.stream()
+            long totalDoctors = allUsers.stream()
                     .filter(u -> "DOC".equalsIgnoreCase(u.getRole()) || "doctor".equalsIgnoreCase(u.getRole())).count();
-            model.addAttribute("totalUsers", users.size());
+            model.addAttribute("totalUsers", allUsers.size());
             model.addAttribute("totalPatients", totalPatients);
             model.addAttribute("totalDoctors", totalDoctors);
 

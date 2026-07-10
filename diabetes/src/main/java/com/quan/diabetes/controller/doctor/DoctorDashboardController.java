@@ -21,36 +21,22 @@ public class DoctorDashboardController {
 
     private final ClinicalExaminationService clinicalExaminationService;
     private final ProfileService profileService;
-    private final LabResultRepository labResultRepository;
-    private final PrescriptionRepository prescriptionRepository;
-    private final PrescriptionDetailRepository prescriptionDetailRepository;
-    private final ExamSymptomRepository examSymptomRepository;
+    private final AIReminderRepository aiReminderRepository;
     private final ClinicalExaminationRepository clinicalExaminationRepository;
 
     public DoctorDashboardController(
             ClinicalExaminationService clinicalExaminationService,
             ProfileService profileService,
-            LabResultRepository labResultRepository,
-            PrescriptionRepository prescriptionRepository,
-            PrescriptionDetailRepository prescriptionDetailRepository,
-            ExamSymptomRepository examSymptomRepository,
+            AIReminderRepository aiReminderRepository,
             ClinicalExaminationRepository clinicalExaminationRepository) {
         this.clinicalExaminationService = clinicalExaminationService;
         this.profileService = profileService;
-        this.labResultRepository = labResultRepository;
-        this.prescriptionRepository = prescriptionRepository;
-        this.prescriptionDetailRepository = prescriptionDetailRepository;
-        this.examSymptomRepository = examSymptomRepository;
+        this.aiReminderRepository = aiReminderRepository;
         this.clinicalExaminationRepository = clinicalExaminationRepository;
     }
 
     @GetMapping("/dashboard")
-    public String dashboard(
-            @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "status", defaultValue = "all") String status,
-            @RequestParam(value = "search", defaultValue = "") String search,
-            HttpSession session,
-            Model model) {
+    public String dashboard(HttpSession session, Model model) {
         User loggedInUser = (User) session.getAttribute("loggedInUser");
         if (loggedInUser == null || !"DOC".equalsIgnoreCase(loggedInUser.getRole().getRoleId())) {
             return "redirect:/login";
@@ -63,111 +49,39 @@ public class DoctorDashboardController {
             session.setAttribute("userProfile", profile);
         }
 
-        // Check if there is an in-progress exam for this doctor in the database
-        Optional<ClinicalExamination> activeExam = clinicalExaminationRepository
-                .findFirstByDoctor_UserIdAndStatus(doctorId, "InProgress");
-        if (activeExam.isPresent()) {
-            return "redirect:/doctor/examine?patientId=" + activeExam.get().getPatient().getUserId()
-                    + "&warning=in-progress";
-        }
-
-        // Lấy tất cả ca khám của bác sĩ
         List<ClinicalExamination> allExams = clinicalExaminationService.findByDoctorId(doctorId);
         LocalDate today = LocalDate.now();
 
-        // Lọc danh sách ca khám hôm nay
-        List<ClinicalExamination> todayQueue = allExams.stream()
-                .filter(e -> e.getExamDate() != null && e.getExamDate().toLocalDate().isEqual(today))
-                .collect(Collectors.toList());
-
-        // Tính toán các metrics (dựa trên toàn bộ danh sách hôm nay)
-        long pending = todayQueue.stream().filter(e -> "Pending".equalsIgnoreCase(e.getStatus())).count();
-        long inProgress = todayQueue.stream().filter(e -> "InProgress".equalsIgnoreCase(e.getStatus())).count();
-        long completed = todayQueue.stream().filter(e -> "Completed".equalsIgnoreCase(e.getStatus())).count();
-
-        // Lọc theo bộ lọc status và search
-        List<ClinicalExamination> filteredQueue = todayQueue.stream()
-                .filter(e -> {
-                    // Lọc status
-                    if (!"all".equalsIgnoreCase(status) && !status.equalsIgnoreCase(e.getStatus())) {
-                        return false;
-                    }
-                    // Lọc tìm kiếm
-                    if (search != null && !search.trim().isEmpty()) {
-                        String patientName = e.getPatient().getFullName() != null
-                                ? e.getPatient().getFullName().toLowerCase()
-                                : "";
-                        String patientId = e.getPatient().getUserId() != null ? e.getPatient().getUserId().toLowerCase()
-                                : "";
-                        String query = search.trim().toLowerCase();
-                        return patientName.contains(query) || patientId.contains(query);
-                    }
-                    return true;
-                })
-                .collect(Collectors.toList());
-
-        // Phân trang
-        int pageSize = 10;
-        int totalElements = filteredQueue.size();
-        int totalPages = (int) Math.ceil((double) totalElements / pageSize);
-        if (totalPages == 0) {
-            totalPages = 1;
-        }
-
-        if (page < 1)
-            page = 1;
-        if (page > totalPages)
-            page = totalPages;
-
-        int fromIndex = (page - 1) * pageSize;
-        int toIndex = Math.min(fromIndex + pageSize, totalElements);
-        List<ClinicalExamination> pagedQueue = Collections.emptyList();
-        if (totalElements > 0) {
-            pagedQueue = filteredQueue.subList(fromIndex, toIndex);
-        }
-
-        model.addAttribute("todayQueue", pagedQueue);
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", totalPages);
-        model.addAttribute("currentStatus", status);
-        model.addAttribute("currentSearch", search);
-
-        model.addAttribute("queueCount", pending + inProgress);
-        model.addAttribute("completedCount", completed);
-        long alertCount = labResultRepository.countByLabOrder_ClinicalExamination_Doctor_UserIdAndFlag(doctorId,
-                "HIGH");
-        model.addAttribute("alertCount", alertCount);
-
-        return "doctor/dashboard";
-    }
-
-
-
-    @GetMapping("/requests")
-    public String requestsPage(HttpSession session, Model model) {
-        User loggedInUser = (User) session.getAttribute("loggedInUser");
-        if (loggedInUser == null || !"DOC".equalsIgnoreCase(loggedInUser.getRole().getRoleId())) {
-            return "redirect:/login";
-        }
-
-        String doctorId = loggedInUser.getUserId();
-        Profile profile = profileService.findById(doctorId).orElse(null);
-        if (profile != null) {
-            model.addAttribute("doctorProfile", profile);
-            session.setAttribute("userProfile", profile);
-        }
-
-        List<ClinicalExamination> allExams = clinicalExaminationService.findByDoctorId(doctorId);
+        // 1. Pending Requests (Yêu cầu chờ duyệt)
         List<ClinicalExamination> requestedExams = allExams.stream()
                 .filter(e -> "Requested".equalsIgnoreCase(e.getStatus()))
                 .sorted((e1, e2) -> e2.getExamDate().compareTo(e1.getExamDate()))
                 .collect(Collectors.toList());
 
+        // 2. Today Queue (Đang chờ khám ngoài cửa)
+        long todayQueueCount = allExams.stream()
+                .filter(e -> ("Pending".equalsIgnoreCase(e.getStatus()) || "InProgress".equalsIgnoreCase(e.getStatus()))
+                        && e.getExamDate() != null && e.getExamDate().toLocalDate().isEqual(today))
+                .count();
+
+        // 3. Medication Reminders/Alerts (Cảnh báo tuân thủ)
+        List<AIReminder> recentReminders = aiReminderRepository
+                .findTop10ByClinicalExamination_Doctor_UserIdOrderByScheduledTimeDesc(doctorId);
+        long unreadRemindersCount = recentReminders.stream()
+                .filter(r -> r.getIsRead() == null || !r.getIsRead())
+                .count();
+
         model.addAttribute("requestedExams", requestedExams);
-        return "doctor/requests";
+        model.addAttribute("pendingRequestsCount", requestedExams.size());
+        model.addAttribute("todayQueueCount", todayQueueCount);
+        model.addAttribute("recentReminders", recentReminders);
+        model.addAttribute("unreadRemindersCount", unreadRemindersCount);
+
+        return "doctor/dashboard";
     }
 
-    @PostMapping("/request/approve/{examId}")
+    // Quick Action: Approve request directly from dashboard
+    @PostMapping("/dashboard/request/approve/{examId}")
     public String approveRequest(
             @PathVariable("examId") String examId,
             HttpSession session,
@@ -182,21 +96,17 @@ public class DoctorDashboardController {
             ClinicalExamination exam = examOpt.get();
             if ("Requested".equalsIgnoreCase(exam.getStatus())) {
                 exam.setStatus("Pending");
-                exam.setExamDate(LocalDateTime.now()); // Set date to today so it appears in today's queue
+                exam.setExamDate(LocalDateTime.now());
                 clinicalExaminationRepository.save(exam);
                 redirectAttributes.addFlashAttribute("successMessage",
-                        "Đã duyệt yêu cầu khám của bệnh nhân " + exam.getPatient().getFullName() + ".");
-            } else {
-                redirectAttributes.addFlashAttribute("errorMessage", "Yêu cầu khám này đã được xử lý từ trước.");
+                        "Đã duyệt yêu cầu khám của " + exam.getPatient().getFullName() + ".");
             }
-        } else {
-            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy yêu cầu khám.");
         }
-
         return "redirect:/doctor/dashboard";
     }
 
-    @PostMapping("/request/reject/{examId}")
+    // Quick Action: Reject request directly from dashboard
+    @PostMapping("/dashboard/request/reject/{examId}")
     public String rejectRequest(
             @PathVariable("examId") String examId,
             HttpSession session,
@@ -211,17 +121,12 @@ public class DoctorDashboardController {
             ClinicalExamination exam = examOpt.get();
             if ("Requested".equalsIgnoreCase(exam.getStatus())) {
                 exam.setStatus("Cancelled");
-                exam.setCancelReason("Bác sĩ từ chối yêu cầu khám");
+                exam.setCancelReason("Bác sĩ từ chối");
                 clinicalExaminationRepository.save(exam);
                 redirectAttributes.addFlashAttribute("successMessage",
-                        "Đã từ chối yêu cầu khám của bệnh nhân " + exam.getPatient().getFullName() + ".");
-            } else {
-                redirectAttributes.addFlashAttribute("errorMessage", "Yêu cầu khám này đã được xử lý từ trước.");
+                        "Đã từ chối yêu cầu của " + exam.getPatient().getFullName() + ".");
             }
-        } else {
-            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy yêu cầu khám.");
         }
-
         return "redirect:/doctor/dashboard";
     }
 }

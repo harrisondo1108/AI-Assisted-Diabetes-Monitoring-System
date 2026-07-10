@@ -11,10 +11,10 @@
 
 <body>
 <div class="admin-layout">
-    <div th:replace="~{layout/patient-sidebar :: patientSidebar('notifications')}"></div>
+    <div th:replace="~{layout/patient/sidebar :: patientSidebar('notifications')}"></div>
 
     <div class="admin-main">
-        <div th:replace="~{layout/patient-header :: patientHeader('Thông báo')}"></div>
+        <div th:replace="~{layout/patient/header :: patientHeader('Thông báo')}"></div>
 
         <main class="admin-content">
             <div class="page-header dashboard-hero">
@@ -180,7 +180,7 @@
 
         </main>
 
-        <div th:replace="~{layout/footer :: footer}"></div>
+        <div th:replace="~{layout/patient/footer :: footer}"></div>
     </div>
 </div>
 

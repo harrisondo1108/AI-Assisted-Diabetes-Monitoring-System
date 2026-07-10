@@ -81,12 +81,12 @@ public class DoctorPatientController {
 
         String selectedPatientId = (String) session.getAttribute("selectedPatientId");
         if (selectedPatientId == null) {
-            return "redirect:/doctor/dashboard";
+            return "redirect:/doctor/queue";
         }
 
         Patient patient = patientService.findById(selectedPatientId).orElse(null);
         if (patient == null) {
-            return "redirect:/doctor/dashboard";
+            return "redirect:/doctor/queue";
         }
 
         java.util.Map<String, Object> patientMap = new java.util.HashMap<>();

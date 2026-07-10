@@ -431,7 +431,7 @@ public class DoctorExamineController {
         }
 
         clinicalExaminationService.cancelExamination(patientId, reason, loggedInUser.getUserId());
-        return "redirect:/doctor/dashboard";
+        return "redirect:/doctor/queue";
     }
 
     @PostMapping("/examine/{patientId}/submit")
@@ -465,7 +465,7 @@ public class DoctorExamineController {
         }
 
         clinicalExaminationService.submitExamination(patientId, form, loggedInUser.getUserId());
-        return "redirect:/doctor/dashboard?toast=completed";
+        return "redirect:/doctor/queue?toast=completed";
     }
 
     @GetMapping("/examine/edit/{examId}")
@@ -482,7 +482,7 @@ public class DoctorExamineController {
                 .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException("Không tìm thấy ca khám: " + examId));
 
         if (!exam.getDoctor().getUserId().equalsIgnoreCase(loggedInUser.getUserId())) {
-            return "redirect:/doctor/dashboard";
+            return "redirect:/doctor/queue";
         }
 
         if (exam.getExamDate() != null) {
@@ -809,6 +809,6 @@ public class DoctorExamineController {
 
         clinicalExaminationService.updateExamination(examId, form);
 
-        return "redirect:/doctor/dashboard?toast=updated";
+        return "redirect:/doctor/queue?toast=updated";
     }
 }

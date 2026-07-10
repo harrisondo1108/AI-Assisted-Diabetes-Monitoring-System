@@ -12,13 +12,13 @@
 <div class="admin-layout">
 
     <!-- SIDEBAR -->
-    <div th:replace="~{layout/sidebar :: sidebar('lab')}"></div>
+    <div th:replace="~{layout/admin/sidebar :: sidebar('lab')}"></div>
 
     <!-- MAIN -->
     <div class="admin-main">
 
         <!-- Header -->
-        <div th:replace="~{layout/header :: header('Chỉ số Xét nghiệm')}"></div>
+        <div th:replace="~{layout/admin/header :: header('Chỉ số Xét nghiệm')}"></div>
 
         <!-- Content -->
         <main class="admin-content">
@@ -145,7 +145,7 @@
         </main>
 
         <!-- Footer -->
-        <div th:replace="~{layout/footer :: footer}"></div>
+        <div th:replace="~{layout/admin/footer :: footer}"></div>
 
     </div><!-- /.admin-main -->
 </div><!-- /.admin-layout -->

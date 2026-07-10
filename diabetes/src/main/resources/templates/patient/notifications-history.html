@@ -11,10 +11,10 @@
 
 <body>
 <div class="admin-layout">
-    <div th:replace="~{layout/patient-sidebar :: patientSidebar('notifications')}"></div>
+    <div th:replace="~{layout/patient/sidebar :: patientSidebar('notifications')}"></div>
 
     <div class="admin-main">
-        <div th:replace="~{layout/patient-header :: patientHeader('Thông báo')}"></div>
+        <div th:replace="~{layout/patient/header :: patientHeader('Thông báo')}"></div>
 
         <main class="admin-content" th:with="
             unreadToday=${todayNotifications.?[isRead == null or !isRead].size()},
@@ -168,7 +168,7 @@
             </div>
         </main>
 
-        <div th:replace="~{layout/footer :: footer}"></div>
+        <div th:replace="~{layout/patient/footer :: footer}"></div>
     </div>
 </div>
 

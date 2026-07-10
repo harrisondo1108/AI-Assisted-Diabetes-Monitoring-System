@@ -13,11 +13,11 @@
 <body>
     <div class="admin-layout">
         <!-- Sidebar -->
-        <div th:replace="~{layout/sidebar :: sidebar('users')}"></div>
+        <div th:replace="~{layout/admin/sidebar :: sidebar('users')}"></div>
 
         <div class="admin-main">
             <!-- Header -->
-            <div th:replace="~{layout/header :: header('Quản lý Người dùng')}"></div>
+            <div th:replace="~{layout/admin/header :: header('Quản lý Người dùng')}"></div>
 
             <main class="admin-content">
 
@@ -121,17 +121,16 @@
                                                 data-action="edit" th:data-id="${user.userId}"
                                                 th:if="${user.role != 'patient' && user.role != 'PAT'}"><i
                                                     class="fas fa-pen"></i></button>
-                                            <button type="button" class="action-btn"
-                                                th:classappend="${user.status == 'Active' ? 'lock' : 'unlock'}"
-                                                th:attr="data-id=${user.userId},data-status=${user.status},data-name=${user.fullName}"
-                                                onclick="showConfirmModal(this.getAttribute('data-id'), this.getAttribute('data-status'), this.getAttribute('data-name'))"
-                                                th:title="${user.status == 'Active' ? 'Khóa tài khoản' : 'Mở khóa tài khoản'}">
-
-                                                <i class="fas"
-                                                    th:classappend="${user.status == 'Active' ? 'fa-lock' : 'fa-lock-open'}">
-                                                </i>
-
-                                            </button>
+                                            <form th:action="@{/admin/users/toggle-lock/{id}(id=${user.userId})}" method="post" style="display: inline;"
+                                                  onsubmit="return confirm('Bạn có chắc chắn muốn thay đổi trạng thái hoạt động (khóa/mở khóa) của tài khoản này không?');">
+                                                <button type="submit" class="action-btn"
+                                                    th:classappend="${user.status == 'Active' ? 'lock' : 'unlock'}"
+                                                    th:title="${user.status == 'Active' ? 'Khóa tài khoản' : 'Mở khóa tài khoản'}">
+                                                    <i class="fas"
+                                                        th:classappend="${user.status == 'Active' ? 'fa-lock' : 'fa-lock-open'}">
+                                                    </i>
+                                                </button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>
@@ -140,7 +139,7 @@
                     </div>
 
                     <div class="table-footer" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-top: 1px solid var(--border); background: var(--bg-card); flex-wrap: wrap; gap: 16px;">
-                        <span class="pagination-info" style="font-size: 0.825rem; color: var(--text-muted; flex: 1;" th:with="start=${totalItems == 0 ? 0 : currentPage * pageSize + 1}, end=${(currentPage + 1) * pageSize > totalItems ? totalItems : (currentPage + 1) * pageSize}" th:text="|Hiển thị ${start} - ${end} / ${totalItems} người dùng|">Hiển thị 0 - 0 / 0 người dùng</span>
+                        <span class="pagination-info" style="font-size: 0.825rem; color: var(--text-muted); flex: 1;" th:with="start=${totalItems == 0 ? 0 : currentPage * pageSize + 1}, end=${(currentPage + 1) * pageSize > totalItems ? totalItems : (currentPage + 1) * pageSize}" th:text="|Hiển thị ${start} - ${end} / ${totalItems} người dùng|">Hiển thị 0 - 0 / 0 người dùng</span>
                         <div class="pagination" id="pagination" th:if="${totalPages != null and totalPages > 1}" style="flex: 0 0 auto;">
 
                             <a th:if="${currentPage > 0}"
@@ -162,7 +161,7 @@
                     </div>
                 </div>
 
-                <div th:replace="~{layout/footer :: footer}"></div>
+                <div th:replace="~{layout/admin/footer :: footer}"></div>
             </main>
         </div>
     </div>
@@ -222,6 +221,8 @@
                 <div class="info-box" style="margin-top:10px">
                     <div class="info-row"><span class="label">Chuyên khoa</span><span class="value"
                             id="drawerSpecialty">—</span></div>
+                    <div class="info-row"><span class="label">Email</span><span class="value"
+                            id="drawerDoctorEmail">—</span></div>
                 </div>
             </div>
 
@@ -255,35 +256,7 @@
         </div>
     </aside>
 
-    <!-- CONFIRM MODAL -->
-    <div class="modal-overlay" id="confirmModal">
-        <div class="modal confirm-modal">
-            <div class="modal-header">
-                <h2 id="confirmModalTitle">
-                    <i class="fas fa-shield-alt" style="margin-right: 8px; color: #f59e0b;"></i>
-                    Xác nhận Hành động
-                </h2>
-                <button type="button" class="modal-close" id="closeConfirmModalBtn">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="confirm-icon">
-                    <i class="fas fa-question-circle"></i>
-                </div>
-                <p id="confirmMessage">Bạn có chắc chắn muốn thực hiện hành động này không?</p>
-                <p class="confirm-submessage" id="confirmSubMessage">Hành động này không thể hoàn tác.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="cancelConfirmBtn">
-                    <i class="fas fa-times"></i> Hủy
-                </button>
-                <button type="button" class="btn btn-primary" id="okConfirmBtn">
-                    <i class="fas fa-check"></i> Xác nhận
-                </button>
-            </div>
-        </div>
-    </div>
+
 
     <!-- Add / Edit modal -->
     <div class="modal-overlay" th:classappend="${serverValidationError} ? 'open' : ''" id="userModalOverlay">
@@ -297,25 +270,7 @@
                 <input type="hidden" id="formUserId" name="userId" th:value="*{userId}">
                 <div class="modal-body">
 
-                    <div class="role-type-selector">
-                        <div class="role-type-option">
-                            <input type="radio" name="role" id="roleDoctor" value="DOC"
-                                th:checked="*{role == null || role == 'DOC' || role == 'doctor'}"
-                                th:disabled="*{userId != null}">
-                            <label for="roleDoctor">
-                                <i class="fas fa-user-md"></i>
-                                <span>Bác sĩ</span>
-                            </label>
-                        </div>
-                        <div class="role-type-option" style="display: none;">
-                            <input type="radio" name="role" id="rolePatient" value="PAT"
-                                th:checked="*{role == 'PAT' || role == 'patient'}" th:disabled="*{userId != null}">
-                            <label for="rolePatient">
-                                <i class="fas fa-user-injured"></i>
-                                <span>Bệnh nhân</span>
-                            </label>
-                        </div>
-                    </div>
+                    <input type="hidden" name="role" value="DOC">
 
                     <div class="form-section-title">Thông tin Tài khoản</div>
                     <div class="form-grid">
@@ -327,10 +282,10 @@
                             <div class="error-feedback"><span th:if="${#fields.hasErrors('accountPhone')}"
                                     th:errors="*{accountPhone}"></span></div>
                         </div>
-                        <div class="form-group" id="passwordGroup" th:style="*{userId != null} ? 'display: none;' : ''">
+                        <div class="form-group" id="passwordGroup" th:style="*{userId != null && !userId.isEmpty()} ? 'display: none;' : ''">
                             <label>Mật khẩu <span class="required">*</span></label>
                             <input type="password" id="formPassword" name="password" th:value="*{password}"
-                                placeholder="Nhập mật khẩu" th:required="*{userId == null}"
+                                placeholder="Nhập mật khẩu" th:required="*{userId == null || userId.isEmpty()}"
                                 th:classappend="${#fields.hasErrors('password')} ? 'is-invalid' : ''">
                             <div class="error-feedback"><span th:if="${#fields.hasErrors('password')}"
                                     th:errors="*{password}"></span></div>
@@ -401,136 +356,20 @@
                                 <div class="error-feedback"><span th:if="${#fields.hasErrors('roomName')}"
                                         th:errors="*{roomName}"></span></div>
                             </div>
-                        </div>
-                    </div>
-
-
-
-                    <!-- Patient Profile -->
-                    <div id="patientFields" class="role-fields"
-                        th:classappend="${user != null && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))} ? 'visible' : ''">
-                        <div class="form-section-title">Thông tin Bệnh nhân</div>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>Họ và tên <span class="required">*</span></label>
-                                <input type="text" id="formPatFullName" name="fullName" th:value="*{fullName}"
-                                    maxlength="60" placeholder="Nhập họ và tên"
-                                    th:required="${user != null && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))}"
-                                    th:classappend="${#fields.hasErrors('fullName') && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))} ? 'is-invalid' : ''">
-                                <div class="error-feedback"><span
-                                        th:if="${#fields.hasErrors('fullName') && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))}"
-                                        th:errors="*{fullName}"></span></div>
-                            </div>
-                            <div class="form-group">
-                                <label>Ngày sinh</label>
-                                <input type="date" id="formPatDob" required name="dob" th:value="*{dob}"
-                                    th:required="${user != null && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))}"
-                                    th:classappend="${#fields.hasErrors('dob') && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))} ? 'is-invalid' : ''">
-                                <div class="error-feedback"><span
-                                        th:if="${#fields.hasErrors('dob') && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))}"
-                                        th:errors="*{dob}"></span></div>
-                            </div>
-                            <div class="form-group">
-                                <label>Giới tính</label>
-                                <select id="formPatGender" name="gender"
-                                    th:required="${user != null && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))}"
-                                    th:classappend="${#fields.hasErrors('gender') && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))} ? 'is-invalid' : ''">
-                                    <option value="0" th:selected="*{gender == false}">Nam</option>
-                                    <option value="1" th:selected="*{gender == true}">Nữ</option>
-                                </select>
-                                <div class="error-feedback"><span
-                                        th:if="${#fields.hasErrors('gender') && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))}"
-                                        th:errors="*{gender}"></span></div>
-                            </div>
-                            <div class="form-group full-width">
-                                <label>Địa chỉ</label>
-                                <input type="text" id="formPatAddress" name="address" th:value="*{address}"
-                                    maxlength="200" placeholder="Nhập địa chỉ"
-                                    th:required="${user != null && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))}"
-                                    th:classappend="${#fields.hasErrors('address') && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))} ? 'is-invalid' : ''">
-                                <div class="error-feedback"><span
-                                        th:if="${#fields.hasErrors('address') && ('PAT'.equalsIgnoreCase(user.role) || 'patient'.equalsIgnoreCase(user.role))}"
-                                        th:errors="*{address}"></span></div>
-                            </div>
-                            <div class="form-group">
-                                <label>Chiều cao (cm)</label>
-                                <input type="number" id="formHeight" name="height" th:value="*{height}" min="0"
-                                    max="300" placeholder="Nhập chiều cao"
-                                    th:classappend="${#fields.hasErrors('height')} ? 'is-invalid' : ''">
-                                <div class="error-feedback"><span th:if="${#fields.hasErrors('height')}"
-                                        th:errors="*{height}"></span></div>
-                            </div>
-                            <div class="form-group">
-                                <label>Cân nặng (kg)</label>
-                                <input type="number" id="formWeight" name="weight" th:value="*{weight}" min="0"
-                                    step="0.1" placeholder="Nhập cân nặng"
-                                    th:classappend="${#fields.hasErrors('weight')} ? 'is-invalid' : ''">
-                                <div class="error-feedback"><span th:if="${#fields.hasErrors('weight')}"
-                                        th:errors="*{weight}"></span></div>
-                            </div>
-                            <div class="form-group">
-                                <label>Nhóm máu</label>
-                                <select id="formBloodgroup" name="bloodgroup"
-                                    th:classappend="${#fields.hasErrors('bloodgroup')} ? 'is-invalid' : ''">
-                                    <option value="">— Vui lòng chọn —</option>
-                                    <option value="A+" th:selected="*{bloodgroup == 'A+'}">A+</option>
-                                    <option value="A-" th:selected="*{bloodgroup == 'A-'}">A-</option>
-                                    <option value="B+" th:selected="*{bloodgroup == 'B+'}">B+</option>
-                                    <option value="B-" th:selected="*{bloodgroup == 'B-'}">B-</option>
-                                    <option value="AB+" th:selected="*{bloodgroup == 'AB+'}">AB+</option>
-                                    <option value="AB-" th:selected="*{bloodgroup == 'AB-'}">AB-</option>
-                                    <option value="O+" th:selected="*{bloodgroup == 'O+'}">O+</option>
-                                    <option value="O-" th:selected="*{bloodgroup == 'O-'}">O-</option>
-                                </select>
-                                <div class="error-feedback"><span th:if="${#fields.hasErrors('bloodgroup')}"
-                                        th:errors="*{bloodgroup}"></span></div>
-                            </div>
-                            <div class="form-group">
-                                <label>Tên người giám hộ</label>
-                                <input type="text" id="formSupervisorName" name="supervisorName"
-                                    th:value="*{supervisorName}" maxlength="90"
-                                    placeholder="Nhập tên người giám hộ"
-                                    th:classappend="${#fields.hasErrors('supervisorName')} ? 'is-invalid' : ''">
-                                <div class="error-feedback"><span th:if="${#fields.hasErrors('supervisorName')}"
-                                        th:errors="*{supervisorName}"></span></div>
-                            </div>
-                            <div class="form-group">
-                                <label>Số điện thoại người giám hộ</label>
-                                <input type="tel" id="formSupervisorPhone" name="supervisorPhone"
-                                    th:value="*{supervisorPhone}" maxlength="15"
-                                    placeholder="Nhập số điện thoại người giám hộ"
-                                    th:classappend="${#fields.hasErrors('supervisorPhone')} ? 'is-invalid' : ''">
-                                <div class="error-feedback"><span th:if="${#fields.hasErrors('supervisorPhone')}"
-                                        th:errors="*{supervisorPhone}"></span></div>
-                            </div>
                             <div class="form-group">
                                 <label>Email</label>
-                                <input type="email" id="formEmail" name="email"
-                                    th:value="*{email}" maxlength="100"
-                                    placeholder="Please enter patient email"
+                                <input type="email" id="formDoctorEmail" name="email" th:value="*{email}"
+                                    maxlength="100" placeholder="Nhập email bác sĩ"
                                     th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''">
                                 <div class="error-feedback"><span th:if="${#fields.hasErrors('email')}"
                                         th:errors="*{email}"></span></div>
                             </div>
-                            <div class="form-group full-width">
-                                <label>Tiền sử bệnh án</label>
-                                <textarea id="formHistory" name="permanentMedicalHistory" rows="3"
-                                    placeholder="Nhập tiền sử bệnh án" th:text="*{permanentMedicalHistory}"
-                                    th:classappend="${#fields.hasErrors('permanentMedicalHistory')} ? 'is-invalid' : ''"></textarea>
-                                <div class="error-feedback"><span
-                                        th:if="${#fields.hasErrors('permanentMedicalHistory')}"
-                                        th:errors="*{permanentMedicalHistory}"></span></div>
-                            </div>
-                            <div class="form-group full-width">
-                                <label>Lưu ý dị ứng</label>
-                                <textarea id="formAllergy" name="allergyNotes" rows="3"
-                                    placeholder="Nhập lưu ý dị ứng" th:text="*{allergyNotes}"
-                                    th:classappend="${#fields.hasErrors('allergyNotes')} ? 'is-invalid' : ''"></textarea>
-                                <div class="error-feedback"><span th:if="${#fields.hasErrors('allergyNotes')}"
-                                        th:errors="*{allergyNotes}"></span></div>
-                            </div>
                         </div>
                     </div>
+
+
+
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline" id="btnCancelModal">Hủy</button>

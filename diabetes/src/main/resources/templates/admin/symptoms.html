@@ -10,9 +10,9 @@
 </head>
 <body>
 <div class="admin-layout">
-  <div th:replace="~{layout/sidebar :: sidebar('symptom')}"></div>
+  <div th:replace="~{layout/admin/sidebar :: sidebar('symptom')}"></div>
   <div class="admin-main">
-    <div th:replace="~{layout/header :: header('Danh mục Triệu chứng')}"></div>
+    <div th:replace="~{layout/admin/header :: header('Danh mục Triệu chứng')}"></div>
     <main class="admin-content">
       <!-- CHỈ 3 THẺ STAT, BỎ CATEGORIES -->
       <div class="stats-grid">
@@ -104,7 +104,7 @@
         </div>
       </div>
     </main>
-    <div th:replace="~{layout/footer :: footer}"></div>
+    <div th:replace="~{layout/admin/footer :: footer}"></div>
   </div>
 </div>
 

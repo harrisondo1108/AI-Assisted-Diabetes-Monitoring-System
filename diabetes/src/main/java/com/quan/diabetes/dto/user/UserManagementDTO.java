@@ -2,6 +2,11 @@ package com.quan.diabetes.dto.user;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Size;
 
 /**
  * Data Transfer Object used by admin UI to display and edit user information.
@@ -10,19 +15,28 @@ import java.time.LocalDate;
 public class UserManagementDTO {
     private String userId;
 
+    @NotBlank(message = "Số điện thoại đăng nhập không được để trống")
+    @Pattern(regexp = "^(0[35789])[0-9]{8}$", message = "Số điện thoại phải là số di động Việt Nam hợp lệ (10 chữ số, bắt đầu bằng 03, 05, 07, 08, 09)")
     private String accountPhone;
 
     private String status;
     private String role;
     private String password; // plain password for creation; not persisted in DB
 
+    @NotBlank(message = "Họ và tên không được để trống")
+    @Size(max = 60, message = "Họ và tên không được vượt quá 60 ký tự")
+    @Pattern(regexp = "^[\\p{L}\\s]+$", message = "Họ và tên chỉ được chứa chữ cái và khoảng trắng")
     private String fullName;
 
+    @Size(max = 200, message = "Địa chỉ không được vượt quá 200 ký tự")
     private String address;
 
 
+    @NotNull(message = "Vui lòng chọn ngày sinh")
+    @Past(message = "Ngày sinh phải ở trong quá khứ")
     private LocalDate dob;
 
+    @NotNull(message = "Vui lòng chọn giới tính")
     private Boolean gender; // true = male, false = female (or vice versa depending on app)
 
     // Patient-specific fields
@@ -35,9 +49,12 @@ public class UserManagementDTO {
     private String allergyNotes;
     private String supervisorName;
     private String supervisorPhone;
+    @Pattern(regexp = "^$|^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$", message = "Email không đúng định dạng")
+    @Size(max = 100, message = "Email không được vượt quá 100 ký tự")
     private String email;
     private String roomName;
 
+    @Size(max = 60, message = "Chuyên khoa không được vượt quá 60 ký tự")
     private String specialty;
 
     // Getters and Setters

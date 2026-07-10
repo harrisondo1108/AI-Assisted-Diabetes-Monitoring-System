@@ -12,7 +12,7 @@
 <body>
 <div class="admin-layout">
     <!-- Sidebar -->
-    <div th:replace="~{layout/sidebar :: sidebar('dashboard')}"></div>
+    <div th:replace="~{layout/admin/sidebar :: sidebar('dashboard')}"></div>
 
     <div class="admin-main">
         <header class="admin-header">
@@ -130,7 +130,7 @@
             </div>
         </main>
         <!-- Footer -->
-        <div th:replace="~{layout/footer :: footer}"></div>
+        <div th:replace="~{layout/admin/footer :: footer}"></div>
     </div>
 </div>
 <script th:inline="javascript">
