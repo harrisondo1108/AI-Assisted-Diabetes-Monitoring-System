@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initTimingModals();
     initValidation();
     initConfirmModal();
+    initToast();
 
     markVisible('#roomTableBody',   '.room-row');
     markVisible('#timingTableBody', '.timing-row');
@@ -348,4 +349,31 @@ function initTimingModals(){
             );
         });
     });
+}
+
+/* ── Toast Notification ── */
+function initToast() {
+    const successToast = document.getElementById('flashMessage');
+    if (!successToast) return;
+    
+    setTimeout(() => successToast.classList.add('visible'), 50);
+    
+    const hide = () => {
+        successToast.classList.remove('visible');
+        setTimeout(() => { 
+            if (successToast && successToast.parentNode) {
+                successToast.parentNode.removeChild(successToast); 
+            }
+        }, 300);
+    };
+    
+    const timer = setTimeout(hide, 4000);
+    
+    const btn = document.getElementById('toastClose');
+    if (btn) {
+        btn.addEventListener('click', () => { 
+            clearTimeout(timer); 
+            hide(); 
+        });
+    }
 }

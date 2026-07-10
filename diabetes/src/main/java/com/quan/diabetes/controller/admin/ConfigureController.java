@@ -8,6 +8,7 @@ import com.quan.diabetes.service.medication.MedicationTimingService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/admin/configure")
@@ -45,16 +46,17 @@ public class ConfigureController {
     /* ════ ROOM ════ */
 
     @PostMapping("/room/create")
-    public String createRoom(@ModelAttribute Room room) {
+    public String createRoom(@ModelAttribute Room room, RedirectAttributes redirectAttributes) {
         String name = room.getRoomName();
         if (name == null || name.trim().isEmpty()) return "redirect:/admin/configure?tab=room&error=empty";
         room.setRoomName(name.trim());
         roomService.create(room);
+        redirectAttributes.addFlashAttribute("successMessage", "Thêm phòng khám thành công.");
         return "redirect:/admin/configure?tab=room";
     }
 
     @PostMapping("/room/update/{id}")
-    public String updateRoom(@PathVariable Integer id, @ModelAttribute Room room) {
+    public String updateRoom(@PathVariable Integer id, @ModelAttribute Room room, RedirectAttributes redirectAttributes) {
         String name = room.getRoomName();
         if (name == null || name.trim().isEmpty()) return "redirect:/admin/configure?tab=room&error=empty";
         Room existing = roomService.findById(id).orElse(null);
@@ -62,30 +64,35 @@ public class ConfigureController {
         existing.setRoomName(name.trim());
         existing.setDescription(room.getDescription());
         roomService.update(id, existing);
+        redirectAttributes.addFlashAttribute("successMessage", "Cập nhật phòng khám thành công.");
         return "redirect:/admin/configure?tab=room";
     }
 
     @PostMapping("/room/delete/{id}")
-    public String deleteRoom(@PathVariable Integer id) {
-        try { roomService.deleteById(id); } catch (Exception ignored) {}
+    public String deleteRoom(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+        try { 
+            roomService.deleteById(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Xóa phòng khám thành công.");
+        } catch (Exception ignored) {}
         return "redirect:/admin/configure?tab=room";
     }
 
     /* ════ TIMING MEDICATION ════ */
 
     @PostMapping("/timing/create")
-    public String createTiming(@RequestParam("timingName") String timingName) {
+    public String createTiming(@RequestParam("timingName") String timingName, RedirectAttributes redirectAttributes) {
         if (timingName == null || timingName.trim().isEmpty())
             return "redirect:/admin/configure?tab=timing&error=empty";
         if (timingService.existsByTimingName(timingName.trim()))
             return "redirect:/admin/configure?tab=timing&error=duplicate";
         MedicationTiming t = new MedicationTiming(timingName.trim());
         timingService.create(t);
+        redirectAttributes.addFlashAttribute("successMessage", "Thêm khung giờ uống thuốc thành công.");
         return "redirect:/admin/configure?tab=timing";
     }
 
     @PostMapping("/timing/update/{id}")
-    public String updateTiming(@PathVariable Integer id, @RequestParam("timingName") String timingName) {
+    public String updateTiming(@PathVariable Integer id, @RequestParam("timingName") String timingName, RedirectAttributes redirectAttributes) {
         if (timingName == null || timingName.trim().isEmpty())
             return "redirect:/admin/configure?tab=timing&error=empty";
         if (timingService.existsByTimingNameAndTimingIdNot(timingName.trim(), id))
@@ -94,12 +101,16 @@ public class ConfigureController {
         if (existing == null) return "redirect:/admin/configure?tab=timing&error=notfound";
         existing.setTimingName(timingName.trim());
         timingService.update(id, existing);
+        redirectAttributes.addFlashAttribute("successMessage", "Cập nhật khung giờ uống thuốc thành công.");
         return "redirect:/admin/configure?tab=timing";
     }
 
     @PostMapping("/timing/delete/{id}")
-    public String deleteTiming(@PathVariable Integer id) {
-        try { timingService.deleteById(id); } catch (Exception ignored) {}
+    public String deleteTiming(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+        try { 
+            timingService.deleteById(id); 
+            redirectAttributes.addFlashAttribute("successMessage", "Xóa khung giờ uống thuốc thành công.");
+        } catch (Exception ignored) {}
         return "redirect:/admin/configure?tab=timing";
     }
 }
