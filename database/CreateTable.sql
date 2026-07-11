@@ -25,7 +25,7 @@ CREATE TABLE [Account] (
     PhoneNumber NVARCHAR(50) NOT NULL UNIQUE, -- accountName
     PasswordHash VARCHAR(255) NOT NULL, -- password
     RoleID VARCHAR(50),
-	Status VARCHAR(20) DEFAULT('Active') CHECK (Status in ('Active', 'Clocked'))
+	Status VARCHAR(20) DEFAULT('Active') CHECK (Status in ('Active', 'Clocked')),
     FOREIGN KEY (RoleID) REFERENCES Role(RoleID) ON DELETE SET NULL ON UPDATE CASCADE
 	-- "ON DELETE SET NULL": nếu ta xóa 1 dòng A bên bảng Role thì thuộc tính FK RoleID của các dòng ở bảng User
 	--                       tham chiếu đến dòng A sẽ được sửa thành null
@@ -90,8 +90,8 @@ CREATE TABLE [ClinicalExamination] (
     DiagnosisNote NVARCHAR(MAX), -- chẩn đoán
     CancelReason NVARCHAR(MAX), -- lý do hủy
     NextAppointment DATETIME, -- lịch tái khám
-    Status NVARCHAR(20) DEFAULT 'Pending'
-        CHECK (Status IN ('Pending','InProgress','Completed','Cancelled')),
+    Status NVARCHAR(20) DEFAULT 'Requested'
+        CHECK (Status IN ('Requested','Pending','InProgress','Completed','Cancelled')),
     PatientID VARCHAR(50) NOT NULL,
     DoctorID VARCHAR(50) NOT NULL,
     FOREIGN KEY (PatientID) REFERENCES Patient(UserID) ON UPDATE CASCADE,

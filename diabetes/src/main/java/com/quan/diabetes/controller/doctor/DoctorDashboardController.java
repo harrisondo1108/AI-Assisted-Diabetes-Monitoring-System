@@ -78,6 +78,7 @@ public class DoctorDashboardController {
         // Lọc danh sách ca khám hôm nay
         List<ClinicalExamination> todayQueue = allExams.stream()
                 .filter(e -> e.getExamDate() != null && e.getExamDate().toLocalDate().isEqual(today))
+                .filter(e -> !"Requested".equalsIgnoreCase(e.getStatus()))
                 .collect(Collectors.toList());
 
         // Tính toán các metrics (dựa trên toàn bộ danh sách hôm nay)
