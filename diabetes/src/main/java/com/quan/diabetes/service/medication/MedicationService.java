@@ -17,6 +17,7 @@ public interface MedicationService {
     public Page<Medication> findByForm(String form, Pageable pageable);
     public Page<Medication> findByAdministrationRoute(String route, Pageable pageable);
     public Page<Medication> searchByKeyword(String keyword, Pageable pageable);
+    public Page<Medication> filterMedications(String keyword, String status, String form, String route, Pageable pageable);
 
     // Non-paginated methods (for dropdowns, stats, etc.)
     public List<Medication> findAllList();

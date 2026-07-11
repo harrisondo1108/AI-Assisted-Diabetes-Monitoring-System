@@ -4,6 +4,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "Medication")
@@ -13,15 +16,23 @@ public class Medication {
     @Column(name = "MedicationID", length = 50)
     private String medicationId;
 
+    @NotBlank(message = "Tên thuốc không được để trống")
+    @Size(max = 100, message = "Tên thuốc không được vượt quá 100 ký tự")
+    @Pattern(regexp = "^[\\p{L}0-9\\s\\-\\.\\/\\+]+$", message = "Tên thuốc không được chứa ký tự đặc biệt")
     @Column(name = "MedicationName", length = 100, unique = true, columnDefinition = "NVARCHAR(100)")
     private String medicationName;
 
+    @NotBlank(message = "Dạng bào chế không được để trống")
+    @Size(max = 50, message = "Dạng bào chế không được vượt quá 50 ký tự")
     @Column(name = "Form", length = 50, columnDefinition = "NVARCHAR(50)")
     private String form;
 
+    @Size(max = 50, message = "Hàm lượng/nồng độ không được vượt quá 50 ký tự")
     @Column(name = "Concentration", length = 50, columnDefinition = "NVARCHAR(50)")
     private String concentration;
 
+    @NotBlank(message = "Đường dùng không được để trống")
+    @Size(max = 50, message = "Đường dùng không được vượt quá 50 ký tự")
     @Column(name = "AdministrationRoute", length = 50, columnDefinition = "NVARCHAR(50)")
     private String administrationRoute;
 

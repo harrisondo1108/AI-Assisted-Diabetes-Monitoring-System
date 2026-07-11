@@ -59,14 +59,15 @@ public class AiMonitoringServiceImpl implements AiMonitoringService {
                 log.getPatientId(),
                 log.getDataType(),
                 log.getAccessedAt(),
-                null
+                log.getQuestion()
         ));
     }
 
     @Override
     @Transactional(readOnly = true)
     public Double getAverageLatencyMs() {
-        return 0.0;
+        Double avg = aiPatientAccessLogRepository.getAverageLatencyMs();
+        return avg != null ? avg : 0.0;
     }
 
     @Override

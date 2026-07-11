@@ -1,28 +1,35 @@
-// Toast function
+// Toast function (sử dụng class từ CSS để không chặn sự kiện click bên ngoài)
 function showToast(message, type) {
     var container = document.querySelector('.toast-container');
     if (!container) {
         container = document.createElement('div');
         container.className = 'toast-container';
-        container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:99999;';
         document.body.appendChild(container);
     }
     var toast = document.createElement('div');
-    toast.className = 'toast ' + type;
-    toast.style.cssText = 'padding:15px 20px;margin-bottom:10px;border-radius:8px;color:white;font-weight:500;min-width:300px;box-shadow:0 4px 12px rgba(0,0,0,0.15);';
-    toast.style.background = type === 'success' ? '#10b981' : '#ef4444';
+    toast.className = 'toast ' + (type === 'success' ? 'success' : 'error');
 
     var icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
-    toast.innerHTML = '<i class="fas ' + icon + '" style="margin-right:8px;"></i> ' + message;
-    container.appendChild(toast);
+    toast.innerHTML = `
+        <div class="toast-content">
+            <i class="fas ${icon}"></i>
+            <span>${escapeHtml(message)}</span>
+        </div>
+        <button type="button" class="toast-close" title="Đóng">&times;</button>
+    `;
 
-    // Tự động xóa sau 3 giây
-    setTimeout(function() {
+    var removeToast = function() {
         toast.style.opacity = '0';
         toast.style.transform = 'translateX(100%)';
         toast.style.transition = 'all 0.3s ease';
         setTimeout(function() { toast.remove(); }, 300);
-    }, 3000);
+    };
+
+    toast.addEventListener('click', removeToast);
+    container.appendChild(toast);
+
+    // Tự động xóa sau 4 giây
+    setTimeout(removeToast, 4000);
 }
 
 // Xử lý message từ URL params (thay thế flash attributes)
@@ -294,8 +301,8 @@ function renderPagination(currentPage, totalPages, totalItems, pageSize) {
         var route = document.getElementById('routeSelect')?.value || '';
         var keyword = (document.getElementById('searchKeyword')?.value || '').trim();
         var urlParams = new URLSearchParams(window.location.search);
-        var sortField = urlParams.get('sortField') || 'medicationName';
-        var sortDirection = urlParams.get('sortDirection') || 'asc';
+        var sortField = urlParams.get('sortField') || 'medicationId';
+        var sortDirection = urlParams.get('sortDirection') || 'desc';
 
         var buildPageUrl = function(p) {
             var params = new URLSearchParams();
@@ -435,6 +442,76 @@ function closeEditModal() {
 document.getElementById('closeEditModalBtn').onclick = closeEditModal;
 document.getElementById('cancelEditModalBtn').onclick = closeEditModal;
 editModal.onclick = function(e) { if (e.target === editModal) closeEditModal(); };
+
+// Validation Form Frontend trước khi gửi
+function validateMedicineForm(formElement) {
+    var nameInput = formElement.querySelector('input[name="medicationName"]');
+    var formSelect = formElement.querySelector('select[name="form"]');
+    var routeSelect = formElement.querySelector('select[name="administrationRoute"]');
+
+    if (nameInput && nameInput.value.trim() === '') {
+        showToast('Tên thuốc không được để trống!', 'error');
+        nameInput.focus();
+        return false;
+    }
+    if (nameInput && nameInput.value.trim().length > 100) {
+        showToast('Tên thuốc không được vượt quá 100 ký tự!', 'error');
+        nameInput.focus();
+        return false;
+    }
+    if (nameInput) {
+        var validNameRegex = /^[\p{L}0-9\s\-\.\/\+]+$/u;
+        if (!validNameRegex.test(nameInput.value.trim())) {
+            showToast('Tên thuốc không được chứa ký tự đặc biệt (*, @, #, $, ...)!', 'error');
+            nameInput.focus();
+            return false;
+        }
+    }
+    if (formSelect && !formSelect.value) {
+        showToast('Vui lòng chọn dạng bào chế!', 'error');
+        formSelect.focus();
+        return false;
+    }
+    if (routeSelect && !routeSelect.value) {
+        showToast('Vui lòng chọn đường dùng!', 'error');
+        routeSelect.focus();
+        return false;
+    }
+    return true;
+}
+
+var addForm = document.getElementById('addForm');
+if (addForm) {
+    addForm.addEventListener('submit', function(e) {
+        if (!validateMedicineForm(addForm)) {
+            e.preventDefault();
+        }
+    });
+}
+
+if (editForm) {
+    editForm.addEventListener('submit', function(e) {
+        if (!validateMedicineForm(editForm)) {
+            e.preventDefault();
+        }
+    });
+}
+
+// Tự động ngăn nhập ký tự đặc biệt trong ô Tên Thuốc
+function sanitizeMedicineNameInput(inputElement) {
+    if (!inputElement) return;
+    inputElement.addEventListener('input', function() {
+        var originalValue = this.value;
+        var cleanedValue = originalValue.replace(/[^\p{L}0-9\s\-\.\/\+]/gu, '');
+        if (originalValue !== cleanedValue) {
+            this.value = cleanedValue;
+        }
+    });
+}
+var addNameInput = document.getElementById('medicationName');
+var editNameInput = document.getElementById('editMedicationName');
+if (addNameInput) sanitizeMedicineNameInput(addNameInput);
+if (editNameInput) sanitizeMedicineNameInput(editNameInput);
 
 // DETAIL DRAWER
 var detailDrawer = document.getElementById('detailDrawer');

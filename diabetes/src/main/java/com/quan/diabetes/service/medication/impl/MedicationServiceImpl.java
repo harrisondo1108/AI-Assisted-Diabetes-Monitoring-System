@@ -83,6 +83,15 @@ public class MedicationServiceImpl implements MedicationService {
     }
 
     @Override
+    public Page<Medication> filterMedications(String keyword, String status, String form, String route, Pageable pageable) {
+        String kw = (keyword == null || "all".equalsIgnoreCase(keyword.trim())) ? "" : keyword.trim();
+        String st = (status == null || "all".equalsIgnoreCase(status.trim())) ? "" : status.trim();
+        String fm = (form == null || "all".equalsIgnoreCase(form.trim())) ? "" : form.trim();
+        String rt = (route == null || "all".equalsIgnoreCase(route.trim())) ? "" : route.trim();
+        return medicationRepository.filterMedications(kw, st, fm, rt, pageable);
+    }
+
+    @Override
     public List<Medication> findAllList() {
         return medicationRepository.findAll();
     }
@@ -102,11 +111,39 @@ public class MedicationServiceImpl implements MedicationService {
         return medicationRepository.findById(id);
     }
 
+    private void validateAndTrimMedication(Medication entity) {
+        if (entity == null) {
+            throw new IllegalArgumentException("Dữ liệu thuốc không hợp lệ!");
+        }
+        if (entity.getMedicationName() == null || entity.getMedicationName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Tên thuốc không được để trống!");
+        }
+        String trimmedName = entity.getMedicationName().trim();
+        if (!trimmedName.matches("^[\\p{L}0-9\\s\\-\\.\\/\\+]+$")) {
+            throw new IllegalArgumentException("Tên thuốc không được chứa ký tự đặc biệt!");
+        }
+        if (entity.getForm() == null || entity.getForm().trim().isEmpty()) {
+            throw new IllegalArgumentException("Dạng bào chế không được để trống!");
+        }
+        if (entity.getAdministrationRoute() == null || entity.getAdministrationRoute().trim().isEmpty()) {
+            throw new IllegalArgumentException("Đường dùng không được để trống!");
+        }
+        entity.setMedicationName(trimmedName);
+        entity.setForm(entity.getForm().trim());
+        entity.setAdministrationRoute(entity.getAdministrationRoute().trim());
+        if (entity.getConcentration() != null) {
+            entity.setConcentration(entity.getConcentration().trim());
+        }
+        if (entity.getUsageInstruction() != null) {
+            entity.setUsageInstruction(entity.getUsageInstruction().trim());
+        }
+    }
+
     @Override
     public Medication create(Medication entity) {
-        // Kiểm tra tên thuốc đã tồn tại
+        validateAndTrimMedication(entity);
         if (existsByMedicationName(entity.getMedicationName())) {
-            throw new IllegalArgumentException("Medicine " + entity.getMedicationName() + " already exists!");
+            throw new IllegalArgumentException("Tên thuốc '" + entity.getMedicationName() + "' đã tồn tại trong hệ thống!");
         }
 
         String newId = generateMedicationId();
@@ -118,15 +155,16 @@ public class MedicationServiceImpl implements MedicationService {
     @Override
     public Medication update(String id, Medication entity) {
         if (!medicationRepository.existsById(id)) {
-            throw new EntityNotFoundException("Medication not found with id: " + id);
+            throw new EntityNotFoundException("Không tìm thấy thuốc với mã: " + id);
         }
+
+        validateAndTrimMedication(entity);
 
         Medication existing = medicationRepository.findById(id).get();
 
-        // Kiểm tra trùng tên (bỏ qua chính nó)
         if (!existing.getMedicationName().equalsIgnoreCase(entity.getMedicationName()) &&
                 existsByMedicationName(entity.getMedicationName())) {
-            throw new RuntimeException("Medicine " + entity.getMedicationName() + " already exists!");
+            throw new IllegalArgumentException("Tên thuốc '" + entity.getMedicationName() + "' đã tồn tại trong hệ thống!");
         }
 
         entity.setMedicationId(id);

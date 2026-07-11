@@ -838,13 +838,3 @@ body {
     display: flex;
     gap: 4px;
 }
-
-.page-size-selector {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    min-width: 200px;
-    justify-content: flex-end;
-}

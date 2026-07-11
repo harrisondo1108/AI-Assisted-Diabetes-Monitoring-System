@@ -29,14 +29,26 @@ public class AiPatientAccessLog {
     @Column(name = "accessedAt", nullable = false)
     private LocalDateTime accessedAt;
 
+    @Column(name = "question", columnDefinition = "NVARCHAR(1000)")
+    private String question;
+
+    @Column(name = "latencyMs")
+    private Long latencyMs;
+
     public AiPatientAccessLog() {
     }
 
     public AiPatientAccessLog(Long queryLogId, String patientId, String dataType, LocalDateTime accessedAt) {
+        this(queryLogId, patientId, dataType, accessedAt, null, null);
+    }
+
+    public AiPatientAccessLog(Long queryLogId, String patientId, String dataType, LocalDateTime accessedAt, String question, Long latencyMs) {
         this.queryLogId = queryLogId;
         this.patientId = patientId;
         this.dataType = dataType;
         this.accessedAt = accessedAt != null ? accessedAt : LocalDateTime.now();
+        this.question = question;
+        this.latencyMs = latencyMs;
     }
 
     public Long getId() {
@@ -77,5 +89,21 @@ public class AiPatientAccessLog {
 
     public void setAccessedAt(LocalDateTime accessedAt) {
         this.accessedAt = accessedAt;
+    }
+
+    public String getQuestion() {
+        return question;
+    }
+
+    public void setQuestion(String question) {
+        this.question = question;
+    }
+
+    public Long getLatencyMs() {
+        return latencyMs;
+    }
+
+    public void setLatencyMs(Long latencyMs) {
+        this.latencyMs = latencyMs;
     }
 }

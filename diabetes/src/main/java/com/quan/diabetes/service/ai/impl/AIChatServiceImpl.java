@@ -1,5 +1,6 @@
 package com.quan.diabetes.service.ai.impl;
 
+import com.quan.diabetes.monitoring.context.AiRequestContextHolder;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -112,6 +113,7 @@ public class AIChatServiceImpl implements AIChatService {
             logger.warn("AI system is currently disabled by admin.");
             return ChatResponseDto.success(request.conversationId(), "⚠️ **Hệ thống Trợ lý AI hiện đang được tạm tắt để bảo trì hoặc giám sát.**\n\nVui lòng quay lại sau, hoặc liên hệ quản trị viên để biết thêm chi tiết.");
         }
+        AiRequestContextHolder.setCurrentQuestion(request.question());
         try {
             long startTime = System.currentTimeMillis();
 
@@ -228,6 +230,8 @@ public class AIChatServiceImpl implements AIChatService {
         } catch (Exception e) {
             logger.error("Error sending message: {}", e.getMessage(), e);
             return ChatResponseDto.error("Failed to process message: " + e.getMessage());
+        } finally {
+            AiRequestContextHolder.clear();
         }
     }
 

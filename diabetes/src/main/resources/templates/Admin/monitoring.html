@@ -120,8 +120,8 @@
                                     <span class="dataType-tag" style="margin: 0; background: var(--mint-200); color: var(--green-700); border: 1px solid #bae6fd; font-family: monospace; font-size: 0.82rem; padding: 4px 10px; border-radius: 6px; font-weight: 600;" th:text="${access.dataType}">get_general_record</span>
                                 </td>
                                 <td>
-                                    <div th:if="${access.question != null}" style="max-width: 380px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-style: italic;" th:title="${access.question}" th:text="${access.question}">"Câu hỏi gốc..."</div>
-                                    <span th:unless="${access.question != null}" style="color: var(--text-muted); font-style: italic;">Không có câu hỏi</span>
+                                    <div th:if="${access.question != null and !#strings.isEmpty(access.question)}" style="max-width: 380px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-style: italic;" th:title="${access.question}" th:text="${access.question}">"Câu hỏi gốc..."</div>
+                                    <span th:unless="${access.question != null and !#strings.isEmpty(access.question)}" style="color: var(--text-muted); font-style: italic;">Không có câu hỏi</span>
                                 </td>
                                 <td style="color: var(--text-secondary); font-size: 0.82rem;" th:text="${#temporals.format(access.accessedAt, 'dd/MM/yyyy HH:mm:ss')}">05/07/2026</td>
                             </tr>
@@ -139,39 +139,25 @@
                 </div>
 
                 <!-- Pagination (Medicine Management Style) -->
-                <div class="pagination-container" th:if="${accessLogs.totalPages > 0}">
-                    <div class="pagination-controls">
-                        <a th:if="${accessLogs.number > 0}"
-                            th:href="@{/admin/monitoring(activeTab='access', accessPage=0, accessSize=${accessLogs.size}, accessPatientId=${accessPatientId}, dataType=${dataType}, accessFromDate=${accessFromDate}, accessToDate=${accessToDate})}"
-                            class="pagination-btn"><i class="fas fa-chevron-left"></i> Đầu</a>
-                        <a th:if="${accessLogs.number > 0}"
-                            th:href="@{/admin/monitoring(activeTab='access', accessPage=${accessLogs.number - 1}, accessSize=${accessLogs.size}, accessPatientId=${accessPatientId}, dataType=${dataType}, accessFromDate=${accessFromDate}, accessToDate=${accessToDate})}"
-                            class="pagination-btn"><i class="fas fa-chevron-left"></i> Trước</a>
-                        <div class="pagination-pages">
+                <div class="pagination-container" th:if="${accessLogs.totalPages > 0}" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span class="pagination-info" style="font-size: 0.875rem; color: #5a6f68; flex: 1;" th:with="start=${accessLogs.totalElements == 0 ? 0 : accessLogs.number * accessLogs.size + 1}, end=${(accessLogs.number + 1) * accessLogs.size > accessLogs.totalElements ? accessLogs.totalElements : (accessLogs.number + 1) * accessLogs.size}" th:text="|Hiển thị ${start} - ${end} / ${accessLogs.totalElements} nhật ký|">Hiển thị 0 - 0 / 0 nhật ký</span>
+                    <div class="pagination-controls" style="flex: 0 0 auto; display: flex; align-items: center; gap: 8px;">
+                        <!-- Nút Trước -->
+                        <a th:if="${accessLogs.number > 0}" th:href="@{/admin/monitoring(activeTab='access', accessPage=${accessLogs.number - 1}, accessSize=${accessLogs.size}, accessPatientId=${accessPatientId}, dataType=${dataType}, accessFromDate=${accessFromDate}, accessToDate=${accessToDate})}" class="pagination-btn">Trước</a>
+                        <span th:unless="${accessLogs.number > 0}" class="pagination-btn disabled" style="opacity: 0.38; cursor: not-allowed; display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; color: var(--text-muted); font-size: 0.875rem; font-weight: 500;">Trước</span>
+
+                        <!-- Các số trang -->
+                        <div class="pagination-pages" style="display: flex; gap: 4px;">
                             <th:block th:each="pageNum : ${#numbers.sequence(0, accessLogs.totalPages - 1)}">
-                                <a th:if="${pageNum >= accessLogs.number - 2 and pageNum <= accessLogs.number + 2}"
-                                    th:href="@{/admin/monitoring(activeTab='access', accessPage=${pageNum}, accessSize=${accessLogs.size}, accessPatientId=${accessPatientId}, dataType=${dataType}, accessFromDate=${accessFromDate}, accessToDate=${accessToDate})}"
-                                    class="page-number" th:classappend="${pageNum == accessLogs.number} ? 'active' : ''"
-                                    th:text="${pageNum + 1}"></a>
+                                <a th:href="@{/admin/monitoring(activeTab='access', accessPage=${pageNum}, accessSize=${accessLogs.size}, accessPatientId=${accessPatientId}, dataType=${dataType}, accessFromDate=${accessFromDate}, accessToDate=${accessToDate})}" class="page-number" th:classappend="${pageNum == accessLogs.number} ? 'active' : ''" th:text="${pageNum + 1}"></a>
                             </th:block>
                         </div>
-                        <a th:if="${accessLogs.number < accessLogs.totalPages - 1}"
-                            th:href="@{/admin/monitoring(activeTab='access', accessPage=${accessLogs.number + 1}, accessSize=${accessLogs.size}, accessPatientId=${accessPatientId}, dataType=${dataType}, accessFromDate=${accessFromDate}, accessToDate=${accessToDate})}"
-                            class="pagination-btn">Tiếp <i class="fas fa-chevron-right"></i></a>
-                        <a th:if="${accessLogs.number < accessLogs.totalPages - 1}"
-                            th:href="@{/admin/monitoring(activeTab='access', accessPage=${accessLogs.totalPages - 1}, accessSize=${accessLogs.size}, accessPatientId=${accessPatientId}, dataType=${dataType}, accessFromDate=${accessFromDate}, accessToDate=${accessToDate})}"
-                            class="pagination-btn">Cuối <i class="fas fa-chevron-right"></i></a>
+
+                        <!-- Nút Sau -->
+                        <a th:if="${accessLogs.number < accessLogs.totalPages - 1}" th:href="@{/admin/monitoring(activeTab='access', accessPage=${accessLogs.number + 1}, accessSize=${accessLogs.size}, accessPatientId=${accessPatientId}, dataType=${dataType}, accessFromDate=${accessFromDate}, accessToDate=${accessToDate})}" class="pagination-btn">Sau</a>
+                        <span th:unless="${accessLogs.number < accessLogs.totalPages - 1}" class="pagination-btn disabled" style="opacity: 0.38; cursor: not-allowed; display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; color: var(--text-muted); font-size: 0.875rem; font-weight: 500;">Sau</span>
                     </div>
-                    <div class="page-size-selector" style="display: flex; align-items: center; gap: 8px; font-size: 0.875rem; color: #5a6f68;">
-                        <label>Hiển thị: </label>
-                        <select id="accessSizeSelect" style="padding: 6px 12px; border: 1px solid #e2ebe7; border-radius: 8px; background-color: #fff; color: #0f2e26; font-size: 0.875rem; font-weight: 500; cursor: pointer;" onchange="changeAccessPageSize()">
-                            <option value="5" th:selected="${accessLogs.size == 5}">5 hàng / trang</option>
-                            <option value="7" th:selected="${accessLogs.size == 7}">7 hàng / trang</option>
-                            <option value="10" th:selected="${accessLogs.size == 10}">10 hàng / trang</option>
-                            <option value="20" th:selected="${accessLogs.size == 20}">20 hàng / trang</option>
-                            <option value="50" th:selected="${accessLogs.size == 50}">50 hàng / trang</option>
-                        </select>
-                    </div>
+                    <div class="pagination-placeholder" style="flex: 1;"></div>
                 </div>
             </div>
 
@@ -296,13 +282,6 @@ async function toggleAiSystem(enabled) {
     }
 }
 
-function changeAccessPageSize() {
-    const size = document.getElementById('accessSizeSelect').value;
-    const url = new URL(window.location.href);
-    url.searchParams.set('accessSize', size);
-    url.searchParams.set('accessPage', '0');
-    window.location.href = url.toString();
-}
 </script>
 </body>
 </html>
