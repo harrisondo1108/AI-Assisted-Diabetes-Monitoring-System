@@ -1,37 +1,15 @@
 /**
- * Doctor Dashboard JS - Pure Thymeleaf Integration
+ * Doctor Requests JS - Pure Thymeleaf Integration
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-
-    // Check url param for toasts
+    // Check url param for toasts if redirects use param
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('toast') === 'updated') {
-        showToast('Cập nhật ca khám thành công!', 'success');
-        window.history.replaceState({}, document.title, window.location.pathname);
-    } else if (urlParams.get('toast') === 'completed') {
-        showToast('Lưu ca khám thành công! Ca khám đã được hoàn thành.', 'success');
+    if (urlParams.get('toast') === 'success') {
+        showToast('Thao tác thành công!', 'success');
         window.history.replaceState({}, document.title, window.location.pathname);
     }
 });
-
-
-
-
-
-function toggleDashboardPrescDetail(index) {
-    const dropdown = document.getElementById(`presc-dashboard-dropdown-${index}`);
-    if (dropdown) {
-        const btn = dropdown.previousElementSibling.querySelector('.detail-btn i');
-        if (dropdown.style.display === 'none') {
-            dropdown.style.display = 'block';
-            if (btn) btn.className = 'fas fa-eye-slash';
-        } else {
-            dropdown.style.display = 'none';
-            if (btn) btn.className = 'fas fa-eye';
-        }
-    }
-}
 
 // Toast Notification System
 function showToast(message, type = 'success') {
@@ -78,4 +56,3 @@ function showToast(message, type = 'success') {
         }
     }, 4000);
 }
-

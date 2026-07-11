@@ -92,7 +92,7 @@ CREATE TABLE [ClinicalExamination] (
     CancelReason NVARCHAR(MAX), -- lý do hủy
     NextAppointment DATETIME, -- lịch tái khám
     Status NVARCHAR(20) DEFAULT 'Pending'
-        CHECK (Status IN ('Pending','InProgress','Completed','Cancelled')),
+        CHECK (Status IN ('Requested','Pending','InProgress','Completed','Cancelled')),
     PatientID VARCHAR(50) NOT NULL,
     DoctorID VARCHAR(50) NOT NULL,
     FOREIGN KEY (PatientID) REFERENCES Patient(UserID) ON UPDATE CASCADE,

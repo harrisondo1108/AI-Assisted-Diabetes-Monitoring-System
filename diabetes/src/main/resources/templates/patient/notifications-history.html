@@ -63,7 +63,7 @@
             <div class="notification-group" id="group-today" th:if="${!todayNotifications.isEmpty()}">
                 <div class="group-title">Hôm nay</div>
                 <div class="notification-list">
-                    <a th:href="@{/patient/notifications/{id}(id=${reminder.aiReminderId})}" 
+                    <a th:href="@{/patient/notifications/{id}(id=${reminder.reminderId})}" 
                        class="notification-card" 
                        th:each="reminder : ${todayNotifications}"
                        th:classappend="${reminder.isRead == null or !reminder.isRead} ? 'unread' : 'read'"
@@ -96,7 +96,7 @@
             <div class="notification-group" id="group-yesterday" th:if="${!yesterdayNotifications.isEmpty()}">
                 <div class="group-title">Hôm qua</div>
                 <div class="notification-list">
-                    <a th:href="@{/patient/notifications/{id}(id=${reminder.aiReminderId})}" 
+                    <a th:href="@{/patient/notifications/{id}(id=${reminder.reminderId})}" 
                        class="notification-card" 
                        th:each="reminder : ${yesterdayNotifications}"
                        th:classappend="${reminder.isRead == null or !reminder.isRead} ? 'unread' : 'read'"
@@ -129,7 +129,7 @@
             <div class="notification-group" id="group-older" th:if="${!olderNotifications.isEmpty()}">
                 <div class="group-title">Cũ hơn</div>
                 <div class="notification-list">
-                    <a th:href="@{/patient/notifications/{id}(id=${reminder.aiReminderId})}" 
+                    <a th:href="@{/patient/notifications/{id}(id=${reminder.reminderId})}" 
                        class="notification-card" 
                        th:each="reminder : ${olderNotifications}"
                        th:classappend="${reminder.isRead == null or !reminder.isRead} ? 'unread' : 'read'"

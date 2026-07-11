@@ -1,37 +1,27 @@
 /**
- * Doctor Dashboard JS - Pure Thymeleaf Integration
+ * Doctor Queue JS - Pure Thymeleaf Integration
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-
     // Check url param for toasts
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('toast') === 'updated') {
-        showToast('Cập nhật ca khám thành công!', 'success');
+    if (urlParams.get('toast') === 'success') {
+        showToast('Thao tác thành công!', 'success');
         window.history.replaceState({}, document.title, window.location.pathname);
-    } else if (urlParams.get('toast') === 'completed') {
-        showToast('Lưu ca khám thành công! Ca khám đã được hoàn thành.', 'success');
-        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    
+    // Automatically submit search after a short delay on typing (optional enhancement)
+    const searchInput = document.getElementById('queueSearchInput');
+    if (searchInput) {
+        let timeout = null;
+        searchInput.addEventListener('input', () => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                searchInput.form.submit();
+            }, 600); // 600ms debounce
+        });
     }
 });
-
-
-
-
-
-function toggleDashboardPrescDetail(index) {
-    const dropdown = document.getElementById(`presc-dashboard-dropdown-${index}`);
-    if (dropdown) {
-        const btn = dropdown.previousElementSibling.querySelector('.detail-btn i');
-        if (dropdown.style.display === 'none') {
-            dropdown.style.display = 'block';
-            if (btn) btn.className = 'fas fa-eye-slash';
-        } else {
-            dropdown.style.display = 'none';
-            if (btn) btn.className = 'fas fa-eye';
-        }
-    }
-}
 
 // Toast Notification System
 function showToast(message, type = 'success') {
@@ -78,4 +68,3 @@ function showToast(message, type = 'success') {
         }
     }, 4000);
 }
-

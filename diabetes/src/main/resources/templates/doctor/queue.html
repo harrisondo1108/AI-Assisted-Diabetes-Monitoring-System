@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Page CSS -->
     <link rel="stylesheet" th:href="@{/css/doctor/doctor-common.css}">
-    <link rel="stylesheet" th:href="@{/css/doctor/doctor-dashboard.css}">
+    <link rel="stylesheet" th:href="@{/css/doctor/queue.css}">
 </head>
 
 <body>
@@ -163,66 +163,7 @@
             </main>
         </div>
     </div>
-
-        </div>
-    </div>
-
-    <!-- REQUEST APPROVAL MODAL -->
-    <div class="modal-overlay" id="requestApprovalModal">
-        <div class="modal modal-history">
-            <div class="modal-header">
-                <h2>Yêu cầu khám từ bệnh nhân</h2>
-                <button type="button" class="modal-close" onclick="closeRequestApprovalModal()"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body" style="max-height: 75vh; overflow-y: auto;">
-                <div class="table-container" style="box-shadow: none; border: none; padding: 0;">
-                    <table class="clinical-table">
-                        <thead>
-                            <tr>
-                                <th>Họ và tên</th>
-                                <th>Tuổi / Giới tính</th>
-                                <th>Thời gian yêu cầu</th>
-                                <th>Lý do khám / Triệu chứng</th>
-                                <th style="width: 200px; text-align: center;">Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr th:if="${requestedExams == null || requestedExams.isEmpty()}">
-                                <td colspan="5" style="text-align: center; color: var(--doctor-text-muted); padding: 30px;">
-                                    Không có yêu cầu khám bệnh nào cần duyệt.
-                                </td>
-                            </tr>
-                            <tr th:each="req : ${requestedExams}">
-                                <td><strong th:text="${req.patient.fullName}" style="color: var(--doctor-text-main);">Patient Name</strong></td>
-                                <td th:text="${(req.patient.dob != null ? (T(java.time.Period).between(req.patient.dob, T(java.time.LocalDate).now()).getYears()) + ' tuổi' : 'N/A') + ' / ' + (req.patient.gender != null ? (req.patient.gender ? 'Nữ' : 'Nam') : 'N/A')}">Tuổi/Giới tính</td>
-                                <td th:text="${#temporals.format(req.examDate, 'dd/MM/yyyy HH:mm')}">06/07/2026 08:30</td>
-                                <td>
-                                    <div th:text="${req.medicalHistory}" style="max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--doctor-text-muted);" th:title="${req.medicalHistory}">Lý do khám</div>
-                                </td>
-                                <td>
-                                    <div style="display: flex; gap: 8px; justify-content: center;">
-                                        <form th:action="@{/doctor/request/approve/{id}(id=${req.clinicalExamId})}" method="post" style="display: inline;">
-                                            <button type="submit" class="btn btn-primary btn-sm" style="background: linear-gradient(135deg, #10b981, #059669); border: none; box-shadow: none; color: white;">
-                                                <i class="fas fa-check"></i> Duyệt
-                                            </button>
-                                        </form>
-                                        <form th:action="@{/doctor/request/reject/{id}(id=${req.clinicalExamId})}" method="post" style="display: inline;">
-                                            <button type="submit" class="btn btn-secondary btn-sm" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; box-shadow: none;" onclick="return confirm('Bạn có chắc chắn muốn từ chối yêu cầu khám này?')">
-                                                <i class="fas fa-times"></i> Từ chối
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Script assets -->
-    <script th:src="@{/js/doctor/dashboard.js}"></script>
+    <script th:src="@{/js/doctor/queue.js}"></script>
 </body>
-
 </html>

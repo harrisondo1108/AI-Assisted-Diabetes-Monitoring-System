@@ -31,7 +31,7 @@ public class PatientNotificationController extends BasePatientController {
             Model model, HttpSession session) {
         Patient patient = addCommonData(model, session, "notifications");
 
-        List<AIReminder> allAiReminders = findRemindersByPatient(patient);
+        List<Reminder> allAiReminders = findRemindersByPatient(patient);
         List<MedicationReminderView> medicationReminders = buildTodayMedicationReminders(patient);
 
         int totalItems = allAiReminders.size();
@@ -39,7 +39,7 @@ public class PatientNotificationController extends BasePatientController {
 
         int start = Math.min(page * size, totalItems);
         int end = Math.min((page + 1) * size, totalItems);
-        List<AIReminder> pagedAiReminders = (start < end) ? allAiReminders.subList(start, end) : List.of();
+        List<Reminder> pagedAiReminders = (start < end) ? allAiReminders.subList(start, end) : List.of();
 
         long dueMedicationReminderCount = medicationReminders.stream()
                 .filter(MedicationReminderView::isDueNow)
@@ -69,17 +69,17 @@ public class PatientNotificationController extends BasePatientController {
             Model model, HttpSession session) {
         Patient patient = addCommonData(model, session, "notifications");
 
-        List<AIReminder> allAiReminders = findRemindersByPatient(patient);
+        List<Reminder> allAiReminders = findRemindersByPatient(patient);
 
         // Filter and Group
-        List<AIReminder> todayNotifications = new ArrayList<>();
-        List<AIReminder> yesterdayNotifications = new ArrayList<>();
-        List<AIReminder> olderNotifications = new ArrayList<>();
+        List<Reminder> todayNotifications = new ArrayList<>();
+        List<Reminder> yesterdayNotifications = new ArrayList<>();
+        List<Reminder> olderNotifications = new ArrayList<>();
 
         LocalDate todayDate = LocalDate.now();
         LocalDate yesterdayDate = todayDate.minusDays(1);
 
-        for (AIReminder reminder : allAiReminders) {
+        for (Reminder reminder : allAiReminders) {
             if (reminder.getScheduledTime() != null) {
                 LocalDate scheduledDate = reminder.getScheduledTime().toLocalDate();
                 if (scheduledDate.isEqual(todayDate)) {
@@ -107,11 +107,11 @@ public class PatientNotificationController extends BasePatientController {
         Map<String, Object> response = new HashMap<>();
         Patient patient = getCurrentPatient(session);
         if (patient != null) {
-            List<AIReminder> allAiReminders = findRemindersByPatient(patient);
-            for (AIReminder reminder : allAiReminders) {
+            List<Reminder> allAiReminders = findRemindersByPatient(patient);
+            for (Reminder reminder : allAiReminders) {
                 if (reminder.getIsRead() == null || !reminder.getIsRead()) {
                     reminder.setIsRead(true);
-                    aiReminderService.update(reminder.getAiReminderId(), reminder);
+                    reminderService.update(reminder.getReminderId(), reminder);
                 }
             }
             response.put("success", true);
@@ -132,7 +132,7 @@ public class PatientNotificationController extends BasePatientController {
             return "redirect:/login";
         }
 
-        AIReminder reminder = aiReminderService.findById(id).orElse(null);
+        Reminder reminder = reminderService.findById(id).orElse(null);
         if (reminder == null || reminder.getPatient() == null || !patient.getUserId().equals(reminder.getPatient().getUserId())) {
             return "redirect:/patient/notifications/history";
         }
@@ -140,7 +140,7 @@ public class PatientNotificationController extends BasePatientController {
         // Update isRead = true
         if (reminder.getIsRead() == null || !reminder.getIsRead()) {
             reminder.setIsRead(true);
-            aiReminderService.update(reminder.getAiReminderId(), reminder);
+            reminderService.update(reminder.getReminderId(), reminder);
         }
 
         // Subtitle formatted date/time

@@ -2,7 +2,7 @@ package com.quan.diabetes.service.admin.impl;
 
 import com.quan.diabetes.dto.admin.DashboardStatsDTO;
 import com.quan.diabetes.repository.AIConversationRepository;
-import com.quan.diabetes.repository.AIReminderRepository;
+import com.quan.diabetes.repository.ReminderRepository;
 import com.quan.diabetes.service.admin.DashboardService;
 import com.quan.diabetes.service.user.PatientService;
 import com.quan.diabetes.service.user.ProfileService;
@@ -22,17 +22,17 @@ public class DashboardServiceImpl implements DashboardService {
     private final PatientService patientService;
     private final ProfileService doctorService;
     private final AIConversationRepository aiConversationRepository;
-    private final AIReminderRepository aiReminderRepository;
+    private final ReminderRepository reminderRepository;
 
     public DashboardServiceImpl(
             PatientService patientService,
             ProfileService doctorService,
             AIConversationRepository aiConversationRepository,
-            AIReminderRepository aiReminderRepository) {
+            ReminderRepository reminderRepository) {
         this.patientService = patientService;
         this.doctorService = doctorService;
         this.aiConversationRepository = aiConversationRepository;
-        this.aiReminderRepository = aiReminderRepository;
+        this.reminderRepository = reminderRepository;
     }
 
     @Override
@@ -40,7 +40,7 @@ public class DashboardServiceImpl implements DashboardService {
         long totalPatients = patientService.findAll().size();
         long totalDoctors = doctorService.findTotalDoctor().size();
         long totalConversations = aiConversationRepository.count();
-        long totalReminders = aiReminderRepository.count();
+        long totalReminders = reminderRepository.count();
 
         return new DashboardStatsDTO(
                 totalPatients,
@@ -82,7 +82,7 @@ public class DashboardServiceImpl implements DashboardService {
         LocalDateTime start = startDate.atStartOfDay();
         LocalDateTime end = today.plusDays(1).atStartOfDay();
 
-        List<com.quan.diabetes.entity.AIReminder> list = aiReminderRepository.findByScheduledTimeBetween(start, end);
+        List<com.quan.diabetes.entity.Reminder> list = reminderRepository.findByScheduledTimeBetween(start, end);
 
         Map<LocalDate, Long> counts = list.stream()
                 .filter(r -> r.getScheduledTime() != null)

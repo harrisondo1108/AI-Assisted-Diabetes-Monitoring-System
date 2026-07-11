@@ -5,7 +5,7 @@ import com.quan.diabetes.entity.*;
 import com.quan.diabetes.dto.patient.MedicationReminderView;
 import com.quan.diabetes.service.ai.AIConversationService;
 import com.quan.diabetes.service.ai.AIMessageService;
-import com.quan.diabetes.service.ai.AIReminderService;
+import com.quan.diabetes.service.ai.ReminderService;
 import com.quan.diabetes.service.exam.ClinicalExaminationService;
 import com.quan.diabetes.service.exam.TreatmentPlanService;
 import com.quan.diabetes.service.lab.LabOrderService;
@@ -50,7 +50,7 @@ public abstract class BasePatientController {
     @Autowired
     protected PrescriptionTimingService prescriptionTimingService;
     @Autowired
-    protected AIReminderService aiReminderService;
+    protected ReminderService reminderService;
     @Autowired
     protected AIConversationService aiConversationService;
     @Autowired
@@ -297,12 +297,12 @@ public abstract class BasePatientController {
                 .count();
     }
 
-    protected List<AIReminder> findRemindersByPatient(Patient patient) {
+    protected List<Reminder> findRemindersByPatient(Patient patient) {
         if (patient == null || patient.getUserId() == null) {
             return List.of();
         }
 
-        return aiReminderService.getListByIdAndScheduledTimeLessThanEqual(patient.getUserId(), LocalDateTime.now());
+        return reminderService.getListByIdAndScheduledTimeLessThanEqual(patient.getUserId(), LocalDateTime.now());
     }
 
     protected List<AIConversation> findConversationsByPatient(Patient patient) {
@@ -561,10 +561,10 @@ public abstract class BasePatientController {
 
         // Lấy tất cả nhắc nhở hoạt động của bệnh nhân trong ngày hôm nay (lockStatus =
         // false)
-        List<AIReminder> todayReminders = aiReminderService.getPatientRemindersToday(patient.getUserId());
+        List<Reminder> todayReminders = reminderService.getPatientRemindersToday(patient.getUserId());
         List<MedicationReminderView> reminders = new ArrayList<>();
 
-        for (AIReminder reminder : todayReminders) {
+        for (Reminder reminder : todayReminders) {
             if (reminder.getTiming() == null) {
                 continue;
             }

@@ -21,17 +21,17 @@ public class DoctorDashboardController {
 
     private final ClinicalExaminationService clinicalExaminationService;
     private final ProfileService profileService;
-    private final AIReminderRepository aiReminderRepository;
+    private final ReminderRepository reminderRepository;
     private final ClinicalExaminationRepository clinicalExaminationRepository;
 
     public DoctorDashboardController(
             ClinicalExaminationService clinicalExaminationService,
             ProfileService profileService,
-            AIReminderRepository aiReminderRepository,
+            ReminderRepository reminderRepository,
             ClinicalExaminationRepository clinicalExaminationRepository) {
         this.clinicalExaminationService = clinicalExaminationService;
         this.profileService = profileService;
-        this.aiReminderRepository = aiReminderRepository;
+        this.reminderRepository = reminderRepository;
         this.clinicalExaminationRepository = clinicalExaminationRepository;
     }
 
@@ -65,7 +65,7 @@ public class DoctorDashboardController {
                 .count();
 
         // 3. Medication Reminders/Alerts (Cảnh báo tuân thủ)
-        List<AIReminder> recentReminders = aiReminderRepository
+        List<Reminder> recentReminders = reminderRepository
                 .findTop10ByClinicalExamination_Doctor_UserIdOrderByScheduledTimeDesc(doctorId);
         long unreadRemindersCount = recentReminders.stream()
                 .filter(r -> r.getIsRead() == null || !r.getIsRead())
@@ -78,55 +78,5 @@ public class DoctorDashboardController {
         model.addAttribute("unreadRemindersCount", unreadRemindersCount);
 
         return "doctor/dashboard";
-    }
-
-    // Quick Action: Approve request directly from dashboard
-    @PostMapping("/dashboard/request/approve/{examId}")
-    public String approveRequest(
-            @PathVariable("examId") String examId,
-            HttpSession session,
-            RedirectAttributes redirectAttributes) {
-        User loggedInUser = (User) session.getAttribute("loggedInUser");
-        if (loggedInUser == null || !"DOC".equalsIgnoreCase(loggedInUser.getRole().getRoleId())) {
-            return "redirect:/login";
-        }
-
-        Optional<ClinicalExamination> examOpt = clinicalExaminationRepository.findById(examId);
-        if (examOpt.isPresent()) {
-            ClinicalExamination exam = examOpt.get();
-            if ("Requested".equalsIgnoreCase(exam.getStatus())) {
-                exam.setStatus("Pending");
-                exam.setExamDate(LocalDateTime.now());
-                clinicalExaminationRepository.save(exam);
-                redirectAttributes.addFlashAttribute("successMessage",
-                        "Đã duyệt yêu cầu khám của " + exam.getPatient().getFullName() + ".");
-            }
-        }
-        return "redirect:/doctor/dashboard";
-    }
-
-    // Quick Action: Reject request directly from dashboard
-    @PostMapping("/dashboard/request/reject/{examId}")
-    public String rejectRequest(
-            @PathVariable("examId") String examId,
-            HttpSession session,
-            RedirectAttributes redirectAttributes) {
-        User loggedInUser = (User) session.getAttribute("loggedInUser");
-        if (loggedInUser == null || !"DOC".equalsIgnoreCase(loggedInUser.getRole().getRoleId())) {
-            return "redirect:/login";
-        }
-
-        Optional<ClinicalExamination> examOpt = clinicalExaminationRepository.findById(examId);
-        if (examOpt.isPresent()) {
-            ClinicalExamination exam = examOpt.get();
-            if ("Requested".equalsIgnoreCase(exam.getStatus())) {
-                exam.setStatus("Cancelled");
-                exam.setCancelReason("Bác sĩ từ chối");
-                clinicalExaminationRepository.save(exam);
-                redirectAttributes.addFlashAttribute("successMessage",
-                        "Đã từ chối yêu cầu của " + exam.getPatient().getFullName() + ".");
-            }
-        }
-        return "redirect:/doctor/dashboard";
     }
 }

@@ -1,72 +1,234 @@
-        .reminders-page-header {
-            margin-bottom: 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+/* Doctor Reminders List - Page Specific Styles */
 
-        .reminders-title-group .page-title {
-            font-size: 1.65rem;
-            font-weight: 800;
-            color: var(--doctor-text-main);
-            margin-bottom: 6px;
-        }
+.reminders-page-header {
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-        .reminders-title-group .page-subtitle {
-            color: var(--doctor-text-muted);
-            font-size: 0.95rem;
-        }
+.reminders-title-group .page-title {
+    font-size: 1.65rem;
+    font-weight: 800;
+    color: var(--doctor-text-main);
+    margin-bottom: 6px;
+}
 
-        .reminders-card {
-            background-color: var(--doctor-card-bg);
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-            border: 1px solid var(--doctor-border);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
+.reminders-title-group .page-subtitle {
+    color: var(--doctor-text-muted);
+    font-size: 0.95rem;
+}
 
-        .reminders-card-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid var(--doctor-border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(249, 250, 251, 0.5));
-        }
+.reminders-card {
+    background-color: var(--doctor-card-bg);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    border: 1px solid var(--doctor-border);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
 
-        .reminders-card-title {
-            font-size: 1.15rem;
-            font-weight: 700;
-            color: var(--doctor-text-main);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+.reminders-card-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--doctor-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(249, 250, 251, 0.5));
+}
 
-        .reminders-card-title i {
-            color: var(--doctor-primary);
-        }
+.reminders-card-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--doctor-text-main);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 
-        .empty-state {
-            padding: 60px 20px;
-            text-align: center;
-            color: var(--doctor-text-muted);
-        }
+.reminders-card-title i {
+    color: var(--doctor-primary);
+}
 
-        .empty-state i {
-            font-size: 3rem;
-            color: #d1d5db;
-            margin-bottom: 16px;
-        }
+.empty-state {
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--doctor-text-muted);
+}
 
-        .empty-state h3 {
-            font-size: 1.2rem;
-            color: var(--doctor-text-main);
-            margin-bottom: 8px;
-        }
+.empty-state i {
+    font-size: 3rem;
+    color: #d1d5db;
+    margin-bottom: 16px;
+}
 
-        .empty-state p {
-            font-size: 0.95rem;
-        }
+.empty-state h3 {
+    font-size: 1.2rem;
+    color: var(--doctor-text-main);
+    margin-bottom: 8px;
+}
+
+.empty-state p {
+    font-size: 0.95rem;
+}
+
+/* Common components copied for independence */
+
+/* Table Styling */
+.table-container {
+    overflow-x: auto;
+    flex-grow: 1;
+}
+
+.clinical-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.clinical-table th {
+    padding: 12px 24px;
+    background-color: #fafcfb;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--doctor-text-muted);
+    border-bottom: 1px solid var(--doctor-border);
+}
+
+.clinical-table td {
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--doctor-border);
+    font-size: 0.85rem;
+    vertical-align: middle;
+}
+
+.clinical-table tbody tr {
+    transition: background-color 0.15s;
+}
+
+.clinical-table tbody tr:hover {
+    background-color: rgba(26, 107, 86, 0.02);
+}
+
+.patient-name {
+    font-weight: 600;
+    color: var(--doctor-text-main);
+}
+
+.patient-id {
+    font-size: 0.75rem;
+    color: var(--doctor-text-muted);
+}
+
+/* Card search box */
+.card-search-box {
+    position: relative;
+    width: 220px;
+}
+
+.card-search-box i {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--doctor-text-muted);
+    font-size: 0.8rem;
+}
+
+.card-search-box input {
+    width: 100%;
+    padding: 6px 12px 6px 30px;
+    border-radius: 6px;
+    border: 1px solid var(--doctor-border);
+    outline: none;
+    font-size: 0.78rem;
+    transition: all 0.2s;
+}
+
+.card-search-box input:focus {
+    border-color: var(--doctor-primary);
+    background-color: #ffffff;
+}
+
+/* Card footer for pagination */
+.card-footer {
+    padding: 12px 24px;
+    border-top: 1px solid var(--doctor-border);
+    display: flex;
+    justify-content: center;
+    background-color: #fafcfb;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pagination button, .pagination a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 8px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--doctor-border);
+    background-color: #ffffff;
+    color: var(--doctor-text-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.pagination button:hover:not(:disabled), .pagination a:hover:not(.disabled) {
+    border-color: var(--doctor-primary);
+    color: var(--doctor-primary);
+    background-color: var(--doctor-primary-light);
+}
+
+.pagination button.active, .pagination a.active {
+    background-color: var(--doctor-primary);
+    color: #ffffff;
+    border-color: var(--doctor-primary);
+}
+
+.pagination button:disabled, .pagination a.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background-color: var(--doctor-primary);
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background-color: var(--doctor-primary-hover);
+}
+
+.btn-sm {
+    padding: 6px 10px;
+    font-size: 0.75rem;
+}

@@ -4,19 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cd82aed5-747b-44b9-892e-efbe52d1dbd5" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/logs/application.log" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/logs/application.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/logs/application.log.2026-07-02.0.gz" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorDashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorDashboardController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorExamineController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorExamineController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorPatientController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorPatientController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorProfileController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorProfileController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/AIReminderRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/AIReminderRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/dashboard.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/doctor_header.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/doctor_header.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/application.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/application.log" afterDir="false" />
-    </list>
+    <list default="true" id="cd82aed5-747b-44b9-892e-efbe52d1dbd5" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -84,6 +72,65 @@
   <component name="McpProjectServerCommands">
     <commands />
     <urls />
+  </component>
+  <component name="NextEditCompletionFeaturesState">
+    <decayedCancelled>
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="9.585139894212368E-94" />
+      <entry key="S2" value="9.337671944502206E-24" />
+      <entry key="S5" value="9.303329748438406E-10" />
+      <entry key="S10" value="4.313419492272783E-5" />
+      <entry key="S30" value="0.055670413805927105" />
+      <entry key="S60" value="0.33367746319425745" />
+      <entry key="M2" value="0.8169177800806412" />
+      <entry key="M5" value="1.397942524219258" />
+      <entry key="M10" value="1.672090010644917" />
+      <entry key="M15" value="1.7749376400833665" />
+      <entry key="M30" value="1.8841112689687465" />
+      <entry key="H1" value="1.9411910097315273" />
+      <entry key="H2" value="1.9703761110589073" />
+      <entry key="H4" value="1.9851327970713535" />
+      <entry key="D1" value="1.9975144230100281" />
+      <entry key="W1" value="1.9996447283018401" />
+    </decayedCancelled>
+    <decayedSelected>
+      <entry key="MS100" value="1.0" />
+      <entry key="MS500" value="1.0000000000094162" />
+      <entry key="S2" value="1.0017517346868443" />
+      <entry key="S5" value="1.0789598031646923" />
+      <entry key="S10" value="1.284166399121783" />
+      <entry key="S30" value="1.960239297378731" />
+      <entry key="S60" value="2.7660879715066793" />
+      <entry key="M2" value="3.593743050404808" />
+      <entry key="M5" value="4.345533939464895" />
+      <entry key="M10" value="4.655045234229587" />
+      <entry key="M15" value="4.76589203371548" />
+      <entry key="M30" value="4.880824556103314" />
+      <entry key="H1" value="4.939871852442893" />
+      <entry key="H2" value="4.969799541224814" />
+      <entry key="H4" value="4.984865513204946" />
+      <entry key="D1" value="4.99747281381987" />
+      <entry key="W1" value="4.999638856364925" />
+    </decayedSelected>
+    <decayedShown>
+      <entry key="MS100" value="0.0012975447403286238" />
+      <entry key="MS500" value="0.2646210987212067" />
+      <entry key="S2" value="0.7184738639920659" />
+      <entry key="S5" value="0.9444519815880538" />
+      <entry key="S10" value="1.2014367930873326" />
+      <entry key="S30" value="1.9783675341658071" />
+      <entry key="S60" value="3.077936491897065" />
+      <entry key="M2" value="4.39843106982661" />
+      <entry key="M5" value="5.738125979512222" />
+      <entry key="M10" value="6.324366011354633" />
+      <entry key="M15" value="6.538961049696747" />
+      <entry key="M30" value="6.763989851405036" />
+      <entry key="H1" value="6.880586876577559" />
+      <entry key="H2" value="6.9399368990826265" />
+      <entry key="H4" value="6.9698787422174195" />
+      <entry key="D1" value="6.994967282112538" />
+      <entry key="W1" value="6.999280733337274" />
+    </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,

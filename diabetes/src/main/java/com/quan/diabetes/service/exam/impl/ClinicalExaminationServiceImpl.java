@@ -46,7 +46,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
     private AppointmentSchedule appointmentSchedule;
 
     @Autowired
-    private AIReminderRepository aiReminderRepository;
+    private ReminderRepository reminderRepository;
 
     public ClinicalExaminationServiceImpl(
             ClinicalExaminationRepository clinicalExaminationRepository,
@@ -800,12 +800,12 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         }
 
         // Lock các reminder cũ của phiên khám (set lockStatus = true)
-        List<AIReminder> oldReminders = aiReminderRepository.findByClinicalExamination_ClinicalExamId(examId);
+        List<Reminder> oldReminders = reminderRepository.findByClinicalExamination_ClinicalExamId(examId);
         if (oldReminders != null && !oldReminders.isEmpty()) {
-            for (AIReminder r : oldReminders) {
+            for (Reminder r : oldReminders) {
                 r.setLockStatus(true);
             }
-            aiReminderRepository.saveAll(oldReminders);
+            reminderRepository.saveAll(oldReminders);
         }
 
         // Tạo lại reminders mới dựa vào lịch tái khám và đơn thuốc
@@ -824,7 +824,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         // Check if there is an active exam (Pending, InProgress, Requested)
         boolean hasActive = clinicalExaminationRepository
                 .findFirstByPatient_UserIdAndDoctor_UserIdAndStatusIn(
-                        patientId, doctor.getUserId(), List.of("Pending", "InProgress", "Completed", "Cancelled"))
+                        patientId, doctor.getUserId(), List.of("Requested", "Pending", "InProgress"))
                 .isPresent();
 
         if (hasActive) {
@@ -837,7 +837,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                 .orElseThrow(() -> new EntityNotFoundException("Patient not found: " + patientId)));
         exam.setDoctor(doctor);
         exam.setExamDate(LocalDateTime.now());
-        exam.setStatus("Pending");
+        exam.setStatus("Requested");
         exam.setMedicalHistory(medicalHistory);
         clinicalExaminationRepository.save(exam);
     }

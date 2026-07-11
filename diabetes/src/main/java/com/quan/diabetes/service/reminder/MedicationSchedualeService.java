@@ -1,12 +1,12 @@
 package com.quan.diabetes.service.reminder;
 
 import com.quan.diabetes.dto.reminder.PrescriptionReminderDto;
-import com.quan.diabetes.entity.AIReminder;
+import com.quan.diabetes.entity.Reminder;
 import com.quan.diabetes.entity.ClinicalExamination;
 import com.quan.diabetes.entity.MedicationTiming;
 import com.quan.diabetes.entity.Patient;
 import com.quan.diabetes.entity.PatientRoutine;
-import com.quan.diabetes.repository.AIReminderRepository;
+import com.quan.diabetes.repository.ReminderRepository;
 import com.quan.diabetes.repository.ClinicalExaminationRepository;
 import com.quan.diabetes.repository.MedicationTimingRepository;
 import com.quan.diabetes.repository.PatientRoutineRepository;
@@ -47,7 +47,7 @@ public class MedicationSchedualeService {
     private PatientRoutineRepository patientRoutineRepo;
 
     @Autowired
-    private AIReminderRepository aiReminderRepo;
+    private ReminderRepository reminderRepo;
 
     @Transactional
     public void generateReminder(String clinicalExamId) {
@@ -60,16 +60,16 @@ public class MedicationSchedualeService {
 
         // Before generating new reminders, lock all future medication reminders for this patient
         LocalDateTime now = LocalDateTime.now();
-        List<AIReminder> futureReminders = aiReminderRepo.findByPatient_UserIdAndScheduledTimeGreaterThanEqualAndTitleOrderByScheduledTimeAsc(
+        List<Reminder> futureReminders = reminderRepo.findByPatient_UserIdAndScheduledTimeGreaterThanEqualAndTitleOrderByScheduledTimeAsc(
                 patient.getUserId(),
                 now,
                 MEDICATION_REMINDER_TITLE
         );
         if (futureReminders != null && !futureReminders.isEmpty()) {
-            for (AIReminder r : futureReminders) {
+            for (Reminder r : futureReminders) {
                 r.setLockStatus(true);
             }
-            aiReminderRepo.saveAll(futureReminders);
+            reminderRepo.saveAll(futureReminders);
         }
 
         String name = patient.getFullName();
@@ -167,13 +167,13 @@ public class MedicationSchedualeService {
         while (currentDate.isBefore(endDateExclusive)) {
             LocalDateTime reminderDateTime = LocalDateTime.of(currentDate, reminderTime);
 
-            if (!aiReminderRepo.existsByPatient_UserIdAndScheduledTimeAndTitleAndTiming_TimingIDAndLockStatus(
+            if (!reminderRepo.existsByPatient_UserIdAndScheduledTimeAndTitleAndTiming_TimingIDAndLockStatus(
                     patient.getUserId(),
                     reminderDateTime,
                     MEDICATION_REMINDER_TITLE,
                     timing.getTimingID(),
                     false)) {
-                AIReminder reminder = new AIReminder();
+                Reminder reminder = new Reminder();
                 reminder.setTitle(MEDICATION_REMINDER_TITLE);
                 reminder.setMessage(message);
                 reminder.setScheduledTime(reminderDateTime);
@@ -183,7 +183,7 @@ public class MedicationSchedualeService {
                 reminder.setClinicalExamination(clinicalExamination);
                 reminder.setLockStatus(false);
 
-                aiReminderRepo.save(reminder);
+                reminderRepo.save(reminder);
             }
 
             currentDate = currentDate.plusDays(1);
