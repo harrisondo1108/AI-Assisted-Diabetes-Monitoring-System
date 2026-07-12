@@ -29,7 +29,6 @@ const medicationsCatalog = (typeof rawMedicationsCatalog !== 'undefined' && rawM
 // State variables for current session
 let currentPatient = null;
 let viewOnlyMode = false;
-let selectedSymptoms = {};
 let orderedLabs = {};
 let prescriptionLines = [];
 let isSubmitting = false;
@@ -37,9 +36,7 @@ let simulatedResults = {};
 
 document.addEventListener('DOMContentLoaded', () => {
     loadSessionPatient();
-    renderSymptomsGrid();
     setupNextAppointmentMinDate();
-    restoreExamineDraft();
 
     // Setup keypress block and paste block for medDuration & medQuantity
     const numericInputs = ['medDuration', 'medQuantity'];
@@ -87,10 +84,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     const isEditMode = (typeof thIsEditMode !== 'undefined' ? thIsEditMode : false);
+    const activeExamInProgress = (typeof thActiveExam !== 'undefined' && thActiveExam && thActiveExam.status === 'InProgress');
     if (viewOnlyMode) {
         simulateLabResults();
         renderPrescriptionLines();
-        
+
         // In view only mode, disable all interactable form inputs
         document.querySelectorAll('textarea, input, select, button').forEach(el => {
             // Keep common navigation, close/logout and close modal buttons active
@@ -100,7 +98,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 el.disabled = true;
             }
         });
-    } else if (isEditMode) {
+    } else if (isEditMode || activeExamInProgress) {
+        simulateLabResults();
         renderPrescriptionLines();
     }
 
@@ -111,7 +110,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (cancelForm) {
             cancelForm.addEventListener('submit', () => {
                 isSubmitting = true;
-                sessionStorage.removeItem('examineDraft');
             });
         }
     }
@@ -200,8 +198,9 @@ function loadSessionPatient() {
     }
 
     const isEditMode = (typeof thIsEditMode !== 'undefined' ? thIsEditMode : false);
+    const activeExamInProgress = (typeof thActiveExam !== 'undefined' && thActiveExam && thActiveExam.status === 'InProgress');
     // Load active exam / view only / edit properties
-    if ((viewOnlyMode || isEditMode) && typeof thLastExam !== 'undefined' && thLastExam) {
+    if ((viewOnlyMode || isEditMode || activeExamInProgress) && typeof thLastExam !== 'undefined' && thLastExam) {
         document.getElementById('examDiagnosis').value = thLastExam.diagnosisNote || '';
         document.getElementById('examHistory').value = thLastExam.medicalHistory || '';
         document.getElementById('examNextDate').value = thLastExam.nextAppointment ? thLastExam.nextAppointment.substring(0, 10) : '';
@@ -213,12 +212,6 @@ function loadSessionPatient() {
             document.getElementById('planGlucose').value = thLastExam.treatmentPlan.glucoseMonitoringPlan || '';
         }
 
-        selectedSymptoms = {};
-        if (typeof thChosenSymptomNotes !== 'undefined' && thChosenSymptomNotes) {
-            Object.keys(thChosenSymptomNotes).forEach(id => {
-                selectedSymptoms[id] = thChosenSymptomNotes[id];
-            });
-        }
 
         orderedLabs = {};
         simulatedResults = {};
@@ -274,53 +267,6 @@ function setupNextAppointmentMinDate() {
         nextDateInput.min = `${yyyy}-${mm}-${dd}`;
     }
 }
-
-// Render Symptoms List
-function renderSymptomsGrid() {
-    const grid = document.getElementById('symptomsGrid');
-    if (!grid) return;
-
-    grid.innerHTML = '';
-    symptomsCatalog.forEach(s => {
-        const isChecked = selectedSymptoms[s.id] !== undefined;
-        const noteVal = selectedSymptoms[s.id] || '';
-        const div = document.createElement('div');
-        div.className = `symptom-card ${isChecked ? 'selected' : ''}`;
-        div.setAttribute('data-id', s.id);
-        div.innerHTML = `
-            <div class="symptom-card-header">
-                <input type="checkbox" name="symptomIds" id="chk-${s.id}" value="${s.id}" onchange="toggleSymptom('${s.id}')" ${isChecked ? 'checked' : ''}>
-                <label for="chk-${s.id}">${s.name}</label>
-            </div>
-            <div class="symptom-comment-box">
-                <input type="text" placeholder="Thêm ghi chú cụ thể (mức độ, thời gian)..." id="comment-${s.id}" value="${noteVal}" oninput="updateSymptomComment('${s.id}')">
-            </div>
-        `;
-        grid.appendChild(div);
-    });
-}
-
-function updateSymptomComment(id) {
-    const input = document.getElementById(`comment-${id}`);
-    if (input && selectedSymptoms[id] !== undefined) {
-        selectedSymptoms[id] = input.value;
-    }
-}
-
-function toggleSymptom(id) {
-    const card = document.querySelector(`.symptom-card[data-id="${id}"]`);
-    const chk = document.getElementById(`chk-${id}`);
-
-    if (chk.checked) {
-        card.classList.add('selected');
-        const input = document.getElementById(`comment-${id}`);
-        selectedSymptoms[id] = input ? input.value : '';
-    } else {
-        card.classList.remove('selected');
-        delete selectedSymptoms[id];
-    }
-}
-
 
 
 // Laboratory simulator mapping results
@@ -596,25 +542,7 @@ function addMedicationLine() {
         }).join(', ');
     }
 
-    let unit = "viên";
-    if (selectedMed && selectedMed.form) {
-        const formLower = selectedMed.form.toLowerCase();
-        if (formLower.includes("viên") || formLower.includes("nén") || formLower.includes("nang")) {
-            unit = "viên";
-        } else if (formLower.includes("gói")) {
-            unit = "gói";
-        } else if (formLower.includes("chai")) {
-            unit = "chai";
-        } else if (formLower.includes("ống")) {
-            unit = "ống";
-        } else if (formLower.includes("tablet")) {
-            unit = "tablet";
-        } else if (formLower.includes("capsule")) {
-            unit = "capsule";
-        } else if (formLower.trim().length > 0) {
-            unit = formLower.trim();
-        }
-    }
+    const unit = selectedMed ? getMedicationUnit(selectedMed.form) : "viên";
     const dosage = `${dosageVal} ${unit}/lần, ${timingsCount} lần/ngày`;
 
     const medPlan = document.getElementById('medPlan').value.trim();
@@ -727,25 +655,7 @@ function renderPrescriptionLines() {
     if (emptyMsg) emptyMsg.style.display = 'none';
 
     prescriptionLines.forEach((line, index) => {
-        let unit = "viên";
-        if (line.form) {
-            const formLower = line.form.toLowerCase();
-            if (formLower.includes("viên") || formLower.includes("nén") || formLower.includes("nang")) {
-                unit = "viên";
-            } else if (formLower.includes("gói")) {
-                unit = "gói";
-            } else if (formLower.includes("chai")) {
-                unit = "chai";
-            } else if (formLower.includes("ống")) {
-                unit = "ống";
-            } else if (formLower.includes("tablet")) {
-                unit = "tablet";
-            } else if (formLower.includes("capsule")) {
-                unit = "capsule";
-            } else if (formLower.trim().length > 0) {
-                unit = formLower.trim();
-            }
-        }
+        const unit = getMedicationUnit(line.form);
 
         const div = document.createElement('div');
         div.className = 'prescription-line';
@@ -793,28 +703,8 @@ function saveExam() {
     }
 
     // Serialize prescription list to hidden JSON input
-    const prescriptionList = prescriptionLines.map(line => {
-        return {
-            medId: line.medId,
-            dosage: line.dosage,
-            duration: parseInt(line.duration),
-            quantity: parseInt(line.quantity),
-            timingText: line.timingText,
-            medicationPlan: line.medicationPlan,
-            startDate: line.startDate,
-            endDate: line.endDate
-        };
-    });
-    
-    document.getElementById('prescriptionJson').value = JSON.stringify(prescriptionList);
+    serializePrescription();
 
-    // Serialize symptom comments
-    const symptomComments = {};
-    Object.keys(selectedSymptoms).forEach(id => {
-        const input = document.getElementById(`comment-${id}`);
-        symptomComments[id] = input ? input.value.trim() : (selectedSymptoms[id] || '');
-    });
-    document.getElementById('symptomCommentsJson').value = JSON.stringify(symptomComments);
 
     // Serialize lab results
     const labResults = [];
@@ -855,7 +745,6 @@ function saveExam() {
         form.appendChild(labInput);
     });
 
-    sessionStorage.removeItem('examineDraft');
     form.submit();
 }
 
@@ -921,33 +810,47 @@ function showToast(message, type = 'success') {
 
 function goToHistory() {
     isSubmitting = true;
+    if (viewOnlyMode) {
+        window.location.href = `/doctor/history?patientId=${currentPatient.id}&from=examine`;
+        return;
+    }
+
     if (currentPatient) {
-        // Collect current state
-        const draft = {
-            patientId: currentPatient.id,
-            isPregnant: document.getElementById('isPregnant') ? document.getElementById('isPregnant').checked : false,
-            examDiagnosis: document.getElementById('examDiagnosis') ? document.getElementById('examDiagnosis').value : '',
-            examHistory: document.getElementById('examHistory') ? document.getElementById('examHistory').value : '',
-            examNextDate: document.getElementById('examNextDate') ? document.getElementById('examNextDate').value : '',
-            planGoal: document.getElementById('planGoal') ? document.getElementById('planGoal').value : '',
-            planDiet: document.getElementById('planDiet') ? document.getElementById('planDiet').value : '',
-            planExercise: document.getElementById('planExercise') ? document.getElementById('planExercise').value : '',
-            planGlucose: document.getElementById('planGlucose') ? document.getElementById('planGlucose').value : '',
-            prescriptionLines: prescriptionLines,
-            selectedSymptoms: selectedSymptoms,
-            orderedLabs: orderedLabs,
-            simulatedResults: simulatedResults
-        };
-        // Capture symptom comments dynamically
-        Object.keys(selectedSymptoms).forEach(id => {
-            const input = document.getElementById(`comment-${id}`);
-            if (input) {
-                draft.selectedSymptoms[id] = input.value;
+        // Serialize prescription list
+        serializePrescription();
+
+
+        // Serialize lab results
+        const labResults = [];
+        const selectedIds = Object.keys(orderedLabs);
+        selectedIds.forEach(id => {
+            if (simulatedResults[id]) {
+                labResults.push({
+                    testId: id,
+                    val: simulatedResults[id].val,
+                    flag: simulatedResults[id].flag
+                });
             }
         });
+        document.getElementById('labResultsJson').value = JSON.stringify(labResults);
 
-        sessionStorage.setItem('examineDraft', JSON.stringify(draft));
-        window.location.href = `/doctor/history?patientId=${currentPatient.id}&from=examine`;
+        const form = document.getElementById('examineForm');
+        
+        // Change action to draft
+        form.action = `/doctor/examine/${currentPatient.id}/draft`;
+
+        // Append selected labTestIds
+        form.querySelectorAll('input[name="labTestIds"]').forEach(el => el.remove());
+        Object.keys(orderedLabs).forEach(id => {
+            const labInput = document.createElement('input');
+            labInput.type = 'hidden';
+            labInput.name = 'labTestIds';
+            labInput.value = id;
+            form.appendChild(labInput);
+        });
+
+        // Submit form
+        form.submit();
     }
 }
 
@@ -1039,14 +942,8 @@ function selectTimingOption(optionDiv, event) {
 function updateTimingPlaceholder() {
     const container = document.getElementById('medTimingContainer');
     if (!container) return;
-    const checkboxes = container.querySelectorAll('.custom-multiselect-option input[type="checkbox"]');
-    const selectedTexts = [];
-    checkboxes.forEach(cb => {
-        if (cb.checked) {
-            const label = cb.parentNode.querySelector('label');
-            if (label) selectedTexts.push(label.textContent.trim());
-        }
-    });
+    const selectedTexts = Array.from(container.querySelectorAll('.custom-multiselect-option input[type="checkbox"]:checked'))
+        .map(cb => cb.parentNode.querySelector('label')?.textContent?.trim() || cb.value);
 
     const placeholder = document.getElementById('medTimingPlaceholder');
     if (placeholder) {
@@ -1068,36 +965,7 @@ document.addEventListener('click', function(event) {
     }
 });
 
-function restoreExamineDraft() {
-    const draftStr = sessionStorage.getItem('examineDraft');
-    if (!draftStr) return;
-    try {
-        const draft = JSON.parse(draftStr);
-        if (currentPatient && draft.patientId === currentPatient.id) {
-            const fields = {
-                isPregnant: 'isPregnant', examDiagnosis: 'examDiagnosis', examHistory: 'examHistory',
-                examNextDate: 'examNextDate', planGoal: 'planGoal', planDiet: 'planDiet',
-                planExercise: 'planExercise', planGlucose: 'planGlucose'
-            };
-            Object.entries(fields).forEach(([key, id]) => {
-                const el = document.getElementById(id);
-                if (el && draft[key] !== undefined) {
-                    if (el.type === 'checkbox') el.checked = draft[key];
-                    else el.value = draft[key];
-                }
-            });
 
-            if (draft.prescriptionLines) { prescriptionLines = draft.prescriptionLines; renderPrescriptionLines(); }
-            if (draft.selectedSymptoms) { selectedSymptoms = draft.selectedSymptoms; renderSymptomsGrid(); }
-            if (draft.orderedLabs) orderedLabs = draft.orderedLabs;
-            if (draft.simulatedResults) { simulatedResults = draft.simulatedResults; simulateLabResults(); }
-        } else {
-            sessionStorage.removeItem('examineDraft');
-        }
-    } catch (e) {
-        console.error('Error restoring examine draft:', e);
-    }
-}
 
 function calculateTotalQuantity() {
     const dosageInput = document.getElementById('medDosage');
@@ -1125,6 +993,35 @@ function clearMedicationErrors() {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
     });
+}
+
+function getMedicationUnit(form) {
+    if (!form) return "viên";
+    const formLower = form.toLowerCase();
+    if (formLower.includes("viên") || formLower.includes("nén") || formLower.includes("nang")) return "viên";
+    if (formLower.includes("gói")) return "gói";
+    if (formLower.includes("chai")) return "chai";
+    if (formLower.includes("ống")) return "ống";
+    if (formLower.includes("tablet")) return "tablet";
+    if (formLower.includes("capsule")) return "capsule";
+    return form.trim().length > 0 ? form.trim() : "viên";
+}
+
+function serializePrescription() {
+    const prescriptionList = prescriptionLines.map(line => ({
+        medId: line.medId,
+        dosage: line.dosage,
+        duration: parseInt(line.duration),
+        quantity: parseInt(line.quantity),
+        timingText: line.timingText,
+        medicationPlan: line.medicationPlan,
+        startDate: line.startDate,
+        endDate: line.endDate
+    }));
+    const hiddenInput = document.getElementById('prescriptionJson');
+    if (hiddenInput) {
+        hiddenInput.value = JSON.stringify(prescriptionList);
+    }
 }
 
 

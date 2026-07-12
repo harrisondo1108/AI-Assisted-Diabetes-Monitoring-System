@@ -93,7 +93,68 @@ public class DoctorExamineController {
         }
 
         populateExamineModel(patientId, viewOnlyParam, session, model, loggedInUser);
-        model.addAttribute("examForm", new ClinicalExamForm());
+        
+        ClinicalExamForm form = new ClinicalExamForm();
+        String selectedPatientId = (String) session.getAttribute("selectedPatientId");
+        if (selectedPatientId != null) {
+            String doctorId = loggedInUser.getUserId();
+            Optional<ClinicalExamination> activeOpt = clinicalExaminationRepository
+                    .findFirstByPatient_UserIdAndDoctor_UserIdAndStatusIn(selectedPatientId, doctorId, List.of("Pending", "InProgress"));
+            if (activeOpt.isPresent()) {
+                ClinicalExamination exam = activeOpt.get();
+                form.setMedicalHistory(exam.getMedicalHistory());
+                form.setDiagnosisNote(exam.getDiagnosisNote());
+                if (exam.getNextAppointment() != null) {
+                    form.setNextAppointment(exam.getNextAppointment().toLocalDate().toString());
+                }
+                if (exam.getTreatmentPlan() != null) {
+                    form.setTreatmentGoal(exam.getTreatmentPlan().getTreatmentGoal());
+                    form.setDietPlan(exam.getTreatmentPlan().getDietPlan());
+                    form.setExercisePlan(exam.getTreatmentPlan().getExercisePlan());
+                    form.setGlucoseMonitoringPlan(exam.getTreatmentPlan().getGlucoseMonitoringPlan());
+                }
+
+                // Load active symptoms details into form
+                List<ExamSymptom> symptoms = examSymptomRepository.findAll().stream()
+                        .filter(s -> s.getId().getClinicalExamId().equals(exam.getClinicalExamId()))
+                        .collect(Collectors.toList());
+                List<String> symptomIds = symptoms.stream()
+                        .map(s -> s.getSymptom().getSymptomId())
+                        .collect(Collectors.toList());
+                form.setSymptomIds(symptomIds);
+
+                Map<String, String> symptomNotes = new HashMap<>();
+                for (ExamSymptom s : symptoms) {
+                    symptomNotes.put(s.getSymptom().getSymptomId(), s.getNote() != null ? s.getNote() : "");
+                }
+                form.setSymptomComments(symptomNotes);
+
+                // Determine pregnancy status based on indicator thresholds
+                boolean isPregnant = false;
+                List<LabResult> results = labResultRepository.findByLabOrder_ClinicalExamination_ClinicalExamId(exam.getClinicalExamId());
+                if (!results.isEmpty()) {
+                    Optional<PatientType> pregTypeOpt = patientTypeRepository.findAll().stream()
+                            .filter(t -> t.getTypeName().equalsIgnoreCase("Pregnant"))
+                            .findFirst();
+                    if (pregTypeOpt.isPresent()) {
+                        Integer pregTypeId = pregTypeOpt.get().getPatientTypeId();
+                        for (LabResult res : results) {
+                            Optional<IndicatorThreshold> pregThresholdOpt = indicatorThresholdRepository
+                                    .findByLabTest_LabTestIdAndPatientType_PatientTypeId(res.getLabTest().getLabTestId(), pregTypeId);
+                            if (pregThresholdOpt.isPresent()) {
+                                String pregRange = pregThresholdOpt.get().getMinValue() + " - " + pregThresholdOpt.get().getMaxValue();
+                                if (pregRange.equals(res.getReferenceRange())) {
+                                    isPregnant = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                form.setIsPregnant(isPregnant);
+            }
+        }
+        model.addAttribute("examForm", form);
 
         return "doctor/examine";
     }
@@ -152,6 +213,7 @@ public class DoctorExamineController {
         patientMap.put("bloodgroup", patient.getBloodgroup());
         patientMap.put("permanentMedicalHistory", patient.getPermanentMedicalHistory());
         patientMap.put("allergyNotes", patient.getAllergyNotes());
+        patientMap.put("imageUrl", patient.getImageUrl());
         model.addAttribute("patientData", patientMap);
 
         // Lấy thông tin Routine của bệnh nhân
@@ -314,14 +376,18 @@ public class DoctorExamineController {
         boolean viewOnly = "true".equalsIgnoreCase((String) session.getAttribute("examineViewOnly"));
         model.addAttribute("viewOnly", viewOnly);
 
+        ClinicalExamination lastExam = null;
         if (viewOnly) {
             // Trong chế độ ViewOnly, chúng ta hiển thị ca khám đang chọn qua url (nếu có), nếu không có thì lấy ca khám completed cuối cùng
-            ClinicalExamination lastExam = null;
             if (activeExamOpt.isPresent()) {
                 lastExam = activeExamOpt.get();
             } else if (!patientExams.isEmpty()) {
                 lastExam = patientExams.get(0);
             }
+        } else if (activeExam != null && "InProgress".equalsIgnoreCase(activeExam.getStatus())) {
+            // Nếu không phải viewOnly và đang có ca khám dở dang (InProgress), nạp toàn bộ dữ liệu lưu nháp của ca khám đó từ DB lên
+            lastExam = activeExam;
+        }
 
             if (lastExam != null) {
                 final String lastExamId = lastExam.getClinicalExamId();
@@ -405,7 +471,6 @@ public class DoctorExamineController {
                 model.addAttribute("lastExamPrescriptionDetailsData", prescList);
             }
         }
-    }
 
     @PostMapping("/examine/{patientId}/start")
     public String startExam(@PathVariable("patientId") String patientId, HttpSession session) {
@@ -432,6 +497,20 @@ public class DoctorExamineController {
 
         clinicalExaminationService.cancelExamination(patientId, reason, loggedInUser.getUserId());
         return "redirect:/doctor/queue";
+    }
+
+    @PostMapping("/examine/{patientId}/draft")
+    public String saveDraft(
+            @PathVariable("patientId") String patientId,
+            @ModelAttribute("examForm") ClinicalExamForm form,
+            HttpSession session) {
+        User loggedInUser = (User) session.getAttribute("loggedInUser");
+        if (loggedInUser == null || !"DOC".equalsIgnoreCase(loggedInUser.getRole().getRoleId())) {
+            return "redirect:/login";
+        }
+
+        clinicalExaminationService.saveDraft(patientId, form, loggedInUser.getUserId());
+        return "redirect:/doctor/history?patientId=" + patientId + "&from=examine";
     }
 
     @PostMapping("/examine/{patientId}/submit")
@@ -526,27 +605,26 @@ public class DoctorExamineController {
         for (ExamSymptom s : symptoms) {
             symptomNotes.put(s.getSymptom().getSymptomId(), s.getNote() != null ? s.getNote() : "");
         }
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            form.setSymptomCommentsJson(mapper.writeValueAsString(symptomNotes));
-        } catch (Exception e) {
-            // Ignore
-        }
+        form.setSymptomComments(symptomNotes);
 
         // Load pregnancy flag if any lab results mapped under "Pregnant" type
         boolean isPregnant = false;
         List<LabResult> results = labResultRepository.findByLabOrder_ClinicalExamination_ClinicalExamId(examId);
         if (!results.isEmpty()) {
-            // If any test threshold matches Pregnant, check pregnancy checkbox
             Optional<PatientType> pregTypeOpt = patientTypeRepository.findAll().stream()
                     .filter(t -> t.getTypeName().equalsIgnoreCase("Pregnant"))
                     .findFirst();
             if (pregTypeOpt.isPresent()) {
+                Integer pregTypeId = pregTypeOpt.get().getPatientTypeId();
                 for (LabResult res : results) {
-                    String ref = res.getReferenceRange();
-                    if (ref != null) {
-                        isPregnant = true;
-                        break;
+                    Optional<IndicatorThreshold> pregThresholdOpt = indicatorThresholdRepository
+                            .findByLabTest_LabTestIdAndPatientType_PatientTypeId(res.getLabTest().getLabTestId(), pregTypeId);
+                    if (pregThresholdOpt.isPresent()) {
+                        String pregRange = pregThresholdOpt.get().getMinValue() + " - " + pregThresholdOpt.get().getMaxValue();
+                        if (pregRange.equals(res.getReferenceRange())) {
+                            isPregnant = true;
+                            break;
+                        }
                     }
                 }
             }

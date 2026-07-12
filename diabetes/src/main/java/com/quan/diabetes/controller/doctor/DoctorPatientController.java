@@ -53,6 +53,7 @@ public class DoctorPatientController {
             @RequestParam(value = "from", required = false) String from,
             @RequestParam(value = "fromDate", required = false) String fromDate,
             @RequestParam(value = "toDate", required = false) String toDate,
+            @RequestParam(value = "page", defaultValue = "1") int page,
             HttpSession session,
             Model model) {
         User loggedInUser = (User) session.getAttribute("loggedInUser");
@@ -132,8 +133,28 @@ public class DoctorPatientController {
             }
         }
 
+        // Pagination logic
+        int totalElements = timeline.size();
+        int pageSize = 5;
+        int totalPages = (int) Math.ceil((double) totalElements / pageSize);
+        if (totalPages == 0) {
+            totalPages = 1;
+        }
+        if (page < 1) {
+            page = 1;
+        }
+        if (page > totalPages) {
+            page = totalPages;
+        }
+        int fromIndex = (page - 1) * pageSize;
+        int toIndex = Math.min(fromIndex + pageSize, totalElements);
+        List<ClinicalExamination> pagedTimeline = Collections.emptyList();
+        if (fromIndex < totalElements) {
+            pagedTimeline = timeline.subList(fromIndex, toIndex);
+        }
+
         List<Map<String, Object>> timelineDetailsList = new java.util.ArrayList<>();
-        for (ClinicalExamination exam : timeline) {
+        for (ClinicalExamination exam : pagedTimeline) {
             Map<String, Object> map = new java.util.HashMap<>();
             map.put("exam", exam);
 
@@ -166,6 +187,11 @@ public class DoctorPatientController {
         model.addAttribute("currentFromDate", fromDate);
         model.addAttribute("currentToDate", toDate);
         model.addAttribute("from", from);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("totalElements", totalElements);
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("patientId", selectedPatientId);
 
         return "doctor/patients";
     }

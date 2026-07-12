@@ -5,8 +5,15 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Check url param for toasts
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('toast') === 'success') {
-        showToast('Thao tác thành công!', 'success');
+    const toastType = urlParams.get('toast');
+    if (toastType) {
+        if (toastType === 'completed') {
+            showToast('Hoàn thành ca khám thành công!', 'success');
+        } else if (toastType === 'updated') {
+            showToast('Cập nhật ca khám thành công!', 'success');
+        } else if (toastType === 'success') {
+            showToast('Thao tác thành công!', 'success');
+        }
         window.history.replaceState({}, document.title, window.location.pathname);
     }
     

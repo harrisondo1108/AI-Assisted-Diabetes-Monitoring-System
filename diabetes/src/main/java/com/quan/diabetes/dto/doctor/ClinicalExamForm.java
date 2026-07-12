@@ -1,6 +1,7 @@
 package com.quan.diabetes.dto.doctor;
 
 import java.util.List;
+import java.util.Map;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
@@ -19,6 +20,7 @@ public class ClinicalExamForm {
     private List<String> symptomIds;
     private List<String> labTestIds;
     private String prescriptionJson;
+    private Map<String, String> symptomComments;
 
     // Treatment plan details
     @Pattern(regexp = "^$|.*\\S.*", message = "Mục tiêu điều trị không được chỉ chứa khoảng trắng")
@@ -147,6 +149,14 @@ public class ClinicalExamForm {
 
     public void setIsPregnant(Boolean isPregnant) {
         this.isPregnant = isPregnant;
+    }
+
+    public Map<String, String> getSymptomComments() {
+        return symptomComments;
+    }
+
+    public void setSymptomComments(Map<String, String> symptomComments) {
+        this.symptomComments = symptomComments;
     }
 
     @Override
