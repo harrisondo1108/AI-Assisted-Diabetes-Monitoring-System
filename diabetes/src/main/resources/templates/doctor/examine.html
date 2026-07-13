@@ -26,9 +26,11 @@
                 <aside class="patient-medical-card">
                     <div class="patient-card-header">
                         <div class="patient-avatar-large">
-                            <img th:if="${patient.imageUrl != null && !#strings.isEmpty(patient.imageUrl)}" th:src="${patient.imageUrl}" alt="Avatar"
+                            <img th:if="${patient.imageUrl != null && !#strings.isEmpty(patient.imageUrl)}"
+                                th:src="${patient.imageUrl}" alt="Avatar"
                                 style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />
-                            <i th:unless="${patient.imageUrl != null && !#strings.isEmpty(patient.imageUrl)}" class="fas fa-hospital-user"></i>
+                            <i th:unless="${patient.imageUrl != null && !#strings.isEmpty(patient.imageUrl)}"
+                                class="fas fa-hospital-user"></i>
                         </div>
                         <h2 class="patient-name-title" id="patName" th:text="${patient.fullName}"></h2>
                         <span class="patient-id-badge" id="patId" style="display: none;"
@@ -121,7 +123,6 @@
                     th:classappend="${activeExam != null && activeExam.status == 'Pending' ? 'exam-pending' : ''}">
                     <input type="hidden" id="prescriptionJson" name="prescriptionJson" value="">
                     <input type="hidden" id="symptomCommentsJson" name="symptomCommentsJson" value="">
-                    <input type="hidden" id="labResultsJson" name="labResultsJson" value="">
                     <div class="workspace-header">
                         <!-- Diagnostic Session Status -->
                         <div class="session-info" style="display: none;">
@@ -130,7 +131,7 @@
                         </div>
                         <!-- Top actions -->
                         <div class="workspace-actions">
-                            <a th:if="${isEditMode}" th:href="@{/doctor/dashboard}" class="btn btn-secondary"
+                            <a th:if="${isEditMode}" th:href="@{/doctor/queue}" class="btn btn-secondary"
                                 style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px;"><i
                                     class="fas fa-arrow-left"></i> Quay lại</a>
                             <button th:unless="${isEditMode}" type="button" class="btn btn-outline-danger"
@@ -192,23 +193,20 @@
                             <div class="error-feedback" th:if="${#fields.hasErrors('symptomIds')}"
                                 th:errors="*{symptomIds}"></div>
                             <div class="symptoms-selection-grid" id="symptomsGrid">
-                                <div th:each="symptom : ${symptomsCatalog}" 
-                                     class="symptom-card" 
-                                     th:attr="data-id=${symptom.symptomId}">
+                                <div th:each="symptom : ${symptomsCatalog}" class="symptom-card"
+                                    th:attr="data-id=${symptom.symptomId}">
                                     <div class="symptom-card-header">
-                                        <input type="checkbox" 
-                                               th:field="*{symptomIds}" 
-                                               th:id="'chk-' + ${symptom.symptomId}" 
-                                               th:value="${symptom.symptomId}" 
-                                               class="symptom-checkbox" />
-                                        <label th:for="'chk-' + ${symptom.symptomId}" th:text="${symptom.symptomName}"></label>
+                                        <input type="checkbox" th:field="*{symptomIds}"
+                                            th:id="'chk-' + ${symptom.symptomId}" th:value="${symptom.symptomId}"
+                                            class="symptom-checkbox" />
+                                        <label th:for="'chk-' + ${symptom.symptomId}"
+                                            th:text="${symptom.symptomName}"></label>
                                     </div>
                                     <div class="symptom-comment-box">
-                                        <input type="text" 
-                                               th:field="*{symptomComments['__${symptom.symptomId}__']}" 
-                                               th:id="'comment-' + ${symptom.symptomId}" 
-                                               placeholder="Thêm ghi chú cụ thể (mức độ, thời gian)..." 
-                                               class="symptom-comment-input" />
+                                        <input type="text" th:field="*{symptomComments['__${symptom.symptomId}__']}"
+                                            th:id="'comment-' + ${symptom.symptomId}"
+                                            placeholder="Thêm ghi chú cụ thể (mức độ, thời gian)..."
+                                            class="symptom-comment-input" />
                                     </div>
                                 </div>
                             </div>
@@ -223,8 +221,11 @@
                                     <p class="section-description">Chỉ định các xét nghiệm cận lâm sàng cho bệnh nhân
                                     </p>
                                 </div>
-                                <button type="button" class="btn btn-secondary btn-sm" onclick="assignAllLabTests()"><i
-                                        class="fas fa-flask"></i> Chỉ định nhanh toàn bộ xét nghiệm</button>
+                                <button type="button" class="btn btn-secondary btn-sm"
+                                    th:data-exam-id="${lastExam != null ? lastExam.clinicalExamId : (activeExam != null ? activeExam.clinicalExamId : '')}"
+                                    onclick="assignAllLabTests(this.getAttribute('data-exam-id'))">
+                                    <i class="fas fa-flask"></i> Chỉ định nhanh toàn bộ xét nghiệm
+                                </button>
                             </div>
                         </div>
 
@@ -244,8 +245,22 @@
                                                 <th>Trạng thái</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="labResultsTableBody">
-                                            <tr>
+                                        <tbody id="labResultsTableBody" th:fragment="labResultsTable">
+                                            <tr th:each="l : ${labResults}">
+                                                <td><strong th:text="${l.labTest.testName}"></strong></td>
+                                                <td><span style="font-weight:500; color: var(--doctor-text-muted);"
+                                                        th:text="${l.referenceRange + ' ' + l.labTest.unit}"></span>
+                                                </td>
+                                                <td><strong th:text="${l.resultValue + ' ' + l.labTest.unit}"></strong>
+                                                </td>
+                                                <td>
+                                                    <span
+                                                        th:class="'flag-badge ' + (${l.flag == 'HIGH'} ? 'flag-high' : (${l.flag == 'LOW'} ? 'flag-low' : 'flag-normal'))"
+                                                        th:text="${l.flag == 'HIGH' ? 'CAO' : (l.flag == 'LOW' ? 'THẤP' : 'BÌNH THƯỜNG')}">
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <tr th:if="${#lists.isEmpty(labResults)}">
                                                 <td colspan="4"
                                                     style="text-align: center; color: var(--doctor-text-muted); padding: 30px;">
                                                     Vui lòng chỉ định một hoặc nhiều xét nghiệm từ danh mục phía trên để
@@ -263,7 +278,8 @@
                     <div class="workspace-section" id="diagnosis-section">
                         <div class="form-section">
                             <h3 class="section-header-title"><i class="fas fa-comment-medical"></i> Chẩn đoán lâm sàng
-                                <span class="required">*</span></h3>
+                                <span class="required">*</span>
+                            </h3>
                             <p class="section-description">Nhập chẩn đoán lâm sàng và ghi chú chi tiết cho ca khám này
                             </p>
                             <div class="form-group full-width" style="margin-top: 15px;">
@@ -584,11 +600,8 @@
         const thLastExam = /*[[${lastExamData}]]*/ null;
         const thChosenSymptomIds = /*[[${chosenSymptomIds}]]*/[];
         const thChosenSymptomNotes = /*[[${chosenSymptomNotes}]]*/ {};
-        const thLastExamLabResults = /*[[${lastExamLabResultsData}]]*/[];
         const thLastExamPrescriptionDetails = /*[[${lastExamPrescriptionDetailsData}]]*/[];
         const rawSymptomsCatalog = /*[[${symptomsCatalog}]]*/[];
-        const rawLabTestsCatalog = /*[[${labTestsCatalogData}]]*/[];
-        const rawLabTestsPregnantCatalog = /*[[${labTestsPregnantCatalogData}]]*/[];
         const rawMedicationsCatalog = /*[[${medicationsCatalogData}]]*/[];
         const thValidationError = /*[[${validationError}]]*/ null;
         /*]]>*/
