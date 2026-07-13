@@ -10,7 +10,8 @@ GO
 
 CREATE TABLE [Room] (
     [RoomID] INT IDENTITY(1,1) PRIMARY KEY,
-    [RoomName] NVARCHAR(50) NOT NULL UNIQUE
+    [RoomName] NVARCHAR(50) NOT NULL UNIQUE,
+    [Description] NVARCHAR(255) NULL
 );
 
 -- 1. Role
@@ -140,6 +141,8 @@ CREATE TABLE [Lab_Test_Catalog] (
     LabTestID VARCHAR(50) PRIMARY KEY,
     TestName NVARCHAR(100) UNIQUE,
     Unit NVARCHAR(20), -- đơn vị mô tả
+    MinValue INT NULL,
+    MaxValue INT NULL,
     Description NVARCHAR(MAX),
 	RoomID INT,
 	FOREIGN KEY (RoomID) REFERENCES Room(RoomID) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -299,12 +302,39 @@ CREATE TABLE [Reminder] (
     Message NVARCHAR(MAX),
     ScheduledTime DATETIME,
     IsRead BIT DEFAULT 0,
+    IsSent BIT DEFAULT 0,
+    LockStatus BIT DEFAULT 0,
 	AIAssistantID INT,
     PatientID VARCHAR(50),
 	TimingID INT,
+    ClinicalExamID VARCHAR(50),
     FOREIGN KEY (PatientID) REFERENCES Patient(UserID) ON DELETE CASCADE,
 	FOREIGN KEY (AIAssistantID) REFERENCES AI_Assistant(AIAssistantID) ON DELETE CASCADE,
-	FOREIGN KEY (TimingID) REFERENCES MedicationTiming(TimingID)
+	FOREIGN KEY (TimingID) REFERENCES MedicationTiming(TimingID),
+    FOREIGN KEY (ClinicalExamID) REFERENCES ClinicalExamination(ClinicalExamID)
+);
+
+-- 18. Doctor Rating
+CREATE TABLE [DoctorRating] (
+    [RatingID] INT IDENTITY(1,1) PRIMARY KEY,
+    [ClinicalExamID] VARCHAR(50) NOT NULL UNIQUE,
+    [PatientID] VARCHAR(50) NOT NULL,
+    [DoctorID] VARCHAR(50) NOT NULL,
+    [RatingValue] INT NOT NULL CHECK (RatingValue BETWEEN 1 AND 5),
+    [Comment] NVARCHAR(MAX),
+    [CreatedAt] DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (ClinicalExamID) REFERENCES ClinicalExamination(ClinicalExamID),
+    FOREIGN KEY (PatientID) REFERENCES Patient(UserID),
+    FOREIGN KEY (DoctorID) REFERENCES [Account](UserID)
+);
+
+-- 19. AI Patient Access Log
+CREATE TABLE [ai_patient_access_log] (
+    [id] BIGINT IDENTITY(1,1) PRIMARY KEY,
+    [queryLogId] BIGINT,
+    [patientId] VARCHAR(50) NOT NULL,
+    [dataType] VARCHAR(100) NOT NULL,
+    [accessedAt] DATETIME NOT NULL
 );
 
 ------------------  INSERT  ----------------------------------------

@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import com.quan.diabetes.service.exam.DoctorRatingService;
+import com.quan.diabetes.dto.doctor.DoctorRatingView;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -36,13 +38,16 @@ public class AuthenticationController {
     private final PatientRoutineService patientRoutineService;
     private final ClinicalExaminationService clinicalExaminationService;
     private final PasswordEncoder passwordEncoder;
+    private final DoctorRatingService doctorRatingService;
 
     public AuthenticationController(UserService userService,
                                     RoleService roleService,
                                     PatientService patientService,
                                     ProfileService profileService,
                                     PatientRoutineService patientRoutineService,
-                                    ClinicalExaminationService clinicalExaminationService, PasswordEncoder passwordEncoder) {
+                                    ClinicalExaminationService clinicalExaminationService, 
+                                    PasswordEncoder passwordEncoder,
+                                    DoctorRatingService doctorRatingService) {
         this.userService = userService;
         this.roleService = roleService;
         this.patientService = patientService;
@@ -50,12 +55,15 @@ public class AuthenticationController {
         this.patientRoutineService = patientRoutineService;
         this.clinicalExaminationService = clinicalExaminationService;
         this.passwordEncoder = passwordEncoder;
+        this.doctorRatingService = doctorRatingService;
     }
 
     // ==================== GET ====================
 
     @GetMapping("/")
-    public String home() {
+    public String home(Model model) {
+        List<DoctorRatingView> topDoctors = doctorRatingService.getTopRatedDoctors(3);
+        model.addAttribute("topDoctors", topDoctors);
         return "index";
     }
 

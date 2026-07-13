@@ -13,6 +13,30 @@
     <!-- Page CSS -->
     <link rel="stylesheet" th:href="@{/css/doctor/doctor-common.css}">
     <link rel="stylesheet" th:href="@{/css/doctor/dashboard.css}">
+    <style>
+        .metrics-grid {
+            grid-template-columns: repeat(4, 1fr) !important;
+        }
+        .hub-grid {
+            grid-template-columns: repeat(3, 1fr) !important;
+        }
+        @media (max-width: 1200px) {
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+            .hub-grid {
+                grid-template-columns: 1fr 1fr !important;
+            }
+        }
+        @media (max-width: 768px) {
+            .metrics-grid {
+                grid-template-columns: 1fr !important;
+            }
+            .hub-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -28,7 +52,7 @@
                 </div>
 
                 <!-- 1. Hàng Thẻ Chỉ số Cảnh báo trạng thái -->
-                <div class="metrics-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="metrics-grid">
                     <!-- Yêu cầu chờ duyệt -->
                     <div class="metric-card bg-gradient-orange">
                         <div class="metric-card-inner">
@@ -62,6 +86,21 @@
                                 <p class="metric-sub">Tại phòng khám hôm nay</p>
                             </div>
                             <div class="metric-icon"><i class="fas fa-user-clock"></i></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Đánh giá trung bình -->
+                    <div class="metric-card" style="background: linear-gradient(135deg, #b45309 0%, #d97706 100%); cursor: pointer;" onclick="location.href='/doctor/ratings'">
+                        <div class="metric-card-inner">
+                            <div class="metric-info">
+                                <span class="metric-label">Đánh giá trung bình</span>
+                                <h3 class="metric-val">
+                                    <span th:text="${#numbers.formatDecimal(avgRating, 1, 1)}">0.0</span>
+                                    <span style="font-size: 1.1rem; color: #fef08a;"><i class="fas fa-star"></i></span>
+                                </h3>
+                                <p class="metric-sub">Xem phản hồi bệnh nhân</p>
+                            </div>
+                            <div class="metric-icon"><i class="fas fa-star"></i></div>
                         </div>
                     </div>
                 </div>
@@ -114,6 +153,35 @@
                                 <div class="hub-item-actions">
                                     <a th:href="@{/doctor/history(patientId=${rem.patient.userId})}" class="btn-hub-primary" style="background: #3b82f6; text-decoration: none;" title="Mở hồ sơ">Hồ sơ</a>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Widget Thứ 3: Đánh giá & Phản hồi gần đây -->
+                    <div class="hub-widget">
+                        <div class="hub-widget-header">
+                            <h3 class="hub-widget-title"><i class="fas fa-star" style="color: #eab308;"></i> Đánh giá gần đây</h3>
+                            <a th:href="@{/doctor/ratings}" style="font-size: 0.85rem; color: #3b82f6; text-decoration: none;">Xem tất cả</a>
+                        </div>
+                        <div class="hub-widget-body" style="max-height: 400px; overflow-y: auto;">
+                            <div th:if="${recentRatings == null || recentRatings.isEmpty()}" class="empty-state" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px;">
+                                <i class="far fa-comments" style="color: #cbd5e1; font-size: 3rem; margin-bottom: 12px; display: block; text-align: center;"></i>
+                                <p style="text-align: center; margin: 0; color: #64748b; font-size: 0.9rem;">Chưa có đánh giá nào.</p>
+                            </div>
+                            
+                            <div th:each="rate : ${recentRatings}" class="hub-list-item" style="flex-direction: column; align-items: stretch; gap: 8px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <strong style="color: #334155; font-size: 0.9rem;" th:text="${rate.patient != null ? rate.patient.fullName : 'Bệnh nhân ẩn danh'}">Họ Tên</strong>
+                                    <span style="font-size: 0.75rem; color: #94a3b8;" th:text="${#temporals.format(rate.createdAt, 'dd/MM')}">13/07</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div style="color: #eab308; font-size: 0.8rem; display: inline-flex; gap: 2px;">
+                                        <i class="fas fa-star" th:each="star : ${#numbers.sequence(1, rate.ratingValue)}"></i>
+                                        <i class="far fa-star" th:each="star : ${rate.ratingValue < 5 ? #numbers.sequence(rate.ratingValue + 1, 5) : {}}"></i>
+                                    </div>
+                                    <span style="font-size: 0.7rem; color: #1a6b56; background: rgba(26,107,86,0.06); padding: 1px 6px; border-radius: 4px; font-weight: 600;" th:text="${'Lượt khám: ' + rate.clinicalExamination.clinicalExamId}">EX000001</span>
+                                </div>
+                                <p style="font-size: 0.82rem; color: #475569; background: #f8fafc; padding: 6px 10px; border-radius: 6px; margin: 0; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%;" th:text="${rate.comment != null and rate.comment != '' ? rate.comment : 'Không có bình luận chi tiết.'}">Nhận xét...</p>
                             </div>
                         </div>
                     </div>

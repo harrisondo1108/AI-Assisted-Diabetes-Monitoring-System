@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.quan.diabetes.service.exam.DoctorRatingService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -18,6 +20,9 @@ import java.util.stream.Collectors;
 
 @Controller
 public class PatientMedicalHistoryController extends BasePatientController {
+
+    @Autowired
+    private DoctorRatingService doctorRatingService;
 
     @GetMapping("/patient/progress")
     public String progress(
@@ -143,11 +148,17 @@ public class PatientMedicalHistoryController extends BasePatientController {
 
         Map<String, TreatmentPlan> plansMap = groupTreatmentPlansByExam(pagedExams);
 
+        List<String> examIds = pagedExams.stream()
+                .map(ClinicalExamination::getClinicalExamId)
+                .collect(Collectors.toList());
+        Map<String, DoctorRating> ratingsMap = doctorRatingService.getRatingsForExams(examIds);
+
         model.addAttribute("examinations", pagedExams);
         model.addAttribute("labOrdersByExam", groupLabOrdersByExam(pagedExams, allLabOrders));
         model.addAttribute("labResultsByOrder", groupLabResultsByOrder(allLabOrders, allLabResults));
         model.addAttribute("prescriptionDetailsByExam", groupPrescriptionDetailsByExam(pagedExams, allPrescriptionDetails));
         model.addAttribute("treatmentPlansByExam", plansMap);
+        model.addAttribute("ratingsMap", ratingsMap);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("totalItems", totalItems);
