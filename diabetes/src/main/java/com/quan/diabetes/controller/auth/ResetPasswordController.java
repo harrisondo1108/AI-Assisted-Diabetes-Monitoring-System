@@ -2,6 +2,7 @@ package com.quan.diabetes.controller.auth;
 
 import com.quan.diabetes.entity.User;
 import com.quan.diabetes.service.user.UserService;
+import com.quan.diabetes.service.notification.SmsService;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,9 +19,11 @@ import java.util.Random;
 public class ResetPasswordController {
     private static final Logger logger = LoggerFactory.getLogger(ResetPasswordController.class);
     private final UserService userService;
+    private final SmsService smsService;
 
-    public ResetPasswordController(UserService userService) {
+    public ResetPasswordController(UserService userService, SmsService smsService) {
         this.userService = userService;
+        this.smsService = smsService;
     }
 
     // ==================== GET ====================
@@ -68,6 +71,10 @@ public class ResetPasswordController {
 
         System.out.println("OTP reset password: " + otp);
         logger.info("OTP reset password: {} for phone {}", otp, phoneNumber);
+
+        // Gửi OTP qua SMS thực tế
+        smsService.sendOtp(phoneNumber, otp);
+
         return "redirect:/forgot-password/otp";
     }
 

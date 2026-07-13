@@ -22,10 +22,6 @@ import com.quan.diabetes.dto.AIChat.ChatResponseDto;
 import com.quan.diabetes.dto.AIChat.ConversationHistoryDto;
 import com.quan.diabetes.dto.AIChat.OllamaGenerateRequest;
 import com.quan.diabetes.dto.AIChat.OllamaGenerateResponse;
-import com.quan.diabetes.dto.AIChat.RAGAiChatRequest;
-import com.quan.diabetes.dto.AIChat.RAGAiChatResponse;
-import com.quan.diabetes.dto.AIChat.RAGPythonAiRequest;
-import com.quan.diabetes.dto.AIChat.RAGPythonAiResponse;
 import com.quan.diabetes.entity.AIAssistant;
 import com.quan.diabetes.entity.AIConversation;
 import com.quan.diabetes.entity.AIMessage;
@@ -44,9 +40,6 @@ import jakarta.persistence.EntityNotFoundException;
 public class AIChatServiceImpl implements AIChatService {
 
     private static final Logger logger = LoggerFactory.getLogger(AIChatServiceImpl.class);
-
-    @Value("${python.ai.url:http://127.0.0.1:8000/api/ai/chat}")
-    private String pythonAiUrl;
 
     @Value("${ollama.url:http://localhost:11434}")
     private String ollamaUrl;
@@ -382,62 +375,6 @@ public class AIChatServiceImpl implements AIChatService {
         }
     }
 
-    /**
-     * Gọi Python AI Server lần 1 (Nhận RAGAiChatRequest và trả về
-     * RAGAiChatResponse)
-     */
-    private RAGAiChatResponse callPythonAiFirst(RAGAiChatRequest ragRequest) {
-        try {
-            // Convert RAGAiChatRequest thành RAGPythonAiRequest (contextData = "")
-            RAGPythonAiRequest pyRequest = new RAGPythonAiRequest(
-                    ragRequest.getPatientId(),
-                    ragRequest.getMessage(),
-                    "",
-                    ragRequest.getConversationHistory()
-            );
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            HttpEntity<RAGPythonAiRequest> entity = new HttpEntity<>(pyRequest, headers);
-
-            RAGPythonAiResponse pyResponse = restTemplate.postForObject(pythonAiUrl, entity, RAGPythonAiResponse.class);
-
-            RAGAiChatResponse chatResponse = new RAGAiChatResponse();
-            if (pyResponse != null) {
-                chatResponse.setStatus(pyResponse.getStatus());
-                // Gán trực tiếp content nhận được (có thể là tool JSON hoặc câu trả lời tiếng Việt)
-                chatResponse.setContent(pyResponse.getContent());
-            } else {
-                chatResponse.setStatus("ERROR");
-                chatResponse.setContent("Không nhận được phản hồi từ AI Server.");
-            }
-            return chatResponse;
-        } catch (Exception e) {
-            logger.error("Lỗi khi kết nối Python AI Server lần 1: {}", e.getMessage(), e);
-            return new RAGAiChatResponse("ERROR", "Lỗi kết nối Python AI Server lần 1: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Gọi Python AI Server lần 2 (Nhận RAGPythonAiRequest và trả về
-     * RAGPythonAiResponse)
-     */
-    private RAGPythonAiResponse callPythonAiSecond(RAGPythonAiRequest pyRequest) {
-        try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            HttpEntity<RAGPythonAiRequest> entity = new HttpEntity<>(pyRequest, headers);
-
-            return restTemplate.postForObject(pythonAiUrl, entity, RAGPythonAiResponse.class);
-        } catch (Exception e) {
-            logger.error("Lỗi khi kết nối Python AI Server lần 2: {}", e.getMessage(), e);
-            return null;
-        }
-    }
-
-    /**
-     * Dựa vào action từ Python RAG, lấy dữ liệu tương ứng từ AiRepository (DB).
-     */
     private String fetchDataFromRepository(String action, String patientId) {
         switch (action) {
             case "get_general_record":

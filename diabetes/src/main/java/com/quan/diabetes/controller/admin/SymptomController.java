@@ -116,14 +116,14 @@ public class SymptomController {
     public String addSymptom(@ModelAttribute SymptomsCatalog symptom) {
         try {
             symptomService.create(symptom);
-            String message = "Symptom \"" + symptom.getSymptomName() + "\" added successfully!";
+            String message = "Triệu chứng \"" + symptom.getSymptomName() + "\" đã được thêm thành công!";
             String encoded = URLEncoder.encode(message, StandardCharsets.UTF_8);
             return "redirect:/admin/symptoms?success=" + encoded;
         } catch (IllegalArgumentException e) {
             String encoded = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
             return "redirect:/admin/symptoms?error=" + encoded;
         } catch (Exception e) {
-            String encoded = URLEncoder.encode("Error: " + e.getMessage(), StandardCharsets.UTF_8);
+            String encoded = URLEncoder.encode("Lỗi: " + e.getMessage(), StandardCharsets.UTF_8);
             return "redirect:/admin/symptoms?error=" + encoded;
         }
     }
@@ -132,7 +132,7 @@ public class SymptomController {
     public String editSymptom(@PathVariable("id") String id, @ModelAttribute SymptomsCatalog symptom) {
         try {
             symptomService.update(id, symptom);
-            String message = "Symptom updated successfully!";
+            String message = "Cập nhật triệu chứng thành công!";
             String encoded = URLEncoder.encode(message, StandardCharsets.UTF_8);
             return "redirect:/admin/symptoms?success=" + encoded;
         } catch (Exception e) {
@@ -147,11 +147,11 @@ public class SymptomController {
             var opt = symptomService.findById(id);
             if (opt.isPresent()) {
                 symptomService.softDelete(id);
-                String message = "Symptom \"" + opt.get().getSymptomName() + "\" has been clocked!";
+                String message = "Triệu chứng \"" + opt.get().getSymptomName() + "\" đã bị khóa!";
                 String encoded = URLEncoder.encode(message, StandardCharsets.UTF_8);
                 return "redirect:/admin/symptoms?success=" + encoded;
             }
-            String encoded = URLEncoder.encode("Symptom not found!", StandardCharsets.UTF_8);
+            String encoded = URLEncoder.encode("Không tìm thấy triệu chứng!", StandardCharsets.UTF_8);
             return "redirect:/admin/symptoms?error=" + encoded;
         } catch (Exception e) {
             String encoded = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
@@ -165,11 +165,11 @@ public class SymptomController {
             var opt = symptomService.findById(id);
             if (opt.isPresent()) {
                 symptomService.restore(id);
-                String message = "Symptom \"" + opt.get().getSymptomName() + "\" has been restored!";
+                String message = "Triệu chứng \"" + opt.get().getSymptomName() + "\" đã được khôi phục thành công!";
                 String encoded = URLEncoder.encode(message, StandardCharsets.UTF_8);
                 return "redirect:/admin/symptoms?success=" + encoded;
             }
-            String encoded = URLEncoder.encode("Symptom not found!", StandardCharsets.UTF_8);
+            String encoded = URLEncoder.encode("Không tìm thấy triệu chứng!", StandardCharsets.UTF_8);
             return "redirect:/admin/symptoms?error=" + encoded;
         } catch (Exception e) {
             String encoded = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);

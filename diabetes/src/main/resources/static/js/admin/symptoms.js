@@ -156,7 +156,7 @@ window.openEditModal = function(id) {
         })
         .catch(err => {
             console.error('Error loading symptom:', err);
-            showToast('Error loading symptom data', 'error');
+            showToast('Lỗi khi tải dữ liệu triệu chứng', 'error');
         });
 };
 

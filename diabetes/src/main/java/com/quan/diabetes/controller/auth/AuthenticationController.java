@@ -8,6 +8,7 @@ import com.quan.diabetes.service.user.PatientRoutineService;
 import com.quan.diabetes.service.user.PatientService;
 import com.quan.diabetes.service.user.ProfileService;
 import com.quan.diabetes.service.user.UserService;
+import com.quan.diabetes.service.notification.SmsService;
 import com.quan.diabetes.util.ParseUtil;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
@@ -36,13 +37,14 @@ public class AuthenticationController {
     private final PatientRoutineService patientRoutineService;
     private final ClinicalExaminationService clinicalExaminationService;
     private final PasswordEncoder passwordEncoder;
+    private final SmsService smsService;
 
     public AuthenticationController(UserService userService,
                                     RoleService roleService,
                                     PatientService patientService,
                                     ProfileService profileService,
                                     PatientRoutineService patientRoutineService,
-                                    ClinicalExaminationService clinicalExaminationService, PasswordEncoder passwordEncoder) {
+                                    ClinicalExaminationService clinicalExaminationService, PasswordEncoder passwordEncoder, SmsService smsService) {
         this.userService = userService;
         this.roleService = roleService;
         this.patientService = patientService;
@@ -50,6 +52,7 @@ public class AuthenticationController {
         this.patientRoutineService = patientRoutineService;
         this.clinicalExaminationService = clinicalExaminationService;
         this.passwordEncoder = passwordEncoder;
+        this.smsService = smsService;
     }
 
     // ==================== GET ====================
@@ -230,6 +233,9 @@ public class AuthenticationController {
 
         // Mô phỏng gửi OTP (in ra console)
         System.out.println("OTP đăng ký cho số " + phoneNumber + ": " + otp);
+
+        // Gửi OTP qua SMS thực tế
+        smsService.sendOtp(phoneNumber, otp);
 
         return "redirect:/register/otp";
     }
