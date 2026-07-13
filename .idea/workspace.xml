@@ -4,13 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cd82aed5-747b-44b9-892e-efbe52d1dbd5" name="Changes" comment="">
+    <list default="true" id="cd82aed5-747b-44b9-892e-efbe52d1dbd5" name="Changes" comment="Chỉnh sửa trạng thái của request phiên khám">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/CreateTable.sql" beforeDir="false" afterPath="$PROJECT_DIR$/database/CreateTable.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorDashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorDashboardController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/exam/impl/ClinicalExaminationServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/exam/impl/ClinicalExaminationServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/progress.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/progress.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/BasePatientController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/BasePatientController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientDashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientDashboardController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/risk.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/risk.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logs/application.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/application.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logs/application.log.2026-07-04.0.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logs/application.log.2026-07-05.0.gz" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,7 +66,7 @@
     </selectedModels>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="286" />
+    <option name="cachedIndexableFilesCount" value="290" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -92,6 +93,65 @@
   <component name="McpProjectServerCommands">
     <commands />
     <urls />
+  </component>
+  <component name="NextEditCompletionFeaturesState">
+    <decayedCancelled>
+      <entry key="MS100" value="1.0202360669617996" />
+      <entry key="MS500" value="1.652525489701012" />
+      <entry key="S2" value="4.600108267893299" />
+      <entry key="S5" value="10.127989407921872" />
+      <entry key="S10" value="14.99741060050681" />
+      <entry key="S30" value="20.338958743059827" />
+      <entry key="S60" value="22.06950811907282" />
+      <entry key="M2" value="23.008206935910565" />
+      <entry key="M5" value="23.59670051545447" />
+      <entry key="M10" value="23.79723510888731" />
+      <entry key="M15" value="23.864574234639143" />
+      <entry key="M30" value="23.932162189691617" />
+      <entry key="H1" value="23.966049798639737" />
+      <entry key="H2" value="23.98301706721546" />
+      <entry key="H4" value="23.991506574574032" />
+      <entry key="D1" value="23.998584156922092" />
+      <entry key="W1" value="23.99979773003657" />
+    </decayedCancelled>
+    <decayedSelected>
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="0.0" />
+      <entry key="S2" value="0.0" />
+      <entry key="S5" value="0.0" />
+      <entry key="S10" value="0.0" />
+      <entry key="S30" value="0.0" />
+      <entry key="S60" value="0.0" />
+      <entry key="M2" value="0.0" />
+      <entry key="M5" value="0.0" />
+      <entry key="M10" value="0.0" />
+      <entry key="M15" value="0.0" />
+      <entry key="M30" value="0.0" />
+      <entry key="H1" value="0.0" />
+      <entry key="H2" value="0.0" />
+      <entry key="H4" value="0.0" />
+      <entry key="D1" value="0.0" />
+      <entry key="W1" value="0.0" />
+    </decayedSelected>
+    <decayedShown>
+      <entry key="MS100" value="0.9719148015477254" />
+      <entry key="MS500" value="1.635896805573862" />
+      <entry key="S2" value="4.58735325800128" />
+      <entry key="S5" value="10.114012973655127" />
+      <entry key="S10" value="14.985258886399834" />
+      <entry key="S30" value="20.332699071436082" />
+      <entry key="S60" value="22.065991535827436" />
+      <entry key="M2" value="23.006341150628387" />
+      <entry key="M5" value="23.595926888936916" />
+      <entry key="M10" value="23.79684361154032" />
+      <entry key="M15" value="23.864312185503255" />
+      <entry key="M30" value="23.932030637151158" />
+      <entry key="H1" value="23.96598388990183" />
+      <entry key="H2" value="23.982984079670086" />
+      <entry key="H4" value="23.991490072499808" />
+      <entry key="D1" value="23.998581405422755" />
+      <entry key="W1" value="23.99979733693699" />
+    </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
@@ -127,6 +187,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;SONARLINT_PRECOMMIT_ANALYSIS&quot;: &quot;true&quot;,
     &quot;Spring Boot.DiabetesApplication.executor&quot;: &quot;Run&quot;,
     &quot;Spring Boot.Unnamed.executor&quot;: &quot;Run&quot;,
     &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
@@ -184,10 +245,23 @@
       <workItem from="1783702306149" duration="167000" />
       <workItem from="1783702492191" duration="1971000" />
     </task>
+    <task id="LOCAL-00001" summary="Chỉnh sửa trạng thái của request phiên khám">
+      <option name="closed" value="true" />
+      <created>1783779104237</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1783779104237</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Chỉnh sửa trạng thái của request phiên khám" />
+    <option name="LAST_COMMIT_MESSAGE" value="Chỉnh sửa trạng thái của request phiên khám" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>
