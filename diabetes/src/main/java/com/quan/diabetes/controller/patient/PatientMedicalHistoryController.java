@@ -39,7 +39,12 @@ public class PatientMedicalHistoryController extends BasePatientController {
 
         LocalDate today = LocalDate.now();
         List<ClinicalExamination> allExams = findExaminationsByPatient(patient).stream()
-                .filter(exam -> exam.getExamDate() != null && exam.getExamDate().toLocalDate().isEqual(today))
+                .filter(exam -> {
+                    if (exam.getStatus() != null && ("requested".equalsIgnoreCase(exam.getStatus()) || "pending".equalsIgnoreCase(exam.getStatus()))) {
+                        return true;
+                    }
+                    return exam.getExamDate() != null && exam.getExamDate().toLocalDate().isEqual(today);
+                })
                 .collect(Collectors.toList());
 
         List<LabOrder> allLabOrders = findLabOrdersByPatient(patient);
