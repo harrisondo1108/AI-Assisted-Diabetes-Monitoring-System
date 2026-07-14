@@ -71,6 +71,9 @@ public class Profile implements Persistable<String> {
     @Column(name = "ImageURL", length = 255, columnDefinition = "NVARCHAR(255)")
     private String imageUrl;
 
+    @Column(name = "Email", length = 100)
+    private String email;
+
     public Profile() {
     }
 
@@ -152,6 +155,14 @@ public class Profile implements Persistable<String> {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }
 

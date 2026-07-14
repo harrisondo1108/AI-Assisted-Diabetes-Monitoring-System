@@ -80,6 +80,13 @@ public class AdminUserServiceImpl implements AdminUserService {
         for (User u : users) {
             String uRole = u.getRole() != null ? u.getRole().getRoleName().toLowerCase() : "";
 
+            // Only display doctor and patient roles
+            boolean isDoctor = uRole.contains("doctor") || uRole.equals("doc");
+            boolean isPatient = uRole.contains("patient") || uRole.equals("pat");
+            if (!isDoctor && !isPatient) {
+                continue;
+            }
+
             // Filter by role early
             if (roleFilter != null && !uRole.contains(roleFilter)) {
                 continue;
@@ -119,6 +126,7 @@ public class AdminUserServiceImpl implements AdminUserService {
                         dto.setRoomName(p.getRoom().getRoomName());
                     }
                     dto.setSpecialty(p.getSpecialty());
+                    dto.setEmail(p.getEmail());
                 });
             }
 
@@ -206,6 +214,7 @@ public class AdminUserServiceImpl implements AdminUserService {
             p.setDob(dto.getDob());
             p.setGender(dto.getGender());
             p.setSpecialty(ParseUtil.parseString(dto.getSpecialty()));
+            p.setEmail(ParseUtil.parseString(dto.getEmail()));
             // Ánh xạ phòng khám
             if (dto.getRoomName() != null && !dto.getRoomName().isBlank()) {
                 Room room = roomRepository.findAll().stream()
@@ -256,6 +265,7 @@ public class AdminUserServiceImpl implements AdminUserService {
             p.setDob(dto.getDob());
             p.setGender(dto.getGender());
             p.setSpecialty(ParseUtil.parseString(dto.getSpecialty()));
+            p.setEmail(ParseUtil.parseString(dto.getEmail()));
             // Ánh xạ phòng khám
             if (dto.getRoomName() != null && !dto.getRoomName().isBlank()) {
                 Room room = roomRepository.findAll().stream()
@@ -318,6 +328,7 @@ public class AdminUserServiceImpl implements AdminUserService {
                     dto.setRoomName(p.getRoom().getRoomName());
                 }
                 dto.setSpecialty(p.getSpecialty());
+                dto.setEmail(p.getEmail());
             });
         }
         return dto;

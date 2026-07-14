@@ -44,6 +44,7 @@ CREATE TABLE [Profile] (
 	[RoomID] INT NULL,
 	Specialty NVARCHAR(60),
 	ImageURL NVARCHAR(255) NULL,
+    Email VARCHAR(100) NULL,
     FOREIGN KEY (UserID) REFERENCES [Account](UserID) ON DELETE CASCADE  ON UPDATE CASCADE,
 	FOREIGN KEY ([RoomID]) REFERENCES [Room]([RoomID]) ON DELETE SET NULL ON UPDATE CASCADE
 );
@@ -91,7 +92,7 @@ CREATE TABLE [ClinicalExamination] (
     CancelReason NVARCHAR(MAX), -- lý do hủy
     NextAppointment DATETIME, -- lịch tái khám
     Status NVARCHAR(20) DEFAULT 'Pending'
-        CHECK (Status IN ('Pending','InProgress','Completed','Cancelled')),
+        CHECK (Status IN ('Requested','Pending','InProgress','Completed','Cancelled')),
     PatientID VARCHAR(50) NOT NULL,
     DoctorID VARCHAR(50) NOT NULL,
     FOREIGN KEY (PatientID) REFERENCES Patient(UserID) ON UPDATE CASCADE,
@@ -292,8 +293,8 @@ CREATE TABLE [AI_Message] (
 );
 
 -- 17. Notification
-CREATE TABLE [AI_Reminder] (
-    AIReminderID BIGINT IDENTITY(1,1)PRIMARY KEY,
+CREATE TABLE [Reminder] (
+    ReminderID BIGINT IDENTITY(1,1)PRIMARY KEY,
     Title NVARCHAR(50),
     Message NVARCHAR(MAX),
     ScheduledTime DATETIME,

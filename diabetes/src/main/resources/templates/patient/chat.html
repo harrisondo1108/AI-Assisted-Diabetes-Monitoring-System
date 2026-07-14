@@ -10,10 +10,10 @@
 </head>
 <body>
 <div class="admin-layout">
-    <div th:replace="~{layout/patient-sidebar :: patientSidebar('chat')}"></div>
+    <div th:replace="~{layout/patient/sidebar :: patientSidebar('chat')}"></div>
 
     <div class="admin-main">
-        <div th:replace="~{layout/patient-header :: patientHeader('Trò chuyện với trợ lý AI')}"></div>
+        <div th:replace="~{layout/patient/header :: patientHeader('Trò chuyện với trợ lý AI')}"></div>
 
         <main class="admin-content">
             <div class="chat-layout">

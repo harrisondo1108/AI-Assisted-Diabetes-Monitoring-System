@@ -11,11 +11,11 @@
 <body>
 <div class="admin-layout">
     <!-- SIDEBAR -->
-    <div th:replace="~{layout/sidebar :: sidebar('monitoring')}"></div>
+    <div th:replace="~{layout/admin/sidebar :: sidebar('monitoring')}"></div>
     <!-- MAIN CONTENT -->
     <div class="admin-main">
         <!-- Header đồng bộ với các trang Admin khác -->
-        <div th:replace="~{layout/header :: header('Giám sát hệ thống AI')}">
+        <div th:replace="~{layout/admin/header :: header('Giám sát hệ thống AI')}">
         </div>
 
         <main class="admin-content">
@@ -177,7 +177,7 @@
 
         </main>
         <!-- Footer -->
-        <div th:replace="~{layout/footer :: footer}"></div>
+        <div th:replace="~{layout/admin/footer :: footer}"></div>
     </div>
 </div>
 

@@ -120,6 +120,13 @@ public class SymptomsCatalogServiceImpl implements SymptomsCatalogService {
     }
 
     @Override
+    public void delete(String id) {
+        SymptomsCatalog symptom = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy triệu chứng: " + id));
+        repository.delete(symptom);
+    }
+
+    @Override
     public Map<String, Object> getSummaryStats() {
         long total = repository.count();
         long active = repository.findByStatus(true, Pageable.unpaged()).getTotalElements();

@@ -1,11 +1,11 @@
 package com.quan.diabetes.controller.doctor;
 
-import com.quan.diabetes.entity.AIReminder;
+import com.quan.diabetes.entity.Reminder;
 import com.quan.diabetes.entity.ClinicalExamination;
 import com.quan.diabetes.entity.Patient;
 import com.quan.diabetes.entity.Profile;
 import com.quan.diabetes.entity.User;
-import com.quan.diabetes.service.ai.AIReminderService;
+import com.quan.diabetes.service.ai.ReminderService;
 import com.quan.diabetes.service.exam.ClinicalExaminationService;
 import com.quan.diabetes.service.user.ProfileService;
 import jakarta.servlet.http.HttpSession;
@@ -28,15 +28,15 @@ import java.util.stream.Collectors;
 @RequestMapping("/doctor/reminders")
 public class DoctorReminderController {
 
-    private final AIReminderService aiReminderService;
+    private final ReminderService reminderService;
     private final ProfileService profileService;
     private final ClinicalExaminationService clinicalExaminationService;
 
     public DoctorReminderController(
-            AIReminderService aiReminderService,
+            ReminderService reminderService,
             ProfileService profileService,
             ClinicalExaminationService clinicalExaminationService) {
-        this.aiReminderService = aiReminderService;
+        this.reminderService = reminderService;
         this.profileService = profileService;
         this.clinicalExaminationService = clinicalExaminationService;
     }
@@ -66,7 +66,7 @@ public class DoctorReminderController {
             return "redirect:/login";
         }
 
-        List<Patient> patientsWithReminders = aiReminderService.getPatientsWithRemindersToday();
+        List<Patient> patientsWithReminders = reminderService.getPatientsWithRemindersToday();
 
         // Lọc tìm kiếm
         if (search != null && !search.trim().isEmpty()) {
@@ -119,7 +119,7 @@ public class DoctorReminderController {
             return "redirect:/login";
         }
 
-        List<AIReminder> patientReminders = aiReminderService.getPatientRemindersToday(patientId);
+        List<Reminder> patientReminders = reminderService.getPatientRemindersToday(patientId);
         model.addAttribute("reminders", patientReminders);
         
         if (!patientReminders.isEmpty()) {

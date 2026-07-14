@@ -46,8 +46,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
     private AppointmentSchedule appointmentSchedule;
 
     @Autowired
-    private AIReminderRepository aiReminderRepository;
-
+    private ReminderRepository reminderRepository;
 
     public ClinicalExaminationServiceImpl(
             ClinicalExaminationRepository clinicalExaminationRepository,
@@ -142,7 +141,11 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
 
         if (exam == null) {
             exam = new ClinicalExamination();
-            exam.setClinicalExamId("EXM-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000));
+            String clinicalExamId = "";
+            do {
+                clinicalExamId = "EXM-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000);
+            } while (clinicalExaminationRepository.existsById(clinicalExamId));
+            exam.setClinicalExamId(clinicalExamId);
             exam.setPatient(patientRepository.findById(patientId)
                     .orElseThrow(() -> new EntityNotFoundException("Patient not found: " + patientId)));
             exam.setDoctor(userRepository.findById(doctorId)
@@ -163,7 +166,11 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
 
         if (exam == null) {
             exam = new ClinicalExamination();
-            exam.setClinicalExamId("EXM-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000));
+            String clinicalExamId = "";
+            do {
+                clinicalExamId = "EXM-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000);
+            } while (clinicalExaminationRepository.existsById(clinicalExamId));
+            exam.setClinicalExamId(clinicalExamId);
             exam.setPatient(patientRepository.findById(patientId)
                     .orElseThrow(() -> new EntityNotFoundException("Patient not found: " + patientId)));
             exam.setDoctor(userRepository.findById(doctorId)
@@ -172,6 +179,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         }
         exam.setStatus("Cancelled");
         exam.setCancelReason(reason);
+        exam.setDiagnosisNote(null);
         clinicalExaminationRepository.save(exam);
     }
 
@@ -188,7 +196,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
             String clinicalExamId = "";
             do {
                 clinicalExamId = "EXM-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000);
-            } while(clinicalExaminationRepository.existsById(clinicalExamId));
+            } while (clinicalExaminationRepository.existsById(clinicalExamId));
             // code của quân
             exam.setClinicalExamId(clinicalExamId);
             exam.setPatient(patientRepository.findById(patientId)
@@ -215,16 +223,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         examSymptomRepository.deleteById_ClinicalExamId(examId);
         examSymptomRepository.flush();
 
-        Map<String, String> symptomComments = new HashMap<>();
-        if (form.getSymptomCommentsJson() != null && !form.getSymptomCommentsJson().trim().isEmpty()) {
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                symptomComments = mapper.readValue(form.getSymptomCommentsJson(),
-                        new TypeReference<Map<String, String>>() {});
-            } catch (Exception e) {
-                // Ignore or log
-            }
-        }
+        Map<String, String> symptomComments = form.getSymptomComments();
 
         if (form.getSymptomIds() != null) {
             for (String symId : form.getSymptomIds()) {
@@ -234,7 +233,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                     examSymptom.setId(new ExamSymptomId(examId, symId));
                     examSymptom.setClinicalExamination(exam);
                     examSymptom.setSymptom(symptom);
-                    if (symptomComments.containsKey(symId)) {
+                    if (symptomComments != null && symptomComments.containsKey(symId)) {
                         examSymptom.setNote(symptomComments.get(symId));
                     }
                     examSymptomRepository.save(examSymptom);
@@ -243,7 +242,8 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         }
 
         final ClinicalExamination finalExam = exam;
-        // 3. Lưu Kế hoạch điều trị (Cập nhật nếu đã có, hoặc tạo mới nếu chưa để tránh lỗi UNIQUE KEY constraint)
+        // 3. Lưu Kế hoạch điều trị (Cập nhật nếu đã có, hoặc tạo mới nếu chưa để tránh
+        // lỗi UNIQUE KEY constraint)
         TreatmentPlan plan = treatmentPlanRepository.findByClinicalExam_ClinicalExamId(examId)
                 .orElseGet(() -> {
                     TreatmentPlan newPlan = new TreatmentPlan();
@@ -275,7 +275,8 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                 try {
                     ObjectMapper mapper = new ObjectMapper();
                     List<Map<String, Object>> list = mapper.readValue(form.getLabResultsJson(),
-                            new TypeReference<List<Map<String, Object>>>() {});
+                            new TypeReference<List<Map<String, Object>>>() {
+                            });
                     for (Map<String, Object> item : list) {
                         String testId = (String) item.get("testId");
                         simulatedResults.put(testId, item);
@@ -299,7 +300,8 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                 }
                 final int finalAge = age;
                 matchedType = patientTypeRepository.findAll().stream()
-                        .filter(t -> t.getMinAge() != null && t.getMaxAge() != null && finalAge >= t.getMinAge() && finalAge <= t.getMaxAge())
+                        .filter(t -> t.getMinAge() != null && t.getMaxAge() != null && finalAge >= t.getMinAge()
+                                && finalAge <= t.getMaxAge())
                         .findFirst()
                         .orElse(null);
             }
@@ -320,11 +322,11 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                     Optional<IndicatorThreshold> thresholdOpt = Optional.empty();
                     if (matchedType != null) {
                         thresholdOpt = indicatorThresholdRepository.findByLabTest_LabTestIdAndPatientType_PatientTypeId(
-                            testId, matchedType.getPatientTypeId()
-                        );
+                                testId, matchedType.getPatientTypeId());
                     }
                     if (thresholdOpt.isEmpty()) {
-                        List<IndicatorThreshold> thresholds = indicatorThresholdRepository.findByLabTest_LabTestId(testId);
+                        List<IndicatorThreshold> thresholds = indicatorThresholdRepository
+                                .findByLabTest_LabTestId(testId);
                         if (!thresholds.isEmpty()) {
                             thresholdOpt = Optional.of(thresholds.get(0));
                         }
@@ -343,12 +345,15 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                     if (simulatedResults.containsKey(testId)) {
                         Map<String, Object> simInfo = simulatedResults.get(testId);
                         value = BigDecimal.valueOf(Double.parseDouble(simInfo.get("val").toString()));
-                        
+
                         // Backend calculations for flag safety
                         if (dbMin != null && dbMax != null) {
-                            if (value.compareTo(dbMin) < 0) flag = "LOW";
-                            else if (value.compareTo(dbMax) > 0) flag = "HIGH";
-                            else flag = "NORMAL";
+                            if (value.compareTo(dbMin) < 0)
+                                flag = "LOW";
+                            else if (value.compareTo(dbMax) > 0)
+                                flag = "HIGH";
+                            else
+                                flag = "NORMAL";
                         } else {
                             flag = "NORMAL";
                         }
@@ -373,7 +378,8 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
             try {
                 ObjectMapper mapper = new ObjectMapper();
                 List<Map<String, Object>> lines = mapper.readValue(form.getPrescriptionJson(),
-                        new TypeReference<List<Map<String, Object>>>() {});
+                        new TypeReference<List<Map<String, Object>>>() {
+                        });
 
                 if (!lines.isEmpty()) {
                     Prescription presc = new Prescription();
@@ -387,26 +393,30 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                         Medication med = medicationRepository.findById(medId).orElse(null);
                         if (med != null) {
                             PrescriptionDetail detail = new PrescriptionDetail();
-                            detail.setPrescriptionDetailId("PRD-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000));
+                            detail.setPrescriptionDetailId(
+                                    "PRD-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000));
                             detail.setPrescription(presc);
                             detail.setMedication(med);
                             Object durationObj = line.get("duration");
-                            int duration = durationObj instanceof Integer ? (Integer) durationObj : Integer.parseInt(durationObj.toString());
+                            int duration = durationObj instanceof Integer ? (Integer) durationObj
+                                    : Integer.parseInt(durationObj.toString());
                             detail.setDurationDays(duration);
-                            
+
                             Object qtyObj = line.get("quantity");
-                            int quantity = qtyObj instanceof Integer ? (Integer) qtyObj : Integer.parseInt(qtyObj.toString());
+                            int quantity = qtyObj instanceof Integer ? (Integer) qtyObj
+                                    : Integer.parseInt(qtyObj.toString());
                             detail.setTotalQuantity(quantity);
-                            
+
                             Object clientDosageObj = line.get("dosage");
-                            String dosage = (clientDosageObj != null && !clientDosageObj.toString().trim().isEmpty() && !"Auto".equalsIgnoreCase(clientDosageObj.toString())) 
-                                    ? clientDosageObj.toString() 
-                                    : calculateDosage(quantity, duration, med.getForm());
+                            String dosage = (clientDosageObj != null && !clientDosageObj.toString().trim().isEmpty()
+                                    && !"Auto".equalsIgnoreCase(clientDosageObj.toString()))
+                                            ? clientDosageObj.toString()
+                                            : calculateDosage(quantity, duration, med.getForm());
                             detail.setDosage(dosage);
-                            
+
                             Object medPlanObj = line.get("medicationPlan");
                             detail.setMedicationPlan(medPlanObj != null ? medPlanObj.toString() : "");
-                            
+
                             Object startDateObj = line.get("startDate");
                             if (startDateObj != null && !startDateObj.toString().trim().isEmpty()) {
                                 detail.setStartDate(LocalDate.parse(startDateObj.toString()));
@@ -415,7 +425,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                             if (endDateObj != null && !endDateObj.toString().trim().isEmpty()) {
                                 detail.setEndDate(LocalDate.parse(endDateObj.toString()));
                             }
-                            
+
                             detail.setPrescriptionTimings(new ArrayList<>());
                             detail = prescriptionDetailRepository.save(detail);
 
@@ -428,7 +438,8 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                                         continue;
                                     }
                                     final String singleTimingText = part.trim();
-                                    MedicationTiming timing = medicationTimingRepository.findByTimingName(singleTimingText)
+                                    MedicationTiming timing = medicationTimingRepository
+                                            .findByTimingName(singleTimingText)
                                             .orElseGet(() -> {
                                                 MedicationTiming newTiming = new MedicationTiming();
                                                 newTiming.setTimingName(singleTimingText);
@@ -471,7 +482,11 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
 
         if (!hasActive) {
             ClinicalExamination exam = new ClinicalExamination();
-            exam.setClinicalExamId("EXM-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000));
+            String clinicalExamId = "";
+            do {
+                clinicalExamId = "EXM-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000);
+            } while (clinicalExaminationRepository.existsById(clinicalExamId));
+            exam.setClinicalExamId(clinicalExamId);
             exam.setPatient(patientRepository.findById(patientId)
                     .orElseThrow(() -> new EntityNotFoundException("Patient not found: " + patientId)));
             exam.setDoctor(doctor);
@@ -486,7 +501,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
             return "0 viên/ngày";
         }
         double rate = (double) totalQuantity / durationDays;
-        
+
         // Format rate: if it has no decimal part, show as integer
         String rateStr;
         if (rate == (long) rate) {
@@ -494,7 +509,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         } else {
             rateStr = String.format(Locale.US, "%.1f", rate);
         }
-        
+
         String unit = "viên";
         if (form != null) {
             String formLower = form.toLowerCase();
@@ -514,7 +529,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                 unit = formLower.trim();
             }
         }
-        
+
         return rateStr + " " + unit + "/ngày";
     }
 
@@ -522,7 +537,8 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
     @Transactional
     public void updateExamination(String examId, ClinicalExamForm form) {
         ClinicalExamination exam = clinicalExaminationRepository.findById(examId)
-                .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException("Không tìm thấy ca khám để cập nhật: " + examId));
+                .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException(
+                        "Không tìm thấy ca khám để cập nhật: " + examId));
 
         // 1. Cập nhật thông tin chính ca khám
         exam.setMedicalHistory(form.getMedicalHistory());
@@ -539,16 +555,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         examSymptomRepository.deleteById_ClinicalExamId(examId);
         examSymptomRepository.flush();
 
-        Map<String, String> symptomComments = new HashMap<>();
-        if (form.getSymptomCommentsJson() != null && !form.getSymptomCommentsJson().trim().isEmpty()) {
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                symptomComments = mapper.readValue(form.getSymptomCommentsJson(),
-                        new TypeReference<Map<String, String>>() {});
-            } catch (Exception e) {
-                // Ignore or log
-            }
-        }
+        Map<String, String> symptomComments = form.getSymptomComments();
 
         if (form.getSymptomIds() != null) {
             for (String symId : form.getSymptomIds()) {
@@ -558,7 +565,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                     examSymptom.setId(new ExamSymptomId(examId, symId));
                     examSymptom.setClinicalExamination(exam);
                     examSymptom.setSymptom(symptom);
-                    if (symptomComments.containsKey(symId)) {
+                    if (symptomComments != null && symptomComments.containsKey(symId)) {
                         examSymptom.setNote(symptomComments.get(symId));
                     }
                     examSymptomRepository.save(examSymptom);
@@ -599,7 +606,8 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                 try {
                     ObjectMapper mapper = new ObjectMapper();
                     List<Map<String, Object>> list = mapper.readValue(form.getLabResultsJson(),
-                            new TypeReference<List<Map<String, Object>>>() {});
+                            new TypeReference<List<Map<String, Object>>>() {
+                            });
                     for (Map<String, Object> item : list) {
                         String testId = (String) item.get("testId");
                         simulatedResults.put(testId, item);
@@ -623,7 +631,8 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                 }
                 final int finalAge = age;
                 matchedType = patientTypeRepository.findAll().stream()
-                        .filter(t -> t.getMinAge() != null && t.getMaxAge() != null && finalAge >= t.getMinAge() && finalAge <= t.getMaxAge())
+                        .filter(t -> t.getMinAge() != null && t.getMaxAge() != null && finalAge >= t.getMinAge()
+                                && finalAge <= t.getMaxAge())
                         .findFirst()
                         .orElse(null);
             }
@@ -644,11 +653,11 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                     Optional<IndicatorThreshold> thresholdOpt = Optional.empty();
                     if (matchedType != null) {
                         thresholdOpt = indicatorThresholdRepository.findByLabTest_LabTestIdAndPatientType_PatientTypeId(
-                            testId, matchedType.getPatientTypeId()
-                        );
+                                testId, matchedType.getPatientTypeId());
                     }
                     if (thresholdOpt.isEmpty()) {
-                        List<IndicatorThreshold> thresholds = indicatorThresholdRepository.findByLabTest_LabTestId(testId);
+                        List<IndicatorThreshold> thresholds = indicatorThresholdRepository
+                                .findByLabTest_LabTestId(testId);
                         if (!thresholds.isEmpty()) {
                             thresholdOpt = Optional.of(thresholds.get(0));
                         }
@@ -667,12 +676,15 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                     if (simulatedResults.containsKey(testId)) {
                         Map<String, Object> simInfo = simulatedResults.get(testId);
                         value = BigDecimal.valueOf(Double.parseDouble(simInfo.get("val").toString()));
-                        
+
                         // Backend calculations for flag safety
                         if (dbMin != null && dbMax != null) {
-                            if (value.compareTo(dbMin) < 0) flag = "LOW";
-                            else if (value.compareTo(dbMax) > 0) flag = "HIGH";
-                            else flag = "NORMAL";
+                            if (value.compareTo(dbMin) < 0)
+                                flag = "LOW";
+                            else if (value.compareTo(dbMax) > 0)
+                                flag = "HIGH";
+                            else
+                                flag = "NORMAL";
                         } else {
                             flag = "NORMAL";
                         }
@@ -697,7 +709,8 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
             try {
                 ObjectMapper mapper = new ObjectMapper();
                 List<Map<String, Object>> lines = mapper.readValue(form.getPrescriptionJson(),
-                        new TypeReference<List<Map<String, Object>>>() {});
+                        new TypeReference<List<Map<String, Object>>>() {
+                        });
 
                 if (!lines.isEmpty()) {
                     Prescription presc = new Prescription();
@@ -711,26 +724,30 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                         Medication med = medicationRepository.findById(medId).orElse(null);
                         if (med != null) {
                             PrescriptionDetail detail = new PrescriptionDetail();
-                            detail.setPrescriptionDetailId("PRD-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000));
+                            detail.setPrescriptionDetailId(
+                                    "PRD-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000));
                             detail.setPrescription(presc);
                             detail.setMedication(med);
                             Object durationObj = line.get("duration");
-                            int duration = durationObj instanceof Integer ? (Integer) durationObj : Integer.parseInt(durationObj.toString());
+                            int duration = durationObj instanceof Integer ? (Integer) durationObj
+                                    : Integer.parseInt(durationObj.toString());
                             detail.setDurationDays(duration);
-                            
+
                             Object qtyObj = line.get("quantity");
-                            int quantity = qtyObj instanceof Integer ? (Integer) qtyObj : Integer.parseInt(qtyObj.toString());
+                            int quantity = qtyObj instanceof Integer ? (Integer) qtyObj
+                                    : Integer.parseInt(qtyObj.toString());
                             detail.setTotalQuantity(quantity);
-                            
+
                             Object clientDosageObj = line.get("dosage");
-                            String dosage = (clientDosageObj != null && !clientDosageObj.toString().trim().isEmpty() && !"Auto".equalsIgnoreCase(clientDosageObj.toString())) 
-                                    ? clientDosageObj.toString() 
-                                    : calculateDosage(quantity, duration, med.getForm());
+                            String dosage = (clientDosageObj != null && !clientDosageObj.toString().trim().isEmpty()
+                                    && !"Auto".equalsIgnoreCase(clientDosageObj.toString()))
+                                            ? clientDosageObj.toString()
+                                            : calculateDosage(quantity, duration, med.getForm());
                             detail.setDosage(dosage);
-                            
+
                             Object medPlanObj = line.get("medicationPlan");
                             detail.setMedicationPlan(medPlanObj != null ? medPlanObj.toString() : "");
-                            
+
                             Object startDateObj = line.get("startDate");
                             if (startDateObj != null && !startDateObj.toString().trim().isEmpty()) {
                                 detail.setStartDate(LocalDate.parse(startDateObj.toString()));
@@ -739,7 +756,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                             if (endDateObj != null && !endDateObj.toString().trim().isEmpty()) {
                                 detail.setEndDate(LocalDate.parse(endDateObj.toString()));
                             }
-                            
+
                             detail.setPrescriptionTimings(new ArrayList<>());
                             detail = prescriptionDetailRepository.save(detail);
 
@@ -752,7 +769,8 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                                         continue;
                                     }
                                     final String singleTimingText = part.trim();
-                                    MedicationTiming timing = medicationTimingRepository.findByTimingName(singleTimingText)
+                                    MedicationTiming timing = medicationTimingRepository
+                                            .findByTimingName(singleTimingText)
                                             .orElseGet(() -> {
                                                 MedicationTiming newTiming = new MedicationTiming();
                                                 newTiming.setTimingName(singleTimingText);
@@ -774,12 +792,12 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         }
 
         // Lock các reminder cũ của phiên khám (set lockStatus = true)
-        List<AIReminder> oldReminders = aiReminderRepository.findByClinicalExamination_ClinicalExamId(examId);
+        List<Reminder> oldReminders = reminderRepository.findByClinicalExamination_ClinicalExamId(examId);
         if (oldReminders != null && !oldReminders.isEmpty()) {
-            for (AIReminder r : oldReminders) {
+            for (Reminder r : oldReminders) {
                 r.setLockStatus(true);
             }
-            aiReminderRepository.saveAll(oldReminders);
+            reminderRepository.saveAll(oldReminders);
         }
 
         // Tạo lại reminders mới dựa vào lịch tái khám và đơn thuốc
@@ -798,7 +816,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         // Check if there is an active exam (Pending, InProgress, Requested)
         boolean hasActive = clinicalExaminationRepository
                 .findFirstByPatient_UserIdAndDoctor_UserIdAndStatusIn(
-                        patientId, doctor.getUserId(), List.of("Pending", "InProgress", "Completed", "Cancelled"))
+                        patientId, doctor.getUserId(), List.of("Requested", "Pending", "InProgress"))
                 .isPresent();
 
         if (hasActive) {
@@ -806,14 +824,288 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         }
 
         ClinicalExamination exam = new ClinicalExamination();
-        exam.setClinicalExamId("EXM-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000));
+        String clinicalExamId = "";
+        do {
+            clinicalExamId = "EXM-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000);
+        } while (clinicalExaminationRepository.existsById(clinicalExamId));
+        exam.setClinicalExamId(clinicalExamId);
         exam.setPatient(patientRepository.findById(patientId)
                 .orElseThrow(() -> new EntityNotFoundException("Patient not found: " + patientId)));
         exam.setDoctor(doctor);
         exam.setExamDate(LocalDateTime.now());
-        exam.setStatus("Pending");
+        exam.setStatus("Requested");
         exam.setMedicalHistory(medicalHistory);
         clinicalExaminationRepository.save(exam);
     }
-}
 
+    @Override
+    @Transactional
+    public void saveDraft(String patientId, ClinicalExamForm form, String doctorId) {
+        ClinicalExamination exam = clinicalExaminationRepository
+                .findFirstByPatient_UserIdAndDoctor_UserIdAndStatusIn(
+                        patientId, doctorId, List.of("Pending", "InProgress"))
+                .orElse(null);
+        if (exam == null) {
+            exam = new ClinicalExamination();
+            String clinicalExamId = "";
+            do {
+                clinicalExamId = "EXM-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000);
+            } while (clinicalExaminationRepository.existsById(clinicalExamId));
+            exam.setClinicalExamId(clinicalExamId);
+            exam.setPatient(patientRepository.findById(patientId)
+                    .orElseThrow(() -> new EntityNotFoundException("Patient not found: " + patientId)));
+            exam.setDoctor(userRepository.findById(doctorId)
+                    .orElseThrow(() -> new EntityNotFoundException("Doctor not found: " + doctorId)));
+            exam.setExamDate(LocalDateTime.now());
+        }
+
+        // 1. Cập nhật thông tin chính ca khám
+        exam.setMedicalHistory(form.getMedicalHistory());
+        exam.setDiagnosisNote(form.getDiagnosisNote());
+        if (form.getNextAppointment() != null && !form.getNextAppointment().trim().isEmpty()) {
+            exam.setNextAppointment(LocalDate.parse(form.getNextAppointment()).atStartOfDay());
+        } else {
+            exam.setNextAppointment(null);
+        }
+        exam.setStatus("InProgress");
+        exam = clinicalExaminationRepository.save(exam);
+
+        String examId = exam.getClinicalExamId();
+
+        // 2. Lưu Triệu chứng (Clear cũ trước)
+        examSymptomRepository.deleteById_ClinicalExamId(examId);
+        examSymptomRepository.flush();
+
+        Map<String, String> symptomComments = form.getSymptomComments();
+
+        if (form.getSymptomIds() != null) {
+            for (String symId : form.getSymptomIds()) {
+                SymptomsCatalog symptom = symptomsCatalogRepository.findById(symId).orElse(null);
+                if (symptom != null) {
+                    ExamSymptom examSymptom = new ExamSymptom();
+                    examSymptom.setId(new ExamSymptomId(examId, symId));
+                    examSymptom.setClinicalExamination(exam);
+                    examSymptom.setSymptom(symptom);
+                    if (symptomComments != null && symptomComments.containsKey(symId)) {
+                        examSymptom.setNote(symptomComments.get(symId));
+                    }
+                    examSymptomRepository.save(examSymptom);
+                }
+            }
+        }
+
+        final ClinicalExamination finalExam = exam;
+        // 3. Lưu Kế hoạch điều trị
+        TreatmentPlan plan = treatmentPlanRepository.findByClinicalExam_ClinicalExamId(examId)
+                .orElseGet(() -> {
+                    TreatmentPlan newPlan = new TreatmentPlan();
+                    newPlan.setClinicalExam(finalExam);
+                    newPlan.setCreatedAt(LocalDateTime.now());
+                    return newPlan;
+                });
+
+        plan.setTreatmentGoal(form.getTreatmentGoal());
+        plan.setDietPlan(form.getDietPlan());
+        plan.setExercisePlan(form.getExercisePlan());
+        plan.setGlucoseMonitoringPlan(form.getGlucoseMonitoringPlan());
+        treatmentPlanRepository.save(plan);
+
+        // 4. Lưu Chỉ định & Kết quả xét nghiệm
+        labOrderRepository.findByClinicalExamination_ClinicalExamId(examId)
+                .ifPresent(labOrderRepository::delete);
+
+        if (form.getLabTestIds() != null && !form.getLabTestIds().isEmpty()) {
+            LabOrder labOrder = new LabOrder();
+            labOrder.setLabOrderId("LBO-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000));
+            labOrder.setClinicalExamination(exam);
+            labOrder.setStatus("Completed");
+            labOrder = labOrderRepository.save(labOrder);
+
+            Map<String, Map<String, Object>> simulatedResults = new HashMap<>();
+            if (form.getLabResultsJson() != null && !form.getLabResultsJson().trim().isEmpty()) {
+                try {
+                    ObjectMapper mapper = new ObjectMapper();
+                    List<Map<String, Object>> list = mapper.readValue(form.getLabResultsJson(),
+                            new TypeReference<List<Map<String, Object>>>() {
+                            });
+                    for (Map<String, Object> item : list) {
+                        String testId = (String) item.get("testId");
+                        simulatedResults.put(testId, item);
+                    }
+                } catch (Exception e) {
+                    // Ignore
+                }
+            }
+
+            Patient patient = exam.getPatient();
+            PatientType matchedType = null;
+            if (Boolean.TRUE.equals(form.getIsPregnant())) {
+                matchedType = patientTypeRepository.findAll().stream()
+                        .filter(t -> t.getTypeName().equalsIgnoreCase("Pregnant"))
+                        .findFirst()
+                        .orElse(null);
+            } else {
+                int age = 0;
+                if (patient != null && patient.getDob() != null) {
+                    age = java.time.Period.between(patient.getDob(), java.time.LocalDate.now()).getYears();
+                }
+                final int finalAge = age;
+                matchedType = patientTypeRepository.findAll().stream()
+                        .filter(t -> t.getMinAge() != null && t.getMaxAge() != null && finalAge >= t.getMinAge()
+                                && finalAge <= t.getMaxAge())
+                        .findFirst()
+                        .orElse(null);
+            }
+
+            for (String testId : form.getLabTestIds()) {
+                LabTestCatalog test = labTestCatalogRepository.findById(testId).orElse(null);
+                if (test != null) {
+                    LabResult result = new LabResult();
+                    result.setLabResultId("LBR-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000));
+                    result.setLabOrder(labOrder);
+                    result.setLabTest(test);
+                    result.setStatus("Completed");
+
+                    BigDecimal value = BigDecimal.valueOf(4.8);
+                    String flag = "NORMAL";
+
+                    Optional<IndicatorThreshold> thresholdOpt = Optional.empty();
+                    if (matchedType != null) {
+                        thresholdOpt = indicatorThresholdRepository.findByLabTest_LabTestIdAndPatientType_PatientTypeId(
+                                testId, matchedType.getPatientTypeId());
+                    }
+                    if (thresholdOpt.isEmpty()) {
+                        List<IndicatorThreshold> thresholds = indicatorThresholdRepository
+                                .findByLabTest_LabTestId(testId);
+                        if (!thresholds.isEmpty()) {
+                            thresholdOpt = Optional.of(thresholds.get(0));
+                        }
+                    }
+
+                    String range = "N/A";
+                    BigDecimal dbMin = null;
+                    BigDecimal dbMax = null;
+
+                    if (thresholdOpt.isPresent()) {
+                        dbMin = thresholdOpt.get().getMinValue();
+                        dbMax = thresholdOpt.get().getMaxValue();
+                        range = dbMin + " - " + dbMax;
+                    }
+
+                    if (simulatedResults.containsKey(testId)) {
+                        Map<String, Object> simInfo = simulatedResults.get(testId);
+                        value = BigDecimal.valueOf(Double.parseDouble(simInfo.get("val").toString()));
+
+                        if (dbMin != null && dbMax != null) {
+                            if (value.compareTo(dbMin) < 0)
+                                flag = "LOW";
+                            else if (value.compareTo(dbMax) > 0)
+                                flag = "HIGH";
+                            else
+                                flag = "NORMAL";
+                        } else {
+                            flag = "NORMAL";
+                        }
+                    } else {
+                        value = BigDecimal.valueOf(0.0);
+                        flag = "NORMAL";
+                    }
+
+                    result.setResultValue(value);
+                    result.setReferenceRange(range);
+                    result.setFlag(flag);
+                    labResultRepository.save(result);
+                }
+            }
+        }
+
+        // 5. Lưu đơn thuốc (Clear cũ trước)
+        prescriptionRepository.findByClinicalExamination_ClinicalExamId(examId)
+                .ifPresent(prescriptionRepository::delete);
+
+        if (form.getPrescriptionJson() != null && !form.getPrescriptionJson().trim().isEmpty()) {
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                List<Map<String, Object>> lines = mapper.readValue(form.getPrescriptionJson(),
+                        new TypeReference<List<Map<String, Object>>>() {
+                        });
+
+                if (!lines.isEmpty()) {
+                    Prescription presc = new Prescription();
+                    presc.setPrescriptionId("PRC-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000));
+                    presc.setClinicalExamination(exam);
+                    presc.setCreatedAt(LocalDateTime.now());
+                    presc = prescriptionRepository.save(presc);
+
+                    for (Map<String, Object> line : lines) {
+                        String medId = (String) line.get("medId");
+                        Medication med = medicationRepository.findById(medId).orElse(null);
+                        if (med != null) {
+                            PrescriptionDetail detail = new PrescriptionDetail();
+                            detail.setPrescriptionDetailId(
+                                    "PRD-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000));
+                            detail.setPrescription(presc);
+                            detail.setMedication(med);
+                            Object durationObj = line.get("duration");
+                            int duration = durationObj instanceof Integer ? (Integer) durationObj
+                                    : Integer.parseInt(durationObj.toString());
+                            detail.setDurationDays(duration);
+
+                            Object qtyObj = line.get("quantity");
+                            int quantity = qtyObj instanceof Integer ? (Integer) qtyObj
+                                    : Integer.parseInt(qtyObj.toString());
+                            detail.setTotalQuantity(quantity);
+
+                            Object clientDosageObj = line.get("dosage");
+                            String dosage = (clientDosageObj != null && !clientDosageObj.toString().trim().isEmpty()
+                                    && !"Auto".equalsIgnoreCase(clientDosageObj.toString()))
+                                            ? clientDosageObj.toString()
+                                            : calculateDosage(quantity, duration, med.getForm());
+                            detail.setDosage(dosage);
+
+                            Object medPlanObj = line.get("medicationPlan");
+                            detail.setMedicationPlan(medPlanObj != null ? medPlanObj.toString() : "");
+
+                            Object startDateObj = line.get("startDate");
+                            if (startDateObj != null && !startDateObj.toString().trim().isEmpty()) {
+                                detail.setStartDate(LocalDate.parse(startDateObj.toString()));
+                            }
+                            Object endDateObj = line.get("endDate");
+                            if (endDateObj != null && !endDateObj.toString().trim().isEmpty()) {
+                                detail.setEndDate(LocalDate.parse(endDateObj.toString()));
+                            }
+
+                            detail.setPrescriptionTimings(new ArrayList<>());
+                            detail = prescriptionDetailRepository.save(detail);
+
+                            String timingText = (String) line.get("timingText");
+                            if (timingText != null && !timingText.trim().isEmpty()) {
+                                String[] parts = timingText.split(",\\s*");
+                                for (String part : parts) {
+                                    if (part.trim().isEmpty()) {
+                                        continue;
+                                    }
+                                    final String singleTimingText = part.trim();
+                                    MedicationTiming timing = medicationTimingRepository
+                                            .findByTimingName(singleTimingText)
+                                            .orElseGet(() -> {
+                                                MedicationTiming newTiming = new MedicationTiming();
+                                                newTiming.setTimingName(singleTimingText);
+                                                return medicationTimingRepository.save(newTiming);
+                                            });
+
+                                    PrescriptionTiming pTiming = new PrescriptionTiming();
+                                    pTiming.setPrescriptionDetail(detail);
+                                    pTiming.setTiming(timing);
+                                    prescriptionTimingRepository.save(pTiming);
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                throw new RuntimeException("Error deserializing prescription JSON for draft: " + e.getMessage(), e);
+            }
+        }
+    }
+}

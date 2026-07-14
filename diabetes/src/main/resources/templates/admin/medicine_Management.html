@@ -13,11 +13,11 @@
 <body>
     <div class="admin-layout">
         <!-- Sidebar -->
-        <div th:replace="~{layout/sidebar :: sidebar('medicines')}"></div>
+        <div th:replace="~{layout/admin/sidebar :: sidebar('medicines')}"></div>
 
         <div class="admin-main">
             <!-- Header -->
-            <div th:replace="~{layout/header :: header('Quản lý Thuốc')}">
+            <div th:replace="~{layout/admin/header :: header('Quản lý Thuốc')}">
             </div>
 
             <main class="admin-content">
@@ -185,7 +185,7 @@
             </main>
 
 
-            <div th:replace="~{layout/footer :: footer}"></div>
+            <div th:replace="~{layout/admin/footer :: footer}"></div>
 
 
         </div>

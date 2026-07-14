@@ -443,7 +443,7 @@
     background-color: #ffffff;
 }
 
-.symptom-card.selected {
+.symptom-card:has(.symptom-checkbox:checked) {
     border-color: var(--doctor-primary);
     background-color: var(--doctor-primary-light);
 }
@@ -474,7 +474,7 @@
     outline: none;
 }
 
-.symptom-card.selected .symptom-comment-box {
+.symptom-card:has(.symptom-checkbox:checked) .symptom-comment-box {
     display: block;
 }
 
@@ -1456,3 +1456,12 @@
     border-color: var(--doctor-danger, #ef4444) !important;
     background-color: #fdf2f2 !important;
 }
+
+/* General readonly styling */
+input[readonly], textarea[readonly] {
+    background-color: #f3f4f6 !important;
+    color: var(--doctor-text-muted) !important;
+    cursor: not-allowed !important;
+    border: 1px solid var(--doctor-border) !important;
+}
+
