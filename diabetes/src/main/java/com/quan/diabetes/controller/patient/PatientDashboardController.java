@@ -95,11 +95,18 @@ public class PatientDashboardController extends BasePatientController {
 
         model.addAttribute("latestHbA1c", getLatestResultValue(labResults, "hba1c", "N/A"));
         model.addAttribute("latestGlucose", getLatestResultValue(labResults, "glucose", "N/A"));
-        model.addAttribute("latestHbA1cStatus", evaluateHbA1cStatus(labResults));
-        model.addAttribute("latestGlucoseStatus", evaluateGlucoseStatus(labResults));
+        
+        String hba1cStatus = evaluateHbA1cStatus(labResults);
+        String glucoseStatus = evaluateGlucoseStatus(labResults);
+        model.addAttribute("latestHbA1cStatus", hba1cStatus);
+        model.addAttribute("latestGlucoseStatus", glucoseStatus);
+        model.addAttribute("hba1cBadgeClass", getHbA1cBadgeClass(hba1cStatus));
+        model.addAttribute("glucoseBadgeClass", getGlucoseBadgeClass(glucoseStatus));
 
+        String bmiStatus = evaluateBmiStatus(patient);
         model.addAttribute("bmi", calculateBmi(patient));
-        model.addAttribute("bmiStatus", evaluateBmiStatus(patient));
+        model.addAttribute("bmiStatus", bmiStatus);
+        model.addAttribute("bmiBadgeClass", getBmiBadgeClass(bmiStatus));
 
         List<LabResult> highAbnormalResults = abnormalResults.stream()
                 .filter(result -> {

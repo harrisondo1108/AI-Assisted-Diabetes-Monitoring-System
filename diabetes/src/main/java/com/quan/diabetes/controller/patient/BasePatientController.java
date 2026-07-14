@@ -187,6 +187,14 @@ public abstract class BasePatientController {
                 .stream()
                 .filter(result -> result.getLabOrder() != null)
                 .filter(result -> orderIds.contains(result.getLabOrder().getLabOrderId()))
+                .sorted((r1, r2) -> {
+                    LocalDateTime d1 = r1.getLabOrder().getClinicalExamination() != null ? r1.getLabOrder().getClinicalExamination().getExamDate() : null;
+                    LocalDateTime d2 = r2.getLabOrder().getClinicalExamination() != null ? r2.getLabOrder().getClinicalExamination().getExamDate() : null;
+                    if (d1 == null && d2 == null) return 0;
+                    if (d1 == null) return 1;
+                    if (d2 == null) return -1;
+                    return d2.compareTo(d1);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -363,37 +371,65 @@ public abstract class BasePatientController {
     }
 
     protected int calculateRiskScore(List<LabResult> results, Patient patient) {
-        int score = 30;
+        int score = 10; // Bắt đầu từ mức nền thấp 10
 
-        for (LabResult result : results) {
-            String testName = result.getLabTest() != null && result.getLabTest().getTestName() != null
-                    ? result.getLabTest().getTestName().toLowerCase()
-                    : "";
+        // 1. Chỉ lấy các kết quả xét nghiệm HbA1c và Glucose MỚI NHẤT để tính điểm
+        BigDecimal latestHbA1c = findLatestResultNumber(results, "hba1c");
+        BigDecimal latestGlucose = findLatestResultNumber(results, "glucose");
 
-            BigDecimal value = result.getResultValue();
-
-            if (value == null) {
-                continue;
+        if (latestHbA1c != null) {
+            if (latestHbA1c.compareTo(new BigDecimal("6.5")) >= 0) {
+                score += 30; // Ngưỡng tiểu đường
+            } else if (latestHbA1c.compareTo(new BigDecimal("5.7")) >= 0) {
+                score += 15; // Tiền tiểu đường
             }
+        }
 
-            if (testName.contains("hba1c") && value.compareTo(new BigDecimal("7.0")) >= 0) {
-                score += 25;
+        if (latestGlucose != null) {
+            if (latestGlucose.compareTo(new BigDecimal("126")) >= 0) {
+                score += 25; // Đường huyết đói cao
+            } else if (latestGlucose.compareTo(new BigDecimal("100")) >= 0) {
+                score += 10; // Cận ranh giới
             }
+        }
 
-            if (testName.contains("glucose") && value.compareTo(new BigDecimal("126")) >= 0) {
-                score += 20;
+        // 2. Tính điểm cộng thêm từ chỉ số BMI
+        if (patient != null && patient.getHeight() != null && patient.getWeight() != null && patient.getHeight() > 0) {
+            double heightMeter = patient.getHeight() / 100.0;
+            double bmi = patient.getWeight().doubleValue() / (heightMeter * heightMeter);
+            if (bmi >= 30) {
+                score += 20; // Béo phì
+            } else if (bmi >= 25) {
+                score += 10; // Thừa cân
             }
+        }
 
-            String flag = result.getFlag() == null ? "" : result.getFlag().toLowerCase();
+        // 3. Tính điểm cộng thêm từ tiền sử bệnh án
+        if (patient != null && patient.getPermanentMedicalHistory() != null
+                && patient.getPermanentMedicalHistory().toLowerCase().contains("diabetes")) {
+            score += 15;
+        }
 
-            if (flag.contains("high") || flag.contains("cao") || flag.contains("abnormal")) {
+        // 4. Tính điểm từ độ tuổi (Ví dụ: trên 45 tuổi tăng nguy cơ)
+        if (patient != null && patient.getDob() != null) {
+            int age = java.time.Period.between(patient.getDob(), java.time.LocalDate.now()).getYears();
+            if (age >= 45) {
                 score += 10;
             }
         }
 
-        if (patient != null && patient.getPermanentMedicalHistory() != null
-                && patient.getPermanentMedicalHistory().toLowerCase().contains("diabetes")) {
-            score += 10;
+        // 5. Tính điểm phạt từ các xét nghiệm bất thường khác (không bao gồm HbA1c/Glucose)
+        for (LabResult result : results) {
+            String testName = result.getLabTest() != null && result.getLabTest().getTestName() != null
+                    ? result.getLabTest().getTestName().toLowerCase()
+                    : "";
+            if (testName.contains("hba1c") || testName.contains("glucose")) {
+                continue; // Bỏ qua HbA1c và Glucose vì đã tính riêng ở trên
+            }
+            String flag = result.getFlag() == null ? "" : result.getFlag().toLowerCase();
+            if (flag.contains("high") || flag.contains("cao") || flag.contains("abnormal")) {
+                score += 5; // Phạt ít điểm hơn (5 điểm) cho mỗi xét nghiệm phụ bất thường khác
+            }
         }
 
         return Math.min(score, 100);
@@ -471,6 +507,36 @@ public abstract class BasePatientController {
         }
 
         return "Thiếu cân";
+    }
+
+    protected String getHbA1cBadgeClass(String status) {
+        if ("Ngưỡng tiểu đường".equals(status)) {
+            return "badge-danger";
+        }
+        if ("Ngưỡng tiền tiểu đường".equals(status)) {
+            return "badge-warning";
+        }
+        return "badge-success";
+    }
+
+    protected String getGlucoseBadgeClass(String status) {
+        if ("Cao".equals(status)) {
+            return "badge-danger";
+        }
+        if ("Cận ranh giới".equals(status)) {
+            return "badge-warning";
+        }
+        return "badge-success";
+    }
+
+    protected String getBmiBadgeClass(String status) {
+        if ("Béo phì".equals(status)) {
+            return "badge-danger";
+        }
+        if ("Thừa cân".equals(status)) {
+            return "badge-warning";
+        }
+        return "badge-success";
     }
 
     protected BigDecimal findLatestResultNumber(List<LabResult> results, String keyword) {
