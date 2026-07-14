@@ -27,9 +27,7 @@ function addCloseHandlers(modal, ...triggers) {
     document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && modal.classList.contains('show')) closeModal(modal); });
 }
 
-/* ── LocalStorage ── */
-function saveThreshold(id, data) { localStorage.setItem('threshold_' + id, JSON.stringify(data)); }
-function getThreshold(id)        { const r = localStorage.getItem('threshold_' + id); return r ? JSON.parse(r) : null; }
+
 
 /* ── Custom Confirm Modal ── */
 let confirmAction = null;
@@ -59,7 +57,8 @@ function buildThresholdData(p) {
         young:    { min: val(p+'YoungMin'),    max: val(p+'YoungMax') },
         middle:   { min: val(p+'MiddleMin'),   max: val(p+'MiddleMax') },
         elder:    { min: val(p+'ElderMin'),    max: val(p+'ElderMax') },
-        pregnant: { min: val(p+'PregnantMin'), max: val(p+'PregnantMax') }
+        pregnant: { min: val(p+'PregnantMin'), max: val(p+'PregnantMax') },
+        children: { min: val(p+'ChildrenMin'), max: val(p+'ChildrenMax') }
     };
 }
 
@@ -72,6 +71,8 @@ function fillThresholdInputs(p, data, fbMin, fbMax) {
     setVal(p+'ElderMax',    data?.elder?.max    ?? fbMax ?? 0);
     setVal(p+'PregnantMin', data?.pregnant?.min ?? fbMin ?? 0);
     setVal(p+'PregnantMax', data?.pregnant?.max ?? fbMax ?? 0);
+    setVal(p+'ChildrenMin', data?.children?.min ?? fbMin ?? 0);
+    setVal(p+'ChildrenMax', data?.children?.max ?? fbMax ?? 0);
 }
 
 function val(id)        { const el = document.getElementById(id); return el ? el.value : ''; }
@@ -141,7 +142,7 @@ function validateBaseForm(form, isEdit) {
 }
 
 function validateThresholdData(data) {
-    for (const g of ['young','middle','elder','pregnant']) {
+    for (const g of ['young','middle','elder','pregnant','children']) {
         const min = Number(data[g].min), max = Number(data[g].max);
         if (data[g].min === '' || data[g].max === '') return alert('Vui lòng nhập đầy đủ Min/Max'), false;
         if (min < 0 || max < 0) return alert('Min/Max không được nhỏ hơn 0'), false;
@@ -166,9 +167,6 @@ function initCreateModal() {
     form?.addEventListener('submit', function(e) {
         const data = buildThresholdData('create');
         if (!validateBaseForm(form, false) || !validateThresholdData(data)) { e.preventDefault(); return; }
-        setVal('createMainMinValue', data.young.min);
-        setVal('createMainMaxValue', data.young.max);
-        localStorage.setItem('pending_create_threshold', JSON.stringify(data));
     });
 }
 
@@ -186,7 +184,25 @@ function initEditModal() {
             setVal('editUnit',        btn.dataset.unit        || '');
             setVal('editRoomId',      btn.dataset.room        || '');
             setVal('editDescription', btn.dataset.description || '');
-            fillThresholdInputs('edit', getThreshold(id), btn.dataset.min, btn.dataset.max);
+            
+            fillThresholdInputs('edit', null);
+
+            fetch('/admin/lab-tests/detail/' + id)
+                .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+                .then(function(d) {
+                    setVal('editYoungMin',    d.youngMin ?? 0);
+                    setVal('editYoungMax',    d.youngMax ?? 0);
+                    setVal('editMiddleMin',   d.middleMin ?? 0);
+                    setVal('editMiddleMax',   d.middleMax ?? 0);
+                    setVal('editElderMin',    d.elderMin ?? 0);
+                    setVal('editElderMax',    d.elderMax ?? 0);
+                    setVal('editPregnantMin', d.pregnantMin ?? 0);
+                    setVal('editPregnantMax', d.pregnantMax ?? 0);
+                    setVal('editChildrenMin', d.childrenMin ?? 0);
+                    setVal('editChildrenMax', d.childrenMax ?? 0);
+                })
+                .catch(function(err) { console.error('fetch threshold error', err); });
+
             form.action = '/admin/lab-tests/update/' + id;
             
             document.getElementById('editTestName').dispatchEvent(new Event('input'));
@@ -198,11 +214,7 @@ function initEditModal() {
     });
     form.addEventListener('submit', function(e) {
         const data = buildThresholdData('edit');
-        const id   = val('editLabTestId');
         if (!validateBaseForm(form, true) || !validateThresholdData(data)) { e.preventDefault(); return; }
-        setVal('editMainMinValue', data.young.min);
-        setVal('editMainMaxValue', data.young.max);
-        saveThreshold(id, data);
     });
 }
 
@@ -215,42 +227,45 @@ function initViewModal() {
         btn.addEventListener('click', function() {
             const id = btn.dataset.id;
             if (!id) return;
-            fillViewFromDataset(btn.dataset, getThreshold(id));
+            
+            setText('detailId',          btn.dataset.id);
+            setText('detailName',        btn.dataset.name);
+            setText('detailUnit',        btn.dataset.unit);
+            setText('detailRoom',        btn.dataset.room);
+            setText('detailStatus',      btn.dataset.status === 'true' ? 'Hoạt động' : 'Tạm ngưng');
+            setText('detailDescription', btn.dataset.description || '---');
+            setText('youngMin',          '...'); setText('youngMax',          '...');
+            setText('middleMin',         '...'); setText('middleMax',         '...');
+            setText('elderMin',          '...'); setText('elderMax',          '...');
+            setText('pregnantMin',       '...'); setText('pregnantMax',       '...');
+            setText('childrenMin',       '...'); setText('childrenMax',       '...');
+
             openModal(modal);
             fetch('/admin/lab-tests/detail/' + id)
                 .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
-                .then(function(d) { fillViewFromApi(d, getThreshold(id)); })
+                .then(function(d) { fillViewFromApi(d); })
                 .catch(function(err) { console.error('detail error', err); });
         });
     });
 }
 
-function fillViewFromDataset(ds, thr) {
-    setText('detailId',          ds.id);
-    setText('detailName',        ds.name);
-    setText('detailUnit',        ds.unit);
-    setText('detailRoom',        ds.room);
-    setText('detailStatus',      ds.status === 'true' ? 'Hoạt động' : 'Tạm ngưng');
-    setText('detailDescription', ds.description || '---');
-    const t = thr || { young:{min:ds.min??0,max:ds.max??0}, middle:{min:ds.min??0,max:ds.max??0}, elder:{min:ds.min??0,max:ds.max??0}, pregnant:{min:ds.min??0,max:ds.max??0} };
-    setText('youngMin',t.young.min); setText('youngMax',t.young.max);
-    setText('middleMin',t.middle.min); setText('middleMax',t.middle.max);
-    setText('elderMin',t.elder.min); setText('elderMax',t.elder.max);
-    setText('pregnantMin',t.pregnant.min); setText('pregnantMax',t.pregnant.max);
-}
-
-function fillViewFromApi(d, thr) {
+function fillViewFromApi(d) {
     setText('detailId',          d.labTestId);
     setText('detailName',        d.testName);
     setText('detailUnit',        d.unit);
     setText('detailRoom',        d.roomId);
     setText('detailStatus',      d.status === true ? 'Hoạt động' : 'Tạm ngưng');
     setText('detailDescription', d.description || '---');
-    const t = thr || { young:{min:d.minValue??0,max:d.maxValue??0}, middle:{min:d.minValue??0,max:d.maxValue??0}, elder:{min:d.minValue??0,max:d.maxValue??0}, pregnant:{min:d.minValue??0,max:d.maxValue??0} };
-    setText('youngMin',t.young.min); setText('youngMax',t.young.max);
-    setText('middleMin',t.middle.min); setText('middleMax',t.middle.max);
-    setText('elderMin',t.elder.min); setText('elderMax',t.elder.max);
-    setText('pregnantMin',t.pregnant.min); setText('pregnantMax',t.pregnant.max);
+    setText('youngMin',          d.youngMin ?? 0); 
+    setText('youngMax',          d.youngMax ?? 0);
+    setText('middleMin',         d.middleMin ?? 0); 
+    setText('middleMax',         d.middleMax ?? 0);
+    setText('elderMin',          d.elderMin ?? 0); 
+    setText('elderMax',          d.elderMax ?? 0);
+    setText('pregnantMin',       d.pregnantMin ?? 0); 
+    setText('pregnantMax',       d.pregnantMax ?? 0);
+    setText('childrenMin',       d.childrenMin ?? 0); 
+    setText('childrenMax',       d.childrenMax ?? 0);
 }
 
 /* ── TABS ── */

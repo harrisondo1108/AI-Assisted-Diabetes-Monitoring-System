@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết Ca khám | Hệ thống chăm sóc tiểu đường</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Page CSS -->
+    <link rel="stylesheet" th:href="@{/css/doctor/doctor-common.css}">
+    <link rel="stylesheet" th:href="@{/css/doctor/doctor-patients.css}">
+</head>
+
+<body>
+    <div class="doctor-layout">
+        <div class="doctor-main">
+            <!-- Header layout replacement -->
+            <div th:replace="~{layout/doctor/header :: header('Chi tiết ca khám', 'patients')}"></div>
+
+            <main class="doctor-content history-layout">
+
+                <section class="patient-history-detail" id="patientDetailSection">
+                    <div class="patient-history-container" id="historyDetails" style="width: 100%;">
+                        <!-- Top Details Header -->
+                        <div class="history-profile-header">
+                            <div class="profile-header-meta">
+                                <div class="profile-avatar">
+                                    <img th:if="${patient.imageUrl != null}" th:src="${patient.imageUrl}" alt="Avatar"
+                                        style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />
+                                    <i th:unless="${patient.imageUrl != null}" class="fas fa-hospital-user"></i>
+                                </div>
+                                <div>
+                                    <h2 class="profile-name" th:text="${patient.fullName}">Nguyen Van A</h2>
+                                </div>
+                            </div>
+                            <div class="profile-header-actions">
+                                <a th:href="@{/doctor/history(patientId=${patient.userId}, from=${from})}"
+                                   class="btn btn-secondary btn-sm">
+                                    <i class="fas fa-arrow-left"></i> Quay lại lịch sử
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Main Detailed Card -->
+                        <div class="history-section-card" style="margin-top: 20px;">
+                            <div class="timeline-content-card"
+                                 style="padding: 24px; display: flex; flex-direction: column; gap: 20px; border: 1px solid var(--doctor-border); border-radius: 12px; background: #ffffff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+                                
+                                <div class="timeline-header-meta"
+                                     style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--doctor-border); padding-bottom: 12px;">
+                                    <span class="timeline-date"
+                                          style="font-weight: 700; color: var(--doctor-primary); font-size: 1.05rem;"
+                                          th:text="${td.exam.examDate != null ? 'Ngày khám: ' + #temporals.format(td.exam.examDate, 'dd/MM/yyyy HH:mm') : 'N/A'}"></span>
+                                    <span class="timeline-doc"
+                                          style="font-weight: 600; color: var(--doctor-text-main);"
+                                          th:text="${'Bác sĩ khám: ' + (td.exam.doctor.profile != null ? td.exam.doctor.profile.fullName : 'N/A')}"></span>
+                                    <span th:if="${td.exam.nextAppointment != null}"
+                                          class="timeline-next-appt"
+                                          style="font-weight: 600; color: var(--doctor-primary);"
+                                          th:text="${'Lịch hẹn tái khám: ' + #temporals.format(td.exam.nextAppointment, 'dd/MM/yyyy')}"></span>
+                                </div>
+
+                                <!-- Diagnosis or Cancel Reason -->
+                                <div class="notes-card diagnosis"
+                                     th:if="${td.exam != null && !'Cancelled'.equalsIgnoreCase(td.exam.status)}"
+                                     style="background-color: rgba(16, 185, 129, 0.05); border-left: 4px solid var(--doctor-primary); padding: 16px; border-radius: 6px;">
+                                    <span class="lbl"
+                                          style="font-size: 0.72rem; color: var(--doctor-primary); font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 6px; letter-spacing: 0.5px;"><i
+                                                  class="fas fa-file-medical"></i> Chẩn đoán cuối cùng</span>
+                                    <h4 class="notes-content"
+                                        style="font-weight: 700; color: var(--green-900); margin: 0; font-size: 1rem;"
+                                        th:text="${td.exam.diagnosisNote != null && !td.exam.diagnosisNote.empty ? td.exam.diagnosisNote : 'N/A'}">
+                                    </h4>
+                                </div>
+                                <div class="notes-card diagnosis"
+                                     th:if="${td.exam != null && 'Cancelled'.equalsIgnoreCase(td.exam.status)}"
+                                     style="border-left: 4px solid var(--doctor-danger); background-color: rgba(220, 38, 38, 0.05); padding: 16px; border-radius: 6px;">
+                                    <span class="lbl"
+                                          style="font-size: 0.72rem; color: var(--doctor-danger); font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 6px; letter-spacing: 0.5px;"><i
+                                                  class="fas fa-ban"></i> Lý do hủy ca khám</span>
+                                    <h4 class="notes-content"
+                                        style="font-weight: 700; color: var(--doctor-danger); margin: 0; font-size: 1rem;"
+                                        th:text="${td.exam.cancelReason != null && !td.exam.cancelReason.empty ? td.exam.cancelReason : 'Không có lý do hủy'}">
+                                    </h4>
+                                </div>
+
+                                <!-- Symptoms & Medical History -->
+                                <div class="history-detail-card"
+                                     style="border: 1px solid var(--doctor-border); padding: 20px; border-radius: 8px; background: #ffffff;">
+                                    <h3 class="history-section-title"
+                                         style="margin-top: 0; margin-bottom: 12px; font-size: 0.95rem; font-weight: 700; color: var(--doctor-text-main); border-bottom: 1px solid #f3f4f6; padding-bottom: 8px;">
+                                        <i class="fas fa-stethoscope"></i> Triệu chứng & Lý do khám</h3>
+                                    <div class="timeline-badges-wrap"
+                                         style="margin-bottom: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
+                                        <span th:each="s : ${td.symptoms}" class="timeline-symptom-badge"
+                                              th:text="${s.symptom.symptomName + (s.note != null && !s.note.trim().isEmpty() ? ' (' + s.note + ')' : '')}"
+                                              style="background: #f3f4f6; border: 1px solid var(--doctor-border); padding: 4px 10px; border-radius: 12px; font-size: 0.78rem; color: var(--doctor-text-main); font-weight: 600;"></span>
+                                        <span th:if="${td.symptoms == null || td.symptoms.empty}"
+                                              style="font-size: 0.85rem; color: var(--doctor-text-muted);">Không ghi nhận triệu chứng</span>
+                                    </div>
+                                    <div class="notes-card clinical"
+                                         style="padding: 12px; background-color: var(--doctor-bg-light); border-radius: 6px; border: 1px solid var(--doctor-border);"
+                                         th:if="${td.exam.medicalHistory != null && !td.exam.medicalHistory.trim().empty}">
+                                        <p class="notes-content" style="margin: 0; font-size: 0.88rem;"
+                                           th:text="${td.exam.medicalHistory}"></p>
+                                    </div>
+                                </div>
+
+                                <!-- Treatment Plan -->
+                                <div th:if="${td.exam != null && td.exam.treatmentPlan != null}"
+                                     class="history-detail-card"
+                                     style="border: 1px solid var(--doctor-border); padding: 20px; border-radius: 8px; background: #ffffff;">
+                                    <h3 class="history-section-title"
+                                         style="margin-top: 0; margin-bottom: 12px; font-size: 0.95rem; font-weight: 700; color: var(--doctor-text-main); border-bottom: 1px solid #f3f4f6; padding-bottom: 8px;">
+                                        <i class="fas fa-notes-medical"></i> Kế hoạch & Phác đồ điều trị
+                                    </h3>
+                                    <div class="treatment-plan-card"
+                                         style="display: flex; flex-direction: column; gap: 12px;">
+                                        <div class="plan-item-row"
+                                             th:if="${td.exam.treatmentPlan.treatmentGoal != null && !td.exam.treatmentPlan.treatmentGoal.empty}">
+                                            <div class="plan-item-icon"
+                                                 style="color: var(--doctor-primary);"><i
+                                                      class="fas fa-bullseye"></i></div>
+                                            <div class="plan-item-content">
+                                                <span class="plan-item-label"
+                                                      style="font-weight: 700; font-size: 0.8rem; color: var(--doctor-text-muted);">Mục tiêu điều trị</span>
+                                                <p class="plan-item-text"
+                                                   style="margin: 2px 0 0 0; font-size: 0.88rem;"
+                                                   th:text="${td.exam.treatmentPlan.treatmentGoal}"></p>
+                                            </div>
+                                        </div>
+                                        <div class="plan-item-row"
+                                             th:if="${td.exam.treatmentPlan.dietPlan != null && !td.exam.treatmentPlan.dietPlan.empty}">
+                                            <div class="plan-item-icon"
+                                                 style="color: var(--doctor-primary);"><i
+                                                      class="fas fa-apple-whole"></i></div>
+                                            <div class="plan-item-content">
+                                                <span class="plan-item-label"
+                                                      style="font-weight: 700; font-size: 0.8rem; color: var(--doctor-text-muted);">Chế độ dinh dưỡng</span>
+                                                <p class="plan-item-text"
+                                                   style="margin: 2px 0 0 0; font-size: 0.88rem;"
+                                                   th:text="${td.exam.treatmentPlan.dietPlan}"></p>
+                                            </div>
+                                        </div>
+                                        <div class="plan-item-row"
+                                             th:if="${td.exam.treatmentPlan.exercisePlan != null && !td.exam.treatmentPlan.exercisePlan.empty}">
+                                            <div class="plan-item-icon"
+                                                 style="color: var(--doctor-primary);"><i
+                                                      class="fas fa-person-running"></i></div>
+                                            <div class="plan-item-content">
+                                                <span class="plan-item-label"
+                                                      style="font-weight: 700; font-size: 0.8rem; color: var(--doctor-text-muted);">Chế độ vận động & Tập luyện</span>
+                                                <p class="plan-item-text"
+                                                   style="margin: 2px 0 0 0; font-size: 0.88rem;"
+                                                   th:text="${td.exam.treatmentPlan.exercisePlan}"></p>
+                                            </div>
+                                        </div>
+                                        <div class="plan-item-row"
+                                             th:if="${td.exam.treatmentPlan.glucoseMonitoringPlan != null && !td.exam.treatmentPlan.glucoseMonitoringPlan.empty}">
+                                            <div class="plan-item-icon"
+                                                 style="color: var(--doctor-primary);"><i
+                                                      class="fas fa-droplet"></i></div>
+                                            <div class="plan-item-content">
+                                                <span class="plan-item-label"
+                                                      style="font-weight: 700; font-size: 0.8rem; color: var(--doctor-text-muted);">Tần suất tự theo dõi đường huyết</span>
+                                                <p class="plan-item-text"
+                                                   style="margin: 2px 0 0 0; font-size: 0.88rem;"
+                                                   th:text="${td.exam.treatmentPlan.glucoseMonitoringPlan}">
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Lab Results -->
+                                <div class="history-detail-card"
+                                     style="border: 1px solid var(--doctor-border); padding: 20px; border-radius: 8px; background: #ffffff;">
+                                    <h3 class="history-section-title"
+                                         style="margin-top: 0; margin-bottom: 12px; font-size: 0.95rem; font-weight: 700; color: var(--doctor-text-main); border-bottom: 1px solid #f3f4f6; padding-bottom: 8px;">
+                                        <i class="fas fa-flask"></i> Kết quả xét nghiệm</h3>
+                                    <div style="overflow-x: auto;">
+                                        <table class="clinical-table"
+                                               style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
+                                            <thead>
+                                                <tr>
+                                                    <th style="padding: 8px 12px; text-align: left;">Tên xét nghiệm</th>
+                                                    <th style="padding: 8px 12px; text-align: left;">Khoảng tham chiếu</th>
+                                                    <th style="padding: 8px 12px; text-align: left;">Kết quả</th>
+                                                    <th style="padding: 8px 12px; text-align: left;">Đánh giá</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr th:each="l : ${td.labResults}">
+                                                    <td style="padding: 8px 12px;"
+                                                        th:text="${l.labTest.testName}"></td>
+                                                    <td style="padding: 8px 12px; color: var(--doctor-text-muted);"
+                                                        th:text="${l.referenceRange}"></td>
+                                                    <td style="padding: 8px 12px; font-weight: 600;">
+                                                        <span th:text="${l.resultValue}"></span> <span
+                                                            style="font-size: 0.78rem; color: var(--doctor-text-muted); font-weight: normal;"
+                                                            th:text="${l.labTest.unit}"></span>
+                                                    </td>
+                                                    <td style="padding: 8px 12px; font-weight: bold;"
+                                                        th:text="${l.flag == 'HIGH' ? 'CAO' : (l.flag == 'NORMAL' ? 'BÌNH THƯỜNG' : l.flag)}"
+                                                        th:styleappend="${l.flag == 'HIGH' ? 'color: var(--doctor-danger)' : 'color: var(--doctor-success)'}">
+                                                    </td>
+                                                </tr>
+                                                <tr th:if="${td.labResults == null || td.labResults.empty}">
+                                                    <td colspan="4"
+                                                        style="text-align: center; color: var(--doctor-text-muted); padding: 12px;">
+                                                        Không có chỉ định xét nghiệm</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- Prescription details -->
+                                <div class="history-detail-card"
+                                     style="border: 1px solid var(--doctor-border); padding: 20px; border-radius: 8px; background: #ffffff;">
+                                    <h3 class="history-section-title"
+                                         style="margin-top: 0; margin-bottom: 12px; font-size: 0.95rem; font-weight: 700; color: var(--doctor-text-main); border-bottom: 1px solid #f3f4f6; padding-bottom: 8px;">
+                                        <i class="fas fa-pills"></i> Đơn thuốc điều trị đã kê</h3>
+                                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                                        <div th:each="p : ${td.prescriptionDetails}"
+                                             class="prescription-line"
+                                             style="padding: 0; border: 1px solid var(--doctor-border); border-radius: 8px; overflow: hidden; background-color: var(--doctor-card-bg);">
+                                            <div class="presc-card-main"
+                                                 style="display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background-color: var(--doctor-bg-light); border-bottom: 1px solid var(--doctor-border);">
+                                                <div class="presc-med-info"
+                                                     style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
+                                                    <span style="font-size: 1.25rem; color: var(--doctor-primary);"><i
+                                                            class="fas fa-pills"></i></span>
+                                                    <div class="presc-med-name"
+                                                         style="font-weight: 700; color: var(--doctor-text-main); font-size: 0.98rem;">
+                                                        <span th:text="${p.medication.medicationName}"></span>
+                                                        <span class="presc-med-conc"
+                                                              style="font-weight: 500; color: var(--doctor-text-muted); font-size: 0.85rem;"
+                                                              th:text="${'(' + p.medication.concentration + ')'}"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="presc-card-dropdown"
+                                                 style="display: block; padding: 14px 16px; background-color: #ffffff; font-size: 0.88rem; color: #374151; line-height: 1.6; display: flex; flex-direction: column; gap: 8px;">
+                                                <div><strong style="color: var(--doctor-text-muted);"><i
+                                                        class="fas fa-capsules"></i> Liều lượng:</strong> <span
+                                                        th:text="${p.dosage}"></span></div>
+                                                <div><strong style="color: var(--doctor-text-muted);"><i
+                                                        class="fas fa-clipboard-list"></i> Số lượng:</strong> <span
+                                                        th:text="${p.totalQuantity + ' ' + p.medication.form}"></span></div>
+                                                <div><strong style="color: var(--doctor-text-muted);"><i
+                                                        class="fas fa-calendar-days"></i> Thời gian sử dụng:</strong> <span
+                                                        th:text="${p.durationDays + ' ngày'}"></span></div>
+                                                <div th:if="${p.startDate != null && p.endDate != null}"><strong style="color: var(--doctor-text-muted);"><i
+                                                        class="far fa-calendar-alt"></i> Thời gian điều trị:</strong> Từ <span
+                                                        th:text="${#temporals.format(p.startDate, 'dd/MM/yyyy')}"></span>
+                                                    đến <span
+                                                        th:text="${#temporals.format(p.endDate, 'dd/MM/yyyy')}"></span></div>
+                                                <div th:if="${p.prescriptionTimings != null && !p.prescriptionTimings.empty}">
+                                                    <strong style="color: var(--doctor-text-muted);"><i
+                                                            class="fas fa-clock"></i> Thời điểm dùng:</strong>
+                                                    <span th:each="t, iter : ${p.prescriptionTimings}"
+                                                          th:text="${t.timing.timingName + (iter.last ? '' : ', ')}"></span>
+                                                </div>
+                                                <div th:if="${p.medicationPlan != null && !p.medicationPlan.empty}">
+                                                    <strong style="color: var(--doctor-text-muted);"><i
+                                                            class="fas fa-info-circle"></i> Hướng dẫn:</strong> <span
+                                                        th:text="${p.medicationPlan}"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div th:if="${td.prescriptionDetails == null || td.prescriptionDetails.empty}"
+                                             style="text-align: center; color: var(--doctor-text-muted); padding: 16px; background: var(--doctor-bg-light); border-radius: 6px; border: 1px solid var(--doctor-border);">
+                                            Không kê đơn thuốc</div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+</body>
+</html>

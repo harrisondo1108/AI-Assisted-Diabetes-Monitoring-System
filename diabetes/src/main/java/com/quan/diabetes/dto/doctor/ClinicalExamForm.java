@@ -1,6 +1,7 @@
 package com.quan.diabetes.dto.doctor;
 
 import java.util.List;
+import java.util.Map;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
@@ -11,15 +12,14 @@ import jakarta.validation.constraints.Pattern;
  */
 public class ClinicalExamForm {
 
-    @NotBlank(message = "Lý do khám & bệnh sử không được để trống")
+    @NotBlank(message = "Lý do khám không được để trống")
     private String medicalHistory;
     @NotBlank(message = "Ghi chú chẩn đoán lâm sàng không được để trống")
     private String diagnosisNote;
-    private String nextAppointment; // Receives yyyy-MM-dd date string
-    @NotEmpty(message = "Vui lòng chọn ít nhất một triệu chứng")
+    private String nextAppointment;
     private List<String> symptomIds;
-    private List<String> labTestIds;
-    private String prescriptionJson; // Receives serialized JSON string of medications
+    private String prescriptionJson;
+    private Map<String, String> symptomComments;
 
     // Treatment plan details
     @Pattern(regexp = "^$|.*\\S.*", message = "Mục tiêu điều trị không được chỉ chứa khoảng trắng")
@@ -65,14 +65,6 @@ public class ClinicalExamForm {
 
     public void setSymptomIds(List<String> symptomIds) {
         this.symptomIds = symptomIds;
-    }
-
-    public List<String> getLabTestIds() {
-        return labTestIds;
-    }
-
-    public void setLabTestIds(List<String> labTestIds) {
-        this.labTestIds = labTestIds;
     }
 
     public String getPrescriptionJson() {
@@ -124,7 +116,6 @@ public class ClinicalExamForm {
     }
 
     private String symptomCommentsJson;
-    private String labResultsJson;
 
     public String getSymptomCommentsJson() {
         return symptomCommentsJson;
@@ -132,14 +123,6 @@ public class ClinicalExamForm {
 
     public void setSymptomCommentsJson(String symptomCommentsJson) {
         this.symptomCommentsJson = symptomCommentsJson;
-    }
-
-    public String getLabResultsJson() {
-        return labResultsJson;
-    }
-
-    public void setLabResultsJson(String labResultsJson) {
-        this.labResultsJson = labResultsJson;
     }
 
     public Boolean getIsPregnant() {
@@ -150,6 +133,14 @@ public class ClinicalExamForm {
         this.isPregnant = isPregnant;
     }
 
+    public Map<String, String> getSymptomComments() {
+        return symptomComments;
+    }
+
+    public void setSymptomComments(Map<String, String> symptomComments) {
+        this.symptomComments = symptomComments;
+    }
+
     @Override
     public String toString() {
         return "ClinicalExamForm{" +
@@ -157,7 +148,6 @@ public class ClinicalExamForm {
                 ", diagnosisNote='" + diagnosisNote + '\'' +
                 ", nextAppointment='" + nextAppointment + '\'' +
                 ", symptomIds=" + symptomIds +
-                ", labTestIds=" + labTestIds +
                 ", prescriptionJson='" + prescriptionJson + '\'' +
                 ", treatmentGoal='" + treatmentGoal + '\'' +
                 ", dietPlan='" + dietPlan + '\'' +

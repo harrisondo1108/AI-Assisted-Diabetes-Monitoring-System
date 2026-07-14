@@ -15,6 +15,7 @@ import com.quan.diabetes.repository.ClinicalExaminationRepository;
 import com.quan.diabetes.service.user.AdminUserService;
 import com.quan.diabetes.service.user.PatientService;
 import com.quan.diabetes.service.user.UserService;
+import com.quan.diabetes.service.systemlog.SystemLogService;
 import com.quan.diabetes.util.ParseUtil;
 import com.quan.diabetes.util.SearchUtil;
 import jakarta.persistence.EntityNotFoundException;
@@ -47,6 +48,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     private final PatientService patientService;
     private final PasswordEncoder passwordEncoder;
     private final ClinicalExaminationRepository clinicalExaminationRepository;
+    private final SystemLogService systemLogService;
 
     public AdminUserServiceImpl(UserRepository userRepository,
                                 PatientRepository patientRepository,
@@ -56,7 +58,8 @@ public class AdminUserServiceImpl implements AdminUserService {
                                 UserService userService,
                                 PatientService patientService,
                                 PasswordEncoder passwordEncoder,
-                                ClinicalExaminationRepository clinicalExaminationRepository) {
+                                ClinicalExaminationRepository clinicalExaminationRepository,
+                                SystemLogService systemLogService) {
         this.userRepository = userRepository;
         this.patientRepository = patientRepository;
         this.profileRepository = profileRepository;
@@ -66,6 +69,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         this.patientService = patientService;
         this.passwordEncoder = passwordEncoder;
         this.clinicalExaminationRepository = clinicalExaminationRepository;
+        this.systemLogService = systemLogService;
     }
 
     @Override
@@ -79,6 +83,13 @@ public class AdminUserServiceImpl implements AdminUserService {
 
         for (User u : users) {
             String uRole = u.getRole() != null ? u.getRole().getRoleName().toLowerCase() : "";
+
+            // Only display doctor and patient roles
+            boolean isDoctor = uRole.contains("doctor") || uRole.equals("doc");
+            boolean isPatient = uRole.contains("patient") || uRole.equals("pat");
+            if (!isDoctor && !isPatient) {
+                continue;
+            }
 
             // Filter by role early
             if (roleFilter != null && !uRole.contains(roleFilter)) {
@@ -119,6 +130,7 @@ public class AdminUserServiceImpl implements AdminUserService {
                         dto.setRoomName(p.getRoom().getRoomName());
                     }
                     dto.setSpecialty(p.getSpecialty());
+                    dto.setEmail(p.getEmail());
                 });
             }
 
@@ -206,6 +218,7 @@ public class AdminUserServiceImpl implements AdminUserService {
             p.setDob(dto.getDob());
             p.setGender(dto.getGender());
             p.setSpecialty(ParseUtil.parseString(dto.getSpecialty()));
+            p.setEmail(ParseUtil.parseString(dto.getEmail()));
             // Ánh xạ phòng khám
             if (dto.getRoomName() != null && !dto.getRoomName().isBlank()) {
                 Room room = roomRepository.findAll().stream()
@@ -217,12 +230,17 @@ public class AdminUserServiceImpl implements AdminUserService {
             profileRepository.save(p);
         }
         dto.setUserId(user.getUserId());
+        
+        systemLogService.saveLogWithObject(null, "CREATE", "Account", user.getUserId(), "Thêm tài khoản mới", null, dto, "SUCCESS");
+        
         return dto;
     }
 
     @Override
     @Transactional
     public UserManagementDTO updateUserManagementDTO(String userId, UserManagementDTO dto) {
+        UserManagementDTO oldDto = getUserManagementDTOById(userId);
+        
         User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
         user.setPhoneNumber(dto.getAccountPhone());
         if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
@@ -256,6 +274,7 @@ public class AdminUserServiceImpl implements AdminUserService {
             p.setDob(dto.getDob());
             p.setGender(dto.getGender());
             p.setSpecialty(ParseUtil.parseString(dto.getSpecialty()));
+            p.setEmail(ParseUtil.parseString(dto.getEmail()));
             // Ánh xạ phòng khám
             if (dto.getRoomName() != null && !dto.getRoomName().isBlank()) {
                 Room room = roomRepository.findAll().stream()
@@ -266,6 +285,9 @@ public class AdminUserServiceImpl implements AdminUserService {
             }
             profileRepository.save(p);
         }
+        
+        systemLogService.saveLogWithObject(null, "UPDATE", "Account", userId, "Cập nhật tài khoản", oldDto, dto, "SUCCESS");
+        
         return dto;
     }
 
@@ -273,10 +295,17 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Transactional
     public void toggleLock(String userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
+        
+        User oldUser = new User();
+        oldUser.setUserId(user.getUserId());
+        oldUser.setStatus(user.getStatus());
+        
         if (User.STATUS_LOCKED.equals(user.getStatus())) {
             user.setStatus(User.STATUS_ACTIVE);
+            systemLogService.saveLogWithObject(null, "UPDATE", "Account", userId, "Mở khóa tài khoản", oldUser, user, "SUCCESS");
         } else {
             user.setStatus(User.STATUS_LOCKED);
+            systemLogService.saveLogWithObject(null, "LOCK", "Account", userId, "Khóa tài khoản", oldUser, user, "SUCCESS");
         }
         userRepository.save(user);
     }
@@ -318,6 +347,7 @@ public class AdminUserServiceImpl implements AdminUserService {
                     dto.setRoomName(p.getRoom().getRoomName());
                 }
                 dto.setSpecialty(p.getSpecialty());
+                dto.setEmail(p.getEmail());
             });
         }
         return dto;

@@ -11,10 +11,10 @@
 
 <body>
 <div class="admin-layout">
-    <div th:replace="~{layout/patient-sidebar :: patientSidebar('notifications')}"></div>
+    <div th:replace="~{layout/patient/sidebar :: patientSidebar('notifications')}"></div>
 
     <div class="admin-main">
-        <div th:replace="~{layout/patient-header :: patientHeader('Lịch uống thuốc')}"></div>
+        <div th:replace="~{layout/patient/header :: patientHeader('Lịch uống thuốc')}"></div>
 
         <main class="admin-content">
             <!-- Back button -->
@@ -74,7 +74,7 @@
             </div>
         </main>
 
-        <div th:replace="~{layout/footer :: footer}"></div>
+        <div th:replace="~{layout/patient/footer :: footer}"></div>
     </div>
 </div>
 </body>

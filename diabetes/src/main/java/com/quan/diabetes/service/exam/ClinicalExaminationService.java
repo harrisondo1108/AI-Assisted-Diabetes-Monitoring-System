@@ -37,4 +37,6 @@ public interface ClinicalExaminationService {
     void updateExamination(String examId, ClinicalExamForm form);
 
     void requestExamination(String patientId, String medicalHistory);
+
+    void saveDraft(String patientId, ClinicalExamForm form, String doctorId);
 }

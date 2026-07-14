@@ -20,7 +20,7 @@ public class PatientDashboardController extends BasePatientController {
         List<ClinicalExamination> examinations = findExaminationsByPatient(patient);
         List<LabOrder> labOrders = findLabOrdersByPatient(patient);
         List<LabResult> labResults = findLabResultsByPatient(patient);
-        List<AIReminder> aiReminders = findRemindersByPatient(patient);
+        List<Reminder> reminders = findRemindersByPatient(patient);
         List<MedicationReminderView> medicationReminders = buildTodayMedicationReminders(patient);
 
         ClinicalExamination latestExam = examinations.isEmpty() ? null : examinations.get(0);
@@ -61,7 +61,7 @@ public class PatientDashboardController extends BasePatientController {
 
         model.addAttribute("todayMedicationReminderCount", medicationReminders.size());
 
-        model.addAttribute("recentAiReminders", aiReminders.stream()
+        model.addAttribute("recentAiReminders", reminders.stream()
                 .limit(3)
                 .collect(Collectors.toList()));
 

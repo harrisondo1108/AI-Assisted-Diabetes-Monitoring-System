@@ -521,6 +521,10 @@ body {
     background: #fef3c7;
     color: #d97706;
 }
+.action-btn.delete {
+    background: #fee2e2;
+    color: #dc2626;
+}
 .action-btn:hover {
     transform: scale(1.1);
 }

@@ -14,26 +14,23 @@ public class TemplateMedicationCreationService {
     public String generateGroupReminder(
             String patientName,
             String timeSlot,
-            List<PrescriptionReminderDto> medicines
-    ) {
+            List<PrescriptionReminderDto> medicines) {
         StringBuilder content = new StringBuilder();
 
-        // Thay đổi lời chào thân thiện hơn
-        content.append("Thân chào bệnh nhân ")
+        content.append("Chào bạn ")
                 .append(valueOrDefault(patientName, "nhé"))
                 .append(",\n\n");
 
-        // Hành văn nhẹ nhàng hơn cho khung giờ
         if (hasText(timeSlot)) {
-            content.append("Đã đến khung giờ dùng thuốc của bạn (")
+            content.append("Đến giờ uống thuốc (")
                     .append(timeSlot.trim())
-                    .append(") rồi ạ. Bạn lưu ý sử dụng các thuốc sau nhé:\n");
+                    .append(") rồi ạ. Bạn nhớ uống các thuốc sau nhé:\n");
         } else {
-            content.append("Đã đến giờ sử dụng thuốc của bạn rồi ạ. Bạn lưu ý dùng các thuốc sau nhé:\n");
+            content.append("Đến giờ uống thuốc rồi ạ. Bạn nhớ uống các thuốc sau nhé:\n");
         }
 
         if (medicines == null || medicines.isEmpty()) {
-            content.append("- Hiện tại chưa có thông tin thuốc cần nhắc trong khung giờ này.\n");
+            content.append("- Hiện tại chưa có thông tin thuốc cần uống trong khung giờ này.\n");
         } else {
             for (PrescriptionReminderDto medicine : medicines) {
                 content.append(formatMedicineLine(medicine)).append("\n");
@@ -41,14 +38,12 @@ public class TemplateMedicationCreationService {
 
             String treatmentPlan = formatTreatmentPlan(medicines);
             if (hasText(treatmentPlan)) {
-                // Thay đổi tiêu đề kế hoạch phối hợp nghe bớt khô khan
                 content.append("\nMột vài lưu ý nhỏ cho ngày hôm nay để việc điều trị hiệu quả hơn:\n");
                 content.append(treatmentPlan);
             }
         }
 
-        // Lời chúc ấm áp hơn
-        content.append("\nChúc bạn một ngày nhiều niềm vui và luôn khỏe mạnh!");
+        content.append("\nChúc bạn luôn khỏe mạnh và có một ngày tốt lành!");
         return content.toString();
     }
 
@@ -58,7 +53,7 @@ public class TemplateMedicationCreationService {
         }
 
         StringBuilder line = new StringBuilder();
-        line.append("📍 "); // Thêm emoji để giao diện tin nhắn trực quan, bớt khô khan
+        line.append("📍 ");
         line.append(valueOrDefault(medicine.getMedicationName(), "Thuốc chưa rõ tên"));
 
         appendSegment(line, medicine.getDosage());
@@ -93,7 +88,7 @@ public class TemplateMedicationCreationService {
             }
 
             TreatmentPlan plan = medicine.getTreatmentPlan();
-            // Đổi nhãn (Label) cho gần gũi hơn với đời sống hàng ngày
+            addPlanLine(planLines, "🎯 Mục tiêu điều trị", plan.getTreatmentGoal());
             addPlanLine(planLines, "🥗 Chế độ dinh dưỡng", plan.getDietPlan());
             addPlanLine(planLines, "🏃 Chế độ tập luyện", plan.getExercisePlan());
             addPlanLine(planLines, "🩸 Theo dõi đường huyết", plan.getGlucoseMonitoringPlan());

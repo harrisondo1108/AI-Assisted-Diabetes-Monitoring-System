@@ -18,6 +18,7 @@ public interface ClinicalExaminationRepository extends JpaRepository<ClinicalExa
     Optional<ClinicalExamination> findFirstByPatient_UserIdOrderByExamDateDesc(String patientId);
     Optional<ClinicalExamination> findFirstByPatient_UserIdAndDoctor_UserIdAndStatusIn(String patientId, String doctorId, List<String> statuses);
     Optional<ClinicalExamination> findFirstByDoctor_UserIdAndStatus(String doctorId, String status);
+    List<ClinicalExamination> findByExamDateBetweenAndStatus(java.time.LocalDateTime start, java.time.LocalDateTime end, String status);
     @Query("SELECT p FROM ClinicalExamination ce "
             + "JOIN ce.patient p "
             + "WHERE ce.clinicalExamId = :clinicalExamId")

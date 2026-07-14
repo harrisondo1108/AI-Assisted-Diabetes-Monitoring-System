@@ -21,13 +21,6 @@ public class DashboardController {
         DashboardStatsDTO stats = dashboardService.getDashboardStats();
         model.addAttribute("stats", stats);
         
-        // Real data for the 7-day chart: conversations per day and reminders per day
-        java.util.List<Integer> aiInteractions = dashboardService.getConversationCountsLast7Days();
-        java.util.List<Integer> remindersSent = dashboardService.getReminderCountsLast7Days();
-
-        model.addAttribute("aiData", aiInteractions);
-        model.addAttribute("reminderData", remindersSent);
-        
         return "admin/dashboard";
     }
 }

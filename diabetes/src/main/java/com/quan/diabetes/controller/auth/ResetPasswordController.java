@@ -2,6 +2,9 @@ package com.quan.diabetes.controller.auth;
 
 import com.quan.diabetes.entity.User;
 import com.quan.diabetes.service.user.UserService;
+import com.quan.diabetes.service.notification.SmsService;
+import com.quan.diabetes.service.notification.EmailService;
+import com.quan.diabetes.service.systemlog.SystemLogService;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,9 +21,16 @@ import java.util.Random;
 public class ResetPasswordController {
     private static final Logger logger = LoggerFactory.getLogger(ResetPasswordController.class);
     private final UserService userService;
+    private final SmsService smsService;
+    private final SystemLogService systemLogService;
 
-    public ResetPasswordController(UserService userService) {
+    @org.springframework.beans.factory.annotation.Autowired
+    private EmailService emailService;
+
+    public ResetPasswordController(UserService userService, SmsService smsService, SystemLogService systemLogService) {
         this.userService = userService;
+        this.smsService = smsService;
+        this.systemLogService = systemLogService;
     }
 
     // ==================== GET ====================
@@ -68,6 +78,20 @@ public class ResetPasswordController {
 
         System.out.println("OTP reset password: " + otp);
         logger.info("OTP reset password: {} for phone {}", otp, phoneNumber);
+
+        // Gửi OTP qua SMS thực tế
+        System.out.println("Gửi SMS tới số " + phoneNumber + ": Mã OTP của bạn là " + otp);
+        smsService.sendOtp(phoneNumber, otp);
+
+        String userEmail = null;
+        if (user.getPatient() != null) {
+            userEmail = user.getPatient().getEmail();
+        } else if (user.getProfile() != null) {
+            userEmail = user.getProfile().getEmail();
+        }
+        String recipientEmail = (userEmail != null && !userEmail.trim().isEmpty()) ? userEmail.trim() : "lequan13112005@gmail.com";
+        emailService.sendSimpleEmail(recipientEmail, "Mã OTP Khôi phục mật khẩu", "Mã OTP của bạn là: " + otp);
+
         return "redirect:/forgot-password/otp";
     }
 
@@ -108,11 +132,13 @@ public class ResetPasswordController {
         }
 
         if (!com.quan.diabetes.util.ParseUtil.isValidPassword(newPassword)) {
+            systemLogService.saveLog(null, "RESET_PASSWORD", "Account", null, "Đặt lại mật khẩu thất bại (Mật khẩu yếu) cho SĐT: " + session.getAttribute("resetPhoneNumber"), null, null, "FAILED");
             model.addAttribute("errorMsg", "Mật khẩu phải chứa ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, ít nhất một chữ số và ký tự đặc biệt (!@#$).");
             return "auth/reset_pass";
         }
 
         if (!newPassword.equals(confirmPassword)) {
+            systemLogService.saveLog(null, "RESET_PASSWORD", "Account", null, "Đặt lại mật khẩu thất bại (Xác nhận mật khẩu không khớp) cho SĐT: " + session.getAttribute("resetPhoneNumber"), null, null, "FAILED");
             model.addAttribute("errorMsg", "Mật khẩu xác nhận không khớp.");
             return "auth/reset_pass";
         }
@@ -120,13 +146,23 @@ public class ResetPasswordController {
         String phoneNumber = (String) session.getAttribute("resetPhoneNumber");
         User user = userService.findByPhoneNumber(phoneNumber).orElse(null);
         if (user == null) {
+            systemLogService.saveLog(null, "RESET_PASSWORD", "Account", null, "Đặt lại mật khẩu thất bại (Không tìm thấy tài khoản) cho SĐT: " + phoneNumber, null, null, "FAILED");
             model.addAttribute("errorMsg", "Không tìm thấy tài khoản.");
             return "auth/reset_pass";
         }
 
+        User oldUser = new User();
+        oldUser.setUserId(user.getUserId());
+        oldUser.setPhoneNumber(user.getPhoneNumber());
+        oldUser.setPasswordHash(user.getPasswordHash());
+        oldUser.setRole(user.getRole());
+        oldUser.setStatus(user.getStatus());
+
         user.setPasswordHash(newPassword);
         userService.update(user.getUserId(), user);
         session.invalidate();
+        
+        systemLogService.saveLogWithObject(user.getUserId(), "RESET_PASSWORD", "Account", user.getUserId(), "Reset mật khẩu", oldUser, user, "SUCCESS");
 
         return "redirect:/login?resetSuccess=true";
     }

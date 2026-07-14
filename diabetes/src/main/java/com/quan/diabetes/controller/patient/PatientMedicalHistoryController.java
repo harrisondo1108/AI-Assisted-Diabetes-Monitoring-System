@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.quan.diabetes.service.exam.DoctorRatingService;
+import com.quan.diabetes.service.systemlog.SystemLogService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -18,6 +21,12 @@ import java.util.stream.Collectors;
 
 @Controller
 public class PatientMedicalHistoryController extends BasePatientController {
+
+    @Autowired
+    private DoctorRatingService doctorRatingService;
+
+    @Autowired
+    private SystemLogService systemLogService;
 
     @GetMapping("/patient/progress")
     public String progress(
@@ -30,7 +39,12 @@ public class PatientMedicalHistoryController extends BasePatientController {
 
         LocalDate today = LocalDate.now();
         List<ClinicalExamination> allExams = findExaminationsByPatient(patient).stream()
-                .filter(exam -> exam.getExamDate() != null && exam.getExamDate().toLocalDate().isEqual(today))
+                .filter(exam -> {
+                    if (exam.getStatus() != null && ("requested".equalsIgnoreCase(exam.getStatus()) || "pending".equalsIgnoreCase(exam.getStatus()))) {
+                        return true;
+                    }
+                    return exam.getExamDate() != null && exam.getExamDate().toLocalDate().isEqual(today);
+                })
                 .collect(Collectors.toList());
 
         List<LabOrder> allLabOrders = findLabOrdersByPatient(patient);
@@ -143,11 +157,17 @@ public class PatientMedicalHistoryController extends BasePatientController {
 
         Map<String, TreatmentPlan> plansMap = groupTreatmentPlansByExam(pagedExams);
 
+        List<String> examIds = pagedExams.stream()
+                .map(ClinicalExamination::getClinicalExamId)
+                .collect(Collectors.toList());
+        Map<String, DoctorRating> ratingsMap = doctorRatingService.getRatingsForExams(examIds);
+
         model.addAttribute("examinations", pagedExams);
         model.addAttribute("labOrdersByExam", groupLabOrdersByExam(pagedExams, allLabOrders));
         model.addAttribute("labResultsByOrder", groupLabResultsByOrder(allLabOrders, allLabResults));
         model.addAttribute("prescriptionDetailsByExam", groupPrescriptionDetailsByExam(pagedExams, allPrescriptionDetails));
         model.addAttribute("treatmentPlansByExam", plansMap);
+        model.addAttribute("ratingsMap", ratingsMap);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("totalItems", totalItems);
@@ -203,6 +223,7 @@ public class PatientMedicalHistoryController extends BasePatientController {
         }
 
         if (medicalHistory == null || medicalHistory.trim().isEmpty()) {
+            systemLogService.saveLog(patient.getUserId(), "CREATE_MEDICAL_REQUEST", "MedicalRecord", patient.getUserId(), "Gửi yêu cầu khám thất bại (Lý do trống)", null, null, "FAILED");
             redirectAttributes.addFlashAttribute("requestErrorMessage", "Vui lòng nhập lý do khám hoặc triệu chứng của bạn.");
             return "redirect:/patient/progress";
         }
@@ -211,6 +232,7 @@ public class PatientMedicalHistoryController extends BasePatientController {
             clinicalExaminationService.requestExamination(patient.getUserId(), medicalHistory.trim());
             redirectAttributes.addFlashAttribute("requestSuccessMessage", "Gửi yêu cầu khám thành công! Vui lòng chờ bác sĩ duyệt.");
         } catch (Exception e) {
+            systemLogService.saveLog(patient.getUserId(), "CREATE_MEDICAL_REQUEST", "MedicalRecord", patient.getUserId(), "Gửi yêu cầu khám thất bại: " + e.getMessage(), null, null, "FAILED");
             redirectAttributes.addFlashAttribute("requestErrorMessage", e.getMessage());
         }
 

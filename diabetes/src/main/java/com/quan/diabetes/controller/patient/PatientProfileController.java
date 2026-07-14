@@ -5,6 +5,7 @@ import com.quan.diabetes.entity.*;
 import com.quan.diabetes.service.user.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.quan.diabetes.service.cloudinary.CloudinaryService;
+import com.quan.diabetes.service.systemlog.SystemLogService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -36,6 +37,9 @@ public class PatientProfileController extends BasePatientController {
 
     @Autowired
     private CloudinaryService cloudinaryService;
+
+    @Autowired
+    private SystemLogService systemLogService;
 
     @GetMapping("/patient/profile")
     public String profile(Model model, HttpSession session,
@@ -165,6 +169,24 @@ public class PatientProfileController extends BasePatientController {
         String userId = currentUser.getUserId();
 
         Patient patient = patientService.findById(userId).orElse(new Patient());
+        
+        // Clone đối tượng cũ để lưu log
+        Patient oldPatient = new Patient();
+        oldPatient.setUserId(patient.getUserId());
+        oldPatient.setFullName(patient.getFullName());
+        oldPatient.setPhoneNumber(patient.getPhoneNumber());
+        oldPatient.setAddress(patient.getAddress());
+        oldPatient.setDob(patient.getDob());
+        oldPatient.setGender(patient.getGender());
+        oldPatient.setHeight(patient.getHeight());
+        oldPatient.setWeight(patient.getWeight());
+        oldPatient.setBloodgroup(patient.getBloodgroup());
+        oldPatient.setPermanentMedicalHistory(patient.getPermanentMedicalHistory());
+        oldPatient.setAllergyNotes(patient.getAllergyNotes());
+        oldPatient.setSupervisorName(patient.getSupervisorName());
+        oldPatient.setSupervisorPhone(patient.getSupervisorPhone());
+        oldPatient.setEmail(patient.getEmail());
+        oldPatient.setImageUrl(patient.getImageUrl());
 
         patient.setUserId(userId);
         patient.setUser(currentUser);
@@ -184,11 +206,13 @@ public class PatientProfileController extends BasePatientController {
 
         if (imageFile != null && !imageFile.isEmpty()) {
             if (imageFile.getSize() > 2 * 1024 * 1024) {
+                systemLogService.saveLogWithObject(userId, "UPDATE_PROFILE", "Patient", userId, "Cập nhật hồ sơ bệnh nhân thất bại (Ảnh > 2MB)", oldPatient, patient, "FAILED");
                 redirectAttributes.addFlashAttribute("errorMessage", "Ảnh đại diện không được vượt quá 2MB.");
                 return "redirect:/patient/profile";
             }
             String contentType = imageFile.getContentType();
             if (contentType == null || !contentType.startsWith("image/")) {
+                systemLogService.saveLogWithObject(userId, "UPDATE_PROFILE", "Patient", userId, "Cập nhật hồ sơ bệnh nhân thất bại (Định dạng ảnh không hợp lệ)", oldPatient, patient, "FAILED");
                 redirectAttributes.addFlashAttribute("errorMessage", "Định dạng tệp không hợp lệ. Chỉ chấp nhận các tệp ảnh.");
                 return "redirect:/patient/profile";
             }
@@ -198,16 +222,25 @@ public class PatientProfileController extends BasePatientController {
                     patient.setImageUrl(imageUrl);
                 }
             } catch (Exception e) {
+                systemLogService.saveLogWithObject(userId, "UPDATE_PROFILE", "Patient", userId, "Cập nhật hồ sơ bệnh nhân thất bại (Lỗi tải ảnh)", oldPatient, patient, "FAILED");
                 redirectAttributes.addFlashAttribute("errorMessage", "Không thể tải lên ảnh đại diện: " + e.getMessage());
                 return "redirect:/patient/profile";
             }
         }
-        if (patientService.existsById(userId)) {
-            patientService.update(userId, patient);
-            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật hồ sơ thành công.");
-        } else {
-            patientService.create(patient);
-            redirectAttributes.addFlashAttribute("successMessage", "Tạo hồ sơ thành công.");
+        try {
+            if (patientService.existsById(userId)) {
+                patientService.update(userId, patient);
+                redirectAttributes.addFlashAttribute("successMessage", "Cập nhật hồ sơ thành công.");
+            } else {
+                patientService.create(patient);
+                redirectAttributes.addFlashAttribute("successMessage", "Tạo hồ sơ thành công.");
+            }
+            
+            systemLogService.saveLogWithObject(userId, "UPDATE_PROFILE", "Patient", userId, "Cập nhật hồ sơ bệnh nhân", oldPatient, patient, "SUCCESS");
+        } catch (Exception e) {
+            systemLogService.saveLogWithObject(userId, "UPDATE_PROFILE", "Patient", userId, "Cập nhật hồ sơ bệnh nhân thất bại: " + e.getMessage(), oldPatient, patient, "FAILED");
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi lưu hồ sơ: " + e.getMessage());
+            return "redirect:/patient/profile";
         }
 
         currentUser.setPhoneNumber(normalizedPhone);

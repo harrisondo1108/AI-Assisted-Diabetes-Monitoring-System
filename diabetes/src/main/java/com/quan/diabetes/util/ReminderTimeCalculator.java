@@ -36,6 +36,10 @@ public final class ReminderTimeCalculator {
         if (timeSlot == null) timeSlot = "";
         String s = timeSlot.trim().toLowerCase(Locale.ROOT);
 
+        if (s.contains("khi cần") || s.contains("khi can") || s.contains("as needed")) {
+            return LocalTime.of(7, 30);
+        }
+
         if(routine == null){
             routine = new PatientRoutine();
         }

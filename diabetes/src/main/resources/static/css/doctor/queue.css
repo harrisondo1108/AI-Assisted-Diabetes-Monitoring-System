@@ -1,4 +1,4 @@
-/* Doctor Dashboard - Page Specific Styles */
+/* Doctor Queue - Page Specific Styles */
 
 /* 1. Doctor Content Area Layout */
 .doctor-content {
@@ -10,101 +10,7 @@
     overflow-y: auto;
 }
 
-/* 2. Metrics Grid */
-.metrics-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    justify-content: center;
-}
-
-.metric-card {
-    border-radius: var(--radius);
-    padding: 20px;
-    color: #ffffff;
-    position: relative;
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
-}
-
-.metric-card-inner {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: relative;
-    z-index: 10;
-}
-
-.metric-info {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.metric-label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    opacity: 0.85;
-}
-
-.metric-val {
-    font-size: 1.6rem;
-    font-weight: 700;
-}
-
-.metric-sub {
-    font-size: 0.72rem;
-    opacity: 0.75;
-}
-
-.metric-icon {
-    font-size: 2rem;
-    opacity: 0.25;
-}
-
-/* Gradient Variants - Aligned with Green Theme */
-.bg-gradient-teal {
-    background: linear-gradient(135deg, var(--green-800) 0%, var(--green-900) 100%);
-}
-
-.bg-gradient-blue {
-    background: linear-gradient(135deg, var(--green-700) 0%, var(--green-800) 100%);
-}
-
-.bg-gradient-orange {
-    background: linear-gradient(135deg, #c2410c 0%, #ea580c 100%);
-}
-
-.bg-gradient-slate {
-    background: linear-gradient(135deg, var(--green-600) 0%, var(--green-700) 100%);
-}
-
-.text-alert {
-    animation: flashAlert 1.5s ease-in-out infinite;
-}
-
-@keyframes flashAlert {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.75; }
-}
-
-/* 3. Card & Grids */
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-}
-
-.grid-span-2 {
-    grid-column: span 2;
-}
-
-.grid-span-3 {
-    grid-column: span 3;
-}
-
+/* 2. Card Layout */
 .card {
     background-color: var(--doctor-card-bg);
     border-radius: var(--radius);
@@ -141,7 +47,7 @@
     gap: 12px;
 }
 
-/* Filter pills */
+/* 3. Filter pills */
 .filter-pills {
     display: flex;
     background-color: var(--doctor-bg);
@@ -159,6 +65,7 @@
     color: var(--doctor-text-muted);
     border-radius: 4px;
     cursor: pointer;
+    text-decoration: none;
     transition: all 0.2s;
 }
 
@@ -292,68 +199,6 @@
     font-size: 0.75rem;
 }
 
-/* 5. Clinical Memo & Todo */
-.memo-container {
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    flex-grow: 1;
-}
-
-.memo-add-form {
-    display: flex;
-    gap: 8px;
-}
-
-.memo-add-form input {
-    flex-grow: 1;
-    padding: 8px 12px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--doctor-border);
-    outline: none;
-    font-size: 0.82rem;
-}
-
-.memo-add-form input:focus {
-    border-color: var(--doctor-primary);
-}
-
-.memo-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    overflow-y: auto;
-    max-height: 280px;
-}
-
-.memo-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 10px;
-    background-color: var(--doctor-bg);
-    border-radius: var(--radius-sm);
-    font-size: 0.78rem;
-    line-height: 1.4;
-    border-left: 3px solid var(--doctor-accent);
-}
-
-.delete-memo {
-    background: none;
-    border: none;
-    color: var(--doctor-text-muted);
-    cursor: pointer;
-    transition: color 0.15s;
-    margin-top: 2px;
-}
-
-.delete-memo:hover {
-    color: var(--doctor-danger);
-}
-
 /* Card search box next to pills */
 .card-search-box {
     position: relative;
@@ -433,70 +278,6 @@
     opacity: 0.4;
     cursor: not-allowed;
     pointer-events: none;
-}
-
-/* Modals overlays & sizes */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(10, 61, 50, 0.25);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 150;
-    backdrop-filter: blur(2px);
-}
-
-.modal-overlay.open {
-    display: flex;
-}
-
-.modal {
-    background-color: #ffffff;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-lg);
-    width: 100%;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-}
-
-.modal-header {
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--doctor-border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.modal-header h2 {
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--doctor-text-main);
-}
-
-.modal-close {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 1rem;
-    color: var(--doctor-text-muted);
-}
-
-.modal-body {
-    padding: 20px;
-    overflow-y: auto;
-}
-
-.modal-footer {
-    padding: 14px 20px;
-    border-top: 1px solid var(--doctor-border);
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
 }
 
 /* Toast Notification Styles */

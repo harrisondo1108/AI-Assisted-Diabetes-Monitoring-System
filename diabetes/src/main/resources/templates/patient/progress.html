@@ -10,10 +10,10 @@
 
 <body>
 <div class="admin-layout">
-    <div th:replace="~{layout/patient-sidebar :: patientSidebar('progress')}"></div>
+    <div th:replace="~{layout/patient/sidebar :: patientSidebar('progress')}"></div>
 
     <div class="admin-main">
-        <div th:replace="~{layout/patient-header :: patientHeader('Tiến trình y tế')}"></div>
+        <div th:replace="~{layout/patient/header :: patientHeader('Tiến trình y tế')}"></div>
 
         <main class="admin-content">
             <div class="page-header">
@@ -267,7 +267,7 @@
             </div>
         </main>
 
-        <div th:replace="~{layout/footer :: footer}"></div>
+        <div th:replace="~{layout/patient/footer :: footer}"></div>
     </div>
 </div>
 

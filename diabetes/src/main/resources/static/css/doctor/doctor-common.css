@@ -71,6 +71,16 @@ body {
     width: 100%;
 }
 
+/* Main Content Area styling */
+.doctor-content {
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    height: calc(100vh - var(--header-height));
+    overflow-y: auto;
+}
+
 /* Header with Top Navigation Bar */
 .doctor-header {
     height: var(--header-height);

@@ -7,28 +7,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/admin/dashboard.css}">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 <div class="admin-layout">
     <!-- Sidebar -->
-    <div th:replace="~{layout/sidebar :: sidebar('dashboard')}"></div>
+    <div th:replace="~{layout/admin/sidebar :: sidebar('dashboard')}"></div>
 
     <div class="admin-main">
-        <header class="admin-header">
-            <div class="header-title">
-                <h2>Tổng quan</h2>
-            </div>
-            <div class="header-actions">
-                <div class="admin-profile">
-                    <div class="admin-avatar-icon"><i class="fas fa-user-shield"></i></div>
-                    <div class="profile-text">
-                        <div class="name">Quản trị viên</div>
-                        <div class="role">Trưởng bộ phận AI Lâm sàng</div>
-                    </div>
-                </div>
-            </div>
-        </header>
+        <div th:replace="~{layout/admin/header :: header('Tổng quan')}"></div>
 
         <main class="admin-content">
             <div class="page-header">
@@ -85,13 +71,36 @@
 
             <!-- Charts and Summary -->
             <div class="dashboard-grid">
-                <!-- Main Chart -->
-                <div class="chart-section premium-card">
+                <!-- Daily Stats -->
+                <div class="daily-stats-section premium-card">
                     <div class="card-header">
-                        <h3><i class="fas fa-chart-area"></i> Hoạt động hệ thống (7 ngày qua)</h3>
+                        <h3><i class="fas fa-calendar-day"></i> Hoạt động trong ngày</h3>
                     </div>
-                    <div class="chart-container">
-                        <canvas id="systemActivityChart"></canvas>
+                    <div class="insight-list">
+                        <div class="insight-item">
+                            <div class="insight-icon" style="background: rgba(20, 92, 74, 0.1); color: var(--primary-color);"><i class="fas fa-comments"></i></div>
+                            <div class="insight-text">
+                                <span class="insight-title">Phiên chat AI hôm nay</span>
+                                <span class="insight-desc">Số lượng trò chuyện trong 24h</span>
+                            </div>
+                            <div class="insight-value" th:text="${stats.todayChats}">0</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-icon" style="background: rgba(126, 232, 181, 0.2); color: #0d825c;"><i class="fas fa-bell"></i></div>
+                            <div class="insight-text">
+                                <span class="insight-title">Nhắc nhở gửi hôm nay</span>
+                                <span class="insight-desc">Tổng số cảnh báo, nhắc nhở</span>
+                            </div>
+                            <div class="insight-value" th:text="${stats.todayReminders}">0</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;"><i class="fas fa-stethoscope"></i></div>
+                            <div class="insight-text">
+                                <span class="insight-title">Phiên khám đã hoàn thành</span>
+                                <span class="insight-desc">Tổng số lượt khám hôm nay</span>
+                            </div>
+                            <div class="insight-value" th:text="${stats.todayCompletedExams}">0</div>
+                        </div>
                     </div>
                 </div>
 
@@ -130,15 +139,10 @@
             </div>
         </main>
         <!-- Footer -->
-        <div th:replace="~{layout/footer :: footer}"></div>
+        <div th:replace="~{layout/admin/footer :: footer}"></div>
     </div>
 </div>
-<script th:inline="javascript">
-    /*<![CDATA[*/
-    const aiDataFromBackend = /*[[${aiData}]]*/ [120, 190, 150, 220, 180, 250, 210];
-    const reminderDataFromBackend = /*[[${reminderData}]]*/ [80, 110, 95, 140, 120, 160, 130];
-    /*]]>*/
-</script>
+
 <script th:src="@{/js/admin/dashboard.js}"></script>
 </body>
 </html>

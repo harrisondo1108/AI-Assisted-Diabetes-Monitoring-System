@@ -25,32 +25,12 @@ setupToggle('confirmPassword', 'toggleConfirm');
 
 // Password strength
 const pwdCard = document.getElementById('pwdValidatorCard');
-const reqLength = document.getElementById('reqLength');
-const reqCase = document.getElementById('reqCase');
-const reqDigit = document.getElementById('reqDigit');
-const reqSpecial = document.getElementById('reqSpecial');
-
-function updateRequirement(el, isValid) {
-    const icon = el.querySelector('i');
-    if (isValid) {
-        el.classList.add('valid');
-        icon.className = 'fas fa-circle-check';
-    } else {
-        el.classList.remove('valid');
-        icon.className = 'far fa-circle-check';
-    }
-}
 
 function checkPasswordStrength(val) {
     const isLenVal = val.length >= 8;
     const isCaseVal = /[a-z]/.test(val) && /[A-Z]/.test(val);
     const isDigitVal = /\d/.test(val);
     const isSpecialVal = /[!@#$]/.test(val);
-
-    updateRequirement(reqLength, isLenVal);
-    updateRequirement(reqCase, isCaseVal);
-    updateRequirement(reqDigit, isDigitVal);
-    updateRequirement(reqSpecial, isSpecialVal);
 
     return isLenVal && isCaseVal && isDigitVal && isSpecialVal;
 }

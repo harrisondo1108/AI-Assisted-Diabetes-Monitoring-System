@@ -25,9 +25,9 @@ const emailHint = document.getElementById('emailHint');
 // });
 
 // Validate weight
-weightInput.addEventListener('input', function(){
+weightInput.addEventListener('input', function () {
     intValue = parseInt(this.value);
-    if(intValue <= 0 || intValue >= 1000){
+    if (intValue <= 0 || intValue >= 1000) {
         weightHint.style.display = 'block';
         this.classList.add('error');
     } else {
@@ -38,7 +38,7 @@ weightInput.addEventListener('input', function(){
 
 heightInput.addEventListener('input', function () {
     intValue = parseInt(this.value);
-    if(intValue <= 0 || intValue >= 300){
+    if (intValue <= 0 || intValue >= 300) {
         heightHint.style.display = 'block';
         this.classList.add('error');
     } else {
@@ -48,7 +48,7 @@ heightInput.addEventListener('input', function () {
 });
 
 // Validate phone
-phoneInput.addEventListener('input', function() {
+phoneInput.addEventListener('input', function () {
     this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11);
     if (this.value.length > 0 && (this.value.length < 10 || this.value.length > 11)) {
         phoneHint.style.display = 'block';
@@ -60,7 +60,7 @@ phoneInput.addEventListener('input', function() {
 });
 
 // Validate email
-emailInput.addEventListener('input', function() {
+emailInput.addEventListener('input', function () {
     const emailVal = this.value.trim();
     if (emailVal.length > 0 && (!/^[A-Za-z0-9+_.-]+@.+$/.test(emailVal) || emailVal.length > 100)) {
         emailHint.style.display = 'block';
@@ -73,21 +73,6 @@ emailInput.addEventListener('input', function() {
 
 // Validate password
 const pwdCard = document.getElementById('pwdValidatorCard');
-const reqLength = document.getElementById('reqLength');
-const reqCase = document.getElementById('reqCase');
-const reqDigit = document.getElementById('reqDigit');
-const reqSpecial = document.getElementById('reqSpecial');
-
-function updateRequirement(el, isValid) {
-    const icon = el.querySelector('i');
-    if (isValid) {
-        el.classList.add('valid');
-        icon.className = 'fas fa-circle-check';
-    } else {
-        el.classList.remove('valid');
-        icon.className = 'far fa-circle-check';
-    }
-}
 
 function checkPasswordStrength(val) {
     const isLenVal = val.length >= 8;
@@ -95,19 +80,14 @@ function checkPasswordStrength(val) {
     const isDigitVal = /\d/.test(val);
     const isSpecialVal = /[!@#$]/.test(val);
 
-    updateRequirement(reqLength, isLenVal);
-    updateRequirement(reqCase, isCaseVal);
-    updateRequirement(reqDigit, isDigitVal);
-    updateRequirement(reqSpecial, isSpecialVal);
-
     return isLenVal && isCaseVal && isDigitVal && isSpecialVal;
 }
 
-passwordInput.addEventListener('focus', function() {
+passwordInput.addEventListener('focus', function () {
     pwdCard.classList.add('open');
 });
 
-passwordInput.addEventListener('input', function() {
+passwordInput.addEventListener('input', function () {
     const val = this.value;
     pwdCard.classList.add('open');
     const isValid = checkPasswordStrength(val);
@@ -130,7 +110,7 @@ passwordInput.addEventListener('input', function() {
 });
 
 // Validate confirm password
-confirmInput.addEventListener('input', function() {
+confirmInput.addEventListener('input', function () {
     if (this.value !== passwordInput.value) {
         confirmHint.style.display = 'block';
         this.classList.add('error');
@@ -157,7 +137,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // Submit - chỉ validate, để form tự submit
-document.getElementById('registerForm').addEventListener('submit', function(e) {
+document.getElementById('registerForm').addEventListener('submit', function (e) {
     const roleId = document.getElementById('role').value;
     const fullName = document.getElementById('fullName').value.trim();
     const phoneNumber = phoneInput.value.trim();
@@ -208,13 +188,13 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
         errorDiv.textContent = 'Mật khẩu xác nhận không khớp!';
         return;
     }
-    if(intHeight <= 0 || intHeight >= 300){
+    if (intHeight <= 0 || intHeight >= 300) {
         e.preventDefault();
         errorDiv.style.display = 'block';
         errorDiv.textContent = 'Chiều cao không hợp lệ!';
         return;
     }
-    if(intWeight <= 0 || intWeight >= 1000){
+    if (intWeight <= 0 || intWeight >= 1000) {
         e.preventDefault();
         errorDiv.style.display = 'block';
         errorDiv.textContent = 'Cân nặng không hợp lệ!';

@@ -29,17 +29,12 @@ const medicationsCatalog = (typeof rawMedicationsCatalog !== 'undefined' && rawM
 // State variables for current session
 let currentPatient = null;
 let viewOnlyMode = false;
-let selectedSymptoms = {};
-let orderedLabs = {};
 let prescriptionLines = [];
 let isSubmitting = false;
-let simulatedResults = {};
 
 document.addEventListener('DOMContentLoaded', () => {
     loadSessionPatient();
-    renderSymptomsGrid();
     setupNextAppointmentMinDate();
-    restoreExamineDraft();
 
     // Setup keypress block and paste block for medDuration & medQuantity
     const numericInputs = ['medDuration', 'medQuantity'];
@@ -85,45 +80,23 @@ document.addEventListener('DOMContentLoaded', () => {
         dosageInput.addEventListener('input', calculateTotalQuantity);
         dosageInput.addEventListener('change', calculateTotalQuantity);
     }
-    
+
     const isEditMode = (typeof thIsEditMode !== 'undefined' ? thIsEditMode : false);
+    const activeExamInProgress = (typeof thActiveExam !== 'undefined' && thActiveExam && thActiveExam.status === 'InProgress');
     if (viewOnlyMode) {
-        simulateLabResults();
         renderPrescriptionLines();
-        
+
         // In view only mode, disable all interactable form inputs
         document.querySelectorAll('textarea, input, select, button').forEach(el => {
             // Keep common navigation, close/logout and close modal buttons active
-            if (!el.classList.contains('modal-close') && 
-                !el.classList.contains('logout-link-btn') && 
+            if (!el.classList.contains('modal-close') &&
+                !el.classList.contains('logout-link-btn') &&
                 el.id !== 'viewHistoryBtn') {
                 el.disabled = true;
             }
         });
-    } else if (isEditMode) {
+    } else if (isEditMode || activeExamInProgress) {
         renderPrescriptionLines();
-    }
-
-    // Handle cancel form submission to clear draft
-    const isInProgress = thActiveExam && thActiveExam.status === 'InProgress';
-    if (isInProgress) {
-        const cancelForm = document.getElementById('cancelForm');
-        if (cancelForm) {
-            cancelForm.addEventListener('submit', () => {
-                isSubmitting = true;
-                sessionStorage.removeItem('examineDraft');
-            });
-        }
-    }
-
-    // Handle isPregnant checkbox change dynamically
-    const isPregnantCheckbox = document.getElementById('isPregnant');
-    if (isPregnantCheckbox) {
-        isPregnantCheckbox.addEventListener('change', (e) => {
-            updateLabCatalog(e.target.checked);
-        });
-        // Initial sync on page load or draft restore
-        updateLabCatalog(isPregnantCheckbox.checked, true);
     }
 
     // Check for warning query parameter
@@ -200,8 +173,9 @@ function loadSessionPatient() {
     }
 
     const isEditMode = (typeof thIsEditMode !== 'undefined' ? thIsEditMode : false);
+    const activeExamInProgress = (typeof thActiveExam !== 'undefined' && thActiveExam && thActiveExam.status === 'InProgress');
     // Load active exam / view only / edit properties
-    if ((viewOnlyMode || isEditMode) && typeof thLastExam !== 'undefined' && thLastExam) {
+    if ((viewOnlyMode || isEditMode || activeExamInProgress) && typeof thLastExam !== 'undefined' && thLastExam) {
         document.getElementById('examDiagnosis').value = thLastExam.diagnosisNote || '';
         document.getElementById('examHistory').value = thLastExam.medicalHistory || '';
         document.getElementById('examNextDate').value = thLastExam.nextAppointment ? thLastExam.nextAppointment.substring(0, 10) : '';
@@ -213,27 +187,8 @@ function loadSessionPatient() {
             document.getElementById('planGlucose').value = thLastExam.treatmentPlan.glucoseMonitoringPlan || '';
         }
 
-        selectedSymptoms = {};
-        if (typeof thChosenSymptomNotes !== 'undefined' && thChosenSymptomNotes) {
-            Object.keys(thChosenSymptomNotes).forEach(id => {
-                selectedSymptoms[id] = thChosenSymptomNotes[id];
-            });
-        }
 
-        orderedLabs = {};
-        simulatedResults = {};
-        if (typeof thLastExamLabResults !== 'undefined' && thLastExamLabResults) {
-            thLastExamLabResults.forEach(res => {
-                const test = labTestsCatalog.find(l => l.name === res.labTest.testName);
-                if (test) {
-                    orderedLabs[test.id] = true;
-                    simulatedResults[test.id] = {
-                        val: res.resultValue,
-                        flag: res.flag
-                    };
-                }
-            });
-        }
+
 
         prescriptionLines = [];
         if (typeof thLastExamPrescriptionDetails !== 'undefined' && thLastExamPrescriptionDetails) {
@@ -275,194 +230,56 @@ function setupNextAppointmentMinDate() {
     }
 }
 
-// Render Symptoms List
-function renderSymptomsGrid() {
-    const grid = document.getElementById('symptomsGrid');
-    if (!grid) return;
 
-    grid.innerHTML = '';
-    symptomsCatalog.forEach(s => {
-        const isChecked = selectedSymptoms[s.id] !== undefined;
-        const noteVal = selectedSymptoms[s.id] || '';
-        const div = document.createElement('div');
-        div.className = `symptom-card ${isChecked ? 'selected' : ''}`;
-        div.setAttribute('data-id', s.id);
-        div.innerHTML = `
-            <div class="symptom-card-header">
-                <input type="checkbox" name="symptomIds" id="chk-${s.id}" value="${s.id}" onchange="toggleSymptom('${s.id}')" ${isChecked ? 'checked' : ''}>
-                <label for="chk-${s.id}">${s.name}</label>
-            </div>
-            <div class="symptom-comment-box">
-                <input type="text" placeholder="Thêm ghi chú cụ thể (mức độ, thời gian)..." id="comment-${s.id}" value="${noteVal}" oninput="updateSymptomComment('${s.id}')">
-            </div>
-        `;
-        grid.appendChild(div);
-    });
-}
-
-function updateSymptomComment(id) {
-    const input = document.getElementById(`comment-${id}`);
-    if (input && selectedSymptoms[id] !== undefined) {
-        selectedSymptoms[id] = input.value;
+function assignAllLabTests(examId) {
+    if (!examId) {
+        showToast("Vui lòng bắt đầu ca khám trước khi chỉ định xét nghiệm!", "warning");
+        return;
     }
-}
+    const isPregnantCheckbox = document.getElementById('isPregnant');
+    const isPregnant = isPregnantCheckbox ? isPregnantCheckbox.checked : false;
 
-function toggleSymptom(id) {
-    const card = document.querySelector(`.symptom-card[data-id="${id}"]`);
-    const chk = document.getElementById(`chk-${id}`);
-
-    if (chk.checked) {
-        card.classList.add('selected');
-        const input = document.getElementById(`comment-${id}`);
-        selectedSymptoms[id] = input ? input.value : '';
-    } else {
-        card.classList.remove('selected');
-        delete selectedSymptoms[id];
-    }
-}
-
-
-
-// Laboratory simulator mapping results
-function simulateLabResults() {
+    // Show indicator/spinner state inside tbody
     const tbody = document.getElementById('labResultsTableBody');
-    if (!tbody) return;
-
-    if (viewOnlyMode) {
-        tbody.innerHTML = '';
-        if (typeof thLastExamLabResults !== 'undefined' && thLastExamLabResults && thLastExamLabResults.length > 0) {
-            thLastExamLabResults.forEach(l => {
-                const tr = document.createElement('tr');
-                const flagClass = l.flag === 'HIGH' ? 'flag-high' : 'flag-normal';
-                tr.innerHTML = `
-                    <td><strong>${l.labTest.testName}</strong></td>
-                    <td><span style="font-weight:500; color: var(--doctor-text-muted);">${l.referenceRange} ${l.labTest.unit}</span></td>
-                    <td><strong>${l.resultValue} ${l.labTest.unit}</strong></td>
-                    <td><span class="flag-badge ${flagClass}">${l.flag === 'HIGH' ? 'CAO' : (l.flag === 'NORMAL' ? 'BÌNH THƯỜNG' : l.flag)}</span></td>
-                `;
-                tbody.appendChild(tr);
-            });
-        } else {
-            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--doctor-text-muted); padding: 30px;">Không có chỉ định xét nghiệm nào trong ca khám này</td></tr>`;
-        }
-        return;
-    }
-
-    const selectedIds = Object.keys(orderedLabs);
-    if (selectedIds.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--doctor-text-muted); padding: 30px;">Vui lòng chỉ định một hoặc nhiều xét nghiệm từ danh mục phía trên để xem kết quả</td></tr>`;
-        return;
-    }
-
-    tbody.innerHTML = '';
-    selectedIds.forEach(id => {
-        const test = labTestsCatalog.find(l => l.id === id);
-        if (!test) return;
-
-        let val = 4.8;
-        let flag = 'NORMAL';
-        let flagClass = 'flag-normal';
-
-        if (!simulatedResults[id]) {
-            const rand = new RandomVal();
-            let minVal = parseFloat(test.minValue);
-            let maxVal = parseFloat(test.maxValue);
-            let hasDbThreshold = !isNaN(minVal) && !isNaN(maxVal);
-
-            if (hasDbThreshold) {
-                const randType = rand.next();
-                if (randType < 0.30) { // 30% chance of LOW
-                    val = parseFloat((minVal - 0.5 - rand.next() * (minVal * 0.15)).toFixed(1));
-                    if (val < 0) val = 0;
-                } else if (randType > 0.60) { // 40% chance of HIGH
-                    const scale = maxVal > 20 ? (maxVal * 0.3) : 4.0;
-                    val = parseFloat((maxVal + 0.1 + rand.next() * scale).toFixed(1));
-                } else { // 30% chance of NORMAL
-                    val = parseFloat((minVal + rand.next() * (maxVal - minVal)).toFixed(1));
-                }
-
-                if (val < minVal) {
-                    flag = 'LOW';
-                } else if (val > maxVal) {
-                    flag = 'HIGH';
-                } else {
-                    flag = 'NORMAL';
-                }
-            } else {
-                val = 0.0;
-                flag = 'NORMAL';
-            }
-            
-            val = parseFloat(val);
-            simulatedResults[id] = { val, flag };
-        }
-
-        val = simulatedResults[id].val;
-        flag = simulatedResults[id].flag;
-        flagClass = flag === 'HIGH' ? 'flag-high' : (flag === 'LOW' ? 'flag-low' : 'flag-normal');
-        const flagText = flag === 'HIGH' ? 'CAO' : (flag === 'LOW' ? 'THẤP' : 'BÌNH THƯỜNG');
-
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td><strong>${test.name}</strong></td>
-            <td><span style="font-weight:500; color: var(--doctor-text-muted);">${test.range} ${test.unit}</span></td>
-            <td><strong>${val} ${test.unit}</strong></td>
-            <td><span class="flag-badge ${flagClass}">${flagText}</span></td>
+    if (tbody) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" style="text-align: center; color: var(--doctor-text-muted); padding: 30px;">
+                    <i class="fas fa-spinner fa-spin"></i> Đang chỉ định xét nghiệm và lấy kết quả ...
+                </td>
+            </tr>
         `;
-        tbody.appendChild(tr);
-    });
-}
-
-function updateLabCatalog(isPregnant, isInitialLoad = false) {
-    const hasAssignedBefore = Object.keys(orderedLabs).length > 0;
-
-    const rawCatalog = (isPregnant && typeof rawLabTestsPregnantCatalog !== 'undefined')
-        ? rawLabTestsPregnantCatalog
-        : (typeof rawLabTestsCatalog !== 'undefined' ? rawLabTestsCatalog : []);
-
-    labTestsCatalog = rawCatalog.map(l => ({
-        id: l.testId,
-        name: l.testName,
-        unit: l.unit,
-        range: l.referenceRange,
-        room: 'Phòng xét nghiệm',
-        minValue: l.minValue,
-        maxValue: l.maxValue
-    }));
-
-    if (!isInitialLoad) {
-        // Clear simulated results cache
-        simulatedResults = {};
-
-        if (hasAssignedBefore) {
-            // Automatically re-assign all matching tests in the new catalog and recalculate
-            orderedLabs = {};
-            labTestsCatalog.forEach(test => {
-                orderedLabs[test.id] = true;
-            });
-            simulateLabResults();
-        }
-    } else {
-        simulateLabResults();
     }
-}
 
-function assignAllLabTests() {
-    orderedLabs = {};
-    labTestsCatalog.forEach(test => {
-        orderedLabs[test.id] = true;
-    });
-    simulateLabResults();
-}
-
-class RandomVal {
-    constructor() {
-        this.seed = 42; // static seed for relative consistency
-    }
-    next() {
-        let x = Math.sin(this.seed++) * 10000;
-        return x - Math.floor(x);
-    }
+    // Call POST to order labs
+    fetch(`/doctor/examine/${examId}/order-labs?isPregnant=${isPregnant}`, {
+        method: 'POST'
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.text();
+        })
+        .then(htmlFragment => {
+            if (tbody) {
+                tbody.innerHTML = htmlFragment;
+            }
+            showToast("Đã lưu chỉ định và lấy kết quả thành công!", "success");
+        })
+        .catch(err => {
+            console.error(err);
+            showToast("Có lỗi xảy ra khi đồng bộ dữ liệu xét nghiệm!", "error");
+            if (tbody) {
+                tbody.innerHTML = `
+                <tr>
+                    <td colspan="4" style="text-align: center; color: var(--doctor-danger); padding: 30px;">
+                        Có lỗi xảy ra khi đồng bộ dữ liệu xét nghiệm! Vui lòng thử lại.
+                    </td>
+                </tr>
+            `;
+            }
+        });
 }
 
 let editingMedIndex = -1;
@@ -522,13 +339,13 @@ function filterMedications() {
     if (!list) return;
 
     list.innerHTML = '';
-    
+
     // Loại bỏ các thuốc đã kê khỏi gợi ý, ngoại trừ thuốc đang sửa
     const addedMedIds = prescriptionLines
         .filter((_, idx) => idx !== editingMedIndex)
         .map(line => line.medId);
 
-    const filtered = medicationsCatalog.filter(m => 
+    const filtered = medicationsCatalog.filter(m =>
         !addedMedIds.includes(m.id) &&
         (m.name.toLowerCase().includes(query) || m.concentration.toLowerCase().includes(query))
     );
@@ -596,25 +413,7 @@ function addMedicationLine() {
         }).join(', ');
     }
 
-    let unit = "viên";
-    if (selectedMed && selectedMed.form) {
-        const formLower = selectedMed.form.toLowerCase();
-        if (formLower.includes("viên") || formLower.includes("nén") || formLower.includes("nang")) {
-            unit = "viên";
-        } else if (formLower.includes("gói")) {
-            unit = "gói";
-        } else if (formLower.includes("chai")) {
-            unit = "chai";
-        } else if (formLower.includes("ống")) {
-            unit = "ống";
-        } else if (formLower.includes("tablet")) {
-            unit = "tablet";
-        } else if (formLower.includes("capsule")) {
-            unit = "capsule";
-        } else if (formLower.trim().length > 0) {
-            unit = formLower.trim();
-        }
-    }
+    const unit = selectedMed ? getMedicationUnit(selectedMed.form) : "viên";
     const dosage = `${dosageVal} ${unit}/lần, ${timingsCount} lần/ngày`;
 
     const medPlan = document.getElementById('medPlan').value.trim();
@@ -671,13 +470,13 @@ function editPrescriptionLine(index) {
     document.getElementById('medDosage').value = line.dosagePerDose || parseDosagePerDose(line.dosage);
     document.getElementById('medDuration').value = line.duration;
     document.getElementById('medQuantity').value = line.quantity;
-    
+
     const timingContainer = document.getElementById('medTimingContainer');
     if (timingContainer) {
         timingContainer.classList.remove('open');
         const checkboxes = timingContainer.querySelectorAll('.custom-multiselect-option input[type="checkbox"]');
         checkboxes.forEach(cb => cb.checked = false);
-        
+
         let selectedValues = [];
         if (Array.isArray(line.timing)) {
             selectedValues = line.timing;
@@ -727,25 +526,7 @@ function renderPrescriptionLines() {
     if (emptyMsg) emptyMsg.style.display = 'none';
 
     prescriptionLines.forEach((line, index) => {
-        let unit = "viên";
-        if (line.form) {
-            const formLower = line.form.toLowerCase();
-            if (formLower.includes("viên") || formLower.includes("nén") || formLower.includes("nang")) {
-                unit = "viên";
-            } else if (formLower.includes("gói")) {
-                unit = "gói";
-            } else if (formLower.includes("chai")) {
-                unit = "chai";
-            } else if (formLower.includes("ống")) {
-                unit = "ống";
-            } else if (formLower.includes("tablet")) {
-                unit = "tablet";
-            } else if (formLower.includes("capsule")) {
-                unit = "capsule";
-            } else if (formLower.trim().length > 0) {
-                unit = formLower.trim();
-            }
-        }
+        const unit = getMedicationUnit(line.form);
 
         const div = document.createElement('div');
         div.className = 'prescription-line';
@@ -765,12 +546,11 @@ function renderPrescriptionLines() {
                     </div>
                 </div>
                 <div class="presc-card-actions" style="display: flex; gap: 8px;">
-                    <button type="button" class="btn-presc-action detail-btn" onclick="togglePrescriptionDetail(${index})" title="Chi tiết" style="background-color: #f3f4f6; color: #4b5563; border: 1px solid #d1d5db; border-radius: 6px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;"><i class="fas fa-eye"></i></button>
                     <button type="button" class="btn-presc-action edit-btn" onclick="editPrescriptionLine(${index})" title="Sửa" style="background-color: #f3f4f6; color: var(--doctor-primary); border: 1px solid #d1d5db; border-radius: 6px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;"><i class="fas fa-pen"></i></button>
                     <button type="button" class="btn-presc-action delete-btn" onclick="if(confirm('Bạn có chắc chắn muốn xóa thuốc này khỏi đơn?')) removePrescriptionLine(${index})" title="Xóa" style="background-color: #f3f4f6; color: var(--doctor-danger); border: 1px solid #d1d5db; border-radius: 6px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;"><i class="fas fa-trash"></i></button>
                 </div>
             </div>
-            <div class="presc-card-dropdown" id="presc-dropdown-${index}" style="display: none; padding: 12px 16px; background-color: #f9fafb; border-top: 1px solid #e5e7eb; font-size: 0.85rem; color: #374151; line-height: 1.6;">
+            <div class="presc-card-dropdown" id="presc-dropdown-${index}" style="display: block; padding: 12px 16px; background-color: #f9fafb; border-top: 1px solid #e5e7eb; font-size: 0.85rem; color: #374151; line-height: 1.6;">
                 <div style="margin-bottom: 6px;"><strong style="color: var(--doctor-text-muted);"><i class="fas fa-cubes"></i> Dạng bào chế:</strong> ${line.form}</div>
                 ${line.startDate && line.endDate ? `<div style="margin-bottom: 6px;"><strong style="color: var(--doctor-text-muted);"><i class="far fa-calendar-alt"></i> Liệu trình:</strong> Từ ${formatDateDMY(line.startDate)} đến ${formatDateDMY(line.endDate)}</div>` : ''}
                 <div style="margin-bottom: 6px;"><strong style="color: var(--doctor-text-muted);"><i class="fas fa-prescription-bottle"></i> Liều dùng:</strong> ${line.dosage}</div>
@@ -784,20 +564,6 @@ function renderPrescriptionLines() {
     });
 }
 
-function togglePrescriptionDetail(index) {
-    const dropdown = document.getElementById(`presc-dropdown-${index}`);
-    if (dropdown) {
-        const btn = dropdown.previousElementSibling.querySelector('.detail-btn i');
-        if (dropdown.style.display === 'none') {
-            dropdown.style.display = 'block';
-            if (btn) btn.className = 'fas fa-eye-slash';
-        } else {
-            dropdown.style.display = 'none';
-            if (btn) btn.className = 'fas fa-eye';
-        }
-    }
-}
-
 // Complete Clinical Checkup
 function saveExam() {
     isSubmitting = true;
@@ -808,69 +574,9 @@ function saveExam() {
     }
 
     // Serialize prescription list to hidden JSON input
-    const prescriptionList = prescriptionLines.map(line => {
-        return {
-            medId: line.medId,
-            dosage: line.dosage,
-            duration: parseInt(line.duration),
-            quantity: parseInt(line.quantity),
-            timingText: line.timingText,
-            medicationPlan: line.medicationPlan,
-            startDate: line.startDate,
-            endDate: line.endDate
-        };
-    });
-    
-    document.getElementById('prescriptionJson').value = JSON.stringify(prescriptionList);
-
-    // Serialize symptom comments
-    const symptomComments = {};
-    Object.keys(selectedSymptoms).forEach(id => {
-        const input = document.getElementById(`comment-${id}`);
-        symptomComments[id] = input ? input.value.trim() : (selectedSymptoms[id] || '');
-    });
-    document.getElementById('symptomCommentsJson').value = JSON.stringify(symptomComments);
-
-    // Serialize lab results
-    const labResults = [];
-    const selectedIds = Object.keys(orderedLabs);
-    selectedIds.forEach(id => {
-        if (!simulatedResults[id]) {
-            const test = labTestsCatalog.find(l => l.id === id);
-            if (test) {
-                let val = 4.8;
-                let flag = 'NORMAL';
-                let minVal = parseFloat(test.minValue);
-                let maxVal = parseFloat(test.maxValue);
-                if (!isNaN(minVal) && !isNaN(maxVal)) {
-                    val = minVal;
-                }
-                simulatedResults[id] = { val, flag };
-            }
-        }
-        if (simulatedResults[id]) {
-            labResults.push({
-                testId: id,
-                val: simulatedResults[id].val,
-                flag: simulatedResults[id].flag
-            });
-        }
-    });
-    document.getElementById('labResultsJson').value = JSON.stringify(labResults);
+    serializePrescription();
 
     const form = document.getElementById('examineForm');
-    
-    // Clear and append selected labTestIds as hidden inputs to ensure they are submitted
-    form.querySelectorAll('input[name="labTestIds"]').forEach(el => el.remove());
-    Object.keys(orderedLabs).forEach(id => {
-        const labInput = document.createElement('input');
-        labInput.type = 'hidden';
-        labInput.name = 'labTestIds';
-        labInput.value = id;
-        form.appendChild(labInput);
-    });
-
-    sessionStorage.removeItem('examineDraft');
     form.submit();
 }
 
@@ -936,33 +642,22 @@ function showToast(message, type = 'success') {
 
 function goToHistory() {
     isSubmitting = true;
-    if (currentPatient) {
-        // Collect current state
-        const draft = {
-            patientId: currentPatient.id,
-            isPregnant: document.getElementById('isPregnant') ? document.getElementById('isPregnant').checked : false,
-            examDiagnosis: document.getElementById('examDiagnosis') ? document.getElementById('examDiagnosis').value : '',
-            examHistory: document.getElementById('examHistory') ? document.getElementById('examHistory').value : '',
-            examNextDate: document.getElementById('examNextDate') ? document.getElementById('examNextDate').value : '',
-            planGoal: document.getElementById('planGoal') ? document.getElementById('planGoal').value : '',
-            planDiet: document.getElementById('planDiet') ? document.getElementById('planDiet').value : '',
-            planExercise: document.getElementById('planExercise') ? document.getElementById('planExercise').value : '',
-            planGlucose: document.getElementById('planGlucose') ? document.getElementById('planGlucose').value : '',
-            prescriptionLines: prescriptionLines,
-            selectedSymptoms: selectedSymptoms,
-            orderedLabs: orderedLabs,
-            simulatedResults: simulatedResults
-        };
-        // Capture symptom comments dynamically
-        Object.keys(selectedSymptoms).forEach(id => {
-            const input = document.getElementById(`comment-${id}`);
-            if (input) {
-                draft.selectedSymptoms[id] = input.value;
-            }
-        });
-
-        sessionStorage.setItem('examineDraft', JSON.stringify(draft));
+    if (viewOnlyMode) {
         window.location.href = `/doctor/history?patientId=${currentPatient.id}&from=examine`;
+        return;
+    }
+
+    if (currentPatient) {
+        // Serialize prescription list
+        serializePrescription();
+
+        const form = document.getElementById('examineForm');
+
+        // Change action to draft
+        form.action = `/doctor/examine/${currentPatient.id}/draft`;
+
+        // Submit form
+        form.submit();
     }
 }
 
@@ -983,151 +678,65 @@ window.addEventListener('beforeunload', (e) => {
 
 function validateMedicationFields() {
     let isValid = true;
+    const getEl = id => document.getElementById(id);
+    const getVal = id => getEl(id)?.value?.trim();
+    const showErr = (id, msg) => {
+        const err = getEl('error-' + id);
+        if (err) { err.textContent = msg; err.style.display = 'block'; }
+        isValid = false;
+    };
 
-    const dosageInput = document.getElementById('medDosage');
-    const durationInput = document.getElementById('medDuration');
-    const quantityInput = document.getElementById('medQuantity');
-    const startDateInput = document.getElementById('medStartDate');
+    ['medDosage', 'medDuration', 'medQuantity', 'medStartDate', 'medTiming'].forEach(id => {
+        const err = getEl('error-' + id);
+        if (err) err.style.display = 'none';
+    });
 
-    const dosageErr = document.getElementById('error-medDosage');
-    const durationErr = document.getElementById('error-medDuration');
-    const quantityErr = document.getElementById('error-medQuantity');
-    const startDateErr = document.getElementById('error-medStartDate');
+    const dosage = getVal('medDosage');
+    if (!dosage) showErr('medDosage', 'Vui lòng nhập liều lượng mỗi lần dùng');
+    else if (isNaN(dosage) || Number(dosage) <= 0) showErr('medDosage', 'Liều lượng phải là số dương');
 
-    // Reset errors
-    if (dosageErr) dosageErr.style.display = 'none';
-    if (durationErr) durationErr.style.display = 'none';
-    if (quantityErr) quantityErr.style.display = 'none';
-    if (startDateErr) startDateErr.style.display = 'none';
+    const duration = getVal('medDuration');
+    if (!duration) showErr('medDuration', 'Vui lòng nhập số ngày sử dụng');
+    else if (isNaN(duration) || !Number.isInteger(Number(duration)) || Number(duration) <= 0) showErr('medDuration', 'Số ngày sử dụng phải là số nguyên dương');
 
-    // Validate Dosage
-    if (dosageInput) {
-        const dosageVal = dosageInput.value.trim();
-        if (!dosageVal) {
-            if (dosageErr) {
-                dosageErr.textContent = 'Vui lòng nhập liều lượng mỗi lần dùng';
-                dosageErr.style.display = 'block';
-            }
-            isValid = false;
-        } else {
-            const num = Number(dosageVal);
-            if (isNaN(num) || num <= 0) {
-                if (dosageErr) {
-                    dosageErr.textContent = 'Liều lượng phải là số dương';
-                    dosageErr.style.display = 'block';
-                }
-                isValid = false;
-            }
-        }
-    }
+    if (!getVal('medStartDate')) showErr('medStartDate', 'Vui lòng chọn ngày bắt đầu sử dụng thuốc');
 
-    // Validate Duration
-    if (durationInput) {
-        const durationVal = durationInput.value;
-        if (!durationVal) {
-            if (durationErr) {
-                durationErr.textContent = 'Vui lòng nhập số ngày sử dụng';
-                durationErr.style.display = 'block';
-            }
-            isValid = false;
-        } else {
-            const num = Number(durationVal);
-            if (isNaN(num) || !Number.isInteger(num) || num <= 0) {
-                if (durationErr) {
-                    durationErr.textContent = 'Số ngày sử dụng phải là số nguyên dương';
-                    durationErr.style.display = 'block';
-                }
-                isValid = false;
-            }
-        }
-    }
-
-    // Validate Start Date
-    if (startDateInput) {
-        const startDateVal = startDateInput.value;
-        if (!startDateVal) {
-            if (startDateErr) {
-                startDateErr.textContent = 'Vui lòng chọn ngày bắt đầu sử dụng thuốc';
-                startDateErr.style.display = 'block';
-            }
-            isValid = false;
-        }
-    }
-
-    // Validate Medication Timing
-    const timingContainer = document.getElementById('medTimingContainer');
-    const timingErr = document.getElementById('error-medTiming');
-    if (timingErr) timingErr.style.display = 'none';
+    const timingContainer = getEl('medTimingContainer');
     if (timingContainer) {
-        const checkedCount = Array.from(timingContainer.querySelectorAll('.custom-multiselect-option input[type="checkbox"]')).filter(cb => cb.checked).length;
-        if (checkedCount === 0) {
-            if (timingErr) {
-                timingErr.textContent = 'Vui lòng chọn ít nhất một thời điểm sử dụng thuốc';
-                timingErr.style.display = 'block';
-            }
-            isValid = false;
-        }
+        const checked = Array.from(timingContainer.querySelectorAll('.custom-multiselect-option input[type="checkbox"]')).some(cb => cb.checked);
+        if (!checked) showErr('medTiming', 'Vui lòng chọn ít nhất một thời điểm sử dụng thuốc');
     }
-
     return isValid;
 }
 
 function updateEndDate() {
-    const startDateInput = document.getElementById('medStartDate');
-    const durationInput = document.getElementById('medDuration');
-    const endDateInput = document.getElementById('medEndDate');
+    const startVal = document.getElementById('medStartDate')?.value;
+    const durationVal = parseInt(document.getElementById('medDuration')?.value?.trim(), 10);
+    const endEl = document.getElementById('medEndDate');
+    if (!endEl) return;
 
-    if (!startDateInput || !durationInput || !endDateInput) return;
-
-    const startDateVal = startDateInput.value;
-    const durationVal = durationInput.value.trim();
-
-    if (!startDateVal || !durationVal) {
-        endDateInput.value = '';
+    if (!startVal || isNaN(durationVal) || durationVal <= 0) {
+        endEl.value = '';
         return;
     }
-
-    const durationDays = parseInt(durationVal, 10);
-    if (isNaN(durationDays) || durationDays <= 0) {
-        endDateInput.value = '';
-        return;
-    }
-
-    const startDate = new Date(startDateVal);
-    if (isNaN(startDate.getTime())) {
-        endDateInput.value = '';
-        return;
-    }
-
-    const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + durationDays - 1);
-
-    const yyyy = endDate.getFullYear();
-    const mm = String(endDate.getMonth() + 1).padStart(2, '0');
-    const dd = String(endDate.getDate()).padStart(2, '0');
-
-    endDateInput.value = `${yyyy}-${mm}-${dd}`;
+    const d = new Date(startVal);
+    d.setDate(d.getDate() + durationVal - 1);
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    endEl.value = `${d.getFullYear()}-${mm}-${dd}`;
 }
 
 function formatDateDMY(dateStr) {
     if (!dateStr) return 'N/A';
     const parts = dateStr.split('-');
-    if (parts.length === 3) {
-        return `${parts[2]}/${parts[1]}/${parts[0]}`;
-    }
-    return dateStr;
+    return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : dateStr;
 }
 
-// Toggle timing dropdown
 function toggleTimingDropdown(event) {
     if (event) event.stopPropagation();
-    const container = document.getElementById('medTimingContainer');
-    if (container) {
-        container.classList.toggle('open');
-    }
+    document.getElementById('medTimingContainer')?.classList.toggle('open');
 }
 
-// Select/toggle timing checkbox
 function selectTimingOption(optionDiv, event) {
     if (event) event.stopPropagation();
     const checkbox = optionDiv.querySelector('input[type="checkbox"]');
@@ -1137,20 +746,11 @@ function selectTimingOption(optionDiv, event) {
     }
 }
 
-// Update select placeholder text
 function updateTimingPlaceholder() {
     const container = document.getElementById('medTimingContainer');
     if (!container) return;
-    const checkboxes = container.querySelectorAll('.custom-multiselect-option input[type="checkbox"]');
-    const selectedTexts = [];
-    checkboxes.forEach(cb => {
-        if (cb.checked) {
-            const label = cb.parentNode.querySelector('label');
-            if (label) {
-                selectedTexts.push(label.textContent.trim());
-            }
-        }
-    });
+    const selectedTexts = Array.from(container.querySelectorAll('.custom-multiselect-option input[type="checkbox"]:checked'))
+        .map(cb => cb.parentNode.querySelector('label')?.textContent?.trim() || cb.value);
 
     const placeholder = document.getElementById('medTimingPlaceholder');
     if (placeholder) {
@@ -1165,78 +765,14 @@ function updateTimingPlaceholder() {
     calculateTotalQuantity();
 }
 
-// Close dropdown on click outside
-document.addEventListener('click', function(event) {
+document.addEventListener('click', function (event) {
     const container = document.getElementById('medTimingContainer');
     if (container && !container.contains(event.target)) {
         container.classList.remove('open');
     }
 });
 
-function restoreExamineDraft() {
-    const draftStr = sessionStorage.getItem('examineDraft');
-    if (!draftStr) return;
 
-    try {
-        const draft = JSON.parse(draftStr);
-        if (currentPatient && draft.patientId === currentPatient.id) {
-            if (draft.isPregnant !== undefined) {
-                const chk = document.getElementById('isPregnant');
-                if (chk) {
-                    chk.checked = draft.isPregnant;
-                }
-            }
-            if (draft.examDiagnosis) {
-                const el = document.getElementById('examDiagnosis');
-                if (el) el.value = draft.examDiagnosis;
-            }
-            if (draft.examHistory) {
-                const el = document.getElementById('examHistory');
-                if (el) el.value = draft.examHistory;
-            }
-            if (draft.examNextDate) {
-                const el = document.getElementById('examNextDate');
-                if (el) el.value = draft.examNextDate;
-            }
-            if (draft.planGoal) {
-                const el = document.getElementById('planGoal');
-                if (el) el.value = draft.planGoal;
-            }
-            if (draft.planDiet) {
-                const el = document.getElementById('planDiet');
-                if (el) el.value = draft.planDiet;
-            }
-            if (draft.planExercise) {
-                const el = document.getElementById('planExercise');
-                if (el) el.value = draft.planExercise;
-            }
-            if (draft.planGlucose) {
-                const el = document.getElementById('planGlucose');
-                if (el) el.value = draft.planGlucose;
-            }
-
-            if (draft.prescriptionLines) {
-                prescriptionLines = draft.prescriptionLines;
-                renderPrescriptionLines();
-            }
-            if (draft.selectedSymptoms) {
-                selectedSymptoms = draft.selectedSymptoms;
-                renderSymptomsGrid();
-            }
-            if (draft.orderedLabs) {
-                orderedLabs = draft.orderedLabs;
-            }
-            if (draft.simulatedResults) {
-                simulatedResults = draft.simulatedResults;
-                simulateLabResults();
-            }
-        } else {
-            sessionStorage.removeItem('examineDraft');
-        }
-    } catch (e) {
-        console.error('Error restoring examine draft:', e);
-    }
-}
 
 function calculateTotalQuantity() {
     const dosageInput = document.getElementById('medDosage');
@@ -1250,26 +786,49 @@ function calculateTotalQuantity() {
     const durationVal = parseInt(durationInput.value, 10) || 0;
     const checkedTimings = timingContainer.querySelectorAll('.custom-multiselect-option input[type="checkbox"]:checked').length;
 
-    const total = Math.ceil(dosageVal * checkedTimings * durationVal);
-    quantityInput.value = total;
+    quantityInput.value = Math.ceil(dosageVal * checkedTimings * durationVal);
 }
 
 function parseDosagePerDose(dosageStr) {
     if (!dosageStr || dosageStr === 'Auto') return 1;
     const match = dosageStr.match(/^([\d.]+)/);
-    if (match) {
-        const val = parseFloat(match[1]);
-        return isNaN(val) ? 1 : val;
-    }
-    return 1;
+    return match && !isNaN(parseFloat(match[1])) ? parseFloat(match[1]) : 1;
 }
 
 function clearMedicationErrors() {
-    const ids = ['error-medDosage', 'error-medDuration', 'error-medQuantity', 'error-medStartDate', 'error-medTiming'];
-    ids.forEach(id => {
+    ['error-medDosage', 'error-medDuration', 'error-medQuantity', 'error-medStartDate', 'error-medTiming'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
     });
+}
+
+function getMedicationUnit(form) {
+    if (!form) return "viên";
+    const formLower = form.toLowerCase();
+    if (formLower.includes("viên") || formLower.includes("nén") || formLower.includes("nang")) return "viên";
+    if (formLower.includes("gói")) return "gói";
+    if (formLower.includes("chai")) return "chai";
+    if (formLower.includes("ống")) return "ống";
+    if (formLower.includes("tablet")) return "tablet";
+    if (formLower.includes("capsule")) return "capsule";
+    return form.trim().length > 0 ? form.trim() : "viên";
+}
+
+function serializePrescription() {
+    const prescriptionList = prescriptionLines.map(line => ({
+        medId: line.medId,
+        dosage: line.dosage,
+        duration: parseInt(line.duration),
+        quantity: parseInt(line.quantity),
+        timingText: line.timingText,
+        medicationPlan: line.medicationPlan,
+        startDate: line.startDate,
+        endDate: line.endDate
+    }));
+    const hiddenInput = document.getElementById('prescriptionJson');
+    if (hiddenInput) {
+        hiddenInput.value = JSON.stringify(prescriptionList);
+    }
 }
 
 

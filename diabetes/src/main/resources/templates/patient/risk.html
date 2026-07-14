@@ -10,10 +10,10 @@
 
 <body>
 <div class="admin-layout">
-    <div th:replace="~{layout/patient-sidebar :: patientSidebar('risk')}"></div>
+    <div th:replace="~{layout/patient/sidebar :: patientSidebar('risk')}"></div>
 
     <div class="admin-main">
-        <div th:replace="~{layout/patient-header :: patientHeader('Đánh giá nguy cơ')}"></div>
+        <div th:replace="~{layout/patient/header :: patientHeader('Đánh giá nguy cơ')}"></div>
 
         <main class="admin-content">
             <div class="page-header dashboard-hero">
@@ -345,7 +345,7 @@
             </div>
         </main>
 
-        <div th:replace="~{layout/footer :: footer}"></div>
+        <div th:replace="~{layout/patient/footer :: footer}"></div>
     </div>
 </div>
 

@@ -3,6 +3,7 @@ package com.quan.diabetes.service.medication.impl;
 import com.quan.diabetes.entity.Medication;
 import com.quan.diabetes.repository.MedicationRepository;
 import com.quan.diabetes.service.medication.MedicationService;
+import com.quan.diabetes.service.systemlog.SystemLogService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,6 +22,9 @@ public class MedicationServiceImpl implements MedicationService {
 
     @Autowired
     private MedicationRepository medicationRepository;
+
+    @Autowired
+    private SystemLogService systemLogService;
 
     private String generateMedicationId() {
         List<Medication> allMedications = medicationRepository.findAll();
@@ -112,7 +116,11 @@ public class MedicationServiceImpl implements MedicationService {
         String newId = generateMedicationId();
         entity.setMedicationId(newId);
         entity.setStatus("Active");
-        return medicationRepository.save(entity);
+        Medication saved = medicationRepository.save(entity);
+        
+        systemLogService.saveLogWithObject(null, "CREATE", "Medicine", newId, "Thêm thuốc mới", null, saved, "SUCCESS");
+        
+        return saved;
     }
 
     @Override
@@ -121,19 +129,34 @@ public class MedicationServiceImpl implements MedicationService {
             throw new EntityNotFoundException("Medication not found with id: " + id);
         }
 
-        Medication existing = medicationRepository.findById(id).get();
+        Medication existing = medicationRepository.findById(id).orElse(null);
+        
+        Medication oldMedication = new Medication();
+        if (existing != null) {
+            oldMedication.setMedicationId(existing.getMedicationId());
+            oldMedication.setMedicationName(existing.getMedicationName());
+            oldMedication.setForm(existing.getForm());
+            oldMedication.setConcentration(existing.getConcentration());
+            oldMedication.setAdministrationRoute(existing.getAdministrationRoute());
+            oldMedication.setUsageInstruction(existing.getUsageInstruction());
+            oldMedication.setStatus(existing.getStatus());
+        }
 
         // Kiểm tra trùng tên (bỏ qua chính nó)
-        if (!existing.getMedicationName().equalsIgnoreCase(entity.getMedicationName()) &&
+        if (existing != null && !existing.getMedicationName().equalsIgnoreCase(entity.getMedicationName()) &&
                 existsByMedicationName(entity.getMedicationName())) {
             throw new RuntimeException("Medicine " + entity.getMedicationName() + " already exists!");
         }
 
         entity.setMedicationId(id);
         if (entity.getStatus() == null) {
-            entity.setStatus(existing.getStatus());
+            entity.setStatus(existing != null ? existing.getStatus() : null);
         }
-        return medicationRepository.save(entity);
+        Medication updated = medicationRepository.save(entity);
+        
+        systemLogService.saveLogWithObject(null, "UPDATE", "Medicine", id, "Cập nhật thông tin thuốc", oldMedication, updated, "SUCCESS");
+        
+        return updated;
     }
 
     @Override
@@ -156,10 +179,10 @@ public class MedicationServiceImpl implements MedicationService {
 
     @Override
     public void deleteById(String id) {
-        if (!medicationRepository.existsById(id)) {
-            throw new EntityNotFoundException("Medication not found with id: " + id);
-        }
+        Medication existing = medicationRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Medication not found with id: " + id));
         medicationRepository.deleteById(id);
+        
+        systemLogService.saveLogWithObject(null, "DELETE", "Medicine", id, "Xóa thuốc", existing, null, "SUCCESS");
     }
 
     @Override
