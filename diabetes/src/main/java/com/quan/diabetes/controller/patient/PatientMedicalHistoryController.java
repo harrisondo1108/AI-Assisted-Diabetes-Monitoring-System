@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.quan.diabetes.service.exam.DoctorRatingService;
+import com.quan.diabetes.service.systemlog.SystemLogService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -23,6 +24,9 @@ public class PatientMedicalHistoryController extends BasePatientController {
 
     @Autowired
     private DoctorRatingService doctorRatingService;
+
+    @Autowired
+    private SystemLogService systemLogService;
 
     @GetMapping("/patient/progress")
     public String progress(
@@ -214,6 +218,7 @@ public class PatientMedicalHistoryController extends BasePatientController {
         }
 
         if (medicalHistory == null || medicalHistory.trim().isEmpty()) {
+            systemLogService.saveLog(patient.getUserId(), "CREATE_MEDICAL_REQUEST", "MedicalRecord", patient.getUserId(), "Gửi yêu cầu khám thất bại (Lý do trống)", null, null, "FAILED");
             redirectAttributes.addFlashAttribute("requestErrorMessage", "Vui lòng nhập lý do khám hoặc triệu chứng của bạn.");
             return "redirect:/patient/progress";
         }
@@ -222,6 +227,7 @@ public class PatientMedicalHistoryController extends BasePatientController {
             clinicalExaminationService.requestExamination(patient.getUserId(), medicalHistory.trim());
             redirectAttributes.addFlashAttribute("requestSuccessMessage", "Gửi yêu cầu khám thành công! Vui lòng chờ bác sĩ duyệt.");
         } catch (Exception e) {
+            systemLogService.saveLog(patient.getUserId(), "CREATE_MEDICAL_REQUEST", "MedicalRecord", patient.getUserId(), "Gửi yêu cầu khám thất bại: " + e.getMessage(), null, null, "FAILED");
             redirectAttributes.addFlashAttribute("requestErrorMessage", e.getMessage());
         }
 

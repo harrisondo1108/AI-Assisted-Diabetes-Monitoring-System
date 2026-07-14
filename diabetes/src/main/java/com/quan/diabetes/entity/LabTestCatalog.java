@@ -19,12 +19,6 @@ public class LabTestCatalog {
     @Column(name = "Unit", length = 20, columnDefinition = "NVARCHAR(20)")
     private String unit;
 
-    @Column(name = "MinValue")
-    private Integer minValue;
-
-    @Column(name = "MaxValue")
-    private Integer maxValue;
-
     @Column(name = "Description", columnDefinition = "NVARCHAR(MAX)")
     private String description;
 
@@ -61,22 +55,6 @@ public class LabTestCatalog {
         this.unit = unit;
     }
 
-    public Integer getMinValue() {
-        return minValue;
-    }
-
-    public void setMinValue(Integer minValue) {
-        this.minValue = minValue;
-    }
-
-    public Integer getMaxValue() {
-        return maxValue;
-    }
-
-    public void setMaxValue(Integer maxValue) {
-        this.maxValue = maxValue;
-    }
-
     public String getDescription() {
         return description;
     }
@@ -101,5 +79,3 @@ public class LabTestCatalog {
         this.status = status;
     }
 }
-
-

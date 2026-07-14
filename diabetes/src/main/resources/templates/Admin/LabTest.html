@@ -99,15 +99,13 @@
                             <div class="row-actions">
                                 <button type="button" class="action-btn btn-view" title="Xem chi tiết"
                                         th:attr="data-id=${test.labTestId},data-name=${test.testName},
-                                                 data-unit=${test.unit},data-min=${test.minValue},
-                                                 data-max=${test.maxValue},data-room=${test.roomId},
+                                                 data-unit=${test.unit},data-room=${test.roomId},
                                                  data-status=${test.status},data-description=${test.description}">
                                     <i class="fa-regular fa-eye"></i>
                                 </button>
                                 <button type="button" class="action-btn btn-edit" title="Chỉnh sửa"
                                         th:attr="data-id=${test.labTestId},data-name=${test.testName},
-                                                 data-unit=${test.unit},data-min=${test.minValue},
-                                                 data-max=${test.maxValue},data-room=${test.roomId},
+                                                 data-unit=${test.unit},data-room=${test.roomId},
                                                  data-description=${test.description}">
                                     <i class="fa-solid fa-pen"></i>
                                 </button>
@@ -215,10 +213,16 @@
                             <div class="form-group"><label>Max</label><input type="number" id="createPregnantMax" name="pregnantMax" min="0" required></div>
                         </div>
                     </div>
+                    <div class="threshold-input-card">
+                        <h4>Trẻ em</h4>
+                        <div class="form-row two-col">
+                            <div class="form-group"><label>Min</label><input type="number" id="createChildrenMin" name="childrenMin" min="0" step="any" required></div>
+                            <div class="form-group"><label>Max</label><input type="number" id="createChildrenMax" name="childrenMax" min="0" step="any" required></div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <input type="hidden" name="minValue" id="createMainMinValue">
-            <input type="hidden" name="maxValue" id="createMainMaxValue">
+
             <div class="form-group">
                 <label>Mô tả</label>
                 <textarea name="description" id="inputCreateDesc" rows="4" placeholder="Nhập mô tả chi tiết xét nghiệm..." maxlength="255"></textarea>
@@ -304,10 +308,16 @@
                             <div class="form-group"><label>Max</label><input type="number" id="editPregnantMax" name="pregnantMax" min="0" required></div>
                         </div>
                     </div>
+                    <div class="threshold-input-card">
+                        <h4>Trẻ em</h4>
+                        <div class="form-row two-col">
+                            <div class="form-group"><label>Min</label><input type="number" id="editChildrenMin" name="childrenMin" min="0" step="any" required></div>
+                            <div class="form-group"><label>Max</label><input type="number" id="editChildrenMax" name="childrenMax" min="0" step="any" required></div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <input type="hidden" name="minValue" id="editMainMinValue">
-            <input type="hidden" name="maxValue" id="editMainMaxValue">
+
             <div class="form-group">
                 <label>Mô tả</label>
                 <textarea id="editDescription" name="description" rows="4" maxlength="255"></textarea>
@@ -349,6 +359,7 @@
                     <div class="threshold-card"><h4>Trung niên</h4><p>Min: <b id="middleMin">---</b></p><p>Max: <b id="middleMax">---</b></p></div>
                     <div class="threshold-card"><h4>Cao tuổi</h4><p>Min: <b id="elderMin">---</b></p><p>Max: <b id="elderMax">---</b></p></div>
                     <div class="threshold-card"><h4>Người có bầu</h4><p>Min: <b id="pregnantMin">---</b></p><p>Max: <b id="pregnantMax">---</b></p></div>
+                    <div class="threshold-card"><h4>Trẻ em</h4><p>Min: <b id="childrenMin">---</b></p><p>Max: <b id="childrenMax">---</b></p></div>
                 </div>
             </div>
             <div class="detail-item">

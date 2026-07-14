@@ -346,6 +346,7 @@ VALUES
 
 INSERT INTO PatientType (TypeName, MinAge, MaxAge)
 VALUES
+    ('Children', 0, 17),
     ('Adult', 18, 39),
     ('Middle-aged', 40, 64),
     ('Elderly', 65, 120),
@@ -379,3 +380,18 @@ VALUES
 ('MED002', 'Gliclazide', N'Viên nén', '30mg', N'Đường uống', N'Uống trước bữa ăn sáng', 'Active'),
 ('MED003', 'Insulin Glargine', N'Bút tiêm', '100IU/ml', N'Tiêm dưới da', N'Tiêm vào cùng một thời điểm mỗi ngày', 'Active'),
 ('MED004', 'Sitagliptin', N'Viên nén', '100mg', N'Đường uống', N'Uống một lần mỗi ngày', 'Active');
+
+-- Table: SystemLog
+CREATE TABLE SystemLog (
+    LogID INT IDENTITY(1,1) PRIMARY KEY,
+    AccountID VARCHAR(50),
+    Action VARCHAR(50) NOT NULL,
+    EntityName VARCHAR(100),
+    EntityID VARCHAR(100),
+    Description NVARCHAR(1000),
+    OldValue NVARCHAR(MAX),
+    NewValue NVARCHAR(MAX),
+    Status VARCHAR(20),
+    CreatedAt DATETIME2 DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT FK_SystemLog_Account FOREIGN KEY (AccountID) REFERENCES Account(UserID)
+);

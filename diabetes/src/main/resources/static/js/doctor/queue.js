@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
             showToast('Cập nhật ca khám thành công!', 'success');
         } else if (toastType === 'success') {
             showToast('Thao tác thành công!', 'success');
+        } else if (toastType === 'not_today') {
+            showToast('Chỉ được phép chỉnh sửa ca khám được thực hiện trong ngày hôm nay.', 'error');
         }
         window.history.replaceState({}, document.title, window.location.pathname);
     }

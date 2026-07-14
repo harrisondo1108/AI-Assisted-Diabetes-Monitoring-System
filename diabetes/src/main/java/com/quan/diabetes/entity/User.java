@@ -29,12 +29,23 @@ public class User {
     @OneToOne(mappedBy = "user")
     private Profile profile;
 
+    @OneToOne(mappedBy = "user")
+    private Patient patient;
+
     public Profile getProfile() {
         return profile;
     }
 
     public void setProfile(Profile profile) {
         this.profile = profile;
+    }
+
+    public Patient getPatient() {
+        return patient;
+    }
+
+    public void setPatient(Patient patient) {
+        this.patient = patient;
     }
 
     public User() {

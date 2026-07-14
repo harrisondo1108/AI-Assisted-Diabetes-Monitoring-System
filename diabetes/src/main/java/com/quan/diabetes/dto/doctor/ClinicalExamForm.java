@@ -18,7 +18,6 @@ public class ClinicalExamForm {
     private String diagnosisNote;
     private String nextAppointment;
     private List<String> symptomIds;
-    private List<String> labTestIds;
     private String prescriptionJson;
     private Map<String, String> symptomComments;
 
@@ -66,14 +65,6 @@ public class ClinicalExamForm {
 
     public void setSymptomIds(List<String> symptomIds) {
         this.symptomIds = symptomIds;
-    }
-
-    public List<String> getLabTestIds() {
-        return labTestIds;
-    }
-
-    public void setLabTestIds(List<String> labTestIds) {
-        this.labTestIds = labTestIds;
     }
 
     public String getPrescriptionJson() {
@@ -125,7 +116,6 @@ public class ClinicalExamForm {
     }
 
     private String symptomCommentsJson;
-    private String labResultsJson;
 
     public String getSymptomCommentsJson() {
         return symptomCommentsJson;
@@ -133,14 +123,6 @@ public class ClinicalExamForm {
 
     public void setSymptomCommentsJson(String symptomCommentsJson) {
         this.symptomCommentsJson = symptomCommentsJson;
-    }
-
-    public String getLabResultsJson() {
-        return labResultsJson;
-    }
-
-    public void setLabResultsJson(String labResultsJson) {
-        this.labResultsJson = labResultsJson;
     }
 
     public Boolean getIsPregnant() {
@@ -166,7 +148,6 @@ public class ClinicalExamForm {
                 ", diagnosisNote='" + diagnosisNote + '\'' +
                 ", nextAppointment='" + nextAppointment + '\'' +
                 ", symptomIds=" + symptomIds +
-                ", labTestIds=" + labTestIds +
                 ", prescriptionJson='" + prescriptionJson + '\'' +
                 ", treatmentGoal='" + treatmentGoal + '\'' +
                 ", dietPlan='" + dietPlan + '\'' +

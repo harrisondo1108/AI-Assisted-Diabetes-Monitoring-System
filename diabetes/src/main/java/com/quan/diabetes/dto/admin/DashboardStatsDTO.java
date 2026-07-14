@@ -9,6 +9,10 @@ public class DashboardStatsDTO {
     private long highRiskPatients; 
     private long abnormalGlucoseAlerts;
 
+    private long todayChats;
+    private long todayReminders;
+    private long todayCompletedExams;
+
     public DashboardStatsDTO() {}
 
     public DashboardStatsDTO(long totalPatients, long totalDoctors, long totalConversations, long totalReminders, long highRiskPatients, long abnormalGlucoseAlerts) {
@@ -37,4 +41,13 @@ public class DashboardStatsDTO {
 
     public long getAbnormalGlucoseAlerts() { return abnormalGlucoseAlerts; }
     public void setAbnormalGlucoseAlerts(long abnormalGlucoseAlerts) { this.abnormalGlucoseAlerts = abnormalGlucoseAlerts; }
+
+    public long getTodayChats() { return todayChats; }
+    public void setTodayChats(long todayChats) { this.todayChats = todayChats; }
+
+    public long getTodayReminders() { return todayReminders; }
+    public void setTodayReminders(long todayReminders) { this.todayReminders = todayReminders; }
+
+    public long getTodayCompletedExams() { return todayCompletedExams; }
+    public void setTodayCompletedExams(long todayCompletedExams) { this.todayCompletedExams = todayCompletedExams; }
 }

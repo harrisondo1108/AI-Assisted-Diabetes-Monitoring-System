@@ -4,6 +4,7 @@ import com.quan.diabetes.dto.user.UserManagementDTO;
 import com.quan.diabetes.service.user.AdminUserService;
 import com.quan.diabetes.service.masterdata.RoomService;
 import jakarta.validation.Valid;
+import com.quan.diabetes.service.systemlog.SystemLogService;
 import com.quan.diabetes.util.ParseUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,10 +20,12 @@ public class AdminUserController {
 
     private final AdminUserService adminUserService;
     private final RoomService roomService;
+    private final SystemLogService systemLogService;
 
-    public AdminUserController(AdminUserService adminUserService, RoomService roomService) {
+    public AdminUserController(AdminUserService adminUserService, RoomService roomService, SystemLogService systemLogService) {
         this.adminUserService = adminUserService;
         this.roomService = roomService;
+        this.systemLogService = systemLogService;
     }
 
     @GetMapping
@@ -97,6 +100,12 @@ public class AdminUserController {
         }
 
         if (result.hasErrors()) {
+            if (isCreateMode) {
+                systemLogService.saveLogWithObject(null, "CREATE", "Account", null, "Thêm tài khoản mới thất bại (Lỗi xác thực)", null, userDto, "FAILED");
+            } else {
+                systemLogService.saveLogWithObject(null, "UPDATE", "Account", userDto.getUserId(), "Cập nhật tài khoản thất bại (Lỗi xác thực)", null, userDto, "FAILED");
+            }
+            
             org.springframework.data.domain.Page<UserManagementDTO> userPage = adminUserService
                     .getPagedUserManagementDTOs("all", "", 0, 7);
             model.addAttribute("users", userPage.getContent());

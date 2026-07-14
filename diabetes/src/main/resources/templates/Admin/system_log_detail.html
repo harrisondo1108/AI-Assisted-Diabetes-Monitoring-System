@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Chi tiết nhật ký · Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/admin/dashboard.css}">
+    <link rel="stylesheet" th:href="@{/css/admin/system_log.css}">
+</head>
+<body>
+<div class="admin-layout">
+    <!-- Sidebar -->
+    <div th:replace="~{layout/admin/sidebar :: sidebar('system-log')}"></div>
+
+    <div class="admin-main">
+        <div th:replace="~{layout/admin/header :: header('Nhật ký hệ thống')}"></div>
+
+        <main class="admin-content">
+            <div class="breadcrumb">
+                <a th:href="@{/admin/dashboard}">Dashboard</a>
+                <i class="fas fa-chevron-right" style="font-size: 10px;"></i>
+                <a th:href="@{/admin/system-log(page=${param.page}, keyword=${param.keyword}, role=${param.role}, action=${param.action}, fromDate=${param.fromDate}, toDate=${param.toDate})}">Nhật ký hệ thống</a>
+                <i class="fas fa-chevron-right" style="font-size: 10px;"></i>
+                <span>Chi tiết nhật ký hệ thống</span>
+            </div>
+
+            <div class="page-header">
+                <div>
+                    <h1>Chi tiết nhật ký: #<span th:text="${log.logId}"></span></h1>
+                    <p class="subtitle">Xem chi tiết các thay đổi và thông tin liên quan đến thao tác này.</p>
+                </div>
+                <div class="header-buttons">
+                    <a th:href="@{/admin/system-log(page=${param.page}, keyword=${param.keyword}, role=${param.role}, action=${param.action}, fromDate=${param.fromDate}, toDate=${param.toDate})}" class="btn btn-outline">
+                        <i class="fas fa-arrow-left"></i> Quay lại danh sách
+                    </a>
+                </div>
+            </div>
+
+            <!-- Card Thông tin chung -->
+            <div class="detail-card">
+                <h3 style="margin-top: 0; margin-bottom: 20px; color: #1e293b; font-size: 18px;">Thông tin thao tác</h3>
+                <div class="detail-grid">
+                    <div class="detail-group">
+                        <span class="detail-label">Tài khoản (AccountID)</span>
+                        <span class="detail-value" th:text="${log.account != null ? log.account.userId : 'N/A'}"></span>
+                    </div>
+                    <div class="detail-group">
+                        <span class="detail-label">Số điện thoại (Username)</span>
+                        <span class="detail-value" th:text="${log.account != null ? log.account.phoneNumber : 'N/A'}"></span>
+                    </div>
+                    <div class="detail-group">
+                        <span class="detail-label">Họ tên</span>
+                        <span class="detail-value">
+                            <span th:if="${log.account != null and log.account.profile != null}" th:text="${log.account.profile.fullName}"></span>
+                            <span th:if="${log.account != null and log.account.patient != null}" th:text="${log.account.patient.fullName}"></span>
+                            <span th:if="${log.account == null or (log.account.profile == null and log.account.patient == null)}">Chưa cập nhật</span>
+                        </span>
+                    </div>
+                    <div class="detail-group">
+                        <span class="detail-label">Vai trò</span>
+                        <span class="detail-value">
+                            <span th:if="${log.account != null and log.account.role != null}"
+                                  th:class="'badge badge-role-' + ${#strings.toLowerCase(log.account.role.roleId)}"
+                                  th:text="${roleMap.get(log.account.role.roleId) ?: log.account.role.roleId}">
+                            </span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="detail-grid">
+                    <div class="detail-group">
+                        <span class="detail-label">Loại hoạt động (Activity)</span>
+                        <span class="detail-value" style="font-weight: 600;" th:text="${actionMap.get(log.action) ?: log.action}"></span>
+                    </div>
+                    <div class="detail-group">
+                        <span class="detail-label">Thực thể bị tác động (EntityName)</span>
+                        <span class="detail-value" th:text="${log.entityName != null ? log.entityName : 'N/A'}"></span>
+                    </div>
+                    <div class="detail-group">
+                        <span class="detail-label">Mã thực thể (EntityID)</span>
+                        <span class="detail-value" th:text="${log.entityId != null ? log.entityId : 'N/A'}"></span>
+                    </div>
+                    <div class="detail-group">
+                        <span class="detail-label">Trạng thái</span>
+                        <span class="detail-value">
+                             <span th:class="'badge badge-status-' + ${#strings.toLowerCase(log.status)}"
+                                   th:text="${statusMap.get(log.status) ?: log.status}">
+                            </span>
+                        </span>
+                    </div>
+                    <div class="detail-group">
+                        <span class="detail-label">Thời gian thực hiện</span>
+                        <span class="detail-value" th:text="${#temporals.format(log.createdAt, 'dd/MM/yyyy HH:mm:ss')}"></span>
+                    </div>
+                </div>
+
+                <div class="detail-group" style="margin-top: 16px;">
+                    <span class="detail-label">Mô tả</span>
+                    <span class="detail-value" style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; display: block;" th:text="${log.description}"></span>
+                </div>
+            </div>
+
+            <!-- Card Dữ liệu JSON -->
+            <div class="detail-card">
+                <h3 style="margin-top: 0; margin-bottom: 20px; color: #1e293b; font-size: 18px;">Dữ liệu thay đổi</h3>
+                
+                <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px;">
+                    <!-- Cột Old Value -->
+                    <div class="detail-group">
+                        <span class="detail-label">Giá trị cũ (OldValue)</span>
+                        <div class="json-container">
+                            <pre th:text="${formattedOldValue}"></pre>
+                        </div>
+                    </div>
+
+                    <!-- Cột New Value -->
+                    <div class="detail-group">
+                        <span class="detail-label">Giá trị mới (NewValue)</span>
+                        <div class="json-container">
+                            <pre th:text="${formattedNewValue}"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </main>
+    </div>
+</div>
+</body>
+</html>

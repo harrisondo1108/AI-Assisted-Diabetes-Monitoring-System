@@ -21,6 +21,7 @@ public class AdminInitializer implements CommandLineRunner {
     private UserService userService;
 
     private final String PHONE_NUMBER = "0328938692";
+
     @Override
     public void run(String... args) {
 

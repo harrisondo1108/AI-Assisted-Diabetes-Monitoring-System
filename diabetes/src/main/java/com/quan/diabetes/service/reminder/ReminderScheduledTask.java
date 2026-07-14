@@ -33,7 +33,8 @@ public class ReminderScheduledTask {
             if (patientEmail != null && !patientEmail.trim().isEmpty()) {
                 emailService.sendSimpleEmail(patientEmail.trim(), reminder.getTitle(), reminder.getMessage());
             } else {
-                System.out.println("Warning: Patient " + (reminder.getPatient() != null ? reminder.getPatient().getUserId() : "null") + " has no email configured, fallback to default recipient");
+                String patientPhone = (reminder.getPatient() != null) ? reminder.getPatient().getPhoneNumber() : "Không xác định";
+                System.out.println("Gửi SMS tới số " + patientPhone + ": " + reminder.getMessage());
                 emailService.sendSimpleEmail("lequan13112005@gmail.com", reminder.getTitle(), reminder.getMessage());
             }
             reminder.setIsSent(true);

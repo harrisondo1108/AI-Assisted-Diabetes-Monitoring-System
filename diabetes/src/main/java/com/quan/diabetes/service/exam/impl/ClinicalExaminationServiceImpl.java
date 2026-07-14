@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import com.quan.diabetes.service.reminder.AppointmentSchedule;
+import com.quan.diabetes.service.systemlog.SystemLogService;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -48,6 +49,8 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
     @Autowired
     private ReminderRepository reminderRepository;
 
+    private final SystemLogService systemLogService;
+
     public ClinicalExaminationServiceImpl(
             ClinicalExaminationRepository clinicalExaminationRepository,
             UserRepository userRepository,
@@ -65,7 +68,8 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
             LabTestCatalogRepository labTestCatalogRepository,
             PatientTypeRepository patientTypeRepository,
             IndicatorThresholdRepository indicatorThresholdRepository,
-            MedicationSchedualeService medicationSchedualeService) {
+            MedicationSchedualeService medicationSchedualeService,
+            SystemLogService systemLogService) {
         this.clinicalExaminationRepository = clinicalExaminationRepository;
         this.userRepository = userRepository;
         this.patientRepository = patientRepository;
@@ -83,6 +87,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         this.patientTypeRepository = patientTypeRepository;
         this.indicatorThresholdRepository = indicatorThresholdRepository;
         this.medicationSchedualeService = medicationSchedualeService;
+        this.systemLogService = systemLogService;
     }
 
     @Override
@@ -152,8 +157,14 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                     .orElseThrow(() -> new EntityNotFoundException("Doctor not found: " + doctorId)));
             exam.setExamDate(LocalDateTime.now());
         }
+        ClinicalExamination oldExam = new ClinicalExamination();
+        oldExam.setClinicalExamId(exam.getClinicalExamId());
+        oldExam.setStatus(exam.getStatus());
+        
         exam.setStatus("InProgress");
         clinicalExaminationRepository.save(exam);
+        
+        systemLogService.saveLogWithObject(null, "APPROVE_MEDICAL_RECORD", "MedicalRecord", exam.getClinicalExamId(), "Bác sĩ tiếp nhận bệnh án", oldExam, exam, "SUCCESS");
     }
 
     @Override
@@ -177,10 +188,18 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                     .orElseThrow(() -> new EntityNotFoundException("Doctor not found: " + doctorId)));
             exam.setExamDate(LocalDateTime.now());
         }
+        ClinicalExamination oldExam = new ClinicalExamination();
+        oldExam.setClinicalExamId(exam.getClinicalExamId());
+        oldExam.setStatus(exam.getStatus());
+        oldExam.setCancelReason(exam.getCancelReason());
+        oldExam.setDiagnosisNote(exam.getDiagnosisNote());
+
         exam.setStatus("Cancelled");
         exam.setCancelReason(reason);
         exam.setDiagnosisNote(null);
         clinicalExaminationRepository.save(exam);
+        
+        systemLogService.saveLogWithObject(null, "REJECT_MEDICAL_RECORD", "MedicalRecord", exam.getClinicalExamId(), "Bác sĩ từ chối/hủy bệnh án", oldExam, exam, "SUCCESS");
     }
 
     @Override
@@ -205,6 +224,13 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                     .orElseThrow(() -> new EntityNotFoundException("Doctor not found: " + doctorId)));
             exam.setExamDate(LocalDateTime.now());
         }
+
+        ClinicalExamination oldExam = new ClinicalExamination();
+        oldExam.setClinicalExamId(exam.getClinicalExamId());
+        oldExam.setStatus(exam.getStatus());
+        oldExam.setMedicalHistory(exam.getMedicalHistory());
+        oldExam.setDiagnosisNote(exam.getDiagnosisNote());
+        oldExam.setNextAppointment(exam.getNextAppointment());
 
         // 1. Cập nhật thông tin chính ca khám
         exam.setMedicalHistory(form.getMedicalHistory());
@@ -258,117 +284,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         plan.setGlucoseMonitoringPlan(form.getGlucoseMonitoringPlan());
         treatmentPlanRepository.save(plan);
 
-        // 4. Lưu Chỉ định & Kết quả xét nghiệm (Clear cũ trước)
-        labOrderRepository.findByClinicalExamination_ClinicalExamId(examId)
-                .ifPresent(labOrderRepository::delete);
-
-        if (form.getLabTestIds() != null && !form.getLabTestIds().isEmpty()) {
-            LabOrder labOrder = new LabOrder();
-            labOrder.setLabOrderId("LBO-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000));
-            labOrder.setClinicalExamination(exam);
-            labOrder.setStatus("Completed");
-            labOrder = labOrderRepository.save(labOrder);
-
-            // Parse simulated lab values from frontend if available
-            Map<String, Map<String, Object>> simulatedResults = new HashMap<>();
-            if (form.getLabResultsJson() != null && !form.getLabResultsJson().trim().isEmpty()) {
-                try {
-                    ObjectMapper mapper = new ObjectMapper();
-                    List<Map<String, Object>> list = mapper.readValue(form.getLabResultsJson(),
-                            new TypeReference<List<Map<String, Object>>>() {
-                            });
-                    for (Map<String, Object> item : list) {
-                        String testId = (String) item.get("testId");
-                        simulatedResults.put(testId, item);
-                    }
-                } catch (Exception e) {
-                    // Ignore or log
-                }
-            }
-
-            Patient patient = exam.getPatient();
-            PatientType matchedType = null;
-            if (Boolean.TRUE.equals(form.getIsPregnant())) {
-                matchedType = patientTypeRepository.findAll().stream()
-                        .filter(t -> t.getTypeName().equalsIgnoreCase("Pregnant"))
-                        .findFirst()
-                        .orElse(null);
-            } else {
-                int age = 0;
-                if (patient != null && patient.getDob() != null) {
-                    age = java.time.Period.between(patient.getDob(), java.time.LocalDate.now()).getYears();
-                }
-                final int finalAge = age;
-                matchedType = patientTypeRepository.findAll().stream()
-                        .filter(t -> t.getMinAge() != null && t.getMaxAge() != null && finalAge >= t.getMinAge()
-                                && finalAge <= t.getMaxAge())
-                        .findFirst()
-                        .orElse(null);
-            }
-
-            for (String testId : form.getLabTestIds()) {
-                LabTestCatalog test = labTestCatalogRepository.findById(testId).orElse(null);
-                if (test != null) {
-                    LabResult result = new LabResult();
-                    result.setLabResultId("LBR-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000));
-                    result.setLabOrder(labOrder);
-                    result.setLabTest(test);
-                    result.setStatus("Completed");
-
-                    BigDecimal value = BigDecimal.valueOf(4.8);
-                    String flag = "NORMAL";
-
-                    // Retrieve thresholds dynamically from database
-                    Optional<IndicatorThreshold> thresholdOpt = Optional.empty();
-                    if (matchedType != null) {
-                        thresholdOpt = indicatorThresholdRepository.findByLabTest_LabTestIdAndPatientType_PatientTypeId(
-                                testId, matchedType.getPatientTypeId());
-                    }
-                    if (thresholdOpt.isEmpty()) {
-                        List<IndicatorThreshold> thresholds = indicatorThresholdRepository
-                                .findByLabTest_LabTestId(testId);
-                        if (!thresholds.isEmpty()) {
-                            thresholdOpt = Optional.of(thresholds.get(0));
-                        }
-                    }
-
-                    String range = "N/A";
-                    BigDecimal dbMin = null;
-                    BigDecimal dbMax = null;
-
-                    if (thresholdOpt.isPresent()) {
-                        dbMin = thresholdOpt.get().getMinValue();
-                        dbMax = thresholdOpt.get().getMaxValue();
-                        range = dbMin + " - " + dbMax;
-                    }
-
-                    if (simulatedResults.containsKey(testId)) {
-                        Map<String, Object> simInfo = simulatedResults.get(testId);
-                        value = BigDecimal.valueOf(Double.parseDouble(simInfo.get("val").toString()));
-
-                        // Backend calculations for flag safety
-                        if (dbMin != null && dbMax != null) {
-                            if (value.compareTo(dbMin) < 0)
-                                flag = "LOW";
-                            else if (value.compareTo(dbMax) > 0)
-                                flag = "HIGH";
-                            else
-                                flag = "NORMAL";
-                        } else {
-                            flag = "NORMAL";
-                        }
-                    } else {
-                        value = BigDecimal.valueOf(0.0);
-                        flag = "NORMAL";
-                    }
-
-                    result.setResultValue(value);
-                    result.setReferenceRange(range);
-                    result.setFlag(flag);
-                    labResultRepository.save(result);
-                }
-            }
-        }
+        // 4. Chỉ định & Kết quả xét nghiệm đã được lưu trực tiếp qua AJAX nên không cần xử lý ở đây.
 
         // 5. Lưu đơn thuốc (Clear cũ trước)
         prescriptionRepository.findByClinicalExamination_ClinicalExamId(examId)
@@ -464,6 +380,8 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                 throw new RuntimeException("Error deserializing prescription JSON: " + e.getMessage(), e);
             }
         }
+        
+        systemLogService.saveLogWithObject(null, "COMPLETE_MEDICAL_RECORD", "MedicalRecord", examId, "Bác sĩ hoàn thành bệnh án", oldExam, exam, "SUCCESS");
     }
 
     @Override
@@ -540,6 +458,13 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                 .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException(
                         "Không tìm thấy ca khám để cập nhật: " + examId));
 
+        ClinicalExamination oldExam = new ClinicalExamination();
+        oldExam.setClinicalExamId(exam.getClinicalExamId());
+        oldExam.setStatus(exam.getStatus());
+        oldExam.setMedicalHistory(exam.getMedicalHistory());
+        oldExam.setDiagnosisNote(exam.getDiagnosisNote());
+        oldExam.setNextAppointment(exam.getNextAppointment());
+
         // 1. Cập nhật thông tin chính ca khám
         exam.setMedicalHistory(form.getMedicalHistory());
         exam.setDiagnosisNote(form.getDiagnosisNote());
@@ -550,6 +475,8 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         }
         exam.setStatus("Completed");
         exam = clinicalExaminationRepository.save(exam);
+        
+        systemLogService.saveLogWithObject(null, "UPDATE_MEDICAL_RECORD", "MedicalRecord", examId, "Cập nhật bệnh án", oldExam, exam, "SUCCESS");
 
         // 2. Lưu Triệu chứng (Clear cũ trước)
         examSymptomRepository.deleteById_ClinicalExamId(examId);
@@ -589,117 +516,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         plan.setGlucoseMonitoringPlan(form.getGlucoseMonitoringPlan());
         treatmentPlanRepository.save(plan);
 
-        // 4. Lưu Chỉ định & Kết quả xét nghiệm (Clear cũ trước)
-        labOrderRepository.findByClinicalExamination_ClinicalExamId(examId)
-                .ifPresent(labOrderRepository::delete);
-
-        if (form.getLabTestIds() != null && !form.getLabTestIds().isEmpty()) {
-            LabOrder labOrder = new LabOrder();
-            labOrder.setLabOrderId("LBO-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000));
-            labOrder.setClinicalExamination(exam);
-            labOrder.setStatus("Completed");
-            labOrder = labOrderRepository.save(labOrder);
-
-            // Parse simulated lab values from frontend if available
-            Map<String, Map<String, Object>> simulatedResults = new HashMap<>();
-            if (form.getLabResultsJson() != null && !form.getLabResultsJson().trim().isEmpty()) {
-                try {
-                    ObjectMapper mapper = new ObjectMapper();
-                    List<Map<String, Object>> list = mapper.readValue(form.getLabResultsJson(),
-                            new TypeReference<List<Map<String, Object>>>() {
-                            });
-                    for (Map<String, Object> item : list) {
-                        String testId = (String) item.get("testId");
-                        simulatedResults.put(testId, item);
-                    }
-                } catch (Exception e) {
-                    // Ignore or log
-                }
-            }
-
-            Patient patient = exam.getPatient();
-            PatientType matchedType = null;
-            if (Boolean.TRUE.equals(form.getIsPregnant())) {
-                matchedType = patientTypeRepository.findAll().stream()
-                        .filter(t -> t.getTypeName().equalsIgnoreCase("Pregnant"))
-                        .findFirst()
-                        .orElse(null);
-            } else {
-                int age = 0;
-                if (patient != null && patient.getDob() != null) {
-                    age = java.time.Period.between(patient.getDob(), java.time.LocalDate.now()).getYears();
-                }
-                final int finalAge = age;
-                matchedType = patientTypeRepository.findAll().stream()
-                        .filter(t -> t.getMinAge() != null && t.getMaxAge() != null && finalAge >= t.getMinAge()
-                                && finalAge <= t.getMaxAge())
-                        .findFirst()
-                        .orElse(null);
-            }
-
-            for (String testId : form.getLabTestIds()) {
-                LabTestCatalog test = labTestCatalogRepository.findById(testId).orElse(null);
-                if (test != null) {
-                    LabResult result = new LabResult();
-                    result.setLabResultId("LBR-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000));
-                    result.setLabOrder(labOrder);
-                    result.setLabTest(test);
-                    result.setStatus("Completed");
-
-                    BigDecimal value = BigDecimal.valueOf(4.8);
-                    String flag = "NORMAL";
-
-                    // Retrieve thresholds dynamically from database
-                    Optional<IndicatorThreshold> thresholdOpt = Optional.empty();
-                    if (matchedType != null) {
-                        thresholdOpt = indicatorThresholdRepository.findByLabTest_LabTestIdAndPatientType_PatientTypeId(
-                                testId, matchedType.getPatientTypeId());
-                    }
-                    if (thresholdOpt.isEmpty()) {
-                        List<IndicatorThreshold> thresholds = indicatorThresholdRepository
-                                .findByLabTest_LabTestId(testId);
-                        if (!thresholds.isEmpty()) {
-                            thresholdOpt = Optional.of(thresholds.get(0));
-                        }
-                    }
-
-                    String range = "N/A";
-                    BigDecimal dbMin = null;
-                    BigDecimal dbMax = null;
-
-                    if (thresholdOpt.isPresent()) {
-                        dbMin = thresholdOpt.get().getMinValue();
-                        dbMax = thresholdOpt.get().getMaxValue();
-                        range = dbMin + " - " + dbMax;
-                    }
-
-                    if (simulatedResults.containsKey(testId)) {
-                        Map<String, Object> simInfo = simulatedResults.get(testId);
-                        value = BigDecimal.valueOf(Double.parseDouble(simInfo.get("val").toString()));
-
-                        // Backend calculations for flag safety
-                        if (dbMin != null && dbMax != null) {
-                            if (value.compareTo(dbMin) < 0)
-                                flag = "LOW";
-                            else if (value.compareTo(dbMax) > 0)
-                                flag = "HIGH";
-                            else
-                                flag = "NORMAL";
-                        } else {
-                            flag = "NORMAL";
-                        }
-                    } else {
-                        value = BigDecimal.valueOf(0.0);
-                        flag = "NORMAL";
-                    }
-
-                    result.setResultValue(value);
-                    result.setReferenceRange(range);
-                    result.setFlag(flag);
-                    labResultRepository.save(result);
-                }
-            }
-        }
+        // 4. Chỉ định & Kết quả xét nghiệm đã được lưu trực tiếp qua AJAX nên không cần xử lý ở đây.
 
         // 5. Lưu đơn thuốc (Clear cũ trước)
         prescriptionRepository.findByClinicalExamination_ClinicalExamId(examId)
@@ -836,6 +653,8 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         exam.setStatus("Requested");
         exam.setMedicalHistory(medicalHistory);
         clinicalExaminationRepository.save(exam);
+        
+        systemLogService.saveLogWithObject(patientId, "CREATE_MEDICAL_REQUEST", "MedicalRequest", exam.getClinicalExamId(), "Bệnh nhân tạo yêu cầu khám", null, exam, "SUCCESS");
     }
 
     @Override
@@ -910,114 +729,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         plan.setGlucoseMonitoringPlan(form.getGlucoseMonitoringPlan());
         treatmentPlanRepository.save(plan);
 
-        // 4. Lưu Chỉ định & Kết quả xét nghiệm
-        labOrderRepository.findByClinicalExamination_ClinicalExamId(examId)
-                .ifPresent(labOrderRepository::delete);
-
-        if (form.getLabTestIds() != null && !form.getLabTestIds().isEmpty()) {
-            LabOrder labOrder = new LabOrder();
-            labOrder.setLabOrderId("LBO-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000));
-            labOrder.setClinicalExamination(exam);
-            labOrder.setStatus("Completed");
-            labOrder = labOrderRepository.save(labOrder);
-
-            Map<String, Map<String, Object>> simulatedResults = new HashMap<>();
-            if (form.getLabResultsJson() != null && !form.getLabResultsJson().trim().isEmpty()) {
-                try {
-                    ObjectMapper mapper = new ObjectMapper();
-                    List<Map<String, Object>> list = mapper.readValue(form.getLabResultsJson(),
-                            new TypeReference<List<Map<String, Object>>>() {
-                            });
-                    for (Map<String, Object> item : list) {
-                        String testId = (String) item.get("testId");
-                        simulatedResults.put(testId, item);
-                    }
-                } catch (Exception e) {
-                    // Ignore
-                }
-            }
-
-            Patient patient = exam.getPatient();
-            PatientType matchedType = null;
-            if (Boolean.TRUE.equals(form.getIsPregnant())) {
-                matchedType = patientTypeRepository.findAll().stream()
-                        .filter(t -> t.getTypeName().equalsIgnoreCase("Pregnant"))
-                        .findFirst()
-                        .orElse(null);
-            } else {
-                int age = 0;
-                if (patient != null && patient.getDob() != null) {
-                    age = java.time.Period.between(patient.getDob(), java.time.LocalDate.now()).getYears();
-                }
-                final int finalAge = age;
-                matchedType = patientTypeRepository.findAll().stream()
-                        .filter(t -> t.getMinAge() != null && t.getMaxAge() != null && finalAge >= t.getMinAge()
-                                && finalAge <= t.getMaxAge())
-                        .findFirst()
-                        .orElse(null);
-            }
-
-            for (String testId : form.getLabTestIds()) {
-                LabTestCatalog test = labTestCatalogRepository.findById(testId).orElse(null);
-                if (test != null) {
-                    LabResult result = new LabResult();
-                    result.setLabResultId("LBR-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000));
-                    result.setLabOrder(labOrder);
-                    result.setLabTest(test);
-                    result.setStatus("Completed");
-
-                    BigDecimal value = BigDecimal.valueOf(4.8);
-                    String flag = "NORMAL";
-
-                    Optional<IndicatorThreshold> thresholdOpt = Optional.empty();
-                    if (matchedType != null) {
-                        thresholdOpt = indicatorThresholdRepository.findByLabTest_LabTestIdAndPatientType_PatientTypeId(
-                                testId, matchedType.getPatientTypeId());
-                    }
-                    if (thresholdOpt.isEmpty()) {
-                        List<IndicatorThreshold> thresholds = indicatorThresholdRepository
-                                .findByLabTest_LabTestId(testId);
-                        if (!thresholds.isEmpty()) {
-                            thresholdOpt = Optional.of(thresholds.get(0));
-                        }
-                    }
-
-                    String range = "N/A";
-                    BigDecimal dbMin = null;
-                    BigDecimal dbMax = null;
-
-                    if (thresholdOpt.isPresent()) {
-                        dbMin = thresholdOpt.get().getMinValue();
-                        dbMax = thresholdOpt.get().getMaxValue();
-                        range = dbMin + " - " + dbMax;
-                    }
-
-                    if (simulatedResults.containsKey(testId)) {
-                        Map<String, Object> simInfo = simulatedResults.get(testId);
-                        value = BigDecimal.valueOf(Double.parseDouble(simInfo.get("val").toString()));
-
-                        if (dbMin != null && dbMax != null) {
-                            if (value.compareTo(dbMin) < 0)
-                                flag = "LOW";
-                            else if (value.compareTo(dbMax) > 0)
-                                flag = "HIGH";
-                            else
-                                flag = "NORMAL";
-                        } else {
-                            flag = "NORMAL";
-                        }
-                    } else {
-                        value = BigDecimal.valueOf(0.0);
-                        flag = "NORMAL";
-                    }
-
-                    result.setResultValue(value);
-                    result.setReferenceRange(range);
-                    result.setFlag(flag);
-                    labResultRepository.save(result);
-                }
-            }
-        }
+        // 4. Chỉ định & Kết quả xét nghiệm đã được lưu trực tiếp qua AJAX nên không cần xử lý ở đây.
 
         // 5. Lưu đơn thuốc (Clear cũ trước)
         prescriptionRepository.findByClinicalExamination_ClinicalExamId(examId)

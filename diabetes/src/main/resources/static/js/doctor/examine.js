@@ -29,10 +29,8 @@ const medicationsCatalog = (typeof rawMedicationsCatalog !== 'undefined' && rawM
 // State variables for current session
 let currentPatient = null;
 let viewOnlyMode = false;
-let orderedLabs = {};
 let prescriptionLines = [];
 let isSubmitting = false;
-let simulatedResults = {};
 
 document.addEventListener('DOMContentLoaded', () => {
     loadSessionPatient();
@@ -82,46 +80,23 @@ document.addEventListener('DOMContentLoaded', () => {
         dosageInput.addEventListener('input', calculateTotalQuantity);
         dosageInput.addEventListener('change', calculateTotalQuantity);
     }
-    
+
     const isEditMode = (typeof thIsEditMode !== 'undefined' ? thIsEditMode : false);
     const activeExamInProgress = (typeof thActiveExam !== 'undefined' && thActiveExam && thActiveExam.status === 'InProgress');
     if (viewOnlyMode) {
-        simulateLabResults();
         renderPrescriptionLines();
 
         // In view only mode, disable all interactable form inputs
         document.querySelectorAll('textarea, input, select, button').forEach(el => {
             // Keep common navigation, close/logout and close modal buttons active
-            if (!el.classList.contains('modal-close') && 
-                !el.classList.contains('logout-link-btn') && 
+            if (!el.classList.contains('modal-close') &&
+                !el.classList.contains('logout-link-btn') &&
                 el.id !== 'viewHistoryBtn') {
                 el.disabled = true;
             }
         });
     } else if (isEditMode || activeExamInProgress) {
-        simulateLabResults();
         renderPrescriptionLines();
-    }
-
-    // Handle cancel form submission to clear draft
-    const isInProgress = thActiveExam && thActiveExam.status === 'InProgress';
-    if (isInProgress) {
-        const cancelForm = document.getElementById('cancelForm');
-        if (cancelForm) {
-            cancelForm.addEventListener('submit', () => {
-                isSubmitting = true;
-            });
-        }
-    }
-
-    // Handle isPregnant checkbox change dynamically
-    const isPregnantCheckbox = document.getElementById('isPregnant');
-    if (isPregnantCheckbox) {
-        isPregnantCheckbox.addEventListener('change', (e) => {
-            updateLabCatalog(e.target.checked);
-        });
-        // Initial sync on page load or draft restore
-        updateLabCatalog(isPregnantCheckbox.checked, true);
     }
 
     // Check for warning query parameter
@@ -213,20 +188,7 @@ function loadSessionPatient() {
         }
 
 
-        orderedLabs = {};
-        simulatedResults = {};
-        if (typeof thLastExamLabResults !== 'undefined' && thLastExamLabResults) {
-            thLastExamLabResults.forEach(res => {
-                const test = labTestsCatalog.find(l => l.name === res.labTest.testName);
-                if (test) {
-                    orderedLabs[test.id] = true;
-                    simulatedResults[test.id] = {
-                        val: res.resultValue,
-                        flag: res.flag
-                    };
-                }
-            });
-        }
+
 
         prescriptionLines = [];
         if (typeof thLastExamPrescriptionDetails !== 'undefined' && thLastExamPrescriptionDetails) {
@@ -269,146 +231,55 @@ function setupNextAppointmentMinDate() {
 }
 
 
-// Laboratory simulator mapping results
-function simulateLabResults() {
+function assignAllLabTests(examId) {
+    if (!examId) {
+        showToast("Vui lòng bắt đầu ca khám trước khi chỉ định xét nghiệm!", "warning");
+        return;
+    }
+    const isPregnantCheckbox = document.getElementById('isPregnant');
+    const isPregnant = isPregnantCheckbox ? isPregnantCheckbox.checked : false;
+
+    // Show indicator/spinner state inside tbody
     const tbody = document.getElementById('labResultsTableBody');
-    if (!tbody) return;
-
-    if (viewOnlyMode) {
-        tbody.innerHTML = '';
-        if (typeof thLastExamLabResults !== 'undefined' && thLastExamLabResults && thLastExamLabResults.length > 0) {
-            thLastExamLabResults.forEach(l => {
-                const tr = document.createElement('tr');
-                const flagClass = l.flag === 'HIGH' ? 'flag-high' : 'flag-normal';
-                tr.innerHTML = `
-                    <td><strong>${l.labTest.testName}</strong></td>
-                    <td><span style="font-weight:500; color: var(--doctor-text-muted);">${l.referenceRange} ${l.labTest.unit}</span></td>
-                    <td><strong>${l.resultValue} ${l.labTest.unit}</strong></td>
-                    <td><span class="flag-badge ${flagClass}">${l.flag === 'HIGH' ? 'CAO' : (l.flag === 'NORMAL' ? 'BÌNH THƯỜNG' : l.flag)}</span></td>
-                `;
-                tbody.appendChild(tr);
-            });
-        } else {
-            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--doctor-text-muted); padding: 30px;">Không có chỉ định xét nghiệm nào trong ca khám này</td></tr>`;
-        }
-        return;
-    }
-
-    const selectedIds = Object.keys(orderedLabs);
-    if (selectedIds.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--doctor-text-muted); padding: 30px;">Vui lòng chỉ định một hoặc nhiều xét nghiệm từ danh mục phía trên để xem kết quả</td></tr>`;
-        return;
-    }
-
-    tbody.innerHTML = '';
-    selectedIds.forEach(id => {
-        const test = labTestsCatalog.find(l => l.id === id);
-        if (!test) return;
-
-        let val = 4.8;
-        let flag = 'NORMAL';
-        let flagClass = 'flag-normal';
-
-        if (!simulatedResults[id]) {
-            const rand = new RandomVal();
-            let minVal = parseFloat(test.minValue);
-            let maxVal = parseFloat(test.maxValue);
-            let hasDbThreshold = !isNaN(minVal) && !isNaN(maxVal);
-
-            if (hasDbThreshold) {
-                const randType = rand.next();
-                if (randType < 0.30) { // 30% chance of LOW
-                    val = parseFloat((minVal - 0.5 - rand.next() * (minVal * 0.15)).toFixed(1));
-                    if (val < 0) val = 0;
-                } else if (randType > 0.60) { // 40% chance of HIGH
-                    const scale = maxVal > 20 ? (maxVal * 0.3) : 4.0;
-                    val = parseFloat((maxVal + 0.1 + rand.next() * scale).toFixed(1));
-                } else { // 30% chance of NORMAL
-                    val = parseFloat((minVal + rand.next() * (maxVal - minVal)).toFixed(1));
-                }
-
-                if (val < minVal) {
-                    flag = 'LOW';
-                } else if (val > maxVal) {
-                    flag = 'HIGH';
-                } else {
-                    flag = 'NORMAL';
-                }
-            } else {
-                val = 0.0;
-                flag = 'NORMAL';
-            }
-            
-            val = parseFloat(val);
-            simulatedResults[id] = { val, flag };
-        }
-
-        val = simulatedResults[id].val;
-        flag = simulatedResults[id].flag;
-        flagClass = flag === 'HIGH' ? 'flag-high' : (flag === 'LOW' ? 'flag-low' : 'flag-normal');
-        const flagText = flag === 'HIGH' ? 'CAO' : (flag === 'LOW' ? 'THẤP' : 'BÌNH THƯỜNG');
-
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td><strong>${test.name}</strong></td>
-            <td><span style="font-weight:500; color: var(--doctor-text-muted);">${test.range} ${test.unit}</span></td>
-            <td><strong>${val} ${test.unit}</strong></td>
-            <td><span class="flag-badge ${flagClass}">${flagText}</span></td>
+    if (tbody) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" style="text-align: center; color: var(--doctor-text-muted); padding: 30px;">
+                    <i class="fas fa-spinner fa-spin"></i> Đang chỉ định xét nghiệm và lấy kết quả ...
+                </td>
+            </tr>
         `;
-        tbody.appendChild(tr);
-    });
-}
-
-function updateLabCatalog(isPregnant, isInitialLoad = false) {
-    const hasAssignedBefore = Object.keys(orderedLabs).length > 0;
-
-    const rawCatalog = (isPregnant && typeof rawLabTestsPregnantCatalog !== 'undefined')
-        ? rawLabTestsPregnantCatalog
-        : (typeof rawLabTestsCatalog !== 'undefined' ? rawLabTestsCatalog : []);
-
-    labTestsCatalog = rawCatalog.map(l => ({
-        id: l.testId,
-        name: l.testName,
-        unit: l.unit,
-        range: l.referenceRange,
-        room: 'Phòng xét nghiệm',
-        minValue: l.minValue,
-        maxValue: l.maxValue
-    }));
-
-    if (!isInitialLoad) {
-        // Clear simulated results cache
-        simulatedResults = {};
-
-        if (hasAssignedBefore) {
-            // Automatically re-assign all matching tests in the new catalog and recalculate
-            orderedLabs = {};
-            labTestsCatalog.forEach(test => {
-                orderedLabs[test.id] = true;
-            });
-            simulateLabResults();
-        }
-    } else {
-        simulateLabResults();
     }
-}
 
-function assignAllLabTests() {
-    orderedLabs = {};
-    labTestsCatalog.forEach(test => {
-        orderedLabs[test.id] = true;
-    });
-    simulateLabResults();
-}
-
-class RandomVal {
-    constructor() {
-        this.seed = 42; // static seed for relative consistency
-    }
-    next() {
-        let x = Math.sin(this.seed++) * 10000;
-        return x - Math.floor(x);
-    }
+    // Call POST to order labs
+    fetch(`/doctor/examine/${examId}/order-labs?isPregnant=${isPregnant}`, {
+        method: 'POST'
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.text();
+        })
+        .then(htmlFragment => {
+            if (tbody) {
+                tbody.innerHTML = htmlFragment;
+            }
+            showToast("Đã lưu chỉ định và lấy kết quả thành công!", "success");
+        })
+        .catch(err => {
+            console.error(err);
+            showToast("Có lỗi xảy ra khi đồng bộ dữ liệu xét nghiệm!", "error");
+            if (tbody) {
+                tbody.innerHTML = `
+                <tr>
+                    <td colspan="4" style="text-align: center; color: var(--doctor-danger); padding: 30px;">
+                        Có lỗi xảy ra khi đồng bộ dữ liệu xét nghiệm! Vui lòng thử lại.
+                    </td>
+                </tr>
+            `;
+            }
+        });
 }
 
 let editingMedIndex = -1;
@@ -468,13 +339,13 @@ function filterMedications() {
     if (!list) return;
 
     list.innerHTML = '';
-    
+
     // Loại bỏ các thuốc đã kê khỏi gợi ý, ngoại trừ thuốc đang sửa
     const addedMedIds = prescriptionLines
         .filter((_, idx) => idx !== editingMedIndex)
         .map(line => line.medId);
 
-    const filtered = medicationsCatalog.filter(m => 
+    const filtered = medicationsCatalog.filter(m =>
         !addedMedIds.includes(m.id) &&
         (m.name.toLowerCase().includes(query) || m.concentration.toLowerCase().includes(query))
     );
@@ -599,13 +470,13 @@ function editPrescriptionLine(index) {
     document.getElementById('medDosage').value = line.dosagePerDose || parseDosagePerDose(line.dosage);
     document.getElementById('medDuration').value = line.duration;
     document.getElementById('medQuantity').value = line.quantity;
-    
+
     const timingContainer = document.getElementById('medTimingContainer');
     if (timingContainer) {
         timingContainer.classList.remove('open');
         const checkboxes = timingContainer.querySelectorAll('.custom-multiselect-option input[type="checkbox"]');
         checkboxes.forEach(cb => cb.checked = false);
-        
+
         let selectedValues = [];
         if (Array.isArray(line.timing)) {
             selectedValues = line.timing;
@@ -705,46 +576,7 @@ function saveExam() {
     // Serialize prescription list to hidden JSON input
     serializePrescription();
 
-
-    // Serialize lab results
-    const labResults = [];
-    const selectedIds = Object.keys(orderedLabs);
-    selectedIds.forEach(id => {
-        if (!simulatedResults[id]) {
-            const test = labTestsCatalog.find(l => l.id === id);
-            if (test) {
-                let val = 4.8;
-                let flag = 'NORMAL';
-                let minVal = parseFloat(test.minValue);
-                let maxVal = parseFloat(test.maxValue);
-                if (!isNaN(minVal) && !isNaN(maxVal)) {
-                    val = minVal;
-                }
-                simulatedResults[id] = { val, flag };
-            }
-        }
-        if (simulatedResults[id]) {
-            labResults.push({
-                testId: id,
-                val: simulatedResults[id].val,
-                flag: simulatedResults[id].flag
-            });
-        }
-    });
-    document.getElementById('labResultsJson').value = JSON.stringify(labResults);
-
     const form = document.getElementById('examineForm');
-    
-    // Clear and append selected labTestIds as hidden inputs to ensure they are submitted
-    form.querySelectorAll('input[name="labTestIds"]').forEach(el => el.remove());
-    Object.keys(orderedLabs).forEach(id => {
-        const labInput = document.createElement('input');
-        labInput.type = 'hidden';
-        labInput.name = 'labTestIds';
-        labInput.value = id;
-        form.appendChild(labInput);
-    });
-
     form.submit();
 }
 
@@ -819,35 +651,10 @@ function goToHistory() {
         // Serialize prescription list
         serializePrescription();
 
-
-        // Serialize lab results
-        const labResults = [];
-        const selectedIds = Object.keys(orderedLabs);
-        selectedIds.forEach(id => {
-            if (simulatedResults[id]) {
-                labResults.push({
-                    testId: id,
-                    val: simulatedResults[id].val,
-                    flag: simulatedResults[id].flag
-                });
-            }
-        });
-        document.getElementById('labResultsJson').value = JSON.stringify(labResults);
-
         const form = document.getElementById('examineForm');
-        
+
         // Change action to draft
         form.action = `/doctor/examine/${currentPatient.id}/draft`;
-
-        // Append selected labTestIds
-        form.querySelectorAll('input[name="labTestIds"]').forEach(el => el.remove());
-        Object.keys(orderedLabs).forEach(id => {
-            const labInput = document.createElement('input');
-            labInput.type = 'hidden';
-            labInput.name = 'labTestIds';
-            labInput.value = id;
-            form.appendChild(labInput);
-        });
 
         // Submit form
         form.submit();
@@ -958,7 +765,7 @@ function updateTimingPlaceholder() {
     calculateTotalQuantity();
 }
 
-document.addEventListener('click', function(event) {
+document.addEventListener('click', function (event) {
     const container = document.getElementById('medTimingContainer');
     if (container && !container.contains(event.target)) {
         container.classList.remove('open');
