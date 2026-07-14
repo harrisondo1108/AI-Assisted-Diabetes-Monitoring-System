@@ -64,9 +64,13 @@ public class AiToolImpl implements AiTool {
             return formatResult(null, "Hồ sơ bệnh án chung");
         }
         Patient p = patientOpt.get();
+        String genderStr = "Chưa có thông tin";
+        if (Boolean.TRUE.equals(p.getGender())) genderStr = "Nam";
+        else if (Boolean.FALSE.equals(p.getGender())) genderStr = "Nữ";
+
         PatientProfileDto dto = new PatientProfileDto(
                 p.getFullName(),
-                p.getGender(),
+                genderStr,
                 p.getHeight(),
                 p.getWeight(),
                 p.getBloodgroup(),
@@ -87,8 +91,9 @@ public class AiToolImpl implements AiTool {
         ClinicalExamination ce = examOpt.get();
         
         List<String> symptoms = examSymptomRepository.findSymptomNamesByClinicalExamId(ce.getClinicalExamId());
-        // Let's rely on LabResultRepository for lab results
-        List<LabResultDto> labResults = labResultRepository.findByLabOrder_ClinicalExamination_ClinicalExamId(ce.getClinicalExamId())
+
+        // Lấy toàn bộ xét nghiệm của bệnh nhân theo patientId đảm bảo không sót dữ liệu
+        List<LabResultDto> labResults = labResultRepository.findByPatientIdWithDetails(patientId)
                 .stream().map(lr -> new LabResultDto(
                         lr.getLabTest().getTestName(),
                         lr.getResultValue(),
@@ -98,8 +103,8 @@ public class AiToolImpl implements AiTool {
                         lr.getLabOrder().getClinicalExamination().getExamDate()
                 )).collect(Collectors.toList());
 
-        // Prescriptions
-        List<PrescriptionReminderDto> prescriptions = prescriptionDetailRepository.findByClinicalExamIdWithDetails(ce.getClinicalExamId())
+        // Lấy toàn bộ đơn thuốc của bệnh nhân theo patientId đảm bảo không rớt bản ghi khi lệch ID lượt khám
+        List<PrescriptionReminderDto> prescriptions = prescriptionDetailRepository.findByPatientIdWithDetails(patientId)
                 .stream().map(pd -> {
                     String timingNames = null;
                     if (pd.getPrescriptionTimings() != null && !pd.getPrescriptionTimings().isEmpty()) {
@@ -107,9 +112,15 @@ public class AiToolImpl implements AiTool {
                                 .map(pt -> pt.getTiming().getTimingName())
                                 .collect(Collectors.joining(", "));
                     }
+                    String pId = pd.getPrescription() != null && pd.getPrescription().getClinicalExamination() != null && pd.getPrescription().getClinicalExamination().getPatient() != null
+                            ? pd.getPrescription().getClinicalExamination().getPatient().getUserId() : patientId;
+                    String examId = pd.getPrescription() != null && pd.getPrescription().getClinicalExamination() != null
+                            ? pd.getPrescription().getClinicalExamination().getClinicalExamId() : ce.getClinicalExamId();
+                    com.quan.diabetes.entity.TreatmentPlan tp = pd.getPrescription() != null && pd.getPrescription().getClinicalExamination() != null
+                            ? pd.getPrescription().getClinicalExamination().getTreatmentPlan() : ce.getTreatmentPlan();
                     return new PrescriptionReminderDto(
-                            pd.getPrescription().getClinicalExamination().getPatient().getUserId(),
-                            pd.getPrescription().getClinicalExamination().getClinicalExamId(),
+                            pId,
+                            examId,
                             pd.getMedication().getMedicationName(),
                             pd.getDosage(),
                             pd.getStartDate(),
@@ -119,7 +130,7 @@ public class AiToolImpl implements AiTool {
                             pd.getMedication().getUsageInstruction(),
                             timingNames,
                             pd.getMedicationPlan(),
-                            pd.getPrescription().getClinicalExamination().getTreatmentPlan()
+                            tp
                     );
                 }).distinct().collect(Collectors.toList());
 
@@ -154,33 +165,44 @@ public class AiToolImpl implements AiTool {
     @Override
     @Transactional(readOnly = true)
     public String getTreatmentPlan(String patientId) {
-        Optional<ClinicalExamination> examOpt = clinicalExaminationRepository.findFirstByPatient_UserIdOrderByExamDateDesc(patientId);
-        if (examOpt.isEmpty()) {
+        List<ClinicalExamination> exams = clinicalExaminationRepository.findByPatient_UserIdOrderByExamDateDesc(patientId);
+        if (exams == null || exams.isEmpty()) {
             return formatResult(null, "Kế hoạch điều trị và dặn dò");
         }
-        ClinicalExamination ce = examOpt.get();
-        if (ce.getTreatmentPlan() == null) {
-            return formatResult(List.of(), "Kế hoạch điều trị và dặn dò");
+        // Tìm lần khám gần nhất có Kế hoạch điều trị (TreatmentPlan) hoặc lời dặn bác sĩ
+        ClinicalExamination latestWithPlan = exams.stream()
+                .filter(ce -> ce.getTreatmentPlan() != null)
+                .findFirst()
+                .orElse(exams.get(0));
+
+        TreatmentPlan tp = latestWithPlan.getTreatmentPlan();
+        Map<String, Object> planMap = new java.util.LinkedHashMap<>();
+        planMap.put("Ngày khám gần nhất", latestWithPlan.getExamDate() != null ? latestWithPlan.getExamDate().toString() : "Gần đây");
+        if (latestWithPlan.getDiagnosisNote() != null && !latestWithPlan.getDiagnosisNote().isBlank()) {
+            planMap.put("Chẩn đoán & Lời dặn bác sĩ", latestWithPlan.getDiagnosisNote());
         }
-        TreatmentPlan tp = ce.getTreatmentPlan();
-        TreatmentPlanDto dto = new TreatmentPlanDto(
-                tp.getTreatmentGoal(),
-                tp.getDietPlan(),
-                tp.getExercisePlan(),
-                tp.getGlucoseMonitoringPlan(),
-                tp.getCreatedAt()
-        );
-        return formatResult(List.of(dto), "Kế hoạch điều trị và dặn dò");
+        if (tp != null) {
+            planMap.put("Mục tiêu điều trị", tp.getTreatmentGoal() != null ? tp.getTreatmentGoal() : "Theo dõi và duy trì đường huyết ổn định");
+            planMap.put("Chế độ dinh dưỡng", tp.getDietPlan() != null ? tp.getDietPlan() : "Ăn đủ chất, hạn chế tinh bột nhanh và đường");
+            planMap.put("Chế độ tập luyện", tp.getExercisePlan() != null ? tp.getExercisePlan() : "Duy trì vận động nhẹ nhàng 30 phút/ngày");
+            planMap.put("Kế hoạch theo dõi đường huyết", tp.getGlucoseMonitoringPlan() != null ? tp.getGlucoseMonitoringPlan() : "Đo đường huyết định kỳ theo hướng dẫn");
+        } else {
+            planMap.put("Mục tiêu điều trị", "Duy trì đường huyết HbA1c mục tiêu dưới 7.0%");
+            planMap.put("Chế độ dinh dưỡng", "Ăn nhiều rau xanh, chọn ngũ cốc nguyên hạt, hạn chế đường ngọt");
+            planMap.put("Chế độ tập luyện", "Tập thể dục đều đặn ít nhất 30 phút mỗi ngày, 5 ngày/tuần");
+            planMap.put("Kế hoạch theo dõi đường huyết", "Đo đường huyết lúc đói và sau ăn 2h theo chỉ định bác sĩ");
+        }
+        if (latestWithPlan.getNextAppointment() != null) {
+            planMap.put("Lịch hẹn tái khám tiếp theo", latestWithPlan.getNextAppointment().toString());
+        }
+
+        return formatResult(List.of(planMap), "Kế hoạch điều trị và dặn dò");
     }
 
     @Override
     @Transactional(readOnly = true)
     public String getLabResults(String patientId) {
-        Optional<ClinicalExamination> examOpt = clinicalExaminationRepository.findFirstByPatient_UserIdOrderByExamDateDesc(patientId);
-        if (examOpt.isEmpty()) {
-            return formatResult(null, "Kết quả xét nghiệm");
-        }
-        List<LabResultDto> labResults = labResultRepository.findByLabOrder_ClinicalExamination_ClinicalExamId(examOpt.get().getClinicalExamId())
+        java.util.List<LabResultDto> labResults = labResultRepository.findByPatientIdWithDetails(patientId)
                 .stream().map(lr -> new LabResultDto(
                         lr.getLabTest().getTestName(),
                         lr.getResultValue(),
@@ -195,12 +217,7 @@ public class AiToolImpl implements AiTool {
     @Override
     @Transactional(readOnly = true)
     public String getPrescriptions(String patientId) {
-        Optional<ClinicalExamination> examOpt = clinicalExaminationRepository.findFirstByPatient_UserIdOrderByExamDateDesc(patientId);
-        if (examOpt.isEmpty()) {
-            return formatResult(null, "Lịch sử dùng thuốc và đơn thuốc");
-        }
-        
-        List<PrescriptionReminderDto> dtos = prescriptionDetailRepository.findByClinicalExamIdWithDetails(examOpt.get().getClinicalExamId())
+        java.util.List<PrescriptionReminderDto> dtos = prescriptionDetailRepository.findByPatientIdWithDetails(patientId)
                 .stream().map(pd -> {
                     String timingNames = null;
                     if (pd.getPrescriptionTimings() != null && !pd.getPrescriptionTimings().isEmpty()) {
@@ -208,9 +225,15 @@ public class AiToolImpl implements AiTool {
                                 .map(pt -> pt.getTiming().getTimingName())
                                 .collect(Collectors.joining(", "));
                     }
+                    String pId = pd.getPrescription() != null && pd.getPrescription().getClinicalExamination() != null && pd.getPrescription().getClinicalExamination().getPatient() != null
+                            ? pd.getPrescription().getClinicalExamination().getPatient().getUserId() : patientId;
+                    String examId = pd.getPrescription() != null && pd.getPrescription().getClinicalExamination() != null
+                            ? pd.getPrescription().getClinicalExamination().getClinicalExamId() : "";
+                    com.quan.diabetes.entity.TreatmentPlan tp = pd.getPrescription() != null && pd.getPrescription().getClinicalExamination() != null
+                            ? pd.getPrescription().getClinicalExamination().getTreatmentPlan() : null;
                     return new PrescriptionReminderDto(
-                            pd.getPrescription().getClinicalExamination().getPatient().getUserId(),
-                            pd.getPrescription().getClinicalExamination().getClinicalExamId(),
+                            pId,
+                            examId,
                             pd.getMedication().getMedicationName(),
                             pd.getDosage(),
                             pd.getStartDate(),
@@ -220,11 +243,54 @@ public class AiToolImpl implements AiTool {
                             pd.getMedication().getUsageInstruction(),
                             timingNames,
                             pd.getMedicationPlan(),
-                            pd.getPrescription().getClinicalExamination().getTreatmentPlan()
+                            tp
                     );
-                }).distinct().collect(Collectors.toList());
+                }).collect(Collectors.toList());
+        java.util.List<PrescriptionReminderDto> distinctDtos = dtos.stream().distinct().collect(Collectors.toList());
+        if (distinctDtos.isEmpty()) {
+            return "DANH SÁCH THUỐC TRONG ĐƠN THUỐC CỦA BỆNH NHÂN:\n(Bệnh nhân hiện chưa được kê đơn thuốc nào trong hồ sơ)";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("DANH SÁCH THUỐC TRONG ĐƠN THUỐC CỦA BỆNH NHÂN (HỒ SƠ Y TẾ CHÍNH THỨC):\n");
+        int idx = 1;
+        for (PrescriptionReminderDto dto : distinctDtos) {
+            String medName = dto.getMedicationName() != null ? dto.getMedicationName() : "Chưa cập nhật";
+            String dosageVN = translateMedicalTerms(dto.getDosage() != null ? dto.getDosage() : "Theo chỉ định bác sĩ");
+            String formVN = translateMedicalTerms(dto.getForm() != null ? dto.getForm() : "Chưa cập nhật");
+            String routeVN = translateMedicalTerms(dto.getAdministrationRoute() != null ? dto.getAdministrationRoute() : "");
+            sb.append(idx++).append(". Tên thuốc: ").append(medName).append("\n");
+            sb.append("   - Liều lượng: ").append(dosageVN).append("\n");
+            sb.append("   - Dạng thuốc / Đường dùng: ").append(formVN).append(" / ").append(routeVN).append("\n");
+            if (dto.getTimingName() != null && !dto.getTimingName().isBlank()) {
+                sb.append("   - Thời điểm uống trong ngày: ").append(dto.getTimingName()).append("\n");
+            }
+            if (dto.getUsageInstruction() != null && !dto.getUsageInstruction().isBlank()) {
+                sb.append("   - Hướng dẫn sử dụng: ").append(dto.getUsageInstruction()).append("\n");
+            }
+            if (dto.getStartDate() != null) {
+                sb.append("   - Thời gian sử dụng: Từ ngày ").append(dto.getStartDate()).append(dto.getEndDate() != null ? " đến ngày " + dto.getEndDate() : "").append("\n");
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
 
-        return formatResult(dtos, "Lịch sử dùng thuốc và đơn thuốc");
+    private String translateMedicalTerms(String text) {
+        if (text == null) return "";
+        return text
+                .replaceAll("(?i)\\btablets/lần\\b", "viên/lần")
+                .replaceAll("(?i)\\btablet/lần\\b", "viên/lần")
+                .replaceAll("(?i)\\bpills/lần\\b", "viên/lần")
+                .replaceAll("(?i)\\bpill/lần\\b", "viên/lần")
+                .replaceAll("(?i)\\btablets\\b", "viên")
+                .replaceAll("(?i)\\btablet\\b", "Viên nén")
+                .replaceAll("(?i)\\bcapsule\\b", "Viên nhộng")
+                .replaceAll("(?i)\\bsubcutaneous\\b", "Tiêm dưới da")
+                .replaceAll("(?i)\\boral\\b", "Đường uống")
+                .replaceAll("(?i)\\binjection\\b", "Tiêm")
+                .replaceAll("(?i)\\binvenous\\b", "Tiêm tĩnh mạch")
+                .replaceAll("(?i)\\bintramuscular\\b", "Tiêm bắp")
+                .replaceAll("(?i)\\bsyrup\\b", "Siro");
     }
 
     private String formatResult(List<?> resultList, String title) {
@@ -266,31 +332,62 @@ public class AiToolImpl implements AiTool {
             String key = translateKey(entry.getKey());
             
             if (isEmpty) {
-                sb.append(indent).append("- ").append(key).append(": Chưa cập nhật\n");
+                sb.append(indent).append("• ").append(key).append(": Chưa có thông tin\n");
                 continue;
             }
             
             if (entry.getValue() instanceof Map) {
-                sb.append(indent).append("- ").append(key).append(":\n");
+                sb.append(indent).append("• ").append(key).append(":\n");
                 sb.append(formatMapToText((Map<String, Object>) entry.getValue(), indentLevel + 1));
             } else if (entry.getValue() instanceof List) {
                 List<?> list = (List<?>) entry.getValue();
                 if (!list.isEmpty()) {
-                    sb.append(indent).append("- ").append(key).append(":\n");
+                    sb.append(indent).append("• ").append(key).append(":\n");
                     for (Object obj : list) {
                         if (obj instanceof Map) {
                             sb.append(formatMapToText((Map<String, Object>) obj, indentLevel + 1));
                             sb.append(indent).append("  ---\n");
                         } else {
-                            sb.append(indent).append("  * ").append(obj.toString()).append("\n");
+                            sb.append(indent).append("  * ").append(formatFriendlyValue(key, obj)).append("\n");
                         }
                     }
                 }
             } else {
-                sb.append(indent).append("- ").append(key).append(": ").append(entry.getValue().toString()).append("\n");
+                sb.append(indent).append("• ").append(key).append(": ").append(formatFriendlyValue(key, entry.getValue())).append("\n");
             }
         }
         return sb.toString();
+    }
+
+    private String formatFriendlyValue(String key, Object rawValue) {
+        if (rawValue == null) return "Chưa có thông tin";
+        String str = rawValue.toString().trim();
+        if ("Giới tính".equals(key)) {
+            if ("true".equalsIgnoreCase(str) || "Nam".equalsIgnoreCase(str)) return "Nam";
+            if ("false".equalsIgnoreCase(str) || "Nữ".equalsIgnoreCase(str)) return "Nữ";
+            return str;
+        }
+        if (str.matches(".*\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}.*")) {
+            try {
+                if (str.contains("T00:00")) {
+                    java.time.LocalDate ld = java.time.LocalDate.parse(str.substring(0, 10));
+                    return "Ngày " + ld.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                }
+                java.time.LocalDateTime ldt = java.time.LocalDateTime.parse(str.length() > 19 ? str.substring(0, 19) : str);
+                return ldt.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy (HH:mm)"));
+            } catch (Exception e) {
+                // fallback
+            }
+        }
+        if (str.matches("^\\d{4}-\\d{2}-\\d{2}$")) {
+            try {
+                java.time.LocalDate ld = java.time.LocalDate.parse(str);
+                return ld.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+            } catch (Exception e) {
+                // fallback
+            }
+        }
+        return str;
     }
 
     private String translateKey(String key) {
