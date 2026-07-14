@@ -144,6 +144,13 @@
             margin-top: 6px;
             font-weight: 600;
         }
+        .filter-tag {
+            transition: all 0.2s;
+        }
+        .filter-tag:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 <body>
@@ -224,7 +231,22 @@
                                 <i class="fas fa-comments"></i> Phản hồi chi tiết từ người bệnh
                             </h2>
                             
-                            <div class="feedback-feed" style="max-height: 600px; overflow-y: auto; padding-right: 8px;">
+                            <!-- Lọc theo sao -->
+                            <div class="rating-filters" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; border-bottom: 1px solid #f3f4f6; padding-bottom: 16px;">
+                                <a th:href="@{/doctor/ratings(star=null)}"
+                                   class="filter-tag"
+                                   th:style="${selectedStar == null} ? 'background: var(--doctor-primary, #1a6b56); color: white; border: 1px solid var(--doctor-primary, #1a6b56); border-radius: 20px; padding: 6px 16px; font-size: 0.85rem; font-weight: 600; text-decoration: none; cursor: pointer;' : 'background: #f3f4f6; color: #4b5563; border: 1px solid #e5e7eb; border-radius: 20px; padding: 6px 16px; font-size: 0.85rem; font-weight: 600; text-decoration: none; cursor: pointer;'">
+                                    Tất cả
+                                </a>
+                                <a th:each="val : ${#numbers.sequence(5, 1)}"
+                                   th:href="@{/doctor/ratings(star=${val})}"
+                                   class="filter-tag"
+                                   th:style="${selectedStar == val} ? 'background: var(--doctor-primary, #1a6b56); color: white; border: 1px solid var(--doctor-primary, #1a6b56); border-radius: 20px; padding: 6px 16px; font-size: 0.85rem; font-weight: 600; text-decoration: none; cursor: pointer;' : 'background: #f3f4f6; color: #4b5563; border: 1px solid #e5e7eb; border-radius: 20px; padding: 6px 16px; font-size: 0.85rem; font-weight: 600; text-decoration: none; cursor: pointer;'">
+                                    <span th:text="${val}">5</span> <i class="fas fa-star" style="color: #eab308; margin-left: 2px;"></i>
+                                </a>
+                            </div>
+
+                            <div class="feedback-feed" style="padding-right: 8px;">
                                 <div th:each="r : ${ratings}" class="feedback-item">
                                     <div class="feedback-header">
                                         <div class="patient-info">
@@ -248,6 +270,45 @@
                                 <div th:if="${ratings == null or ratings.isEmpty()}" style="text-align: center; padding: 60px 20px; color: #9ca3af;">
                                     <i class="far fa-comments" style="font-size: 3.5rem; color: #d1d5db; margin-bottom: 16px; display: block;"></i>
                                     Chưa có bất kỳ đánh giá hay góp ý nào từ người bệnh.
+                                </div>
+                            </div>
+
+                            <!-- Phân trang -->
+                            <div class="pagination-bar" th:if="${totalPages > 1}" style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px; border-top: 1px solid #f3f4f6; padding-top: 20px;">
+                                <span class="pagination-info" style="font-size: 0.85rem; color: #6b7280;"
+                                      th:with="start=${currentPage * pageSize + 1}, end=${(currentPage + 1) * pageSize > totalItems ? totalItems : (currentPage + 1) * pageSize}"
+                                      th:text="${'Hiển thị ' + start + ' - ' + end + ' trong tổng số ' + totalItems + ' đánh giá'}">
+                                    Hiển thị 1 - 5 trong tổng số 10 đánh giá
+                                </span>
+                                <div class="pagination" style="display: flex; align-items: center; gap: 6px;">
+                                    <!-- Prev Button -->
+                                    <a th:if="${currentPage > 0}"
+                                       th:href="@{/doctor/ratings(page=${currentPage - 1}, size=${pageSize}, star=${selectedStar})}"
+                                       style="display: inline-flex; align-items: center; justify-content: center; min-width: 32px; height: 32px; padding: 0 8px; border-radius: 6px; border: 1px solid var(--doctor-border, #e2ebe7); background-color: #ffffff; color: #4b5563; font-size: 0.8rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.2s;">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                    <span th:unless="${currentPage > 0}" style="display: inline-flex; align-items: center; justify-content: center; min-width: 32px; height: 32px; padding: 0 8px; border-radius: 6px; border: 1px solid var(--doctor-border, #e2ebe7); background-color: #ffffff; color: #4b5563; font-size: 0.8rem; font-weight: 600; cursor: not-allowed; text-decoration: none; opacity: 0.4;">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </span>
+
+                                    <!-- Page Numbers -->
+                                    <th:block th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}">
+                                        <a th:href="@{/doctor/ratings(page=${pageNum}, size=${pageSize}, star=${selectedStar})}"
+                                           th:text="${pageNum + 1}"
+                                           th:classappend="${pageNum == currentPage} ? 'active' : ''"
+                                           th:style="${pageNum == currentPage} ? 'background-color: var(--doctor-primary, #1a6b56); color: #ffffff; border-color: var(--doctor-primary, #1a6b56); display: inline-flex; align-items: center; justify-content: center; min-width: 32px; height: 32px; padding: 0 8px; border-radius: 6px; border: 1px solid var(--doctor-border, #e2ebe7); font-size: 0.8rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.2s;' : 'display: inline-flex; align-items: center; justify-content: center; min-width: 32px; height: 32px; padding: 0 8px; border-radius: 6px; border: 1px solid var(--doctor-border, #e2ebe7); background-color: #ffffff; color: #4b5563; font-size: 0.8rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.2s;'">
+                                        </a>
+                                    </th:block>
+
+                                    <!-- Next Button -->
+                                    <a th:if="${currentPage < totalPages - 1}"
+                                       th:href="@{/doctor/ratings(page=${currentPage + 1}, size=${pageSize}, star=${selectedStar})}"
+                                       style="display: inline-flex; align-items: center; justify-content: center; min-width: 32px; height: 32px; padding: 0 8px; border-radius: 6px; border: 1px solid var(--doctor-border, #e2ebe7); background-color: #ffffff; color: #4b5563; font-size: 0.8rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.2s;">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                    <span th:unless="${currentPage < totalPages - 1}" style="display: inline-flex; align-items: center; justify-content: center; min-width: 32px; height: 32px; padding: 0 8px; border-radius: 6px; border: 1px solid var(--doctor-border, #e2ebe7); background-color: #ffffff; color: #4b5563; font-size: 0.8rem; font-weight: 600; cursor: not-allowed; text-decoration: none; opacity: 0.4;">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </span>
                                 </div>
                             </div>
                         </div>

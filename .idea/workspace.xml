@@ -4,15 +4,26 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cd82aed5-747b-44b9-892e-efbe52d1dbd5" name="Changes" comment="">
+    <list default="true" id="cd82aed5-747b-44b9-892e-efbe52d1dbd5" name="Changes" comment="thêm chức năng doctor rating">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/CreateTable.sql" beforeDir="false" afterPath="$PROJECT_DIR$/database/CreateTable.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorDashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorDashboardController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/logs/application.log" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/logs/application.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/logs/application.log.2026-07-04.0.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/logs/application.log.2026-07-05.0.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/logs/application.log.2026-07-06.0.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorRatingController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorRatingController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientMedicalHistoryController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientMedicalHistoryController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/dashboard.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/doctor/header.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/doctor/header.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientRatingController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientRatingController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/DoctorRatingRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/DoctorRatingRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/exam/DoctorRatingService.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/exam/DoctorRatingService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/exam/impl/DoctorRatingServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/exam/impl/DoctorRatingServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/ratings.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/ratings.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/history.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/history.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logs/application.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/application.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logs/application.log.2026-07-04.0.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logs/application.log.2026-07-05.0.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logs/application.log.2026-07-06.0.gz" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,6 +67,7 @@
   </component>
   <component name="CopilotPersistence">
     <persistenceIdMap>
+      <entry key="_C:/Users/LuHan/OneDrive/Documents/Part 5/1_SWP391/AI-Assisted-Diabetes-Monitoring-System" value="3GTA149RvNFZU2OfTCP0QhFC8z7" />
       <entry key="_C:/Users/LuHan/OneDrive/Documents/Part 5/1_SWP391/AI-Assisted-Diabetes-Monitoring-System/diabetes" value="3GQjfmdKoXYGwp1gzNmwrevUI4u" />
       <entry key="_D:/Git_clone_quan_le/AI-Assisted-Diabetes-Monitoring-System" value="3G7hAT6xfOXo1mw7N4R46xWPCp1" />
     </persistenceIdMap>
@@ -67,23 +79,23 @@
     </selectedModels>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="325" />
+    <option name="cachedIndexableFilesCount" value="324" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "luhan05"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;luhan05&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/harrisondo1108/AI-Assisted-Diabetes-Monitoring-System.git",
-    "accountId": "4ea497d5-775c-4b70-959b-bfb8ecdd7ee3"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/harrisondo1108/AI-Assisted-Diabetes-Monitoring-System.git&quot;,
+    &quot;accountId&quot;: &quot;4ea497d5-775c-4b70-959b-bfb8ecdd7ee3&quot;
   }
-}]]></component>
+}</component>
   <component name="MavenImportPreferences">
     <option name="generalSettings">
       <MavenGeneralSettings>
@@ -97,61 +109,61 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="0.0" />
-      <entry key="MS500" value="9.585139894212368E-94" />
-      <entry key="S2" value="9.337671944502206E-24" />
-      <entry key="S5" value="9.303329748438406E-10" />
-      <entry key="S10" value="4.313419492272783E-5" />
-      <entry key="S30" value="0.055670413805927105" />
-      <entry key="S60" value="0.33367746319425745" />
-      <entry key="M2" value="0.8169177800806412" />
-      <entry key="M5" value="1.397942524219258" />
-      <entry key="M10" value="1.672090010644917" />
-      <entry key="M15" value="1.7749376400833665" />
-      <entry key="M30" value="1.8841112689687465" />
-      <entry key="H1" value="1.9411910097315273" />
-      <entry key="H2" value="1.9703761110589073" />
-      <entry key="H4" value="1.9851327970713535" />
-      <entry key="D1" value="1.9975144230100281" />
-      <entry key="W1" value="1.9996447283018401" />
+      <entry key="MS100" value="1.000049655503248" />
+      <entry key="MS500" value="1.2329816481316924" />
+      <entry key="S2" value="3.2178262999616045" />
+      <entry key="S5" value="5.9913270296919805" />
+      <entry key="S10" value="7.944436101904147" />
+      <entry key="S30" value="9.86488648333433" />
+      <entry key="S60" value="10.68443957743776" />
+      <entry key="M2" value="11.45857447704038" />
+      <entry key="M5" value="12.239515792037702" />
+      <entry key="M10" value="12.58938152523813" />
+      <entry key="M15" value="12.718928183844088" />
+      <entry key="M30" value="12.85564536043836" />
+      <entry key="H1" value="12.926837639920851" />
+      <entry key="H2" value="12.963168658909744" />
+      <entry key="H4" value="12.981521294767225" />
+      <entry key="D1" value="12.996911418691575" />
+      <entry key="W1" value="12.999558558105976" />
     </decayedCancelled>
     <decayedSelected>
-      <entry key="MS100" value="1.0" />
-      <entry key="MS500" value="1.0000000000094162" />
-      <entry key="S2" value="1.0017517346868443" />
-      <entry key="S5" value="1.0789598031646923" />
-      <entry key="S10" value="1.284166399121783" />
-      <entry key="S30" value="1.960239297378731" />
-      <entry key="S60" value="2.7660879715066793" />
-      <entry key="M2" value="3.593743050404808" />
-      <entry key="M5" value="4.345533939464895" />
-      <entry key="M10" value="4.655045234229587" />
-      <entry key="M15" value="4.76589203371548" />
-      <entry key="M30" value="4.880824556103314" />
-      <entry key="H1" value="4.939871852442893" />
-      <entry key="H2" value="4.969799541224814" />
-      <entry key="H4" value="4.984865513204946" />
-      <entry key="D1" value="4.99747281381987" />
-      <entry key="W1" value="4.999638856364925" />
+      <entry key="MS100" value="7.360332503047939E-31" />
+      <entry key="MS500" value="9.405448002840475E-7" />
+      <entry key="S2" value="0.031196435530409385" />
+      <entry key="S5" value="0.26936627089343534" />
+      <entry key="S10" value="0.6416382956112028" />
+      <entry key="S30" value="1.5554835268552787" />
+      <entry key="S60" value="2.464019556934322" />
+      <entry key="M2" value="3.391845825299371" />
+      <entry key="M5" value="4.246183698308781" />
+      <entry key="M10" value="4.6015243202123415" />
+      <entry key="M15" value="4.729291430509534" />
+      <entry key="M30" value="4.862046809738442" />
+      <entry key="H1" value="4.930360237237256" />
+      <entry key="H2" value="4.965012615676525" />
+      <entry key="H4" value="4.982464216263142" />
+      <entry key="D1" value="4.997071504913505" />
+      <entry key="W1" value="4.999581499698849" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.0012975447403286238" />
-      <entry key="MS500" value="0.2646210987212067" />
-      <entry key="S2" value="0.7184738639920659" />
-      <entry key="S5" value="0.9444519815880538" />
-      <entry key="S10" value="1.2014367930873326" />
-      <entry key="S30" value="1.9783675341658071" />
-      <entry key="S60" value="3.077936491897065" />
-      <entry key="M2" value="4.39843106982661" />
-      <entry key="M5" value="5.738125979512222" />
-      <entry key="M10" value="6.324366011354633" />
-      <entry key="M15" value="6.538961049696747" />
-      <entry key="M30" value="6.763989851405036" />
-      <entry key="H1" value="6.880586876577559" />
-      <entry key="H2" value="6.9399368990826265" />
-      <entry key="H4" value="6.9698787422174195" />
-      <entry key="D1" value="6.994967282112538" />
-      <entry key="W1" value="6.999280733337274" />
+      <entry key="MS100" value="0.9461002307330746" />
+      <entry key="MS500" value="1.1615312372343252" />
+      <entry key="S2" value="3.099601841850655" />
+      <entry key="S5" value="6.134876711859365" />
+      <entry key="S10" value="8.488902881834749" />
+      <entry key="S30" value="11.369171548673839" />
+      <entry key="S60" value="13.117904620791961" />
+      <entry key="M2" value="14.833216753845733" />
+      <entry key="M5" value="16.478180855292152" />
+      <entry key="M10" value="17.187018800874604" />
+      <entry key="M15" value="17.445597922801685" />
+      <entry key="M30" value="17.716365633614124" />
+      <entry key="H1" value="17.8565305833832" />
+      <entry key="H2" value="17.927846608106137" />
+      <entry key="H4" value="17.963817921216027" />
+      <entry key="D1" value="17.993954956190652" />
+      <entry key="W1" value="17.99913606158182" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
@@ -177,34 +189,73 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RequestMappingsPanelOrder0": "0",
-    "RequestMappingsPanelOrder1": "1",
-    "RequestMappingsPanelWidth0": "75",
-    "RequestMappingsPanelWidth1": "75",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "Spring Boot.DiabetesApplication.executor": "Run",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "copilot.chat.legacySessionMetadata.migrated": "true",
-    "git-widget-placeholder": "luan__ha",
-    "kotlin-language-version-configured": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "SDKs",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;JUnit.UpdateProfileTest (1).executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UpdateProfileTest.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;SONARLINT_PRECOMMIT_ANALYSIS&quot;: &quot;true&quot;,
+    &quot;Spring Boot.DiabetesApplication.executor&quot;: &quot;Run&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;copilot.chat.legacySessionMetadata.migrated&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;luan__ha&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;SDKs&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
-  <component name="RunManager">
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.quan.diabetes" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Spring Boot.DiabetesApplication">
+    <configuration name="UpdateProfileTest (1)" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="diabetes" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.quan.diabetes.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.quan.diabetes" />
+      <option name="MAIN_CLASS_NAME" value="com.quan.diabetes.UpdateProfileTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UpdateProfileTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="diabetes" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="fu.hsf302.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="fu.hsf302" />
+      <option name="MAIN_CLASS_NAME" value="fu.hsf302.UpdateProfileTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="DiabetesApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
       <module name="diabetes" />
@@ -213,6 +264,12 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JUnit.UpdateProfileTest (1)" />
+        <item itemvalue="JUnit.UpdateProfileTest" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -241,11 +298,28 @@
       <workItem from="1783579153031" duration="35000" />
       <workItem from="1783658253513" duration="528000" />
       <workItem from="1783845539963" duration="3000" />
+      <workItem from="1783984999326" duration="31000" />
+      <workItem from="1783985102429" duration="1897000" />
+      <workItem from="1783989536715" duration="6564000" />
+      <workItem from="1784025836933" duration="1168000" />
     </task>
+    <task id="LOCAL-00001" summary="thêm chức năng doctor rating">
+      <option name="closed" value="true" />
+      <created>1783916311187</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1783916311187</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="thêm chức năng doctor rating" />
+    <option name="LAST_COMMIT_MESSAGE" value="thêm chức năng doctor rating" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

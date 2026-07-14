@@ -5,12 +5,11 @@ import com.quan.diabetes.service.exam.DoctorRatingService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class PatientRatingController extends BasePatientController {
@@ -22,46 +21,71 @@ public class PatientRatingController extends BasePatientController {
         this.doctorRatingService = doctorRatingService;
     }
 
+    @GetMapping("/patient/history/rate")
+    public String rateDoctorPage(
+            @RequestParam("examId") String examId,
+            HttpSession session, Model model,
+            RedirectAttributes redirectAttributes) {
+        
+        Patient patient = getCurrentPatient(session);
+        if (patient == null) {
+            return "redirect:/login";
+        }
+        
+        addCommonData(model, session, "history");
+
+        ClinicalExamination exam = clinicalExaminationService.findById(examId).orElse(null);
+        if (exam == null || exam.getPatient() == null || !patient.getUserId().equals(exam.getPatient().getUserId())) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Lượt khám không tồn tại hoặc không thuộc quyền sở hữu của bạn.");
+            return "redirect:/patient/history";
+        }
+
+        if (!"completed".equalsIgnoreCase(exam.getStatus())) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Bạn chỉ có thể đánh giá lượt khám đã hoàn thành.");
+            return "redirect:/patient/history";
+        }
+
+        if (doctorRatingService.getRatingByExamId(examId).isPresent()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Lượt khám này đã được đánh giá trước đó.");
+            return "redirect:/patient/history";
+        }
+
+        model.addAttribute("exam", exam);
+        return "patient/rate-doctor";
+    }
+
     @PostMapping("/patient/history/rate")
-    @ResponseBody
-    public Map<String, Object> rateDoctor(
+    public String rateDoctor(
             @RequestParam("examId") String examId,
             @RequestParam("ratingValue") Integer ratingValue,
             @RequestParam(value = "comment", required = false) String comment,
-            HttpSession session) {
-
-        Map<String, Object> response = new HashMap<>();
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
 
         Patient patient = getCurrentPatient(session);
         if (patient == null) {
-            response.put("success", false);
-            response.put("message", "Vui lòng đăng nhập để thực hiện đánh giá.");
-            return response;
+            return "redirect:/login";
         }
 
         if (ratingValue == null || ratingValue < 1 || ratingValue > 5) {
-            response.put("success", false);
-            response.put("message", "Chỉ số đánh giá phải nằm trong khoảng từ 1 đến 5 sao.");
-            return response;
+            redirectAttributes.addFlashAttribute("errorMessage", "Chỉ số đánh giá phải nằm trong khoảng từ 1 đến 5 sao.");
+            return "redirect:/patient/history/rate?examId=" + examId;
         }
 
         ClinicalExamination exam = clinicalExaminationService.findById(examId).orElse(null);
         if (exam == null || exam.getPatient() == null || !patient.getUserId().equals(exam.getPatient().getUserId())) {
-            response.put("success", false);
-            response.put("message", "Lượt khám không tồn tại hoặc không thuộc quyền sở hữu của bạn.");
-            return response;
+            redirectAttributes.addFlashAttribute("errorMessage", "Lượt khám không tồn tại hoặc không thuộc quyền sở hữu của bạn.");
+            return "redirect:/patient/history";
         }
 
         if (!"completed".equalsIgnoreCase(exam.getStatus())) {
-            response.put("success", false);
-            response.put("message", "Bạn chỉ có thể đánh giá lượt khám đã hoàn thành.");
-            return response;
+            redirectAttributes.addFlashAttribute("errorMessage", "Bạn chỉ có thể đánh giá lượt khám đã hoàn thành.");
+            return "redirect:/patient/history";
         }
 
         if (doctorRatingService.getRatingByExamId(examId).isPresent()) {
-            response.put("success", false);
-            response.put("message", "Lượt khám này đã được đánh giá trước đó.");
-            return response;
+            redirectAttributes.addFlashAttribute("errorMessage", "Lượt khám này đã được đánh giá trước đó.");
+            return "redirect:/patient/history";
         }
 
         try {
@@ -74,13 +98,12 @@ public class PatientRatingController extends BasePatientController {
 
             doctorRatingService.saveRating(rating);
 
-            response.put("success", true);
-            response.put("message", "Cảm ơn bạn đã gửi đánh giá cho bác sĩ!");
+            redirectAttributes.addFlashAttribute("successMessage", "Cảm ơn bạn đã gửi đánh giá cho bác sĩ!");
         } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "Có lỗi xảy ra: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra: " + e.getMessage());
+            return "redirect:/patient/history/rate?examId=" + examId;
         }
 
-        return response;
+        return "redirect:/patient/history";
     }
 }

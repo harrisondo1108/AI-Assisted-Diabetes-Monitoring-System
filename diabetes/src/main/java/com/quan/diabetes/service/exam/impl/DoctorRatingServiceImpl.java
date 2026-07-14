@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +46,18 @@ public class DoctorRatingServiceImpl implements DoctorRatingService {
     @Transactional(readOnly = true)
     public List<DoctorRating> getRatingsByDoctor(String doctorId) {
         return doctorRatingRepository.findByDoctor_UserId(doctorId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<DoctorRating> getRatingsByDoctor(String doctorId, Pageable pageable) {
+        return doctorRatingRepository.findByDoctor_UserId(doctorId, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<DoctorRating> getRatingsByDoctorAndStar(String doctorId, int ratingValue, Pageable pageable) {
+        return doctorRatingRepository.findByDoctor_UserIdAndRatingValue(doctorId, ratingValue, pageable);
     }
 
     @Override
