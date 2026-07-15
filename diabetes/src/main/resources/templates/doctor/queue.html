@@ -103,6 +103,12 @@
                                                         th:text="${p.status == 'Pending' ? 'Bắt đầu' : 'Khám tiếp'}">Bắt
                                                         đầu</span>
                                                 </a>
+                                                <a th:href="@{/doctor/examine/{id}/cancel(id=${p.patient.userId})}"
+                                                    class="btn btn-sm"
+                                                    title="Hủy khám"
+                                                    style="background-color:#fee2e2;color:#dc2626;border:1px solid #fecaca;display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;text-decoration:none;">
+                                                    <i class="fas fa-times"></i>
+                                                </a>
                                                 <a th:href="@{/doctor/history(patientId=${p.patient.userId}, from='dashboard')}"
                                                    class="btn btn-secondary btn-sm"
                                                    title="Lịch sử bệnh án"
@@ -163,7 +169,24 @@
             </main>
         </div>
     </div>
-    <!-- Script assets -->
-    <script th:src="@{/js/doctor/queue.js}"></script>
+    <!-- CSS Toast Animation for pure CSS notification -->
+    <style>
+        @keyframes toastAnimation {
+            0% { transform: translateY(-50px); opacity: 0; }
+            10% { transform: translateY(0); opacity: 1; }
+            90% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-50px); opacity: 0; pointer-events: none; visibility: hidden; }
+        }
+        .toast-container .toast {
+            animation: toastAnimation 4s forwards;
+        }
+    </style>
+    <!-- Native Toast Container -->
+    <div id="toast-container" class="toast-container" th:if="${param.toast}">
+        <div class="toast show" th:classappend="${param.toast[0] == 'not_today' ? 'error' : 'success'}">
+            <i class="fas" th:classappend="${param.toast[0] == 'not_today' ? 'fa-times-circle' : 'fa-check-circle'}"></i>
+            <span th:text="${param.toast[0] == 'completed' ? 'Hoàn thành ca khám thành công!' : (param.toast[0] == 'updated' ? 'Cập nhật ca khám thành công!' : (param.toast[0] == 'cancelled' ? 'Hủy ca khám thành công!' : (param.toast[0] == 'not_today' ? 'Chỉ được phép chỉnh sửa ca khám được thực hiện trong ngày hôm nay.' : 'Thao tác thành công!')))}"></span>
+        </div>
+    </div>
 </body>
 </html>

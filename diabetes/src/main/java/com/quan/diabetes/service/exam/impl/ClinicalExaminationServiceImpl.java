@@ -1,6 +1,10 @@
 package com.quan.diabetes.service.exam.impl;
 
 import com.quan.diabetes.dto.doctor.ClinicalExamForm;
+import com.quan.diabetes.dto.doctor.ExamStep1Form;
+import com.quan.diabetes.dto.doctor.ExamStep2Form;
+import com.quan.diabetes.dto.doctor.ExamStep3Form;
+import com.quan.diabetes.dto.doctor.PrescriptionLineDTO;
 import com.quan.diabetes.service.exam.ClinicalExaminationService;
 import com.quan.diabetes.service.reminder.MedicationSchedualeService;
 import tools.jackson.core.type.TypeReference;
@@ -158,10 +162,10 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
             exam.setExamDate(LocalDateTime.now());
         }
         Map<String, Object> oldExam = createLogExam(exam.getClinicalExamId());
-        
+
         exam.setStatus("InProgress");
         clinicalExaminationRepository.save(exam);
-        
+
         systemLogService.saveLogWithObject(null, "APPROVE_MEDICAL_RECORD", "MedicalRecord", exam.getClinicalExamId(), "Bác sĩ tiếp nhận bệnh án", oldExam, createLogExam(exam.getClinicalExamId()), "SUCCESS");
     }
 
@@ -192,7 +196,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         exam.setCancelReason(reason);
         exam.setDiagnosisNote(null);
         clinicalExaminationRepository.save(exam);
-        
+
         systemLogService.saveLogWithObject(null, "REJECT_MEDICAL_RECORD", "MedicalRecord", exam.getClinicalExamId(), "Bác sĩ từ chối/hủy bệnh án", oldExam, createLogExam(exam.getClinicalExamId()), "SUCCESS");
     }
 
@@ -369,7 +373,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                 throw new RuntimeException("Error deserializing prescription JSON: " + e.getMessage(), e);
             }
         }
-        
+
         systemLogService.saveLogWithObject(null, "COMPLETE_MEDICAL_RECORD", "MedicalRecord", examId, "Bác sĩ hoàn thành bệnh án", oldExam, createLogExam(exam.getClinicalExamId()), "SUCCESS");
     }
 
@@ -459,7 +463,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         }
         exam.setStatus("Completed");
         exam = clinicalExaminationRepository.save(exam);
-        
+
         systemLogService.saveLogWithObject(null, "UPDATE_MEDICAL_RECORD", "MedicalRecord", examId, "Cập nhật bệnh án", oldExam, createLogExam(exam.getClinicalExamId()), "SUCCESS");
 
         // 2. Lưu Triệu chứng (Clear cũ trước)
@@ -637,7 +641,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         exam.setStatus("Requested");
         exam.setMedicalHistory(medicalHistory);
         clinicalExaminationRepository.save(exam);
-        
+
         systemLogService.saveLogWithObject(patientId, "CREATE_MEDICAL_REQUEST", "MedicalRequest", exam.getClinicalExamId(), "Bệnh nhân tạo yêu cầu khám", null, createLogExam(exam.getClinicalExamId()), "SUCCESS");
     }
 
@@ -808,7 +812,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
     private Map<String, Object> createLogExam(String examId) {
         ClinicalExamination exam = clinicalExaminationRepository.findById(examId).orElse(null);
         if (exam == null) return null;
-        
+
         Map<String, Object> logExam = new HashMap<>();
         logExam.put("clinicalExamId", exam.getClinicalExamId());
         logExam.put("status", exam.getStatus());
@@ -817,7 +821,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         logExam.put("cancelReason", exam.getCancelReason());
         logExam.put("nextAppointment", exam.getNextAppointment() != null ? exam.getNextAppointment().toString() : null);
         logExam.put("examDate", exam.getExamDate() != null ? exam.getExamDate().toString() : null);
-        
+
         List<ExamSymptom> symptoms = examSymptomRepository.findAll().stream()
                 .filter(s -> s.getId().getClinicalExamId().equals(examId))
                 .collect(java.util.stream.Collectors.toList());
@@ -841,7 +845,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
             planMap.put("glucoseMonitoringPlan", plan.getGlucoseMonitoringPlan());
             logExam.put("treatmentPlan", planMap);
         }
-        
+
         Prescription prescription = prescriptionRepository.findByClinicalExamination_ClinicalExamId(examId).orElse(null);
         if (prescription != null) {
             List<PrescriptionDetail> details = prescriptionDetailRepository.findByPrescription_PrescriptionId(prescription.getPrescriptionId());
@@ -853,7 +857,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                 dMap.put("durationDays", d.getDurationDays());
                 dMap.put("totalQuantity", d.getTotalQuantity());
                 dMap.put("medicationPlan", d.getMedicationPlan());
-                
+
                 List<String> timings = new ArrayList<>();
                 if (d.getPrescriptionTimings() != null) {
                     for (PrescriptionTiming pt : d.getPrescriptionTimings()) {
@@ -866,7 +870,260 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
             }
             logExam.put("prescription", prescList);
         }
-        
+
         return logExam;
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PrescriptionLineDTO> getPrescriptionLines(String examId) {
+        List<PrescriptionLineDTO> list = new ArrayList<>();
+        List<PrescriptionDetail> details = prescriptionDetailRepository.findByClinicalExamIdWithDetails(examId);
+        if (details == null) {
+            return list;
+        }
+        for (PrescriptionDetail p : details) {
+            PrescriptionLineDTO dto = new PrescriptionLineDTO();
+            dto.setMedId(p.getMedication().getMedicationId());
+            dto.setName(p.getMedication().getMedicationName());
+            dto.setConcentration(p.getMedication().getConcentration());
+            dto.setForm(p.getMedication().getForm());
+            dto.setDosage(p.getDosage());
+            dto.setDosagePerDose(parseDosagePerDose(p.getDosage()));
+            dto.setDuration(p.getDurationDays());
+            dto.setQuantity(p.getTotalQuantity());
+
+            List<String> timings = new ArrayList<>();
+            if (p.getPrescriptionTimings() != null) {
+                for (PrescriptionTiming pt : p.getPrescriptionTimings()) {
+                    timings.add(pt.getTiming().getTimingName());
+                }
+            }
+            dto.setTiming(timings);
+            dto.setTimingText(String.join(", ", timings));
+            dto.setMedicationPlan(p.getMedicationPlan());
+            dto.setStartDate(p.getStartDate() != null ? p.getStartDate().toString() : "");
+            dto.setEndDate(p.getEndDate() != null ? p.getEndDate().toString() : "");
+            list.add(dto);
+        }
+        return list;
+    }
+
+    private Double parseDosagePerDose(String dosageStr) {
+        if (dosageStr == null || dosageStr.equalsIgnoreCase("Auto")) return 1.0;
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("^([\\d.]+)").matcher(dosageStr);
+        return m.find() ? Double.parseDouble(m.group(1)) : 1.0;
+    }
+
+    // =========================================================================
+    // TAB-BASED STEP METHODS
+    // =========================================================================
+
+    @Override
+    @Transactional
+    public void saveStep1(String examId, ExamStep1Form form) {
+        ClinicalExamination exam = clinicalExaminationRepository.findById(examId)
+                .orElseThrow(() -> new EntityNotFoundException("Ca kham khong ton tai: " + examId));
+        if (form.getMedicalHistory() != null && !form.getMedicalHistory().trim().isEmpty()) {
+            exam.setMedicalHistory(form.getMedicalHistory());
+        }
+        if (!"Completed".equalsIgnoreCase(exam.getStatus())) {
+            exam.setStatus("InProgress");
+        }
+        exam = clinicalExaminationRepository.save(exam);
+
+        // Save symptoms (clear old ones first)
+        examSymptomRepository.deleteById_ClinicalExamId(examId);
+        examSymptomRepository.flush();
+        if (form.getSymptomIds() != null) {
+            Map<String, String> comments = form.getSymptomComments();
+            for (String symId : form.getSymptomIds()) {
+                SymptomsCatalog symptom = symptomsCatalogRepository.findById(symId).orElse(null);
+                if (symptom != null) {
+                    ExamSymptom es = new ExamSymptom();
+                    es.setId(new ExamSymptomId(examId, symId));
+                    es.setClinicalExamination(exam);
+                    es.setSymptom(symptom);
+                    if (comments != null) es.setNote(comments.getOrDefault(symId, ""));
+                    examSymptomRepository.save(es);
+                }
+            }
+        }
+    }
+
+    @Override
+    @Transactional
+    public void saveStep2(String examId, ExamStep2Form form, PatientType matchedType, List<LabTestCatalog> testCatalog) {
+        ClinicalExamination exam = clinicalExaminationRepository.findById(examId)
+                .orElseThrow(() -> new EntityNotFoundException("Ca kham khong ton tai: " + examId));
+
+        if (form.getDiagnosisNote() != null) {
+            exam.setDiagnosisNote(form.getDiagnosisNote());
+            clinicalExaminationRepository.save(exam);
+        }
+
+        // Pregnancy flag is stored in session; nothing specific to persist for isPregnant alone
+        // If orderLabs is requested, create lab order + results
+        if (Boolean.TRUE.equals(form.getOrderLabs()) && testCatalog != null && !testCatalog.isEmpty()) {
+
+            // Delete existing lab order and results
+            labOrderRepository.findByClinicalExamination_ClinicalExamId(examId).ifPresent(existing -> {
+                labResultRepository.deleteAll(labResultRepository.findByLabOrder_ClinicalExamination_ClinicalExamId(examId));
+                labOrderRepository.delete(existing);
+            });
+
+            LabOrder labOrder = new LabOrder();
+            labOrder.setLabOrderId("LBO-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000));
+            labOrder.setClinicalExamination(exam);
+            labOrder.setStatus("Completed");
+            labOrder = labOrderRepository.save(labOrder);
+
+            Random random = new Random();
+            for (LabTestCatalog test : testCatalog) {
+                LabResult result = new LabResult();
+                result.setLabResultId("LBR-" + System.currentTimeMillis() + "-" + random.nextInt(1000));
+                result.setLabOrder(labOrder);
+                result.setLabTest(test);
+                result.setStatus("Completed");
+
+                Optional<IndicatorThreshold> thresholdOpt = Optional.empty();
+                if (matchedType != null) {
+                    thresholdOpt = indicatorThresholdRepository.findByLabTest_LabTestIdAndPatientType_PatientTypeId(
+                            test.getLabTestId(), matchedType.getPatientTypeId());
+                }
+                String range = "N/A";
+                BigDecimal dbMin = null, dbMax = null;
+                if (thresholdOpt.isPresent()) {
+                    dbMin = thresholdOpt.get().getMinValue();
+                    dbMax = thresholdOpt.get().getMaxValue();
+                    range = dbMin + " - " + dbMax;
+                }
+                result.setReferenceRange(range);
+
+                BigDecimal value;
+                String flag = "NORMAL";
+                if (dbMin != null && dbMax != null) {
+                    double span = dbMax.subtract(dbMin).doubleValue();
+                    double mid = dbMin.add(dbMax).doubleValue() / 2;
+                    double v = mid + (random.nextDouble() * span * 0.6 - span * 0.3);
+                    value = BigDecimal.valueOf(Math.round(v * 100.0) / 100.0);
+                    if (value.compareTo(dbMin) < 0) flag = "LOW";
+                    else if (value.compareTo(dbMax) > 0) flag = "HIGH";
+                } else {
+                    value = BigDecimal.ZERO;
+                }
+                result.setResultValue(value);
+                result.setFlag(flag);
+                labResultRepository.save(result);
+            }
+        }
+    }
+
+    @Override
+    @Transactional
+    public void saveStep3(String examId, ExamStep3Form form) {
+        ClinicalExamination exam = clinicalExaminationRepository.findById(examId)
+                .orElseThrow(() -> new EntityNotFoundException("Ca kham khong ton tai: " + examId));
+        if (form.getNextAppointment() != null && !form.getNextAppointment().trim().isEmpty()) {
+            exam.setNextAppointment(LocalDate.parse(form.getNextAppointment()).atStartOfDay());
+        } else {
+            exam.setNextAppointment(null);
+        }
+        if (!"Completed".equalsIgnoreCase(exam.getStatus())) {
+            exam.setStatus("InProgress");
+        }
+        exam = clinicalExaminationRepository.save(exam);
+
+        final ClinicalExamination finalExam = exam;
+        TreatmentPlan plan = treatmentPlanRepository.findByClinicalExam_ClinicalExamId(examId)
+                .orElseGet(() -> {
+                    TreatmentPlan p = new TreatmentPlan();
+                    p.setClinicalExam(finalExam);
+                    p.setCreatedAt(LocalDateTime.now());
+                    return p;
+                });
+        plan.setTreatmentGoal(form.getTreatmentGoal());
+        plan.setDietPlan(form.getDietPlan());
+        plan.setExercisePlan(form.getExercisePlan());
+        plan.setGlucoseMonitoringPlan(form.getGlucoseMonitoringPlan());
+        treatmentPlanRepository.save(plan);
+    }
+
+    @Override
+    @Transactional
+    public void completeExamination(String examId, List<PrescriptionLineDTO> prescriptionLines) {
+        ClinicalExamination exam = clinicalExaminationRepository.findById(examId)
+                .orElseThrow(() -> new EntityNotFoundException("Ca kham khong ton tai: " + examId));
+        exam.setStatus("Completed");
+        clinicalExaminationRepository.save(exam);
+
+        // Clear old prescription
+        prescriptionRepository.findByClinicalExamination_ClinicalExamId(examId)
+                .ifPresent(prescriptionRepository::delete);
+
+        if (prescriptionLines != null && !prescriptionLines.isEmpty()) {
+            Prescription presc = new Prescription();
+            presc.setPrescriptionId("PRC-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000));
+            presc.setClinicalExamination(exam);
+            presc.setCreatedAt(LocalDateTime.now());
+            presc = prescriptionRepository.save(presc);
+
+            for (PrescriptionLineDTO line : prescriptionLines) {
+                Medication med = medicationRepository.findById(line.getMedId()).orElse(null);
+                if (med == null) continue;
+
+                int duration = line.getDuration() != null ? line.getDuration() : 0;
+                int quantity = line.getQuantity() != null ? line.getQuantity() : 0;
+                if (quantity == 0 && duration > 0 && line.getDosagePerDose() != null) {
+                    // timing count as doses per day
+                    int timingCount = (line.getTiming() != null && !line.getTiming().isEmpty()) ? line.getTiming().size() : 1;
+                    quantity = (int) Math.ceil(line.getDosagePerDose() * timingCount * duration);
+                }
+
+                PrescriptionDetail detail = new PrescriptionDetail();
+                detail.setPrescriptionDetailId("PRD-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000));
+                detail.setPrescription(presc);
+                detail.setMedication(med);
+                detail.setDurationDays(duration);
+                detail.setTotalQuantity(quantity);
+                detail.setDosage(calculateDosage(quantity, duration, med.getForm()));
+                detail.setMedicationPlan(line.getMedicationPlan() != null ? line.getMedicationPlan() : "");
+                if (line.getStartDate() != null && !line.getStartDate().isEmpty()) {
+                    detail.setStartDate(LocalDate.parse(line.getStartDate()));
+                }
+                if (line.getEndDate() != null && !line.getEndDate().isEmpty()) {
+                    detail.setEndDate(LocalDate.parse(line.getEndDate()));
+                }
+                detail.setPrescriptionTimings(new ArrayList<>());
+                detail = prescriptionDetailRepository.save(detail);
+
+                if (line.getTiming() != null) {
+                    for (String timingName : line.getTiming()) {
+                        if (timingName == null || timingName.trim().isEmpty()) continue;
+                        final String tName = timingName.trim();
+                        MedicationTiming mt = medicationTimingRepository.findByTimingName(tName)
+                                .orElseGet(() -> {
+                                    MedicationTiming newMt = new MedicationTiming();
+                                    newMt.setTimingName(tName);
+                                    return medicationTimingRepository.save(newMt);
+                                });
+                        PrescriptionTiming pt = new PrescriptionTiming();
+                        pt.setPrescriptionDetail(detail);
+                        pt.setTiming(mt);
+                        prescriptionTimingRepository.save(pt);
+                    }
+                }
+            }
+        }
+
+        // Lock old reminders and regenerate
+        List<Reminder> oldReminders = reminderRepository.findByClinicalExamination_ClinicalExamId(examId);
+        if (oldReminders != null) {
+            oldReminders.forEach(r -> r.setLockStatus(true));
+            reminderRepository.saveAll(oldReminders);
+        }
+        medicationSchedualeService.generateReminder(examId);
+        appointmentSchedule.generateAppointmentReminder(examId);
     }
 }

@@ -346,7 +346,6 @@ VALUES
 
 INSERT INTO PatientType (TypeName, MinAge, MaxAge)
 VALUES
-    ('Children', 0, 17),
     ('Adult', 18, 39),
     ('Middle-aged', 40, 64),
     ('Elderly', 65, 120),

@@ -51,13 +51,7 @@ public class DoctorQueueController {
             session.setAttribute("userProfile", profile);
         }
 
-        // Check if there is an in-progress exam for this doctor in the database
-        Optional<ClinicalExamination> activeExam = clinicalExaminationRepository
-                .findFirstByDoctor_UserIdAndStatus(doctorId, "InProgress");
-        if (activeExam.isPresent()) {
-            return "redirect:/doctor/examine?patientId=" + activeExam.get().getPatient().getUserId()
-                    + "&warning=in-progress";
-        }
+        // Removed the check that blocked doctors from seeing the queue if they had an InProgress exam.
 
         // Lấy tất cả ca khám của bác sĩ
         List<ClinicalExamination> allExams = clinicalExaminationService.findByDoctorId(doctorId);
