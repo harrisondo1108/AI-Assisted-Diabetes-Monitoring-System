@@ -48,7 +48,9 @@
                     <div class="profile-field">
                         <label style="color: var(--text-muted); font-size: 0.8rem; font-weight: 700; display: block; margin-bottom: 6px;">Trạng thái</label>
                         <div>
-                            <span class="badge badge-info" th:text="${exam.status}"></span>
+                            <span class="badge"
+                                  th:classappend="${exam.status == 'Completed' ? 'badge-success' : (exam.status == 'Cancelled' ? 'badge-danger' : (exam.status == 'InProgress' ? 'badge-info' : 'badge-warning'))}"
+                                  th:text="${exam.status == 'Completed' ? 'Hoàn thành' : (exam.status == 'Cancelled' ? 'Đã hủy' : (exam.status == 'InProgress' ? 'Đang khám' : (exam.status == 'Pending' ? 'Đang chờ' : (exam.status == 'Requested' ? 'Chờ duyệt' : exam.status))))}"></span>
                         </div>
                     </div>
                 </div>

@@ -33,7 +33,8 @@ import org.springframework.data.domain.Pageable;
 
 /**
  * Service implementation for admin‑level user management.
- * It aggregates data from multiple domain entities (User, Patient, Profile, Role)
+ * It aggregates data from multiple domain entities (User, Patient, Profile,
+ * Role)
  * and exposes simple DTOs for the front‑end.
  */
 @Service
@@ -51,15 +52,15 @@ public class AdminUserServiceImpl implements AdminUserService {
     private final SystemLogService systemLogService;
 
     public AdminUserServiceImpl(UserRepository userRepository,
-                                PatientRepository patientRepository,
-                                ProfileRepository profileRepository,
-                                RoleRepository roleRepository,
-                                RoomRepository roomRepository,
-                                UserService userService,
-                                PatientService patientService,
-                                PasswordEncoder passwordEncoder,
-                                ClinicalExaminationRepository clinicalExaminationRepository,
-                                SystemLogService systemLogService) {
+            PatientRepository patientRepository,
+            ProfileRepository profileRepository,
+            RoleRepository roleRepository,
+            RoomRepository roomRepository,
+            UserService userService,
+            PatientService patientService,
+            PasswordEncoder passwordEncoder,
+            ClinicalExaminationRepository clinicalExaminationRepository,
+            SystemLogService systemLogService) {
         this.userRepository = userRepository;
         this.patientRepository = patientRepository;
         this.profileRepository = profileRepository;
@@ -79,7 +80,8 @@ public class AdminUserServiceImpl implements AdminUserService {
         List<UserManagementDTO> dtos = new ArrayList<>();
 
         final String searchLower = search != null ? search.toLowerCase() : "";
-        final String roleFilter = role != null && !role.isEmpty() && !role.equalsIgnoreCase("all") ? role.toLowerCase() : null;
+        final String roleFilter = role != null && !role.isEmpty() && !role.equalsIgnoreCase("all") ? role.toLowerCase()
+                : null;
 
         for (User u : users) {
             String uRole = u.getRole() != null ? u.getRole().getRoleName().toLowerCase() : "";
@@ -134,7 +136,8 @@ public class AdminUserServiceImpl implements AdminUserService {
                 });
             }
 
-            // Filter by search query using SearchUtil for accent-insensitive matching (similar to labtests)
+            // Filter by search query using SearchUtil for accent-insensitive matching
+            // (similar to labtests)
             if (search != null && !search.trim().isEmpty()) {
                 boolean matchesName = SearchUtil.matches(dto.getFullName(), search);
                 boolean matchesPhone = SearchUtil.matches(dto.getAccountPhone(), search);
@@ -173,7 +176,6 @@ public class AdminUserServiceImpl implements AdminUserService {
         user.setPhoneNumber(dto.getAccountPhone());
         user.setPasswordHash(dto.getPassword());
 
-
         // 2. Resolve (or create) Role entity
         Role role = null;
         if (dto.getRole() != null) {
@@ -190,7 +192,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         // 3. Persist Patient or Profile depending on role
         if (dto.getRole() != null && dto.getRole().equals("PAT")) {
             Patient p = new Patient();
-//            p.setUserId(user.getUserId());
+            // p.setUserId(user.getUserId());
             p.setUser(user);
             p.setFullName(dto.getFullName() != null ? dto.getFullName() : "Unknown");
             p.setPhoneNumber(dto.getAccountPhone());
@@ -210,7 +212,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
         } else {
             Profile p = new Profile();
-//            p.setUserId(user.getUserId());
+            // p.setUserId(user.getUserId());
             p.setUser(user);
             p.setFullName(dto.getFullName() != null ? dto.getFullName() : "Unknown");
             p.setPhoneNumber(dto.getAccountPhone());
@@ -230,9 +232,10 @@ public class AdminUserServiceImpl implements AdminUserService {
             profileRepository.save(p);
         }
         dto.setUserId(user.getUserId());
-        
-        systemLogService.saveLogWithObject(null, "CREATE", "Account", user.getUserId(), "Thêm tài khoản mới", null, dto, "SUCCESS");
-        
+
+        systemLogService.saveLogWithObject(null, "CREATE", "Account", user.getUserId(), "Thêm tài khoản mới", null, dto,
+                "SUCCESS");
+
         return dto;
     }
 
@@ -240,7 +243,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Transactional
     public UserManagementDTO updateUserManagementDTO(String userId, UserManagementDTO dto) {
         UserManagementDTO oldDto = getUserManagementDTOById(userId);
-        
+
         User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
         user.setPhoneNumber(dto.getAccountPhone());
         if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
@@ -248,7 +251,8 @@ public class AdminUserServiceImpl implements AdminUserService {
         }
         userRepository.save(user);
 
-        if (dto.getRole() != null && (dto.getRole().equalsIgnoreCase("PAT") || dto.getRole().equalsIgnoreCase("patient"))) {
+        if (dto.getRole() != null
+                && (dto.getRole().equalsIgnoreCase("PAT") || dto.getRole().equalsIgnoreCase("patient"))) {
             Patient p = patientRepository.findById(userId)
                     .orElseThrow(() -> new EntityNotFoundException("Patient record not found for user: " + userId));
             p.setFullName(dto.getFullName() != null ? dto.getFullName() : p.getFullName());
@@ -285,9 +289,10 @@ public class AdminUserServiceImpl implements AdminUserService {
             }
             profileRepository.save(p);
         }
-        
-        systemLogService.saveLogWithObject(null, "UPDATE", "Account", userId, "Cập nhật tài khoản", oldDto, dto, "SUCCESS");
-        
+
+        systemLogService.saveLogWithObject(null, "UPDATE", "Account", userId, "Cập nhật tài khoản", oldDto, dto,
+                "SUCCESS");
+
         return dto;
     }
 
@@ -295,20 +300,28 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Transactional
     public void toggleLock(String userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
-        
+
         User oldUser = new User();
         oldUser.setUserId(user.getUserId());
         oldUser.setStatus(user.getStatus());
-        
+
+        User newUser = new User();
+        newUser.setUserId(user.getUserId());
+
         if (User.STATUS_LOCKED.equals(user.getStatus())) {
             user.setStatus(User.STATUS_ACTIVE);
-            systemLogService.saveLogWithObject(null, "UPDATE", "Account", userId, "Mở khóa tài khoản", oldUser, user, "SUCCESS");
+            newUser.setStatus(User.STATUS_ACTIVE);
+            systemLogService.saveLogWithObject(null, "UNLOCK", "Account", userId, "Gỡ khóa tài khoản", oldUser, newUser,
+                    "SUCCESS");
         } else {
             user.setStatus(User.STATUS_LOCKED);
-            systemLogService.saveLogWithObject(null, "LOCK", "Account", userId, "Khóa tài khoản", oldUser, user, "SUCCESS");
+            newUser.setStatus(User.STATUS_LOCKED);
+            systemLogService.saveLogWithObject(null, "LOCK", "Account", userId, "Khóa tài khoản", oldUser, newUser,
+                    "SUCCESS");
         }
         userRepository.save(user);
     }
+
     @Override
     @Transactional(readOnly = true)
     public UserManagementDTO getUserManagementDTOById(String userId) {
@@ -356,13 +369,14 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Override
     @Transactional(readOnly = true)
     public boolean isPhoneTaken(String phone, String excludeUserId) {
-        if (phone == null || phone.trim().isEmpty()) return false;
+        if (phone == null || phone.trim().isEmpty())
+            return false;
         Optional<User> existing = userRepository.findByPhoneNumber(phone.trim());
-        if (existing.isEmpty()) return false;
-        if (excludeUserId == null || excludeUserId.trim().isEmpty()) return true;
+        if (existing.isEmpty())
+            return false;
+        if (excludeUserId == null || excludeUserId.trim().isEmpty())
+            return true;
         return !existing.get().getUserId().trim().equalsIgnoreCase(excludeUserId.trim());
     }
-
-
 
 }

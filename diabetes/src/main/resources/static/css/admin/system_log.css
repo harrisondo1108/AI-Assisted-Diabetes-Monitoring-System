@@ -223,21 +223,22 @@
 /* Pagination */
 .pagination-container {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
+    position: relative;
     padding: 16px 20px;
     background: #fff;
     border-top: 1px solid var(--border-light, #f1f5f9);
 }
 
 .pagination-info {
+    position: absolute;
+    left: 20px;
     font-size: 0.875rem;
     color: var(--text-secondary, #5a6f68);
-    flex: 1;
 }
 
 .pagination-controls {
-    flex: 0 0 auto;
     display: flex;
     align-items: center;
     gap: 8px;

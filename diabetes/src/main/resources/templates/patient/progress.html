@@ -90,8 +90,8 @@
                             </div>
 
                             <span class="badge"
-                                  th:classappend="${exam.status == 'Completed'} ? ' badge-success' : (${exam.status == 'Cancelled'} ? ' badge-danger' : (${exam.status == 'Requested'} ? ' badge-warning' : ' badge-info'))"
-                                  th:text="${exam.status == 'Requested' ? 'Chờ duyệt' : (exam.status == 'Pending' ? 'Đang khám' : (exam.status == 'InProgress' ? 'Đang khám' : (exam.status == 'Completed' ? 'Hoàn thành' : (exam.status == 'Cancelled' ? 'Đã hủy' : exam.status))))}">Đang tiến hành</span>
+                                  th:classappend="${exam.status == 'Completed' ? 'badge-success' : (exam.status == 'Cancelled' ? 'badge-danger' : (exam.status == 'InProgress' ? 'badge-info' : 'badge-warning'))}"
+                                  th:text="${exam.status == 'Completed' ? 'Hoàn thành' : (exam.status == 'Cancelled' ? 'Đã hủy' : (exam.status == 'InProgress' ? 'Đang khám' : (exam.status == 'Pending' ? 'Đang chờ' : (exam.status == 'Requested' ? 'Chờ duyệt' : exam.status))))}">Đang tiến hành</span>
                         </div>
 
                         <div class="progress-section-grid">

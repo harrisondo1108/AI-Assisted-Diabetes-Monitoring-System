@@ -204,15 +204,32 @@ public class PatientProfileController extends BasePatientController {
         patient.setSupervisorPhone(clean(supervisorPhone));
         patient.setEmail(clean(email));
 
+        Patient logNewPatient = new Patient();
+        logNewPatient.setUserId(patient.getUserId());
+        logNewPatient.setFullName(patient.getFullName());
+        logNewPatient.setPhoneNumber(patient.getPhoneNumber());
+        logNewPatient.setAddress(patient.getAddress());
+        logNewPatient.setDob(patient.getDob());
+        logNewPatient.setGender(patient.getGender());
+        logNewPatient.setHeight(patient.getHeight());
+        logNewPatient.setWeight(patient.getWeight());
+        logNewPatient.setBloodgroup(patient.getBloodgroup());
+        logNewPatient.setPermanentMedicalHistory(patient.getPermanentMedicalHistory());
+        logNewPatient.setAllergyNotes(patient.getAllergyNotes());
+        logNewPatient.setSupervisorName(patient.getSupervisorName());
+        logNewPatient.setSupervisorPhone(patient.getSupervisorPhone());
+        logNewPatient.setEmail(patient.getEmail());
+        logNewPatient.setImageUrl(patient.getImageUrl());
+
         if (imageFile != null && !imageFile.isEmpty()) {
             if (imageFile.getSize() > 2 * 1024 * 1024) {
-                systemLogService.saveLogWithObject(userId, "UPDATE_PROFILE", "Patient", userId, "Cập nhật hồ sơ bệnh nhân thất bại (Ảnh > 2MB)", oldPatient, patient, "FAILED");
+                systemLogService.saveLogWithObject(userId, "UPDATE_PROFILE", "Patient", userId, "Cập nhật hồ sơ bệnh nhân thất bại (Ảnh > 2MB)", oldPatient, logNewPatient, "FAILED");
                 redirectAttributes.addFlashAttribute("errorMessage", "Ảnh đại diện không được vượt quá 2MB.");
                 return "redirect:/patient/profile";
             }
             String contentType = imageFile.getContentType();
             if (contentType == null || !contentType.startsWith("image/")) {
-                systemLogService.saveLogWithObject(userId, "UPDATE_PROFILE", "Patient", userId, "Cập nhật hồ sơ bệnh nhân thất bại (Định dạng ảnh không hợp lệ)", oldPatient, patient, "FAILED");
+                systemLogService.saveLogWithObject(userId, "UPDATE_PROFILE", "Patient", userId, "Cập nhật hồ sơ bệnh nhân thất bại (Định dạng ảnh không hợp lệ)", oldPatient, logNewPatient, "FAILED");
                 redirectAttributes.addFlashAttribute("errorMessage", "Định dạng tệp không hợp lệ. Chỉ chấp nhận các tệp ảnh.");
                 return "redirect:/patient/profile";
             }
@@ -220,9 +237,10 @@ public class PatientProfileController extends BasePatientController {
                 String imageUrl = cloudinaryService.uploadImage(imageFile);
                 if (imageUrl != null) {
                     patient.setImageUrl(imageUrl);
+                    logNewPatient.setImageUrl(imageUrl);
                 }
             } catch (Exception e) {
-                systemLogService.saveLogWithObject(userId, "UPDATE_PROFILE", "Patient", userId, "Cập nhật hồ sơ bệnh nhân thất bại (Lỗi tải ảnh)", oldPatient, patient, "FAILED");
+                systemLogService.saveLogWithObject(userId, "UPDATE_PROFILE", "Patient", userId, "Cập nhật hồ sơ bệnh nhân thất bại (Lỗi tải ảnh)", oldPatient, logNewPatient, "FAILED");
                 redirectAttributes.addFlashAttribute("errorMessage", "Không thể tải lên ảnh đại diện: " + e.getMessage());
                 return "redirect:/patient/profile";
             }
@@ -236,9 +254,9 @@ public class PatientProfileController extends BasePatientController {
                 redirectAttributes.addFlashAttribute("successMessage", "Tạo hồ sơ thành công.");
             }
             
-            systemLogService.saveLogWithObject(userId, "UPDATE_PROFILE", "Patient", userId, "Cập nhật hồ sơ bệnh nhân", oldPatient, patient, "SUCCESS");
+            systemLogService.saveLogWithObject(userId, "UPDATE_PROFILE", "Patient", userId, "Cập nhật hồ sơ bệnh nhân", oldPatient, logNewPatient, "SUCCESS");
         } catch (Exception e) {
-            systemLogService.saveLogWithObject(userId, "UPDATE_PROFILE", "Patient", userId, "Cập nhật hồ sơ bệnh nhân thất bại: " + e.getMessage(), oldPatient, patient, "FAILED");
+            systemLogService.saveLogWithObject(userId, "UPDATE_PROFILE", "Patient", userId, "Cập nhật hồ sơ bệnh nhân thất bại: " + e.getMessage(), oldPatient, logNewPatient, "FAILED");
             redirectAttributes.addFlashAttribute("errorMessage", "Lỗi lưu hồ sơ: " + e.getMessage());
             return "redirect:/patient/profile";
         }
@@ -284,6 +302,17 @@ public class PatientProfileController extends BasePatientController {
                 .findById(userId)
                 .orElse(new PatientRoutine());
 
+        PatientRoutine oldRoutine = null;
+        if (routine.getUserId() != null) {
+            oldRoutine = new PatientRoutine();
+            oldRoutine.setUserId(routine.getUserId());
+            oldRoutine.setWakeUpTime(routine.getWakeUpTime());
+            oldRoutine.setBreakfastTime(routine.getBreakfastTime());
+            oldRoutine.setLunchTime(routine.getLunchTime());
+            oldRoutine.setDinnerTime(routine.getDinnerTime());
+            oldRoutine.setSleepTime(routine.getSleepTime());
+        }
+
         routine.setUserId(userId);
         routine.setWakeUpTime(wakeUpTime != null ? wakeUpTime : LocalTime.of(6, 0));
         routine.setBreakfastTime(breakfastTime != null ? breakfastTime : LocalTime.of(7, 0));
@@ -291,12 +320,26 @@ public class PatientProfileController extends BasePatientController {
         routine.setDinnerTime(dinnerTime != null ? dinnerTime : LocalTime.of(18, 0));
         routine.setSleepTime(sleepTime != null ? sleepTime : LocalTime.of(22, 0));
 
-        if (patientRoutineService.existsById(userId)) {
-            patientRoutineService.update(userId, routine);
-            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật lịch sinh hoạt thành công.");
-        } else {
-            patientRoutineService.create(routine);
-            redirectAttributes.addFlashAttribute("successMessage", "Tạo lịch sinh hoạt thành công.");
+        PatientRoutine logNewRoutine = new PatientRoutine();
+        logNewRoutine.setUserId(routine.getUserId());
+        logNewRoutine.setWakeUpTime(routine.getWakeUpTime());
+        logNewRoutine.setBreakfastTime(routine.getBreakfastTime());
+        logNewRoutine.setLunchTime(routine.getLunchTime());
+        logNewRoutine.setDinnerTime(routine.getDinnerTime());
+        logNewRoutine.setSleepTime(routine.getSleepTime());
+
+        try {
+            if (patientRoutineService.existsById(userId)) {
+                patientRoutineService.update(userId, routine);
+                redirectAttributes.addFlashAttribute("successMessage", "Cập nhật lịch sinh hoạt thành công.");
+            } else {
+                patientRoutineService.create(routine);
+                redirectAttributes.addFlashAttribute("successMessage", "Tạo lịch sinh hoạt thành công.");
+            }
+            systemLogService.saveLogWithObject(userId, "UPDATE_ROUTINE", "PatientRoutine", userId, "Cập nhật lịch sinh hoạt bệnh nhân", oldRoutine, logNewRoutine, "SUCCESS");
+        } catch (Exception e) {
+            systemLogService.saveLogWithObject(userId, "UPDATE_ROUTINE", "PatientRoutine", userId, "Cập nhật lịch sinh hoạt bệnh nhân thất bại: " + e.getMessage(), oldRoutine, logNewRoutine, "FAILED");
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi lưu lịch sinh hoạt: " + e.getMessage());
         }
 
         return "redirect:/patient/profile";
@@ -313,7 +356,19 @@ public class PatientProfileController extends BasePatientController {
         }
 
         if (patientRoutineService.existsById(patient.getUserId())) {
+            PatientRoutine currentRoutine = patientRoutineService.findById(patient.getUserId()).orElse(null);
+            PatientRoutine logOldRoutine = null;
+            if (currentRoutine != null) {
+                logOldRoutine = new PatientRoutine();
+                logOldRoutine.setUserId(currentRoutine.getUserId());
+                logOldRoutine.setWakeUpTime(currentRoutine.getWakeUpTime());
+                logOldRoutine.setBreakfastTime(currentRoutine.getBreakfastTime());
+                logOldRoutine.setLunchTime(currentRoutine.getLunchTime());
+                logOldRoutine.setDinnerTime(currentRoutine.getDinnerTime());
+                logOldRoutine.setSleepTime(currentRoutine.getSleepTime());
+            }
             patientRoutineService.deleteById(patient.getUserId());
+            systemLogService.saveLogWithObject(patient.getUserId(), "DELETE_ROUTINE", "PatientRoutine", patient.getUserId(), "Xóa lịch sinh hoạt bệnh nhân", logOldRoutine, null, "SUCCESS");
             redirectAttributes.addFlashAttribute("successMessage", "Xóa lịch sinh hoạt thành công.");
         } else {
             redirectAttributes.addFlashAttribute("errorMessage", "Lịch sinh hoạt không tồn tại.");
@@ -366,9 +421,9 @@ public class PatientProfileController extends BasePatientController {
             return ResponseEntity.badRequest().body(response);
         }
 
-        if (newPassword.trim().length() < 6) {
+        if (!com.quan.diabetes.util.ParseUtil.isValidPassword(newPassword.trim())) {
             response.put("success", false);
-            response.put("message", "Mật khẩu mới phải có ít nhất 6 ký tự.");
+            response.put("message", "Mật khẩu mới phải chứa ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, ít nhất một chữ số và ký tự đặc biệt (!@#$).");
             return ResponseEntity.badRequest().body(response);
         }
 

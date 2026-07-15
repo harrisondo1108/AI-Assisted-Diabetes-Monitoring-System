@@ -6,6 +6,7 @@ import com.quan.diabetes.entity.User;
 import com.quan.diabetes.repository.ClinicalExaminationRepository;
 import com.quan.diabetes.service.exam.ClinicalExaminationService;
 import com.quan.diabetes.service.user.ProfileService;
+import com.quan.diabetes.service.systemlog.SystemLogService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,14 +25,17 @@ public class DoctorRequestController {
     private final ClinicalExaminationService clinicalExaminationService;
     private final ProfileService profileService;
     private final ClinicalExaminationRepository clinicalExaminationRepository;
+    private final SystemLogService systemLogService;
 
     public DoctorRequestController(
             ClinicalExaminationService clinicalExaminationService,
             ProfileService profileService,
-            ClinicalExaminationRepository clinicalExaminationRepository) {
+            ClinicalExaminationRepository clinicalExaminationRepository,
+            SystemLogService systemLogService) {
         this.clinicalExaminationService = clinicalExaminationService;
         this.profileService = profileService;
         this.clinicalExaminationRepository = clinicalExaminationRepository;
+        this.systemLogService = systemLogService;
     }
 
     @GetMapping("/requests")
@@ -72,9 +76,14 @@ public class DoctorRequestController {
         if (examOpt.isPresent()) {
             ClinicalExamination exam = examOpt.get();
             if ("Requested".equalsIgnoreCase(exam.getStatus())) {
+                ClinicalExamination oldExam = createLogExam(exam);
+                
                 exam.setStatus("Pending");
                 exam.setExamDate(LocalDateTime.now()); // Set date to today so it appears in today's queue
                 clinicalExaminationRepository.save(exam);
+                
+                systemLogService.saveLogWithObject(loggedInUser.getUserId(), "APPROVE_MEDICAL_REQUEST", "MedicalRequest", exam.getClinicalExamId(), "Bác sĩ duyệt yêu cầu khám", oldExam, createLogExam(exam), "SUCCESS");
+                
                 redirectAttributes.addFlashAttribute("successMessage",
                         "Đã duyệt yêu cầu khám của bệnh nhân " + exam.getPatient().getFullName() + ".");
             } else {
@@ -101,9 +110,14 @@ public class DoctorRequestController {
         if (examOpt.isPresent()) {
             ClinicalExamination exam = examOpt.get();
             if ("Requested".equalsIgnoreCase(exam.getStatus())) {
+                ClinicalExamination oldExam = createLogExam(exam);
+                
                 exam.setStatus("Cancelled");
                 exam.setCancelReason("Bác sĩ từ chối yêu cầu khám");
                 clinicalExaminationRepository.save(exam);
+                
+                systemLogService.saveLogWithObject(loggedInUser.getUserId(), "REJECT_MEDICAL_REQUEST", "MedicalRequest", exam.getClinicalExamId(), "Bác sĩ từ chối yêu cầu khám", oldExam, createLogExam(exam), "SUCCESS");
+                
                 redirectAttributes.addFlashAttribute("successMessage",
                         "Đã từ chối yêu cầu khám của bệnh nhân " + exam.getPatient().getFullName() + ".");
             } else {
@@ -114,5 +128,18 @@ public class DoctorRequestController {
         }
 
         return "redirect:/doctor/requests";
+    }
+
+    private ClinicalExamination createLogExam(ClinicalExamination exam) {
+        if (exam == null) return null;
+        ClinicalExamination logExam = new ClinicalExamination();
+        logExam.setClinicalExamId(exam.getClinicalExamId());
+        logExam.setStatus(exam.getStatus());
+        logExam.setMedicalHistory(exam.getMedicalHistory());
+        logExam.setDiagnosisNote(exam.getDiagnosisNote());
+        logExam.setCancelReason(exam.getCancelReason());
+        logExam.setNextAppointment(exam.getNextAppointment());
+        logExam.setExamDate(exam.getExamDate());
+        return logExam;
     }
 }

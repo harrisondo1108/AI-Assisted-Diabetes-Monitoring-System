@@ -46,14 +46,18 @@ public class SystemLogController {
         ACTION_MAP.put("UPDATE", "Cập nhật");
         ACTION_MAP.put("DELETE", "Xóa");
         ACTION_MAP.put("LOCK", "Khóa tài khoản");
-        ACTION_MAP.put("UNLOCK", "Mở khóa tài khoản");
+        ACTION_MAP.put("UNLOCK", "Gỡ khóa tài khoản");
         ACTION_MAP.put("RESET_PASSWORD", "Đặt lại mật khẩu");
         ACTION_MAP.put("CREATE_MEDICAL_REQUEST", "Tạo yêu cầu khám");
+        ACTION_MAP.put("APPROVE_MEDICAL_REQUEST", "Duyệt yêu cầu khám");
+        ACTION_MAP.put("REJECT_MEDICAL_REQUEST", "Từ chối yêu cầu khám");
         ACTION_MAP.put("APPROVE_MEDICAL_RECORD", "Tiếp nhận bệnh án");
         ACTION_MAP.put("REJECT_MEDICAL_RECORD", "Từ chối bệnh án");
         ACTION_MAP.put("UPDATE_MEDICAL_RECORD", "Cập nhật bệnh án");
         ACTION_MAP.put("COMPLETE_MEDICAL_RECORD", "Hoàn thành bệnh án");
         ACTION_MAP.put("UPDATE_PROFILE", "Cập nhật hồ sơ");
+        ACTION_MAP.put("UPDATE_ROUTINE", "Cập nhật thói quen");
+        ACTION_MAP.put("DELETE_ROUTINE", "Xóa thói quen");
 
         STATUS_MAP.put("SUCCESS", "Thành công");
         STATUS_MAP.put("FAILED", "Thất bại");

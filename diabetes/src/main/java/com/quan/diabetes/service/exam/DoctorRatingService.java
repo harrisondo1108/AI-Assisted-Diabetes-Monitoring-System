@@ -17,4 +17,10 @@ public interface DoctorRatingService {
     Double getAverageRatingForDoctor(String doctorId);
     Map<String, DoctorRating> getRatingsForExams(List<String> examIds);
     List<DoctorRatingView> getTopRatedDoctors(int limit);
+    
+    Page<DoctorRating> getAllRatings(Pageable pageable);
+    List<DoctorRating> getAllRatings();
+    Page<DoctorRating> getRatingsByStar(int ratingValue, Pageable pageable);
+    Double getAverageRatingForAll();
+    long countAllRatings();
 }

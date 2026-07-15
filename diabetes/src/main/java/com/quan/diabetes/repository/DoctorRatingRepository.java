@@ -22,8 +22,13 @@ public interface DoctorRatingRepository extends JpaRepository<DoctorRating, Inte
 
     Page<DoctorRating> findByDoctor_UserIdAndRatingValue(String doctorId, int ratingValue, Pageable pageable);
 
+    Page<DoctorRating> findByRatingValue(int ratingValue, Pageable pageable);
+
     Long countByDoctor_UserId(String doctorId);
     
     @Query("SELECT AVG(cast(r.ratingValue as double)) FROM DoctorRating r WHERE r.doctor.userId = :doctorId")
     Double findAverageRatingByDoctorId(@Param("doctorId") String doctorId);
+
+    @Query("SELECT AVG(cast(r.ratingValue as double)) FROM DoctorRating r")
+    Double findAverageRatingForAll();
 }

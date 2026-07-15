@@ -113,4 +113,35 @@ public class DoctorRatingServiceImpl implements DoctorRatingService {
                 .limit(limit)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<DoctorRating> getAllRatings(Pageable pageable) {
+        return doctorRatingRepository.findAll(pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<DoctorRating> getAllRatings() {
+        return doctorRatingRepository.findAll();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<DoctorRating> getRatingsByStar(int ratingValue, Pageable pageable) {
+        return doctorRatingRepository.findByRatingValue(ratingValue, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Double getAverageRatingForAll() {
+        Double avg = doctorRatingRepository.findAverageRatingForAll();
+        return avg != null ? avg : 0.0;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countAllRatings() {
+        return doctorRatingRepository.count();
+    }
 }
