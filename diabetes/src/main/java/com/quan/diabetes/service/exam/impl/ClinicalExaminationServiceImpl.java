@@ -141,10 +141,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
 
         if (exam == null) {
             exam = new ClinicalExamination();
-            String clinicalExamId = "";
-            do {
-                clinicalExamId = "EXM-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000);
-            } while (clinicalExaminationRepository.existsById(clinicalExamId));
+            String clinicalExamId = generateClinicalExamId();
             exam.setClinicalExamId(clinicalExamId);
             exam.setPatient(patientRepository.findById(patientId)
                     .orElseThrow(() -> new EntityNotFoundException("Patient not found: " + patientId)));
@@ -166,10 +163,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
 
         if (exam == null) {
             exam = new ClinicalExamination();
-            String clinicalExamId = "";
-            do {
-                clinicalExamId = "EXM-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000);
-            } while (clinicalExaminationRepository.existsById(clinicalExamId));
+            String clinicalExamId = generateClinicalExamId();
             exam.setClinicalExamId(clinicalExamId);
             exam.setPatient(patientRepository.findById(patientId)
                     .orElseThrow(() -> new EntityNotFoundException("Patient not found: " + patientId)));
@@ -193,10 +187,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         if (exam == null) {
             exam = new ClinicalExamination();
             // code của quân
-            String clinicalExamId = "";
-            do {
-                clinicalExamId = "EXM-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000);
-            } while (clinicalExaminationRepository.existsById(clinicalExamId));
+            String clinicalExamId = generateClinicalExamId();
             // code của quân
             exam.setClinicalExamId(clinicalExamId);
             exam.setPatient(patientRepository.findById(patientId)
@@ -482,10 +473,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
 
         if (!hasActive) {
             ClinicalExamination exam = new ClinicalExamination();
-            String clinicalExamId = "";
-            do {
-                clinicalExamId = "EXM-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000);
-            } while (clinicalExaminationRepository.existsById(clinicalExamId));
+            String clinicalExamId = generateClinicalExamId();
             exam.setClinicalExamId(clinicalExamId);
             exam.setPatient(patientRepository.findById(patientId)
                     .orElseThrow(() -> new EntityNotFoundException("Patient not found: " + patientId)));
@@ -824,10 +812,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         }
 
         ClinicalExamination exam = new ClinicalExamination();
-        String clinicalExamId = "";
-        do {
-            clinicalExamId = "EXM-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000);
-        } while (clinicalExaminationRepository.existsById(clinicalExamId));
+        String clinicalExamId = generateClinicalExamId();
         exam.setClinicalExamId(clinicalExamId);
         exam.setPatient(patientRepository.findById(patientId)
                 .orElseThrow(() -> new EntityNotFoundException("Patient not found: " + patientId)));
@@ -847,10 +832,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                 .orElse(null);
         if (exam == null) {
             exam = new ClinicalExamination();
-            String clinicalExamId = "";
-            do {
-                clinicalExamId = "EXM-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000);
-            } while (clinicalExaminationRepository.existsById(clinicalExamId));
+            String clinicalExamId = generateClinicalExamId();
             exam.setClinicalExamId(clinicalExamId);
             exam.setPatient(patientRepository.findById(patientId)
                     .orElseThrow(() -> new EntityNotFoundException("Patient not found: " + patientId)));
@@ -1107,5 +1089,15 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                 throw new RuntimeException("Error deserializing prescription JSON for draft: " + e.getMessage(), e);
             }
         }
+    }
+
+    private String generateClinicalExamId() {
+        String examId = null;
+        Random random = new Random();
+        do {
+            String number = "00000" + random.nextInt(1000000);
+            examId = "EX" + number.substring(number.length() - 6);
+        } while (clinicalExaminationRepository.existsById(examId));
+        return examId;
     }
 }

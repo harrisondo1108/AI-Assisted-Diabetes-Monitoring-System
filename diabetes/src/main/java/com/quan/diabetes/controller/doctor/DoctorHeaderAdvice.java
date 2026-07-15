@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
     DoctorReminderController.class,
     DoctorRequestController.class,
     DoctorProfileController.class,
-    DoctorRatingController.class,
     DoctorPatientController.class,
     DoctorExamineController.class
 })

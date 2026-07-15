@@ -4,22 +4,28 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cd82aed5-747b-44b9-892e-efbe52d1dbd5" name="Changes" comment="thêm chức năng doctor rating">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="cd82aed5-747b-44b9-892e-efbe52d1dbd5" name="Changes" comment="chỉnh sửa lại phần rating và hiển thị phiên khám của patient">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/diabetes/logs/application.log" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/logs/application.log" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/diabetes/logs/application.log.2026-07-04.0.gz" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/diabetes/logs/application.log.2026-07-05.0.gz" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/diabetes/logs/application.log.2026-07-06.0.gz" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/diabetes/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorRatingController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorRatingController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientMedicalHistoryController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientMedicalHistoryController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientRatingController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientRatingController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorDashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorDashboardController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorHeaderAdvice.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorHeaderAdvice.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorRatingController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientProfileController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientProfileController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/DoctorRatingRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/DoctorRatingRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/exam/DoctorRatingService.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/exam/DoctorRatingService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/exam/impl/ClinicalExaminationServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/exam/impl/ClinicalExaminationServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/exam/impl/DoctorRatingServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/exam/impl/DoctorRatingServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/ratings.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/ratings.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/dashboard.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/ratings.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/admin/sidebar.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/admin/sidebar.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/doctor/header.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/doctor/header.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/history-detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/history-detail.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/history.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/history.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/progress.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/progress.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logs/application.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/application.log" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logs/application.log.2026-07-04.0.gz" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/logs/application.log.2026-07-05.0.gz" beforeDir="false" />
@@ -79,7 +85,7 @@
     </selectedModels>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="324" />
+    <option name="cachedIndexableFilesCount" value="327" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -109,61 +115,61 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.000049655503248" />
-      <entry key="MS500" value="1.2329816481316924" />
-      <entry key="S2" value="3.2178262999616045" />
-      <entry key="S5" value="5.9913270296919805" />
-      <entry key="S10" value="7.944436101904147" />
-      <entry key="S30" value="9.86488648333433" />
-      <entry key="S60" value="10.68443957743776" />
-      <entry key="M2" value="11.45857447704038" />
-      <entry key="M5" value="12.239515792037702" />
-      <entry key="M10" value="12.58938152523813" />
-      <entry key="M15" value="12.718928183844088" />
-      <entry key="M30" value="12.85564536043836" />
-      <entry key="H1" value="12.926837639920851" />
-      <entry key="H2" value="12.963168658909744" />
-      <entry key="H4" value="12.981521294767225" />
-      <entry key="D1" value="12.996911418691575" />
-      <entry key="W1" value="12.999558558105976" />
+      <entry key="MS100" value="1.0000000617256983" />
+      <entry key="MS500" value="1.0497187355073687" />
+      <entry key="S2" value="2.9106633219925007" />
+      <entry key="S5" value="7.159608164079438" />
+      <entry key="S10" value="13.137296838353944" />
+      <entry key="S30" value="25.40857204548714" />
+      <entry key="S60" value="31.41605235127877" />
+      <entry key="M2" value="35.46826204357828" />
+      <entry key="M5" value="38.530737842014915" />
+      <entry key="M10" value="39.712539761430655" />
+      <entry key="M15" value="40.12902719384199" />
+      <entry key="M30" value="40.55792797338779" />
+      <entry key="H1" value="40.77726807109791" />
+      <entry key="H2" value="40.888203672925286" />
+      <entry key="H4" value="40.943993435314155" />
+      <entry key="D1" value="40.99065044745481" />
+      <entry key="W1" value="40.99866397831712" />
     </decayedCancelled>
     <decayedSelected>
-      <entry key="MS100" value="7.360332503047939E-31" />
-      <entry key="MS500" value="9.405448002840475E-7" />
-      <entry key="S2" value="0.031196435530409385" />
-      <entry key="S5" value="0.26936627089343534" />
-      <entry key="S10" value="0.6416382956112028" />
-      <entry key="S30" value="1.5554835268552787" />
-      <entry key="S60" value="2.464019556934322" />
-      <entry key="M2" value="3.391845825299371" />
-      <entry key="M5" value="4.246183698308781" />
-      <entry key="M10" value="4.6015243202123415" />
-      <entry key="M15" value="4.729291430509534" />
-      <entry key="M30" value="4.862046809738442" />
-      <entry key="H1" value="4.930360237237256" />
-      <entry key="H2" value="4.965012615676525" />
-      <entry key="H4" value="4.982464216263142" />
-      <entry key="D1" value="4.997071504913505" />
-      <entry key="W1" value="4.999581499698849" />
+      <entry key="MS100" value="2.1375329027629996E-112" />
+      <entry key="MS500" value="4.634283112492341E-23" />
+      <entry key="S2" value="2.613700034377471E-6" />
+      <entry key="S5" value="0.006303815902009101" />
+      <entry key="S10" value="0.09815680875023257" />
+      <entry key="S30" value="0.8319083193021841" />
+      <entry key="S60" value="1.8019767206716235" />
+      <entry key="M2" value="2.9006051665537322" />
+      <entry key="M5" value="3.988593560875038" />
+      <entry key="M10" value="4.459767561155192" />
+      <entry key="M15" value="4.6316572366038296" />
+      <entry key="M30" value="4.811597640588567" />
+      <entry key="H1" value="4.9047145394214615" />
+      <entry key="H2" value="4.952082807285024" />
+      <entry key="H4" value="4.975972359220958" />
+      <entry key="D1" value="4.9959857670792776" />
+      <entry key="W1" value="4.999426301933311" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.9461002307330746" />
-      <entry key="MS500" value="1.1615312372343252" />
-      <entry key="S2" value="3.099601841850655" />
-      <entry key="S5" value="6.134876711859365" />
-      <entry key="S10" value="8.488902881834749" />
-      <entry key="S30" value="11.369171548673839" />
-      <entry key="S60" value="13.117904620791961" />
-      <entry key="M2" value="14.833216753845733" />
-      <entry key="M5" value="16.478180855292152" />
-      <entry key="M10" value="17.187018800874604" />
-      <entry key="M15" value="17.445597922801685" />
-      <entry key="M30" value="17.716365633614124" />
-      <entry key="H1" value="17.8565305833832" />
-      <entry key="H2" value="17.927846608106137" />
-      <entry key="H4" value="17.963817921216027" />
-      <entry key="D1" value="17.993954956190652" />
-      <entry key="W1" value="17.99913606158182" />
+      <entry key="MS100" value="6.085932933174474E-6" />
+      <entry key="MS500" value="0.13954321141441495" />
+      <entry key="S2" value="2.4537437013555246" />
+      <entry key="S5" value="6.939720838537174" />
+      <entry key="S10" value="13.093756339339182" />
+      <entry key="S30" value="26.162822721664934" />
+      <entry key="S60" value="33.168853783127624" />
+      <entry key="M2" value="38.34023441167545" />
+      <entry key="M5" value="42.50656673855854" />
+      <entry key="M10" value="44.165665528693076" />
+      <entry key="M15" value="44.756195239788276" />
+      <entry key="M30" value="45.367249362047176" />
+      <entry key="H1" value="45.680836376671714" />
+      <entry key="H2" value="45.839711311404216" />
+      <entry key="H4" value="45.91967769400291" />
+      <entry key="D1" value="45.986588125823936" />
+      <entry key="W1" value="45.998083408669" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
@@ -301,7 +307,9 @@
       <workItem from="1783984999326" duration="31000" />
       <workItem from="1783985102429" duration="1897000" />
       <workItem from="1783989536715" duration="6564000" />
-      <workItem from="1784025836933" duration="1168000" />
+      <workItem from="1784025836933" duration="1982000" />
+      <workItem from="1784043494905" duration="2193000" />
+      <workItem from="1784085046006" duration="4523000" />
     </task>
     <task id="LOCAL-00001" summary="thêm chức năng doctor rating">
       <option name="closed" value="true" />
@@ -311,7 +319,15 @@
       <option name="project" value="LOCAL" />
       <updated>1783916311187</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="chỉnh sửa lại phần rating và hiển thị phiên khám của patient">
+      <option name="closed" value="true" />
+      <created>1784027186348</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1784027186348</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -319,7 +335,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="thêm chức năng doctor rating" />
-    <option name="LAST_COMMIT_MESSAGE" value="thêm chức năng doctor rating" />
+    <MESSAGE value="chỉnh sửa lại phần rating và hiển thị phiên khám của patient" />
+    <option name="LAST_COMMIT_MESSAGE" value="chỉnh sửa lại phần rating và hiển thị phiên khám của patient" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

@@ -78,7 +78,9 @@
                             15/06/2026
                         </td>
                         <td>
-                            <span class="badge badge-info" th:text="${exam.status}">Hoàn thành</span>
+                            <span class="badge"
+                                  th:classappend="${exam.status == 'Completed' ? 'badge-success' : (exam.status == 'Cancelled' ? 'badge-danger' : (exam.status == 'InProgress' ? 'badge-info' : 'badge-warning'))}"
+                                  th:text="${exam.status == 'Completed' ? 'Hoàn thành' : (exam.status == 'Cancelled' ? 'Đã hủy' : (exam.status == 'InProgress' ? 'Đang khám' : (exam.status == 'Pending' ? 'Đang chờ' : (exam.status == 'Requested' ? 'Chờ duyệt' : exam.status))))}">Hoàn thành</span>
                         </td>
                         <td style="display: flex; gap: 8px; align-items: center; border: none;">
                             <a th:href="@{/patient/history/detail(examId=${exam.clinicalExamId})}" class="primary-btn" style="padding: 6px 12px; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">

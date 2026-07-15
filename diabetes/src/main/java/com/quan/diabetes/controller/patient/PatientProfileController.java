@@ -333,9 +333,9 @@ public class PatientProfileController extends BasePatientController {
             return ResponseEntity.badRequest().body(response);
         }
 
-        if (newPassword.trim().length() < 6) {
+        if (!com.quan.diabetes.util.ParseUtil.isValidPassword(newPassword.trim())) {
             response.put("success", false);
-            response.put("message", "Mật khẩu mới phải có ít nhất 6 ký tự.");
+            response.put("message", "Mật khẩu mới phải chứa ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, ít nhất một chữ số và ký tự đặc biệt (!@#$).");
             return ResponseEntity.badRequest().body(response);
         }
 
