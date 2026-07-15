@@ -18,6 +18,8 @@ public class ClinicalExamForm {
     private String nextAppointment;
     private List<String> symptomIds = new ArrayList<>();
     private String prescriptionJson;
+    private List<String> labTestIds = new ArrayList<>();
+    private String labResultsJson;
     private Map<String, String> symptomComments = new HashMap<>();
 
     // Treatment plan details
@@ -72,6 +74,22 @@ public class ClinicalExamForm {
 
     public void setPrescriptionJson(String prescriptionJson) {
         this.prescriptionJson = prescriptionJson;
+    }
+
+    public List<String> getLabTestIds() {
+        return labTestIds;
+    }
+
+    public void setLabTestIds(List<String> labTestIds) {
+        this.labTestIds = labTestIds;
+    }
+
+    public String getLabResultsJson() {
+        return labResultsJson;
+    }
+
+    public void setLabResultsJson(String labResultsJson) {
+        this.labResultsJson = labResultsJson;
     }
 
     public String getTreatmentGoal() {

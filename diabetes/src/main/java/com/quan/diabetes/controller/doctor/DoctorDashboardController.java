@@ -3,7 +3,6 @@ package com.quan.diabetes.controller.doctor;
 import com.quan.diabetes.entity.*;
 import com.quan.diabetes.repository.*;
 import com.quan.diabetes.service.exam.ClinicalExaminationService;
-import com.quan.diabetes.service.exam.DoctorRatingService;
 import com.quan.diabetes.service.user.ProfileService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -24,19 +23,16 @@ public class DoctorDashboardController {
     private final ProfileService profileService;
     private final ReminderRepository reminderRepository;
     private final ClinicalExaminationRepository clinicalExaminationRepository;
-    private final DoctorRatingService doctorRatingService;
 
     public DoctorDashboardController(
             ClinicalExaminationService clinicalExaminationService,
             ProfileService profileService,
             ReminderRepository reminderRepository,
-            ClinicalExaminationRepository clinicalExaminationRepository,
-            DoctorRatingService doctorRatingService) {
+            ClinicalExaminationRepository clinicalExaminationRepository) {
         this.clinicalExaminationService = clinicalExaminationService;
         this.profileService = profileService;
         this.reminderRepository = reminderRepository;
         this.clinicalExaminationRepository = clinicalExaminationRepository;
-        this.doctorRatingService = doctorRatingService;
     }
 
     @GetMapping("/dashboard")
@@ -75,19 +71,11 @@ public class DoctorDashboardController {
                 .filter(r -> r.getIsRead() == null || !r.getIsRead())
                 .count();
 
-        List<DoctorRating> recentRatings = doctorRatingService.getRatingsByDoctor(doctorId).stream()
-                .sorted((r1, r2) -> r2.getCreatedAt().compareTo(r1.getCreatedAt()))
-                .limit(5)
-                .collect(Collectors.toList());
-        Double avgRating = doctorRatingService.getAverageRatingForDoctor(doctorId);
-
         model.addAttribute("requestedExams", requestedExams);
         model.addAttribute("pendingRequestsCount", requestedExams.size());
         model.addAttribute("todayQueueCount", todayQueueCount);
         model.addAttribute("recentReminders", recentReminders);
         model.addAttribute("unreadRemindersCount", unreadRemindersCount);
-        model.addAttribute("recentRatings", recentRatings);
-        model.addAttribute("avgRating", avgRating);
 
         return "doctor/dashboard";
     }

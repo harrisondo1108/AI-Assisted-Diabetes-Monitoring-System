@@ -13,6 +13,11 @@
            th:classappend="${activeMenu == 'users'} ? 'active' : ''">
             <i class="fas fa-users"></i> Quản lý người dùng
         </a>
+        <a th:href="@{/admin/ratings}"
+           class="nav-item"
+           th:classappend="${activeMenu == 'ratings'} ? 'active' : ''">
+            <i class="fas fa-star"></i> Đánh giá Bác sĩ
+        </a>
         <a th:href="@{/admin/medicines}"
            class="nav-item"
            th:classappend="${activeMenu == 'medicine' || activeMenu == 'medicines'} ? 'active' : ''">

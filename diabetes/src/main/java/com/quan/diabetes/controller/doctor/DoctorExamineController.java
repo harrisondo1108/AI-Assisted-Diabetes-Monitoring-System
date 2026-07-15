@@ -169,7 +169,7 @@ public class DoctorExamineController {
         }
 
         try {
-            clinicalExaminationService.cancelExamination(patientId, reason, loggedInUser.getUserId());
+            clinicalExaminationService.cancelExamination(patientId, cancelReason, loggedInUser.getUserId());
         } catch (Exception e) {
             systemLogService.saveLog(loggedInUser.getUserId(), "REJECT_MEDICAL_RECORD", "MedicalRecord", null, "Bác sĩ từ chối/hủy bệnh án thất bại: " + e.getMessage(), null, null, "FAILED");
             throw e;
@@ -348,7 +348,7 @@ public class DoctorExamineController {
             return "doctor/exam-step1";
         }
 
-        clinicalExaminationService.saveStep1(examId, form);
+        clinicalExaminationService.saveStep1(examId, form, loggedInUser.getUserId());
         return redirectToTab(examId, targetTab);
     }
 
@@ -422,7 +422,7 @@ public class DoctorExamineController {
         List<LabTestCatalog> testCatalog = labTestCatalogRepository.findAll().stream()
                 .filter(l -> l.getStatus() == null || l.getStatus()).collect(Collectors.toList());
 
-        clinicalExaminationService.saveStep2(examId, form, matchedType, testCatalog);
+        clinicalExaminationService.saveStep2(examId, form, matchedType, testCatalog, loggedInUser.getUserId());
 
         // If order-labs was pressed, always stay on step 2 to show results
         if (Boolean.TRUE.equals(form.getOrderLabs())) {
@@ -470,7 +470,7 @@ public class DoctorExamineController {
             return "doctor/exam-step3";
         }
 
-        clinicalExaminationService.saveStep3(examId, form);
+        clinicalExaminationService.saveStep3(examId, form, loggedInUser.getUserId());
         return redirectToTab(examId, targetTab);
     }
 
@@ -643,7 +643,7 @@ public class DoctorExamineController {
 
         @SuppressWarnings("unchecked")
         List<PrescriptionLineDTO> lines = (List<PrescriptionLineDTO>) session.getAttribute("prescriptionLines");
-        clinicalExaminationService.completeExamination(examId, lines);
+        clinicalExaminationService.completeExamination(examId, lines, loggedInUser.getUserId());
 
         Boolean isEditMode = (Boolean) session.getAttribute("examineEditMode");
 

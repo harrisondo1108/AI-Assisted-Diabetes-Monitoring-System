@@ -35,10 +35,6 @@
                     style="background-color: var(--doctor-danger); color: white; border-radius: 12px; padding: 2px 7px; font-size: 0.7rem; font-weight: 700; margin-left: 8px; min-width: 20px; text-align: center; box-shadow: 0 2px 5px rgba(197,48,48,0.3);"
                     th:text="${requestedExams.size()}"></span>
             </a>
-            <a th:href="@{/doctor/ratings}" class="header-nav-item"
-                th:classappend="${activeMenu == 'ratings'} ? 'active' : ''">
-                <i class="fas fa-star"></i> Đánh giá
-            </a>
         </nav>
 
         <!-- Right Profile Utilities -->

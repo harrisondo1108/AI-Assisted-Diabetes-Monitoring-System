@@ -50,17 +50,17 @@ public interface ClinicalExaminationService {
     // ---- Tab-based step methods ----
 
     /** Save Tab 1 data: medical history + symptoms */
-    void saveStep1(String examId, ExamStep1Form form);
+    void saveStep1(String examId, ExamStep1Form form, String doctorId);
 
     /** Save Tab 2 data: pregnancy flag; optionally create/replace all lab orders */
-    void saveStep2(String examId, ExamStep2Form form, PatientType matchedType, List<LabTestCatalog> testCatalog);
+    void saveStep2(String examId, ExamStep2Form form, PatientType matchedType, List<LabTestCatalog> testCatalog, String doctorId);
 
     /** Save Tab 3 data: diagnosis note, next appointment, treatment plan */
-    void saveStep3(String examId, ExamStep3Form form);
+    void saveStep3(String examId, ExamStep3Form form, String doctorId);
 
     /**
      * Save prescription lines from session to DB and mark examination as Completed.
      * Also triggers reminder generation.
      */
-    void completeExamination(String examId, List<PrescriptionLineDTO> prescriptionLines);
+    void completeExamination(String examId, List<PrescriptionLineDTO> prescriptionLines, String doctorId);
 }
