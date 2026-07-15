@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khám lâm sàng – Bước 1 | Hệ thống Theo dõi Đường huyết</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/doctor/doctor-common.css}">
+    <link rel="stylesheet" th:href="@{/css/doctor/doctor-examine.css}">
+    <link rel="stylesheet" th:href="@{/css/doctor/exam-steps.css}">
+</head>
+
+<body>
+<div class="doctor-layout">
+    <div class="doctor-main">
+        <div th:replace="~{layout/doctor/header :: header('Consultation & Diagnostic', 'examine')}"></div>
+
+        <main class="doctor-content flex-row-container">
+
+            <!-- Left Panel: Patient Card -->
+            <aside class="patient-medical-card">
+                <div class="patient-card-header">
+                    <div class="patient-avatar-large">
+                        <img th:if="${patient.imageUrl != null && !#strings.isEmpty(patient.imageUrl)}"
+                             th:src="${patient.imageUrl}" alt="Avatar"
+                             style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>
+                        <i th:unless="${patient.imageUrl != null && !#strings.isEmpty(patient.imageUrl)}"
+                           class="fas fa-hospital-user"></i>
+                    </div>
+                    <h2 class="patient-name-title" th:text="${patient.fullName}"></h2>
+                </div>
+                <div class="patient-specs-grid">
+                    <div class="spec-item">
+                        <span class="spec-label">Tuổi</span>
+                        <span class="spec-val"
+                              th:text="${patient.dob != null ? (T(java.time.Period).between(patient.dob, T(java.time.LocalDate).now()).getYears() + ' tuổi') : 'N/A'}"></span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Giới tính</span>
+                        <span class="spec-val"
+                              th:text="${patient.gender != null ? (patient.gender ? 'Nữ' : 'Nam') : 'N/A'}"></span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Nhóm máu</span>
+                        <span class="spec-val"
+                              th:text="${patient.bloodgroup != null ? patient.bloodgroup : 'N/A'}"></span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">BMI</span>
+                        <span class="spec-val"
+                              th:with="h_m=${patient.height != null ? patient.height / 100.0 : 0.0}, bmi=${(patient.weight != null && h_m > 0) ? (patient.weight.doubleValue() / (h_m * h_m)) : 0.0}"
+                              th:text="${bmi > 0 ? #numbers.formatDecimal(bmi, 1, 1) + (bmi < 18.5 ? ' (Thiếu cân)' : (bmi < 25.0 ? ' (Bình thường)' : (bmi < 30.0 ? ' (Thừa cân)' : ' (Béo phì)'))) : 'N/A'}"></span>
+                    </div>
+                </div>
+                <div class="medical-details-section">
+                    <h4 class="section-title"><i class="fas fa-circle-exclamation"></i> Cảnh báo y tế</h4>
+                    <div class="alert-box alert-danger">
+                        <strong>Dị ứng:</strong>
+                        <p th:text="${patient.allergyNotes != null ? patient.allergyNotes : 'Không có dị ứng thuốc nào được ghi nhận'}"></p>
+                    </div>
+                    <div class="alert-box alert-info">
+                        <strong>Tiền sử bệnh án:</strong>
+                        <p th:text="${patient.permanentMedicalHistory != null ? patient.permanentMedicalHistory : 'Không có tiền sử bệnh án được ghi nhận'}"></p>
+                    </div>
+                </div>
+                <div class="medical-details-section">
+                    <h4 class="section-title"><i class="fas fa-clock"></i> Sinh hoạt hàng ngày</h4>
+                    <div class="routine-item" style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.85rem;">
+                        <span><i class="fas fa-mug-saucer" style="color:var(--doctor-primary); margin-right:6px;"></i>Bữa sáng:</span> <strong id="patBreakfast"
+                            th:text="${routine != null && routine.breakfastTime != null ? #temporals.format(routine.breakfastTime, 'hh:mm a') : 'N/A'}"></strong>
+                    </div>
+                    <div class="routine-item" style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.85rem;">
+                        <span><i class="fas fa-utensils" style="color:var(--doctor-primary); margin-right:6px;"></i>Bữa trưa:</span> <strong id="patLunch"
+                            th:text="${routine != null && routine.lunchTime != null ? #temporals.format(routine.lunchTime, 'hh:mm a') : 'N/A'}"></strong>
+                    </div>
+                    <div class="routine-item" style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.85rem;">
+                        <span><i class="fas fa-bowl-food" style="color:var(--doctor-primary); margin-right:6px;"></i>Bữa tối:</span> <strong id="patDinner"
+                            th:text="${routine != null && routine.dinnerTime != null ? #temporals.format(routine.dinnerTime, 'hh:mm a') : 'N/A'}"></strong>
+                    </div>
+                    <div class="routine-item" style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.85rem;">
+                        <span><i class="fas fa-bed" style="color:var(--doctor-primary); margin-right:6px;"></i>Ngủ/Thức:</span> <strong id="patSleep"
+                            th:text="${(routine != null && routine.sleepTime != null ? #temporals.format(routine.sleepTime, 'hh:mm a') : 'N/A') + ' - ' + (routine != null && routine.wakeUpTime != null ? #temporals.format(routine.wakeUpTime, 'hh:mm a') : 'N/A')}"></strong>
+                    </div>
+                </div>
+                <a th:href="@{/doctor/history(patientId=${patient.userId}, from='examine')}"
+                   class="btn btn-secondary btn-sm"
+                   style="width:100%;margin:12px 0 0 0;justify-content:center;gap:8px;text-decoration:none;display:inline-flex;align-items:center;">
+                    <i class="fas fa-clock-rotate-left"></i> Lịch sử bệnh án
+                </a>
+            </aside>
+
+            <!-- Main workspace -->
+            <div class="examination-workspace" style="flex:1; min-width:0;">
+
+                <!-- ===== TAB BAR ===== -->
+                <form th:action="@{/doctor/examine/{id}/step1/save(id=${exam.clinicalExamId})}"
+                      method="POST"
+                      th:object="${step1Form}"
+                      id="step1Form">
+
+                    <div class="exam-tab-bar">
+                        <button type="submit" name="targetTab" value="1" class="exam-tab active">
+                            <i class="fas fa-stethoscope"></i>
+                            <span>Triệu chứng & Lý do khám</span>
+                            <span class="tab-step-num">1</span>
+                        </button>
+                        <button type="submit" name="targetTab" value="2" class="exam-tab">
+                            <i class="fas fa-flask-vial"></i>
+                            <span>Xét nghiệm & Chẩn đoán</span>
+                            <span class="tab-step-num">2</span>
+                        </button>
+                        <button type="submit" name="targetTab" value="3" class="exam-tab">
+                            <i class="fas fa-notes-medical"></i>
+                            <span>Phác đồ điều trị</span>
+                            <span class="tab-step-num">3</span>
+                        </button>
+                        <button type="submit" name="targetTab" value="4" class="exam-tab">
+                            <i class="fas fa-prescription-bottle-medical"></i>
+                            <span>Kê đơn thuốc</span>
+                            <span class="tab-step-num">4</span>
+                        </button>
+                    </div>
+
+                    <!-- Header actions -->
+                    <div class="workspace-header">
+                        <div class="workspace-actions">
+                            <a th:if="${session.examineEditMode}" th:href="@{/doctor/queue}" class="btn btn-secondary"
+                               style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+                                <i class="fas fa-arrow-left"></i> Quay lại
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- TAB 1 CONTENT -->
+                    <div class="tab-content-area">
+
+                        <!-- Medical History -->
+                        <div class="form-section">
+                            <h3 class="section-header-title">
+                                <i class="fas fa-file-medical" style="color:var(--doctor-primary)"></i>
+                                Lý do khám &amp; Tiền sử
+                            </h3>
+                            <p class="section-description">Mô tả lý do khám và ghi chú tiền sử/bệnh sử lâm sàng</p>
+
+                            <div class="form-group" style="margin-top:12px;">
+                                <label for="medicalHistory">Lý do khám <span class="required">*</span></label>
+                                <textarea id="medicalHistory" th:field="*{medicalHistory}" rows="4" readonly
+                                          placeholder="Mô tả lý do khám của bệnh nhân..."
+                                          th:classappend="${#fields.hasErrors('medicalHistory')} ? 'is-invalid' : ''"></textarea>
+                                <div class="error-feedback" th:if="${#fields.hasErrors('medicalHistory')}"
+                                     th:errors="*{medicalHistory}"></div>
+                            </div>
+                        </div>
+
+                        <!-- Symptoms Grid -->
+                        <div class="form-section" style="margin-top:20px;">
+                            <h3 class="section-header-title">
+                                Danh mục phân loại triệu chứng <span class="required">*</span>
+                            </h3>
+                            <div class="symptoms-selection-grid" id="symptomsGrid">
+                                <div th:each="symptom : ${symptomsCatalog}" class="symptom-card"
+                                     th:attr="data-id=${symptom.symptomId}">
+                                    <div class="symptom-card-header">
+                                        <input type="checkbox" th:field="*{symptomIds}"
+                                               th:id="'chk-' + ${symptom.symptomId}"
+                                               th:value="${symptom.symptomId}"
+                                               class="symptom-checkbox"/>
+                                        <label th:for="'chk-' + ${symptom.symptomId}"
+                                               th:text="${symptom.symptomName}"></label>
+                                    </div>
+                                    <div class="symptom-comment-box">
+                                        <input type="text"
+                                               th:field="*{symptomComments['__${symptom.symptomId}__']}"
+                                               th:id="'comment-' + ${symptom.symptomId}"
+                                               placeholder="Thêm ghi chú (mức độ, thời gian)..."
+                                               class="symptom-comment-input"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Navigation buttons -->
+                        <div class="step-nav-actions">
+                            <span></span>
+                            <button type="submit" name="targetTab" value="2" class="btn btn-primary">
+                                Tiếp theo: Xét nghiệm <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Cancel exam form (hidden) -->
+                <form th:action="@{/doctor/examine/{id}/cancel(id=${patient.userId})}"
+                      method="POST" id="cancelExamForm" style="display:none;">
+                    <input type="hidden" name="reason" value="Bác sĩ hủy ca khám">
+                </form>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>
