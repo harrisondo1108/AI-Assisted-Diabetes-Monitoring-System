@@ -473,7 +473,7 @@ body {
 }
 
 .col-center {
-    text-align: center;
+    text-align: center !important;
 }
 
 .test-info {

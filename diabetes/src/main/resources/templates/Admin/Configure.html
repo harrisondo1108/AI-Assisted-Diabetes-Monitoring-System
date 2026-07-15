@@ -87,7 +87,7 @@
                                             title="Xóa"
                                             th:attr="data-id=${room.roomId},
                                                      data-name=${room.roomName}">
-                                        <i class="fa-regular fa-trash-can"></i>
+                                        <i class="fa-solid fa-trash-can"></i>
                                     </button>
                                 </div>
                             </td>
@@ -127,6 +127,7 @@
                     <table class="data-table">
                         <thead>
                         <tr>
+                            <th style="width: 150px;">MÃ KHUNG GIỜ</th>
                             <th>TÊN KHUNG GIỜ</th>
                             <th class="col-center">HÀNH ĐỘNG</th>
                         </tr>
@@ -134,6 +135,9 @@
                         <tbody id="timingTableBody">
 
                         <tr th:each="timing : ${timingList}" class="data-row timing-row">
+                            <td>
+                                <span class="room-number-badge" th:text="${timing.timingID}">1</span>
+                            </td>
                             <td>
                                 <div class="test-info">
                                     <div class="test-icon"><i class="fa-regular fa-clock"></i></div>
@@ -150,14 +154,14 @@
                                     <button type="button" class="action-btn btn-lock delete-timing-btn"
                                             title="Xóa"
                                             th:attr="data-id=${timing.timingID}, data-name=${timing.timingName}">
-                                        <i class="fa-regular fa-trash-can"></i>
+                                        <i class="fa-solid fa-trash-can"></i>
                                     </button>
                                 </div>
                             </td>
                         </tr>
 
                         <tr th:if="${timingList == null or timingList.isEmpty()}">
-                            <td colspan="2" class="empty-row">Chưa có timing nào hoặc không tìm thấy kết quả.</td>
+                            <td colspan="3" class="empty-row">Chưa có khung giờ nào hoặc không tìm thấy kết quả.</td>
                         </tr>
 
                         </tbody>

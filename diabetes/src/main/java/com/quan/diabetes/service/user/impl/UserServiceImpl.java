@@ -7,6 +7,7 @@ import com.quan.diabetes.service.user.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,12 +36,23 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<User> findByUsernameAndPassword(String username, String password) {
+        System.out.println("=== DEBUG LOGIN ===");
+        System.out.println("Login Username/Phone: " + username);
+        System.out.println("Login Password typed: " + password);
         Optional<User> userOpt = this.findByPhoneNumber(username);
         if (userOpt.isPresent()){
             User user = userOpt.get();
-            if (passwordEncoder.matches(password, user.getPasswordHash())) {
+            System.out.println("User ID found: " + user.getUserId());
+            System.out.println("Stored Hash in DB: " + user.getPasswordHash());
+            boolean matches = passwordEncoder.matches(password, user.getPasswordHash());
+            System.out.println("Matches result: " + matches);
+            System.out.println("===================");
+            if (matches) {
                 return Optional.of(user);
             }
+        } else {
+            System.out.println("User NOT found by phone number: " + username);
+            System.out.println("===================");
         }
         return Optional.empty();
     }
@@ -114,5 +126,23 @@ public class UserServiceImpl implements UserService {
             }
         }
         return userId;
+    }
+
+    @Override
+    @Transactional
+    public void changePassword(String userId, String newPassword) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+        System.out.println("=== DEBUG CHANGE PASSWORD ===");
+        System.out.println("User ID: " + userId);
+        System.out.println("Phone: " + user.getPhoneNumber());
+        System.out.println("Old Hash: " + user.getPasswordHash());
+        String encodedNew = passwordEncoder.encode(newPassword);
+        user.setPasswordHash(encodedNew);
+        System.out.println("New Hash to Save: " + encodedNew);
+        User savedUser = userRepository.save(user);
+        userRepository.flush(); // Force immediate flush to database
+        System.out.println("Saved Hash: " + savedUser.getPasswordHash());
+        System.out.println("=============================");
     }
 }

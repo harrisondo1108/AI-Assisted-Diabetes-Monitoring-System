@@ -24,4 +24,6 @@ public interface UserService {
     Optional<User> findByPhoneNumber(String phoneNumber);
 
     String getNewID(String roleId);
+
+    void changePassword(String userId, String newPassword);
 }
