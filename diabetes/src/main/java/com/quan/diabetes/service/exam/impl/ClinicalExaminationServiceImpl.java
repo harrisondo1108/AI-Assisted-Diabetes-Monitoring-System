@@ -157,14 +157,12 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                     .orElseThrow(() -> new EntityNotFoundException("Doctor not found: " + doctorId)));
             exam.setExamDate(LocalDateTime.now());
         }
-        ClinicalExamination oldExam = new ClinicalExamination();
-        oldExam.setClinicalExamId(exam.getClinicalExamId());
-        oldExam.setStatus(exam.getStatus());
+        Map<String, Object> oldExam = createLogExam(exam.getClinicalExamId());
         
         exam.setStatus("InProgress");
         clinicalExaminationRepository.save(exam);
         
-        systemLogService.saveLogWithObject(null, "APPROVE_MEDICAL_RECORD", "MedicalRecord", exam.getClinicalExamId(), "Bác sĩ tiếp nhận bệnh án", oldExam, exam, "SUCCESS");
+        systemLogService.saveLogWithObject(null, "APPROVE_MEDICAL_RECORD", "MedicalRecord", exam.getClinicalExamId(), "Bác sĩ tiếp nhận bệnh án", oldExam, createLogExam(exam.getClinicalExamId()), "SUCCESS");
     }
 
     @Override
@@ -188,18 +186,14 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                     .orElseThrow(() -> new EntityNotFoundException("Doctor not found: " + doctorId)));
             exam.setExamDate(LocalDateTime.now());
         }
-        ClinicalExamination oldExam = new ClinicalExamination();
-        oldExam.setClinicalExamId(exam.getClinicalExamId());
-        oldExam.setStatus(exam.getStatus());
-        oldExam.setCancelReason(exam.getCancelReason());
-        oldExam.setDiagnosisNote(exam.getDiagnosisNote());
+        Map<String, Object> oldExam = createLogExam(exam.getClinicalExamId());
 
         exam.setStatus("Cancelled");
         exam.setCancelReason(reason);
         exam.setDiagnosisNote(null);
         clinicalExaminationRepository.save(exam);
         
-        systemLogService.saveLogWithObject(null, "REJECT_MEDICAL_RECORD", "MedicalRecord", exam.getClinicalExamId(), "Bác sĩ từ chối/hủy bệnh án", oldExam, exam, "SUCCESS");
+        systemLogService.saveLogWithObject(null, "REJECT_MEDICAL_RECORD", "MedicalRecord", exam.getClinicalExamId(), "Bác sĩ từ chối/hủy bệnh án", oldExam, createLogExam(exam.getClinicalExamId()), "SUCCESS");
     }
 
     @Override
@@ -225,12 +219,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
             exam.setExamDate(LocalDateTime.now());
         }
 
-        ClinicalExamination oldExam = new ClinicalExamination();
-        oldExam.setClinicalExamId(exam.getClinicalExamId());
-        oldExam.setStatus(exam.getStatus());
-        oldExam.setMedicalHistory(exam.getMedicalHistory());
-        oldExam.setDiagnosisNote(exam.getDiagnosisNote());
-        oldExam.setNextAppointment(exam.getNextAppointment());
+        Map<String, Object> oldExam = createLogExam(exam.getClinicalExamId());
 
         // 1. Cập nhật thông tin chính ca khám
         exam.setMedicalHistory(form.getMedicalHistory());
@@ -381,7 +370,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
             }
         }
         
-        systemLogService.saveLogWithObject(null, "COMPLETE_MEDICAL_RECORD", "MedicalRecord", examId, "Bác sĩ hoàn thành bệnh án", oldExam, exam, "SUCCESS");
+        systemLogService.saveLogWithObject(null, "COMPLETE_MEDICAL_RECORD", "MedicalRecord", examId, "Bác sĩ hoàn thành bệnh án", oldExam, createLogExam(exam.getClinicalExamId()), "SUCCESS");
     }
 
     @Override
@@ -458,12 +447,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                 .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException(
                         "Không tìm thấy ca khám để cập nhật: " + examId));
 
-        ClinicalExamination oldExam = new ClinicalExamination();
-        oldExam.setClinicalExamId(exam.getClinicalExamId());
-        oldExam.setStatus(exam.getStatus());
-        oldExam.setMedicalHistory(exam.getMedicalHistory());
-        oldExam.setDiagnosisNote(exam.getDiagnosisNote());
-        oldExam.setNextAppointment(exam.getNextAppointment());
+        Map<String, Object> oldExam = createLogExam(exam.getClinicalExamId());
 
         // 1. Cập nhật thông tin chính ca khám
         exam.setMedicalHistory(form.getMedicalHistory());
@@ -476,7 +460,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         exam.setStatus("Completed");
         exam = clinicalExaminationRepository.save(exam);
         
-        systemLogService.saveLogWithObject(null, "UPDATE_MEDICAL_RECORD", "MedicalRecord", examId, "Cập nhật bệnh án", oldExam, exam, "SUCCESS");
+        systemLogService.saveLogWithObject(null, "UPDATE_MEDICAL_RECORD", "MedicalRecord", examId, "Cập nhật bệnh án", oldExam, createLogExam(exam.getClinicalExamId()), "SUCCESS");
 
         // 2. Lưu Triệu chứng (Clear cũ trước)
         examSymptomRepository.deleteById_ClinicalExamId(examId);
@@ -654,7 +638,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         exam.setMedicalHistory(medicalHistory);
         clinicalExaminationRepository.save(exam);
         
-        systemLogService.saveLogWithObject(patientId, "CREATE_MEDICAL_REQUEST", "MedicalRequest", exam.getClinicalExamId(), "Bệnh nhân tạo yêu cầu khám", null, exam, "SUCCESS");
+        systemLogService.saveLogWithObject(patientId, "CREATE_MEDICAL_REQUEST", "MedicalRequest", exam.getClinicalExamId(), "Bệnh nhân tạo yêu cầu khám", null, createLogExam(exam.getClinicalExamId()), "SUCCESS");
     }
 
     @Override
@@ -819,5 +803,70 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                 throw new RuntimeException("Error deserializing prescription JSON for draft: " + e.getMessage(), e);
             }
         }
+    }
+
+    private Map<String, Object> createLogExam(String examId) {
+        ClinicalExamination exam = clinicalExaminationRepository.findById(examId).orElse(null);
+        if (exam == null) return null;
+        
+        Map<String, Object> logExam = new HashMap<>();
+        logExam.put("clinicalExamId", exam.getClinicalExamId());
+        logExam.put("status", exam.getStatus());
+        logExam.put("medicalHistory", exam.getMedicalHistory());
+        logExam.put("diagnosisNote", exam.getDiagnosisNote());
+        logExam.put("cancelReason", exam.getCancelReason());
+        logExam.put("nextAppointment", exam.getNextAppointment() != null ? exam.getNextAppointment().toString() : null);
+        logExam.put("examDate", exam.getExamDate() != null ? exam.getExamDate().toString() : null);
+        
+        List<ExamSymptom> symptoms = examSymptomRepository.findAll().stream()
+                .filter(s -> s.getId().getClinicalExamId().equals(examId))
+                .collect(java.util.stream.Collectors.toList());
+        if (!symptoms.isEmpty()) {
+            List<Map<String, String>> symList = new ArrayList<>();
+            for (ExamSymptom s : symptoms) {
+                Map<String, String> sMap = new HashMap<>();
+                sMap.put("symptomName", s.getSymptom().getSymptomName());
+                sMap.put("note", s.getNote());
+                symList.add(sMap);
+            }
+            logExam.put("symptoms", symList);
+        }
+
+        TreatmentPlan plan = treatmentPlanRepository.findByClinicalExam_ClinicalExamId(examId).orElse(null);
+        if (plan != null) {
+            Map<String, Object> planMap = new HashMap<>();
+            planMap.put("treatmentGoal", plan.getTreatmentGoal());
+            planMap.put("dietPlan", plan.getDietPlan());
+            planMap.put("exercisePlan", plan.getExercisePlan());
+            planMap.put("glucoseMonitoringPlan", plan.getGlucoseMonitoringPlan());
+            logExam.put("treatmentPlan", planMap);
+        }
+        
+        Prescription prescription = prescriptionRepository.findByClinicalExamination_ClinicalExamId(examId).orElse(null);
+        if (prescription != null) {
+            List<PrescriptionDetail> details = prescriptionDetailRepository.findByPrescription_PrescriptionId(prescription.getPrescriptionId());
+            List<Map<String, Object>> prescList = new ArrayList<>();
+            for (PrescriptionDetail d : details) {
+                Map<String, Object> dMap = new HashMap<>();
+                dMap.put("medicationName", d.getMedication().getMedicationName());
+                dMap.put("dosage", d.getDosage());
+                dMap.put("durationDays", d.getDurationDays());
+                dMap.put("totalQuantity", d.getTotalQuantity());
+                dMap.put("medicationPlan", d.getMedicationPlan());
+                
+                List<String> timings = new ArrayList<>();
+                if (d.getPrescriptionTimings() != null) {
+                    for (PrescriptionTiming pt : d.getPrescriptionTimings()) {
+                        timings.add(pt.getTiming().getTimingName());
+                    }
+                }
+                dMap.put("timings", timings);
+
+                prescList.add(dMap);
+            }
+            logExam.put("prescription", prescList);
+        }
+        
+        return logExam;
     }
 }

@@ -1,7 +1,6 @@
 package com.quan.diabetes.dto.doctor;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
@@ -17,9 +16,9 @@ public class ClinicalExamForm {
     @NotBlank(message = "Ghi chú chẩn đoán lâm sàng không được để trống")
     private String diagnosisNote;
     private String nextAppointment;
-    private List<String> symptomIds;
+    private List<String> symptomIds = new ArrayList<>();
     private String prescriptionJson;
-    private Map<String, String> symptomComments;
+    private Map<String, String> symptomComments = new HashMap<>();
 
     // Treatment plan details
     @Pattern(regexp = "^$|.*\\S.*", message = "Mục tiêu điều trị không được chỉ chứa khoảng trắng")

@@ -162,7 +162,14 @@ public class ResetPasswordController {
         userService.update(user.getUserId(), user);
         session.invalidate();
         
-        systemLogService.saveLogWithObject(user.getUserId(), "RESET_PASSWORD", "Account", user.getUserId(), "Reset mật khẩu", oldUser, user, "SUCCESS");
+        User logNewUser = new User();
+        logNewUser.setUserId(user.getUserId());
+        logNewUser.setPhoneNumber(user.getPhoneNumber());
+        logNewUser.setPasswordHash(user.getPasswordHash());
+        logNewUser.setRole(user.getRole());
+        logNewUser.setStatus(user.getStatus());
+
+        systemLogService.saveLogWithObject(user.getUserId(), "RESET_PASSWORD", "Account", user.getUserId(), "Reset mật khẩu", oldUser, logNewUser, "SUCCESS");
 
         return "redirect:/login?resetSuccess=true";
     }
