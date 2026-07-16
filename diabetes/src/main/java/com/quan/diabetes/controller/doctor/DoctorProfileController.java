@@ -15,7 +15,6 @@ import com.quan.diabetes.service.cloudinary.CloudinaryService;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/doctor")
@@ -52,13 +51,6 @@ public class DoctorProfileController {
 
         String doctorId = loggedInUser.getUserId();
 
-        // Check active examination lock
-        Optional<ClinicalExamination> activeExam = clinicalExaminationRepository
-                .findFirstByDoctor_UserIdAndStatus(doctorId, "InProgress");
-        if (activeExam.isPresent()) {
-            return "redirect:/doctor/examine?patientId=" + activeExam.get().getPatient().getUserId() + "&warning=in-progress";
-        }
-
         Profile profile = profileRepository.findById(doctorId).orElse(null);
         if (profile == null) {
             return "redirect:/doctor/queue";
@@ -83,13 +75,6 @@ public class DoctorProfileController {
         }
 
         String doctorId = loggedInUser.getUserId();
-
-        // Check active examination lock
-        Optional<ClinicalExamination> activeExam = clinicalExaminationRepository
-                .findFirstByDoctor_UserIdAndStatus(doctorId, "InProgress");
-        if (activeExam.isPresent()) {
-            return "redirect:/doctor/examine?patientId=" + activeExam.get().getPatient().getUserId() + "&warning=in-progress";
-        }
 
         if (bindingResult.hasErrors()) {
             String errorMsg = bindingResult.getFieldError().getDefaultMessage();
@@ -157,13 +142,6 @@ public class DoctorProfileController {
         }
 
         String doctorId = loggedInUser.getUserId();
-
-        // Check active examination lock
-        Optional<ClinicalExamination> activeExam = clinicalExaminationRepository
-                .findFirstByDoctor_UserIdAndStatus(doctorId, "InProgress");
-        if (activeExam.isPresent()) {
-            return "redirect:/doctor/examine?patientId=" + activeExam.get().getPatient().getUserId() + "&warning=in-progress";
-        }
 
         // 1. Kiểm tra không được để trống
         if (currentPassword == null || currentPassword.trim().isEmpty() ||

@@ -110,7 +110,7 @@
                         </div>
                     </div>
 
-                    <button th:if="${viewOnly == null || !viewOnly}" type="submit" form="examineForm" th:formaction="@{'/doctor/examine/' + ${patient.userId} + '/draft'}" class="btn btn-secondary btn-sm" id="viewHistoryBtn"
+                    <button th:if="${viewOnly == null || !viewOnly}" type="submit" form="examineForm" th:formaction="@{'/doctor/examine/' + ${patient.userId} + '/draft?from=examine'}" class="btn btn-secondary btn-sm" id="viewHistoryBtn"
                         style="width: 100%; margin: 12px 0 0 0; justify-content: center; gap: 8px;">
                         <i class="fas fa-clock-rotate-left"></i> Lịch sử bệnh án
                     </button>
@@ -356,7 +356,7 @@
                                         lượng cung cấp và thời điểm sử dụng</p>
                                 </div>
                                 <button type="submit" 
-                                    th:formaction="${isEditMode} ? @{'/doctor/examine/edit/' + ${lastExam.clinicalExamId} + '/draft?redirectAction=add-medication'} : @{'/doctor/examine/' + ${patient.userId} + '/draft?redirectAction=add-medication'}"
+                                    th:formaction="${isEditMode} ? @{'/doctor/examine/edit/' + ${lastExam.clinicalExamId} + '/draft?redirectAction=add-medication&from=examine'} : @{'/doctor/examine/' + ${patient.userId} + '/draft?redirectAction=add-medication&from=examine'}"
                                     class="btn btn-secondary btn-sm"><i class="fas fa-plus"></i> Kê đơn thuốc</button>
                             </div>
 
@@ -384,9 +384,9 @@
                                             </div>
                                         </div>
                                         <div class="presc-card-actions" style="display: flex; gap: 8px;">
-                                            <button type="submit" th:formaction="${isEditMode} ? @{'/doctor/examine/edit/' + ${lastExam.clinicalExamId} + '/draft?redirectAction=edit-medication&editIndex=' + ${stat.index}} : @{'/doctor/examine/' + ${patient.userId} + '/draft?redirectAction=edit-medication&editIndex=' + ${stat.index}}" class="btn-presc-action edit-btn" title="Sửa" 
+                                                <button type="submit" th:formaction="${isEditMode} ? @{'/doctor/examine/edit/' + ${lastExam.clinicalExamId} + '/draft?redirectAction=edit-medication&editIndex=' + ${stat.index} + '&from=examine'} : @{'/doctor/examine/' + ${patient.userId} + '/draft?redirectAction=edit-medication&editIndex=' + ${stat.index} + '&from=examine'}" class="btn-presc-action edit-btn" title="Sửa" 
                                                     style="background-color: #f3f4f6; color: var(--doctor-primary); border: 1px solid #d1d5db; border-radius: 6px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;"><i class="fas fa-pen"></i></button>
-                                            <button type="submit" th:formaction="${isEditMode} ? @{'/doctor/examine/edit/' + ${lastExam.clinicalExamId} + '/draft?redirectAction=delete-medication&deleteIndex=' + ${stat.index}} : @{'/doctor/examine/' + ${patient.userId} + '/draft?redirectAction=delete-medication&deleteIndex=' + ${stat.index}}" class="btn-presc-action delete-btn" title="Xóa" 
+                                                <button type="submit" th:formaction="${isEditMode} ? @{'/doctor/examine/edit/' + ${lastExam.clinicalExamId} + '/draft?redirectAction=delete-medication&deleteIndex=' + ${stat.index} + '&from=examine'} : @{'/doctor/examine/' + ${patient.userId} + '/draft?redirectAction=delete-medication&deleteIndex=' + ${stat.index} + '&from=examine'}" class="btn-presc-action delete-btn" title="Xóa" 
                                                     style="background-color: #f3f4f6; color: var(--doctor-danger); border: 1px solid #d1d5db; border-radius: 6px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;"><i class="fas fa-trash"></i></button>
                                         </div>
                                     </div>

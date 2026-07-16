@@ -114,7 +114,8 @@ public class DoctorExamineController {
         try {
             clinicalExaminationService.startExamination(patientId, loggedInUser.getUserId());
         } catch (Exception e) {
-            systemLogService.saveLog(loggedInUser.getUserId(), "APPROVE_MEDICAL_RECORD", "MedicalRecord", null, "Bác sĩ tiếp nhận bệnh án thất bại: " + e.getMessage(), null, null, "FAILED");
+            systemLogService.saveLog(loggedInUser.getUserId(), "APPROVE_MEDICAL_RECORD", "MedicalRecord", null,
+                    "Bác sĩ tiếp nhận bệnh án thất bại: " + e.getMessage(), null, null, "FAILED");
             throw e;
         }
         session.setAttribute("selectedPatientId", patientId);
@@ -171,7 +172,8 @@ public class DoctorExamineController {
         try {
             clinicalExaminationService.cancelExamination(patientId, cancelReason, loggedInUser.getUserId());
         } catch (Exception e) {
-            systemLogService.saveLog(loggedInUser.getUserId(), "REJECT_MEDICAL_RECORD", "MedicalRecord", null, "Bác sĩ từ chối/hủy bệnh án thất bại: " + e.getMessage(), null, null, "FAILED");
+            systemLogService.saveLog(loggedInUser.getUserId(), "REJECT_MEDICAL_RECORD", "MedicalRecord", null,
+                    "Bác sĩ từ chối/hủy bệnh án thất bại: " + e.getMessage(), null, null, "FAILED");
             throw e;
         }
         return "redirect:/doctor/queue?toast=cancelled";
@@ -210,8 +212,6 @@ public class DoctorExamineController {
 
         return "redirect:/doctor/examine/" + examId + "/step1";
     }
-
-    
 
     private String getMedicationUnit(String form) {
         if (form == null)
@@ -472,7 +472,7 @@ public class DoctorExamineController {
         } else {
             medForm = new MedicationLineForm();
             medForm.setEditIndex(-1);
-            medForm.setDuration(0);
+            medForm.setDuration(1);
             medForm.setDosagePerDose(1.0);
             medForm.setStartDate(java.time.LocalDate.now().toString());
 

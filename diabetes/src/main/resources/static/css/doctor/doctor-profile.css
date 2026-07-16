@@ -4,14 +4,23 @@
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    padding: 30px 40px;
-    height: calc(100vh - var(--header-height));
+    padding: 24px 28px;
+    width: 100%;
+    min-height: calc(100vh - var(--header-height));
     overflow-y: auto;
+}
+
+.profile-container {
+    width: min(100%, 800px);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin: 0 auto;
 }
 
 .profile-card {
     width: 100%;
-    max-width: 800px;
+    max-width: 100%;
     background: #ffffff;
     border: 1px solid var(--doctor-border);
     border-radius: var(--radius);
@@ -338,4 +347,24 @@
 
 .input-with-icon input[type="password"] {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+}
+
+@media (max-width: 768px) {
+    .profile-layout {
+        padding: 16px;
+    }
+
+    .profile-header-banner {
+        padding: 24px;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group.full-width {
+        grid-column: span 1;
+    }
 }

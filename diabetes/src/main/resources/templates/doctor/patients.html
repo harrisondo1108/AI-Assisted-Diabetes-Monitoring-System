@@ -42,7 +42,7 @@
                             </div>
                             <div class="profile-header-actions">
                                 <a id="backBtn"
-                                    th:href="${'examine'.equals(from) ? '/doctor/examine' : '/doctor/queue'}"
+                                    th:href="${'examine'.equals(from) or session.examineEditMode ? '/doctor/examine' : '/doctor/queue'}"
                                     class="btn btn-secondary btn-sm">
                                     <i class="fas fa-arrow-left"></i> Quay lại
                                 </a>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khám lâm sàng – Bước 1 | Hệ thống Theo dõi Đường huyết</title>
+    <title th:text="${session.examineEditMode} ? 'Cập nhật ca khám – Bước 1 | Hệ thống Theo dõi Đường huyết' : 'Khám lâm sàng – Bước 1 | Hệ thống Theo dõi Đường huyết'">Khám lâm sàng – Bước 1 | Hệ thống Theo dõi Đường huyết</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/doctor/doctor-common.css}">
@@ -15,7 +15,7 @@
 <body>
 <div class="doctor-layout">
     <div class="doctor-main">
-        <div th:replace="~{layout/doctor/header :: header('Consultation & Diagnostic', 'examine')}"></div>
+        <div th:replace="~{layout/doctor/header :: header(${session.examineEditMode} ? 'Cập nhật ca khám' : 'Consultation & Diagnostic', 'examine')}"></div>
 
         <main class="doctor-content flex-row-container">
 
@@ -183,7 +183,9 @@
                         <div class="step-nav-actions">
                             <span></span>
                             <button type="submit" name="targetTab" value="2" class="btn btn-primary">
-                                Tiếp theo: Xét nghiệm <i class="fas fa-arrow-right"></i>
+                                <span th:if="${session.examineEditMode}">Tiếp tục chỉnh sửa: Xét nghiệm</span>
+                                <span th:unless="${session.examineEditMode}">Tiếp theo: Xét nghiệm</span>
+                                <i class="fas fa-arrow-right"></i>
                             </button>
                         </div>
                     </div>
