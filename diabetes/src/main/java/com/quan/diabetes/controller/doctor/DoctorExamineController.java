@@ -211,43 +211,7 @@ public class DoctorExamineController {
         return "redirect:/doctor/examine/" + examId + "/step1";
     }
 
-    private List<PrescriptionLineDTO> mapPrescriptionDetailsToDTO(List<PrescriptionDetail> details) {
-        List<PrescriptionLineDTO> list = new ArrayList<>();
-        if (details == null)
-            return list;
-        for (PrescriptionDetail p : details) {
-            PrescriptionLineDTO dto = new PrescriptionLineDTO();
-            dto.setMedId(p.getMedication().getMedicationId());
-            dto.setName(p.getMedication().getMedicationName());
-            dto.setConcentration(p.getMedication().getConcentration());
-            dto.setForm(p.getMedication().getForm());
-            dto.setDosage(p.getDosage());
-            dto.setDosagePerDose(parseDosagePerDose(p.getDosage()));
-            dto.setDuration(p.getDurationDays());
-            dto.setQuantity(p.getTotalQuantity());
-
-            List<String> timings = new ArrayList<>();
-            if (p.getPrescriptionTimings() != null) {
-                for (PrescriptionTiming pt : p.getPrescriptionTimings()) {
-                    timings.add(pt.getTiming().getTimingName());
-                }
-            }
-            dto.setTiming(timings);
-            dto.setTimingText(String.join(", ", timings));
-            dto.setMedicationPlan(p.getMedicationPlan());
-            dto.setStartDate(p.getStartDate() != null ? p.getStartDate().toString() : "");
-            dto.setEndDate(p.getEndDate() != null ? p.getEndDate().toString() : "");
-            list.add(dto);
-        }
-        return list;
-    }
-
-    private Double parseDosagePerDose(String dosageStr) {
-        if (dosageStr == null || dosageStr.equalsIgnoreCase("Auto"))
-            return 1.0;
-        java.util.regex.Matcher m = java.util.regex.Pattern.compile("^([\\d.]+)").matcher(dosageStr);
-        return m.find() ? Double.parseDouble(m.group(1)) : 1.0;
-    }
+    
 
     private String getMedicationUnit(String form) {
         if (form == null)
@@ -285,6 +249,7 @@ public class DoctorExamineController {
         model.addAttribute("patient", patient);
         model.addAttribute("routine", patientRoutineService.findById(patient.getUserId()).orElse(null));
         model.addAttribute("tomorrowDate", java.time.LocalDate.now().plusDays(1).toString());
+        model.addAttribute("todayDate", java.time.LocalDate.now().toString());
     }
 
     /** Resolve targetTab param to redirect URL */
@@ -507,9 +472,9 @@ public class DoctorExamineController {
         } else {
             medForm = new MedicationLineForm();
             medForm.setEditIndex(-1);
-            medForm.setDuration(30);
+            medForm.setDuration(0);
             medForm.setDosagePerDose(1.0);
-            medForm.setStartDate(java.time.LocalDate.now().plusDays(1).toString());
+            medForm.setStartDate(java.time.LocalDate.now().toString());
 
             if (editIndex != null && editIndex >= 0 && editIndex < lines.size()) {
                 PrescriptionLineDTO editingMed = lines.get(editIndex);
@@ -571,15 +536,38 @@ public class DoctorExamineController {
             return "redirect:/doctor/examine/" + examId + "/step4";
 
         // Calculate quantity and end date
-        int duration = form.getDuration() != null ? form.getDuration() : 30;
+        int duration = form.getDuration() != null ? form.getDuration() : 0;
         double dosePerTime = form.getDosagePerDose() != null ? form.getDosagePerDose() : 1.0;
         int timingCount = (form.getTiming() != null && !form.getTiming().isEmpty()) ? form.getTiming().size() : 1;
         int quantity = (int) Math.ceil(dosePerTime * timingCount * duration);
 
         String startDate = form.getStartDate();
         String endDate = "";
-        if (startDate != null && !startDate.isEmpty()) {
+        if (startDate != null && !startDate.isEmpty() && duration > 0) {
             endDate = java.time.LocalDate.parse(startDate).plusDays(duration - 1).toString();
+        }
+
+        // Prevent duplicate medication names in session (case-insensitive)
+        @SuppressWarnings("unchecked")
+        List<PrescriptionLineDTO> lines = (List<PrescriptionLineDTO>) session.getAttribute("prescriptionLines");
+        String newMedName = med.getMedicationName();
+        boolean duplicate = false;
+        Integer editIdx = form.getEditIndex();
+        if (lines != null) {
+            for (int i = 0; i < lines.size(); i++) {
+                PrescriptionLineDTO existing = lines.get(i);
+                if (existing != null && existing.getName() != null && existing.getName().equalsIgnoreCase(newMedName)) {
+                    if (editIdx == null || editIdx < 0 || i != editIdx) {
+                        duplicate = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (duplicate) {
+            redirectAttributes.addFlashAttribute("medAddError", "Đã có thuốc cùng tên trong đơn thuốc");
+            redirectAttributes.addFlashAttribute("medForm", form);
+            return "redirect:/doctor/examine/" + examId + "/step4";
         }
 
         // Build DTO
@@ -600,12 +588,9 @@ public class DoctorExamineController {
         String dosageDisplay = String.format(java.util.Locale.US, "%.0f", dosePerTime) + " viên/lần";
         dto.setDosage(dosageDisplay);
 
-        @SuppressWarnings("unchecked")
-        List<PrescriptionLineDTO> lines = (List<PrescriptionLineDTO>) session.getAttribute("prescriptionLines");
         if (lines == null)
             lines = new ArrayList<>();
 
-        Integer editIdx = form.getEditIndex();
         if (editIdx != null && editIdx >= 0 && editIdx < lines.size()) {
             lines.set(editIdx, dto);
         } else {

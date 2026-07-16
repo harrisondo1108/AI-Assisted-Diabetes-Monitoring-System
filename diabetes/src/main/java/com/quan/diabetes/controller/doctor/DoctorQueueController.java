@@ -9,6 +9,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -111,5 +113,25 @@ public class DoctorQueueController {
         model.addAttribute("currentSearch", search);
 
         return "doctor/queue";
+    }
+
+    @PostMapping("/queue/{patientId}/cancel")
+    @ResponseBody
+    public ResponseEntity<?> cancelFromQueue(@PathVariable String patientId,
+                                             @RequestParam("cancelReason") String cancelReason,
+                                             HttpSession session) {
+        User loggedInUser = (User) session.getAttribute("loggedInUser");
+        if (loggedInUser == null || !"DOC".equalsIgnoreCase(loggedInUser.getRole().getRoleId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("success", false, "message", "Bạn không có quyền thực hiện hành động này."));
+        }
+        if (cancelReason == null || cancelReason.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Lý do hủy không được để trống."));
+        }
+        try {
+            clinicalExaminationService.cancelExamination(patientId, cancelReason.trim(), loggedInUser.getUserId());
+            return ResponseEntity.ok(Map.of("success", true));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("success", false, "message", e.getMessage()));
+        }
     }
 }

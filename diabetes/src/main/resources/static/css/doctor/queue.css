@@ -238,6 +238,47 @@
     background-color: #fafcfb;
 }
 
+/* Cancel modal styles */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1200;
+    padding: 20px;
+}
+.modal-box {
+        background: var(--doctor-card-bg, #fff);
+        border-radius: 12px;
+        width: 100%;
+        max-width: 680px;
+        box-shadow: 0 12px 40px rgba(2,6,23,0.14);
+        overflow: hidden;
+        transform: translateY(-6px) scale(0.995);
+        animation: modalEnter 220ms ease forwards;
+}
+.modal-body { padding:16px 22px; }
+.modal-header { display:flex; align-items:center; justify-content:space-between; padding:18px 22px; border-bottom:1px solid var(--doctor-border); }
+.modal-header h3 { margin:0; font-size:1.08rem; font-weight:700; color:var(--doctor-text-main); }
+.modal-close { background:#f3f4f6; border:none; font-size:1.05rem; cursor:pointer; width:36px; height:36px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; }
+.modal-close:hover{ background:#eceff1 }
+.patient-brief { font-size:0.95rem; color:var(--doctor-text-muted); margin-bottom:8px; }
+.modal-box .form-group label { font-weight:600; color:var(--doctor-text-main); margin-bottom:6px; display:block; }
+.modal-box textarea { width:100%; padding:12px; border:1px solid #e6e9ee; border-radius:8px; min-height:110px; resize:vertical; font-family:inherit; font-size:0.95rem; box-shadow: inset 0 1px 0 rgba(255,255,255,0.6); }
+.modal-box textarea:focus { outline:none; border-color:var(--doctor-primary); box-shadow:0 6px 20px rgba(99,102,241,0.08); }
+.modal-footer { padding:14px 22px; border-top:1px solid var(--doctor-border); display:flex; justify-content:flex-end; gap:10px; }
+.btn-cancel { background:#f3f4f6; color:var(--doctor-text-main); border:1px solid #e6e9ee; padding:8px 14px; border-radius:8px; }
+.btn-cancel:hover { background:#eceff1 }
+.btn-danger { background:linear-gradient(135deg,#ef4444,#dc2626); color:#fff; border:none; padding:8px 14px; border-radius:8px; box-shadow: 0 6px 18px rgba(220,38,38,0.12); }
+.btn-danger:hover { filter:brightness(0.98) }
+.modal-close:focus, .btn-danger:focus, .btn-cancel:focus { outline: 3px solid rgba(99,102,241,0.12); }
+
+@keyframes modalEnter {
+    to { transform: translateY(0) scale(1); }
+}
+
 .pagination {
     display: flex;
     align-items: center;

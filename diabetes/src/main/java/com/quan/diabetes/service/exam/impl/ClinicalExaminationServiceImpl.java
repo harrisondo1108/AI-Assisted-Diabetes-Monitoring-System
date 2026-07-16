@@ -1028,7 +1028,15 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
 
         // 5. Lưu đơn thuốc (Clear cũ trước)
         prescriptionRepository.findByClinicalExamination_ClinicalExamId(examId)
-                .ifPresent(prescriptionRepository::delete);
+                .ifPresent(p -> {
+                    List<PrescriptionDetail> details = prescriptionDetailRepository.findByPrescription_PrescriptionId(p.getPrescriptionId());
+                    if (details != null && !details.isEmpty()) {
+                        prescriptionDetailRepository.deleteAll(details);
+                        prescriptionDetailRepository.flush();
+                    }
+                    prescriptionRepository.delete(p);
+                    prescriptionRepository.flush();
+                });
 
         if (form.getPrescriptionJson() != null && !form.getPrescriptionJson().trim().isEmpty()) {
             try {
@@ -1388,14 +1396,22 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
 
         // Clear old prescription
         prescriptionRepository.findByClinicalExamination_ClinicalExamId(examId)
-                .ifPresent(prescriptionRepository::delete);
+                .ifPresent(p -> {
+                    List<PrescriptionDetail> details = prescriptionDetailRepository.findByPrescription_PrescriptionId(p.getPrescriptionId());
+                    if (details != null && !details.isEmpty()) {
+                        prescriptionDetailRepository.deleteAll(details);
+                        prescriptionDetailRepository.flush();
+                    }
+                    prescriptionRepository.delete(p);
+                    prescriptionRepository.flush();
+                });
 
         if (prescriptionLines != null && !prescriptionLines.isEmpty()) {
             Prescription presc = new Prescription();
             presc.setPrescriptionId("PRC-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000));
             presc.setClinicalExamination(exam);
             presc.setCreatedAt(LocalDateTime.now());
-            presc = prescriptionRepository.save(presc);
+            presc = prescriptionRepository.saveAndFlush(presc);
 
             for (PrescriptionLineDTO line : prescriptionLines) {
                 Medication med = medicationRepository.findById(line.getMedId()).orElse(null);

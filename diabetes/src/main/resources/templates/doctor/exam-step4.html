@@ -95,7 +95,7 @@
 
                 <!-- Tab navigation form (does NOT submit prescription data) -->
                 <form th:action="@{/doctor/examine/{id}/step4/navigate(id=${exam.clinicalExamId})}"
-                      method="POST" id="tabNavForm">
+                      method="POST" id="tabNavForm" class="exam-tab-nav-form">
                     <div class="exam-tab-bar">
                         <button type="submit" name="targetTab" value="1" class="exam-tab">
                             <i class="fas fa-stethoscope"></i><span>Triệu chứng & Lý do khám</span>
@@ -117,13 +117,11 @@
                 </form>
 
                 <!-- Header actions -->
-                <div class="workspace-header">
-                    <div class="workspace-actions">
-                        <a th:if="${session.examineEditMode}" th:href="@{/doctor/queue}" class="btn btn-secondary"
-                           style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
-                            <i class="fas fa-arrow-left"></i> Quay lại
-                        </a>
-                    </div>
+                <div th:if="${session.examineEditMode}" class="workspace-header align-left" style="border-bottom: 1px solid var(--doctor-border); padding: 8px 16px; background-color: #f9fafb; display: flex; align-items: center;">
+                    <a th:href="@{/doctor/queue}" class="btn btn-secondary btn-sm"
+                       style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;font-size:0.8rem;">
+                        <i class="fas fa-arrow-left"></i> Quay lại danh sách
+                    </a>
                 </div>
 
                 <!-- TAB 4 CONTENT -->
@@ -190,10 +188,12 @@
                                         <span th:text="${line.form}"></span></div>
                                     <div><strong style="color:var(--doctor-text-muted);"><i class="fas fa-boxes"></i> Tổng số lượng:</strong>
                                         <span th:text="${line.quantity} + ' ' + ${line.form}"></span></div>
-                                    <div th:if="${line.startDate != null && !#strings.isEmpty(line.startDate)}">
+                                    <div th:if="${line.startDate != null && #strings.length(line.startDate) >= 10}">
                                         <strong style="color:var(--doctor-text-muted);"><i class="far fa-calendar-alt"></i> Liệu trình:</strong>
                                         Từ <span th:text="${#strings.substring(line.startDate,8,10)+'/'+#strings.substring(line.startDate,5,7)+'/'+#strings.substring(line.startDate,0,4)}"></span>
-                                        đến <span th:text="${#strings.substring(line.endDate,8,10)+'/'+#strings.substring(line.endDate,5,7)+'/'+#strings.substring(line.endDate,0,4)}"></span>
+                                        <span th:if="${line.endDate != null && #strings.length(line.endDate) >= 10}">
+                                            đến <span th:text="${#strings.substring(line.endDate,8,10)+'/'+#strings.substring(line.endDate,5,7)+'/'+#strings.substring(line.endDate,0,4)}"></span>
+                                        </span>
                                     </div>
                                     <div><strong style="color:var(--doctor-text-muted);"><i class="fas fa-prescription-bottle"></i> Liều dùng:</strong>
                                         <span th:text="${line.dosage}"></span></div>
@@ -239,17 +239,21 @@
                                                     th:selected="${editingMed != null && editingMed.medId == m.medicationId}"
                                                     th:text="${m.medicationName + ' (' + m.concentration + ') - ' + m.form}"></option>
                                         </select>
+                                        <div class="error-feedback" th:if="${medAddError != null}" style="color:red; font-size:0.9rem; margin-top:6px;">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            <span th:text="${medAddError}"></span>
+                                        </div>
                                     </div>
                                     <div class="form-group">
-                                        <label><i class="fas fa-calendar-day"></i> Số ngày sử dụng <span class="required">*</span></label>
-                                        <input type="number" th:field="*{duration}" min="1" max="180"
-                                               required style="width:100%;box-sizing:border-box;">
+                                             <label><i class="fas fa-calendar-day"></i> Số ngày sử dụng <span class="required">*</span></label>
+                                             <input type="number" th:field="*{duration}" min="0" max="180"
+                                                 required style="width:100%;box-sizing:border-box;">
                                     </div>
                                     <div class="form-group">
                                         <label><i class="fas fa-calendar-plus"></i> Ngày bắt đầu <span class="required">*</span></label>
-                                        <input type="date" th:field="*{startDate}"
-                                               th:value="${editingMed != null ? editingMed.startDate : tomorrowDate}"
-                                               required style="width:100%;box-sizing:border-box;">
+                                             <input type="date" th:field="*{startDate}"
+                                                 th:value="${editingMed != null ? editingMed.startDate : todayDate}"
+                                                 required style="width:100%;box-sizing:border-box;">
                                     </div>
                                 </div>
 

@@ -97,7 +97,7 @@
 
 /* ---- Workspace header for tab pages ---- */
 .examination-workspace > .workspace-header,
-.examination-workspace form {
+.examination-workspace > form:not(.exam-tab-nav-form) {
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -109,6 +109,11 @@
     justify-content: flex-end;
     padding: 12px 16px 0;
     background: var(--doctor-card-bg, #fff);
+}
+
+/* When a workspace header should be left-aligned (used by step4) */
+.workspace-header.align-left {
+    justify-content: flex-start;
 }
 
 /* ---- Responsive: collapse tab labels on small screens ---- */

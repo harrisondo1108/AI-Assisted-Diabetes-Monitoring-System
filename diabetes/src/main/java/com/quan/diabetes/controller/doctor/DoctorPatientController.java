@@ -71,13 +71,11 @@ public class DoctorPatientController {
                 .findFirstByDoctor_UserIdAndStatus(doctorId, "InProgress");
         model.addAttribute("hasActiveExam", activeExam.isPresent());
 
-        if (activeExam.isPresent()) {
+        if (patientId != null) {
+            session.setAttribute("selectedPatientId", patientId);
+        } else if (activeExam.isPresent()) {
             patientId = activeExam.get().getPatient().getUserId();
             session.setAttribute("selectedPatientId", patientId);
-        } else {
-            if (patientId != null) {
-                session.setAttribute("selectedPatientId", patientId);
-            }
         }
 
         String selectedPatientId = (String) session.getAttribute("selectedPatientId");

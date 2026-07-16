@@ -453,3 +453,236 @@ Caused by: com.microsoft.sqlserver.jdbc.SQLServerException: The object 'PK__Exam
 2026-07-16T00:17:06.561+07:00  INFO 9224 --- [diabetes] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
 2026-07-16T00:17:06.561+07:00  INFO 9224 --- [diabetes] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
 2026-07-16T00:17:06.565+07:00  INFO 9224 --- [diabetes] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
+2026-07-16T09:04:10.256+07:00  INFO 12232 --- [diabetes] [restartedMain] com.quan.diabetes.DiabetesApplication    : Starting DiabetesApplication using Java 21.0.11 with PID 12232 (D:\Document\4_SEMESTER\SWP391\AI-Assisted-Diabetes-Monitoring-System (1)\diabetes\target\classes started by Admin in D:\Document\4_SEMESTER\SWP391\AI-Assisted-Diabetes-Monitoring-System (1))
+2026-07-16T09:04:10.274+07:00  INFO 12232 --- [diabetes] [restartedMain] com.quan.diabetes.DiabetesApplication    : No active profile set, falling back to 1 default profile: "default"
+2026-07-16T09:04:10.389+07:00  INFO 12232 --- [diabetes] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-07-16T09:04:10.391+07:00  INFO 12232 --- [diabetes] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-07-16T09:04:11.901+07:00  INFO 12232 --- [diabetes] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-07-16T09:04:12.191+07:00  INFO 12232 --- [diabetes] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 277 ms. Found 28 JPA repository interfaces.
+2026-07-16T09:04:13.467+07:00  INFO 12232 --- [diabetes] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-07-16T09:04:13.492+07:00  INFO 12232 --- [diabetes] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-07-16T09:04:13.496+07:00  INFO 12232 --- [diabetes] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.21]
+2026-07-16T09:04:13.591+07:00  INFO 12232 --- [diabetes] [restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 3198 ms
+2026-07-16T09:04:13.980+07:00  INFO 12232 --- [diabetes] [restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-07-16T09:04:14.107+07:00  INFO 12232 --- [diabetes] [restartedMain] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.12.Final
+2026-07-16T09:04:14.791+07:00  INFO 12232 --- [diabetes] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-07-16T09:04:14.838+07:00  INFO 12232 --- [diabetes] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-07-16T09:04:15.495+07:00  INFO 12232 --- [diabetes] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection ConnectionID:1 ClientConnectionId: 6f4a84c9-a14f-4b96-ad7b-d43d37bcc752
+2026-07-16T09:04:15.498+07:00  INFO 12232 --- [diabetes] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-07-16T09:04:15.628+07:00  WARN 12232 --- [diabetes] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: SQLServerDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-07-16T09:04:15.687+07:00  INFO 12232 --- [diabetes] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:sqlserver://localhost:1433;concatNullYieldsNull=ON;quotedIdentifier=ON;connectRetryInterval=10;connectRetryCount=1;maxResultBuffer=-1;sendTemporalDataTypesAsStringForBulkCopy=true;delayLoadingLobs=true;useFmtOnly=false;vectorTypeSupport=v1;cacheBulkCopyMetadata=false;bulkCopyForBatchInsertAllowEncryptedValueModifications=false;bulkCopyForBatchInsertTableLock=false;bulkCopyForBatchInsertKeepNulls=false;bulkCopyForBatchInsertKeepIdentity=false;bulkCopyForBatchInsertFireTriggers=false;bulkCopyForBatchInsertCheckConstraints=false;bulkCopyForBatchInsertBatchSize=0;useBulkCopyForBatchInsert=false;cancelQueryTimeout=-1;sslProtocol=TLS;calcBigDecimalPrecision=false;useDefaultJaasConfig=false;jaasConfigurationName=SQLJDBCDriver;statementPoolingCacheSize=0;serverPreparedStatementDiscardThreshold=10;enablePrepareOnFirstPreparedStatementCall=false;fips=false;socketTimeout=0;authentication=NotSpecified;authenticationScheme=nativeAuthentication;xopenStates=false;datetimeParameterType=datetime2;sendTimeAsDatetime=true;replication=false;trustStoreType=JKS;trustServerCertificate=true;TransparentNetworkIPResolution=true;iPAddressPreference=IPv4First;serverNameAsACE=false;sendStringParametersAsUnicode=true;selectMethod=direct;responseBuffering=adaptive;queryTimeout=-1;packetSize=8000;multiSubnetFailover=false;loginTimeout=60;lockTimeout=-1;lastUpdateCount=true;useDefaultGSSCredential=false;prepareMethod=prepexec;encrypt=true;disableStatementPooling=true;databaseName=Diabetes;columnEncryptionSetting=Disabled;applicationName=Microsoft JDBC Driver for SQL Server;applicationIntent=readwrite;]
+	Database driver: Microsoft JDBC Driver 13.2 for SQL Server
+	Database dialect: SQLServerDialect
+	Database version: 16.0
+	Default catalog/schema: Diabetes/dbo
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 128
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-07-16T09:04:17.862+07:00  INFO 12232 --- [diabetes] [restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-07-16T09:04:17.869+07:00  INFO 12232 --- [diabetes] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-07-16T09:04:18.071+07:00  INFO 12232 --- [diabetes] [restartedMain] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-07-16T09:04:21.272+07:00  WARN 12232 --- [diabetes] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-07-16T09:04:21.777+07:00  INFO 12232 --- [diabetes] [restartedMain] o.s.b.w.a.WelcomePageHandlerMapping      : Adding welcome page template: index
+2026-07-16T09:04:22.437+07:00  INFO 12232 --- [diabetes] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8080 (http) with context path '/'
+2026-07-16T09:04:22.456+07:00  INFO 12232 --- [diabetes] [restartedMain] com.quan.diabetes.DiabetesApplication    : Started DiabetesApplication in 12.892 seconds (process running for 13.558)
+2026-07-16T09:04:27.101+07:00  INFO 12232 --- [diabetes] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-07-16T09:04:27.103+07:00  INFO 12232 --- [diabetes] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-07-16T09:04:27.107+07:00  INFO 12232 --- [diabetes] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2026-07-16T09:04:31.471+07:00  WARN 12232 --- [diabetes] [http-nio-8080-exec-10] o.s.s.c.bcrypt.BCryptPasswordEncoder     : Encoded password does not look like BCrypt
+2026-07-16T09:04:38.515+07:00  WARN 12232 --- [diabetes] [http-nio-8080-exec-4] o.s.s.c.bcrypt.BCryptPasswordEncoder     : Encoded password does not look like BCrypt
+2026-07-16T09:05:09.490+07:00  WARN 12232 --- [diabetes] [http-nio-8080-exec-8] o.s.s.c.bcrypt.BCryptPasswordEncoder     : Encoded password does not look like BCrypt
+2026-07-16T09:06:15.866+07:00  INFO 12232 --- [diabetes] [http-nio-8080-exec-8] c.q.d.c.auth.ResetPasswordController     : OTP reset password: 640541 for phone 0966933951
+2026-07-16T09:06:15.877+07:00  INFO 12232 --- [diabetes] [http-nio-8080-exec-8] c.q.d.service.notification.SmsService    : Sending OTP SMS to phone: 0966933951 (Normalized: 84966933951)
+2026-07-16T09:06:17.336+07:00  INFO 12232 --- [diabetes] [http-nio-8080-exec-8] c.q.d.service.notification.SmsService    : SpeedSMS API response: {"status":"error","message":"sender not found"}
+2026-07-16T09:16:37.218+07:00  INFO 8520 --- [diabetes] [restartedMain] com.quan.diabetes.DiabetesApplication    : Starting DiabetesApplication using Java 21.0.11 with PID 8520 (D:\Document\4_SEMESTER\SWP391\AI-Assisted-Diabetes-Monitoring-System (1)\diabetes\target\classes started by Admin in D:\Document\4_SEMESTER\SWP391\AI-Assisted-Diabetes-Monitoring-System (1))
+2026-07-16T09:16:37.223+07:00  INFO 8520 --- [diabetes] [restartedMain] com.quan.diabetes.DiabetesApplication    : No active profile set, falling back to 1 default profile: "default"
+2026-07-16T09:16:37.316+07:00  INFO 8520 --- [diabetes] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-07-16T09:16:37.317+07:00  INFO 8520 --- [diabetes] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-07-16T09:16:38.576+07:00  INFO 8520 --- [diabetes] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-07-16T09:16:38.837+07:00  INFO 8520 --- [diabetes] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 248 ms. Found 28 JPA repository interfaces.
+2026-07-16T09:16:39.996+07:00  INFO 8520 --- [diabetes] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-07-16T09:16:40.035+07:00  INFO 8520 --- [diabetes] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-07-16T09:16:40.040+07:00  INFO 8520 --- [diabetes] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.21]
+2026-07-16T09:16:40.391+07:00  INFO 8520 --- [diabetes] [restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 3073 ms
+2026-07-16T09:16:40.807+07:00  INFO 8520 --- [diabetes] [restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-07-16T09:16:40.906+07:00  INFO 8520 --- [diabetes] [restartedMain] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.12.Final
+2026-07-16T09:16:41.545+07:00  INFO 8520 --- [diabetes] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-07-16T09:16:41.616+07:00  INFO 8520 --- [diabetes] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-07-16T09:16:42.238+07:00  INFO 8520 --- [diabetes] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection ConnectionID:1 ClientConnectionId: d017a5d9-23b5-4a9a-ba0f-936d0958268e
+2026-07-16T09:16:42.241+07:00  INFO 8520 --- [diabetes] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-07-16T09:16:42.332+07:00  WARN 8520 --- [diabetes] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: SQLServerDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-07-16T09:16:42.367+07:00  INFO 8520 --- [diabetes] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:sqlserver://localhost:1433;concatNullYieldsNull=ON;quotedIdentifier=ON;connectRetryInterval=10;connectRetryCount=1;maxResultBuffer=-1;sendTemporalDataTypesAsStringForBulkCopy=true;delayLoadingLobs=true;useFmtOnly=false;vectorTypeSupport=v1;cacheBulkCopyMetadata=false;bulkCopyForBatchInsertAllowEncryptedValueModifications=false;bulkCopyForBatchInsertTableLock=false;bulkCopyForBatchInsertKeepNulls=false;bulkCopyForBatchInsertKeepIdentity=false;bulkCopyForBatchInsertFireTriggers=false;bulkCopyForBatchInsertCheckConstraints=false;bulkCopyForBatchInsertBatchSize=0;useBulkCopyForBatchInsert=false;cancelQueryTimeout=-1;sslProtocol=TLS;calcBigDecimalPrecision=false;useDefaultJaasConfig=false;jaasConfigurationName=SQLJDBCDriver;statementPoolingCacheSize=0;serverPreparedStatementDiscardThreshold=10;enablePrepareOnFirstPreparedStatementCall=false;fips=false;socketTimeout=0;authentication=NotSpecified;authenticationScheme=nativeAuthentication;xopenStates=false;datetimeParameterType=datetime2;sendTimeAsDatetime=true;replication=false;trustStoreType=JKS;trustServerCertificate=true;TransparentNetworkIPResolution=true;iPAddressPreference=IPv4First;serverNameAsACE=false;sendStringParametersAsUnicode=true;selectMethod=direct;responseBuffering=adaptive;queryTimeout=-1;packetSize=8000;multiSubnetFailover=false;loginTimeout=60;lockTimeout=-1;lastUpdateCount=true;useDefaultGSSCredential=false;prepareMethod=prepexec;encrypt=true;disableStatementPooling=true;databaseName=Diabetes;columnEncryptionSetting=Disabled;applicationName=Microsoft JDBC Driver for SQL Server;applicationIntent=readwrite;]
+	Database driver: Microsoft JDBC Driver 13.2 for SQL Server
+	Database dialect: SQLServerDialect
+	Database version: 16.0
+	Default catalog/schema: Diabetes/dbo
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 128
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-07-16T09:16:44.422+07:00  INFO 8520 --- [diabetes] [restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-07-16T09:16:44.431+07:00  INFO 8520 --- [diabetes] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-07-16T09:16:44.644+07:00  INFO 8520 --- [diabetes] [restartedMain] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-07-16T09:16:48.092+07:00  WARN 8520 --- [diabetes] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-07-16T09:16:48.978+07:00  INFO 8520 --- [diabetes] [restartedMain] o.s.b.w.a.WelcomePageHandlerMapping      : Adding welcome page template: index
+2026-07-16T09:16:49.883+07:00  WARN 8520 --- [diabetes] [restartedMain] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'
+2026-07-16T09:16:49.891+07:00  INFO 8520 --- [diabetes] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-07-16T09:16:49.897+07:00  INFO 8520 --- [diabetes] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-07-16T09:16:49.927+07:00  INFO 8520 --- [diabetes] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-07-16T09:16:49.947+07:00  INFO 8520 --- [diabetes] [restartedMain] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-07-16T09:16:49.968+07:00 ERROR 8520 --- [diabetes] [restartedMain] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8080 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8080 or configure this application to listen on another port.
+
+2026-07-16T09:25:20.005+07:00  INFO 17160 --- [diabetes] [restartedMain] com.quan.diabetes.DiabetesApplication    : Starting DiabetesApplication using Java 21.0.11 with PID 17160 (D:\Document\4_SEMESTER\SWP391\AI-Assisted-Diabetes-Monitoring-System (1)\diabetes\target\classes started by Admin in D:\Document\4_SEMESTER\SWP391\AI-Assisted-Diabetes-Monitoring-System (1))
+2026-07-16T09:25:20.011+07:00  INFO 17160 --- [diabetes] [restartedMain] com.quan.diabetes.DiabetesApplication    : No active profile set, falling back to 1 default profile: "default"
+2026-07-16T09:25:20.142+07:00  INFO 17160 --- [diabetes] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-07-16T09:25:20.142+07:00  INFO 17160 --- [diabetes] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-07-16T09:25:21.865+07:00  INFO 17160 --- [diabetes] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-07-16T09:25:22.264+07:00  INFO 17160 --- [diabetes] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 364 ms. Found 28 JPA repository interfaces.
+2026-07-16T09:25:23.702+07:00  INFO 17160 --- [diabetes] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-07-16T09:25:23.725+07:00  INFO 17160 --- [diabetes] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-07-16T09:25:23.727+07:00  INFO 17160 --- [diabetes] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.21]
+2026-07-16T09:25:23.851+07:00  INFO 17160 --- [diabetes] [restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 3705 ms
+2026-07-16T09:25:24.460+07:00  INFO 17160 --- [diabetes] [restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-07-16T09:25:24.765+07:00  INFO 17160 --- [diabetes] [restartedMain] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.12.Final
+2026-07-16T09:25:25.682+07:00  INFO 17160 --- [diabetes] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-07-16T09:25:25.745+07:00  INFO 17160 --- [diabetes] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-07-16T09:25:26.902+07:00  INFO 17160 --- [diabetes] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection ConnectionID:1 ClientConnectionId: d36ad6eb-53f5-42dc-9ba2-13901935114f
+2026-07-16T09:25:26.917+07:00  INFO 17160 --- [diabetes] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-07-16T09:25:27.238+07:00  WARN 17160 --- [diabetes] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: SQLServerDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-07-16T09:25:27.276+07:00  INFO 17160 --- [diabetes] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:sqlserver://localhost:1433;concatNullYieldsNull=ON;quotedIdentifier=ON;connectRetryInterval=10;connectRetryCount=1;maxResultBuffer=-1;sendTemporalDataTypesAsStringForBulkCopy=true;delayLoadingLobs=true;useFmtOnly=false;vectorTypeSupport=v1;cacheBulkCopyMetadata=false;bulkCopyForBatchInsertAllowEncryptedValueModifications=false;bulkCopyForBatchInsertTableLock=false;bulkCopyForBatchInsertKeepNulls=false;bulkCopyForBatchInsertKeepIdentity=false;bulkCopyForBatchInsertFireTriggers=false;bulkCopyForBatchInsertCheckConstraints=false;bulkCopyForBatchInsertBatchSize=0;useBulkCopyForBatchInsert=false;cancelQueryTimeout=-1;sslProtocol=TLS;calcBigDecimalPrecision=false;useDefaultJaasConfig=false;jaasConfigurationName=SQLJDBCDriver;statementPoolingCacheSize=0;serverPreparedStatementDiscardThreshold=10;enablePrepareOnFirstPreparedStatementCall=false;fips=false;socketTimeout=0;authentication=NotSpecified;authenticationScheme=nativeAuthentication;xopenStates=false;datetimeParameterType=datetime2;sendTimeAsDatetime=true;replication=false;trustStoreType=JKS;trustServerCertificate=true;TransparentNetworkIPResolution=true;iPAddressPreference=IPv4First;serverNameAsACE=false;sendStringParametersAsUnicode=true;selectMethod=direct;responseBuffering=adaptive;queryTimeout=-1;packetSize=8000;multiSubnetFailover=false;loginTimeout=60;lockTimeout=-1;lastUpdateCount=true;useDefaultGSSCredential=false;prepareMethod=prepexec;encrypt=true;disableStatementPooling=true;databaseName=Diabetes;columnEncryptionSetting=Disabled;applicationName=Microsoft JDBC Driver for SQL Server;applicationIntent=readwrite;]
+	Database driver: Microsoft JDBC Driver 13.2 for SQL Server
+	Database dialect: SQLServerDialect
+	Database version: 16.0
+	Default catalog/schema: Diabetes/dbo
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 128
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-07-16T09:25:29.882+07:00  INFO 17160 --- [diabetes] [restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-07-16T09:25:29.897+07:00  INFO 17160 --- [diabetes] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-07-16T09:25:30.139+07:00  INFO 17160 --- [diabetes] [restartedMain] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-07-16T09:25:34.380+07:00  WARN 17160 --- [diabetes] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-07-16T09:25:35.002+07:00  INFO 17160 --- [diabetes] [restartedMain] o.s.b.w.a.WelcomePageHandlerMapping      : Adding welcome page template: index
+2026-07-16T09:25:35.645+07:00  WARN 17160 --- [diabetes] [restartedMain] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'
+2026-07-16T09:25:35.655+07:00  INFO 17160 --- [diabetes] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-07-16T09:25:35.665+07:00  INFO 17160 --- [diabetes] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-07-16T09:25:35.689+07:00  INFO 17160 --- [diabetes] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-07-16T09:25:35.720+07:00  INFO 17160 --- [diabetes] [restartedMain] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-07-16T09:25:35.780+07:00 ERROR 17160 --- [diabetes] [restartedMain] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8080 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8080 or configure this application to listen on another port.
+
+2026-07-16T10:05:49.386+07:00  INFO 10420 --- [diabetes] [restartedMain] com.quan.diabetes.DiabetesApplication    : Starting DiabetesApplication using Java 21.0.11 with PID 10420 (D:\Document\4_SEMESTER\SWP391\AI-Assisted-Diabetes-Monitoring-System (1)\diabetes\target\classes started by Admin in D:\Document\4_SEMESTER\SWP391\AI-Assisted-Diabetes-Monitoring-System (1))
+2026-07-16T10:05:49.392+07:00  INFO 10420 --- [diabetes] [restartedMain] com.quan.diabetes.DiabetesApplication    : No active profile set, falling back to 1 default profile: "default"
+2026-07-16T10:05:49.544+07:00  INFO 10420 --- [diabetes] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-07-16T10:05:49.547+07:00  INFO 10420 --- [diabetes] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-07-16T10:05:51.139+07:00  INFO 10420 --- [diabetes] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-07-16T10:05:51.424+07:00  INFO 10420 --- [diabetes] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 263 ms. Found 28 JPA repository interfaces.
+2026-07-16T10:05:53.017+07:00  INFO 10420 --- [diabetes] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-07-16T10:05:53.047+07:00  INFO 10420 --- [diabetes] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-07-16T10:05:53.092+07:00  INFO 10420 --- [diabetes] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.21]
+2026-07-16T10:05:53.199+07:00  INFO 10420 --- [diabetes] [restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 3650 ms
+2026-07-16T10:05:53.616+07:00  INFO 10420 --- [diabetes] [restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-07-16T10:05:53.735+07:00  INFO 10420 --- [diabetes] [restartedMain] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.12.Final
+2026-07-16T10:05:54.590+07:00  INFO 10420 --- [diabetes] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-07-16T10:05:54.648+07:00  INFO 10420 --- [diabetes] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-07-16T10:05:55.318+07:00  INFO 10420 --- [diabetes] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection ConnectionID:1 ClientConnectionId: 3cda035a-3efd-4239-be75-d789a1a0d4c6
+2026-07-16T10:05:55.322+07:00  INFO 10420 --- [diabetes] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-07-16T10:05:55.545+07:00  WARN 10420 --- [diabetes] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: SQLServerDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-07-16T10:05:55.604+07:00  INFO 10420 --- [diabetes] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:sqlserver://localhost:1433;concatNullYieldsNull=ON;quotedIdentifier=ON;connectRetryInterval=10;connectRetryCount=1;maxResultBuffer=-1;sendTemporalDataTypesAsStringForBulkCopy=true;delayLoadingLobs=true;useFmtOnly=false;vectorTypeSupport=v1;cacheBulkCopyMetadata=false;bulkCopyForBatchInsertAllowEncryptedValueModifications=false;bulkCopyForBatchInsertTableLock=false;bulkCopyForBatchInsertKeepNulls=false;bulkCopyForBatchInsertKeepIdentity=false;bulkCopyForBatchInsertFireTriggers=false;bulkCopyForBatchInsertCheckConstraints=false;bulkCopyForBatchInsertBatchSize=0;useBulkCopyForBatchInsert=false;cancelQueryTimeout=-1;sslProtocol=TLS;calcBigDecimalPrecision=false;useDefaultJaasConfig=false;jaasConfigurationName=SQLJDBCDriver;statementPoolingCacheSize=0;serverPreparedStatementDiscardThreshold=10;enablePrepareOnFirstPreparedStatementCall=false;fips=false;socketTimeout=0;authentication=NotSpecified;authenticationScheme=nativeAuthentication;xopenStates=false;datetimeParameterType=datetime2;sendTimeAsDatetime=true;replication=false;trustStoreType=JKS;trustServerCertificate=true;TransparentNetworkIPResolution=true;iPAddressPreference=IPv4First;serverNameAsACE=false;sendStringParametersAsUnicode=true;selectMethod=direct;responseBuffering=adaptive;queryTimeout=-1;packetSize=8000;multiSubnetFailover=false;loginTimeout=60;lockTimeout=-1;lastUpdateCount=true;useDefaultGSSCredential=false;prepareMethod=prepexec;encrypt=true;disableStatementPooling=true;databaseName=Diabetes;columnEncryptionSetting=Disabled;applicationName=Microsoft JDBC Driver for SQL Server;applicationIntent=readwrite;]
+	Database driver: Microsoft JDBC Driver 13.2 for SQL Server
+	Database dialect: SQLServerDialect
+	Database version: 16.0
+	Default catalog/schema: Diabetes/dbo
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 128
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-07-16T10:05:58.212+07:00  INFO 10420 --- [diabetes] [restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-07-16T10:05:58.221+07:00  INFO 10420 --- [diabetes] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-07-16T10:05:58.388+07:00  INFO 10420 --- [diabetes] [restartedMain] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-07-16T10:06:02.475+07:00  WARN 10420 --- [diabetes] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-07-16T10:06:03.091+07:00  INFO 10420 --- [diabetes] [restartedMain] o.s.b.w.a.WelcomePageHandlerMapping      : Adding welcome page template: index
+2026-07-16T10:06:03.996+07:00  INFO 10420 --- [diabetes] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8080 (http) with context path '/'
+2026-07-16T10:06:04.010+07:00  INFO 10420 --- [diabetes] [restartedMain] com.quan.diabetes.DiabetesApplication    : Started DiabetesApplication in 15.541 seconds (process running for 16.535)
+2026-07-16T10:06:13.564+07:00  INFO 10420 --- [diabetes] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-07-16T10:06:13.568+07:00  INFO 10420 --- [diabetes] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-07-16T10:06:13.571+07:00  INFO 10420 --- [diabetes] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2026-07-16T10:23:22.098+07:00  INFO 2540 --- [diabetes] [restartedMain] com.quan.diabetes.DiabetesApplication    : Starting DiabetesApplication using Java 21.0.11 with PID 2540 (D:\Document\4_SEMESTER\SWP391\AI-Assisted-Diabetes-Monitoring-System (1)\diabetes\target\classes started by Admin in D:\Document\4_SEMESTER\SWP391\AI-Assisted-Diabetes-Monitoring-System (1))
+2026-07-16T10:23:22.106+07:00  INFO 2540 --- [diabetes] [restartedMain] com.quan.diabetes.DiabetesApplication    : No active profile set, falling back to 1 default profile: "default"
+2026-07-16T10:23:22.256+07:00  INFO 2540 --- [diabetes] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-07-16T10:23:22.257+07:00  INFO 2540 --- [diabetes] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-07-16T10:23:24.058+07:00  INFO 2540 --- [diabetes] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-07-16T10:23:24.412+07:00  INFO 2540 --- [diabetes] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 336 ms. Found 28 JPA repository interfaces.
+2026-07-16T10:23:26.286+07:00  INFO 2540 --- [diabetes] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-07-16T10:23:26.333+07:00  INFO 2540 --- [diabetes] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-07-16T10:23:26.343+07:00  INFO 2540 --- [diabetes] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.21]
+2026-07-16T10:23:26.521+07:00  INFO 2540 --- [diabetes] [restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 4261 ms
+2026-07-16T10:23:27.276+07:00  INFO 2540 --- [diabetes] [restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-07-16T10:23:27.421+07:00  INFO 2540 --- [diabetes] [restartedMain] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.12.Final
+2026-07-16T10:23:28.284+07:00  INFO 2540 --- [diabetes] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-07-16T10:23:28.379+07:00  INFO 2540 --- [diabetes] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-07-16T10:23:29.036+07:00  INFO 2540 --- [diabetes] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection ConnectionID:1 ClientConnectionId: 15dc86f2-4028-4e69-8643-38d3b22f33d6
+2026-07-16T10:23:29.048+07:00  INFO 2540 --- [diabetes] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-07-16T10:23:29.324+07:00  WARN 2540 --- [diabetes] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: SQLServerDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-07-16T10:23:29.407+07:00  INFO 2540 --- [diabetes] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:sqlserver://localhost:1433;concatNullYieldsNull=ON;quotedIdentifier=ON;connectRetryInterval=10;connectRetryCount=1;maxResultBuffer=-1;sendTemporalDataTypesAsStringForBulkCopy=true;delayLoadingLobs=true;useFmtOnly=false;vectorTypeSupport=v1;cacheBulkCopyMetadata=false;bulkCopyForBatchInsertAllowEncryptedValueModifications=false;bulkCopyForBatchInsertTableLock=false;bulkCopyForBatchInsertKeepNulls=false;bulkCopyForBatchInsertKeepIdentity=false;bulkCopyForBatchInsertFireTriggers=false;bulkCopyForBatchInsertCheckConstraints=false;bulkCopyForBatchInsertBatchSize=0;useBulkCopyForBatchInsert=false;cancelQueryTimeout=-1;sslProtocol=TLS;calcBigDecimalPrecision=false;useDefaultJaasConfig=false;jaasConfigurationName=SQLJDBCDriver;statementPoolingCacheSize=0;serverPreparedStatementDiscardThreshold=10;enablePrepareOnFirstPreparedStatementCall=false;fips=false;socketTimeout=0;authentication=NotSpecified;authenticationScheme=nativeAuthentication;xopenStates=false;datetimeParameterType=datetime2;sendTimeAsDatetime=true;replication=false;trustStoreType=JKS;trustServerCertificate=true;TransparentNetworkIPResolution=true;iPAddressPreference=IPv4First;serverNameAsACE=false;sendStringParametersAsUnicode=true;selectMethod=direct;responseBuffering=adaptive;queryTimeout=-1;packetSize=8000;multiSubnetFailover=false;loginTimeout=60;lockTimeout=-1;lastUpdateCount=true;useDefaultGSSCredential=false;prepareMethod=prepexec;encrypt=true;disableStatementPooling=true;databaseName=Diabetes;columnEncryptionSetting=Disabled;applicationName=Microsoft JDBC Driver for SQL Server;applicationIntent=readwrite;]
+	Database driver: Microsoft JDBC Driver 13.2 for SQL Server
+	Database dialect: SQLServerDialect
+	Database version: 16.0
+	Default catalog/schema: Diabetes/dbo
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 128
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-07-16T10:23:32.242+07:00  INFO 2540 --- [diabetes] [restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-07-16T10:23:32.256+07:00  INFO 2540 --- [diabetes] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-07-16T10:23:32.762+07:00  INFO 2540 --- [diabetes] [restartedMain] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-07-16T10:23:36.885+07:00  WARN 2540 --- [diabetes] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-07-16T10:23:37.720+07:00  INFO 2540 --- [diabetes] [restartedMain] o.s.b.w.a.WelcomePageHandlerMapping      : Adding welcome page template: index
+2026-07-16T10:23:38.614+07:00  INFO 2540 --- [diabetes] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8080 (http) with context path '/'
+2026-07-16T10:23:38.630+07:00  INFO 2540 --- [diabetes] [restartedMain] com.quan.diabetes.DiabetesApplication    : Started DiabetesApplication in 17.475 seconds (process running for 18.331)
+2026-07-16T10:23:48.774+07:00  INFO 2540 --- [diabetes] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-07-16T10:23:48.776+07:00  INFO 2540 --- [diabetes] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-07-16T10:23:48.791+07:00  INFO 2540 --- [diabetes] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 12 ms
