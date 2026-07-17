@@ -58,17 +58,38 @@
                                     </div>
                                 </div>
                                 
-                                <div class="req-actions" style="display: flex; gap: 12px; flex-shrink: 0; margin-left: 30px;">
-                                    <form th:action="@{/doctor/request/approve/{id}(id=${req.clinicalExamId})}" method="post" style="margin: 0;">
-                                        <button type="submit" class="btn" style="background: linear-gradient(135deg, var(--doctor-accent), var(--doctor-primary)); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 0.95rem; display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; min-width: 130px; box-shadow: 0 4px 12px rgba(20, 92, 74, 0.25); cursor: pointer; transition: all 0.2s ease;">
+                                <div class="req-actions-wrapper" style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0; margin-left: 30px;">
+                                    <!-- Default Actions -->
+                                    <div class="default-actions" style="display: flex; gap: 12px;">
+                                        <button type="button" class="btn" onclick="showApproveConfirm(this)" style="background: linear-gradient(135deg, var(--doctor-accent), var(--doctor-primary)); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 0.95rem; display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; min-width: 130px; box-shadow: 0 4px 12px rgba(20, 92, 74, 0.25); cursor: pointer; transition: all 0.2s ease;">
                                             <i class="fas fa-check"></i> Duyệt
                                         </button>
-                                    </form>
-                                    <form th:action="@{/doctor/request/reject/{id}(id=${req.clinicalExamId})}" method="post" style="margin: 0;">
-                                        <button type="submit" class="btn" style="background: linear-gradient(135deg, #e53e3e, var(--doctor-danger)); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 0.95rem; display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; min-width: 130px; box-shadow: 0 4px 12px rgba(197, 48, 48, 0.25); cursor: pointer; transition: all 0.2s ease;" onclick="return confirm('Bạn có chắc chắn muốn từ chối yêu cầu khám này?')">
-                                            <i class="fas fa-times"></i> Từ chối
-                                        </button>
-                                    </form>
+                                        <form th:action="@{/doctor/request/reject/{id}(id=${req.clinicalExamId})}" method="post" style="margin: 0;">
+                                            <button type="submit" class="btn" style="background: linear-gradient(135deg, #e53e3e, var(--doctor-danger)); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 0.95rem; display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; min-width: 130px; box-shadow: 0 4px 12px rgba(197, 48, 48, 0.25); cursor: pointer; transition: all 0.2s ease;" onclick="return confirm('Bạn có chắc chắn muốn từ chối yêu cầu khám này?')">
+                                                <i class="fas fa-times"></i> Từ chối
+                                            </button>
+                                        </form>
+                                    </div>
+                                    
+                                    <!-- Approve Confirmation Section -->
+                                    <div class="approve-confirm-section" style="display: none; flex-direction: column; align-items: flex-end; gap: 12px; background: rgba(5, 150, 105, 0.02); padding: 16px; border-radius: 12px; border: 1px solid rgba(5, 150, 105, 0.15); max-width: 340px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02); animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;">
+                                        <div style="font-size: 0.95rem; color: #064e3b; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                                            <i class="fas fa-question-circle" style="color: #059669; font-size: 1.1rem;"></i> Xác nhận duyệt yêu cầu khám?
+                                        </div>
+                                        <div style="font-size: 0.82rem; color: #047857; text-align: left; line-height: 1.5; font-weight: 500; display: flex; align-items: flex-start; gap: 6px; background: rgba(5, 150, 105, 0.05); padding: 8px 12px; border-radius: 8px; border-left: 3px solid #059669;">
+                                            <span>💡 Phiên khám này sẽ lập tức được thêm vào hàng đợi khám trong ngày hôm nay của bạn.</span>
+                                        </div>
+                                        <div style="display: flex; gap: 10px; width: 100%; justify-content: flex-end;">
+                                            <button type="button" class="btn" onclick="hideApproveConfirm(this)" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 8px 18px; border-radius: 8px; font-weight: 600; font-size: 0.88rem; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); min-width: 90px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-sizing: border-box;" onmouseover="this.style.background='#e2e8f0'; this.style.color='#1e293b';" onmouseout="this.style.background='#f1f5f9'; this.style.color='#475569';">
+                                                <i class="fas fa-ban"></i> Hủy
+                                            </button>
+                                            <form th:action="@{/doctor/request/approve/{id}(id=${req.clinicalExamId})}" method="post" style="margin: 0;">
+                                                <button type="submit" class="btn" style="background: linear-gradient(135deg, #059669, #10b981); color: white; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 600; font-size: 0.88rem; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); min-width: 110px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2); box-sizing: border-box;" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 6px 16px rgba(5, 150, 105, 0.3)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 12px rgba(5, 150, 105, 0.2)';">
+                                                    <i class="fas fa-check-double"></i> Xác nhận
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -88,6 +109,16 @@
         .toast-container .toast {
             animation: toastAnimation 4s forwards;
         }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
     </style>
     <!-- Native Toast Container -->
     <div id="toast-container" class="toast-container" th:if="${param.toast}">
@@ -96,5 +127,23 @@
             <span>Thao tác thành công!</span>
         </div>
     </div>
+    
+    <script>
+        function showApproveConfirm(btn) {
+            const container = btn.closest('.req-actions-wrapper');
+            if (container) {
+                container.querySelector('.default-actions').style.display = 'none';
+                container.querySelector('.approve-confirm-section').style.display = 'flex';
+            }
+        }
+
+        function hideApproveConfirm(btn) {
+            const container = btn.closest('.req-actions-wrapper');
+            if (container) {
+                container.querySelector('.default-actions').style.display = 'flex';
+                container.querySelector('.approve-confirm-section').style.display = 'none';
+            }
+        }
+    </script>
 </body>
 </html>
