@@ -3,6 +3,16 @@
    examination flow. No JavaScript required.
    =================================================================== */
 
+/* ---- Main Workspace Container ---- */
+.examination-workspace {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    overflow-y: auto;
+    background: transparent;
+}
+
 /* ---- Tab Bar Container ---- */
 .exam-tab-bar {
     display: flex;
