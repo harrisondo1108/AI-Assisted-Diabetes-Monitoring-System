@@ -95,11 +95,15 @@ public class AIMessageServiceImpl implements AIMessageService {
         List<AIMessage> topMessages = aIMessageRepository
                 .findTop20ByAiConversation_AiConversationIdOrderByTimeDesc(conversationId);
 
-        // Cần đảo ngược lại để hiển thị đúng thứ tự thời gian tăng dần
-        Collections.reverse(topMessages);
-
-        List<AiHistoryDto> historyDtos = topMessages.stream()
+        // Lấy đúng số lượng tin nhắn mới nhất (limit) từ danh sách DESC trước
+        List<AIMessage> recentMessages = topMessages.stream()
                 .limit(limit)
+                .collect(Collectors.toList());
+
+        // Đảo ngược lại để hiển thị đúng thứ tự thời gian tăng dần (ASC) từ cũ đến mới cho prompt
+        Collections.reverse(recentMessages);
+
+        List<AiHistoryDto> historyDtos = recentMessages.stream()
                 .map(m -> new AiHistoryDto(
                         m.getSender().equalsIgnoreCase("Patient") ? "user" : "ai",
                         m.getContent()))

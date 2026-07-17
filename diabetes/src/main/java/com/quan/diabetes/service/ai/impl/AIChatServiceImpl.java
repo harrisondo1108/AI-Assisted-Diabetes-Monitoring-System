@@ -37,6 +37,8 @@ import com.quan.diabetes.service.ai.AIConversationService;
 import com.quan.diabetes.service.ai.AIMessageService;
 import com.quan.diabetes.service.user.PatientService;
 import com.quan.diabetes.monitoring.service.AiMonitoringService;
+import com.quan.diabetes.aiAPI.manager.AiProviderManager;
+import com.quan.diabetes.aiAPI.dto.AiGenerateOptions;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -60,18 +62,19 @@ public class AIChatServiceImpl implements AIChatService {
             
             QUY TẮC TRẢ LỜI & ĐỊNH DẠNG BẮT BUỘC:
             1. BẮT BUỘC TRẢ LỜI ĐÚNG TRỌNG TÂM CÂU HỎI:
-               - Nếu bệnh nhân hỏi định nghĩa/khái niệm của một loại thuốc hoặc bệnh (như "thuốc metformin là thuốc j/gì", "bệnh tiểu đường là gì"): Hãy trả lời khoa học, khách quan về khái niệm, công dụng, cơ chế và chỉ định của thuốc đó. TUYỆT ĐỐI KHÔNG tự ý bịa đặt bệnh nhân bị tác dụng phụ, hoại tử hay uống quá liều khi bệnh nhân không hề nhắc đến!
+               - Nếu bệnh nhân hỏi định nghĩa/khái niệm của một loại thuốc hoặc bệnh (như "thuốc metformin là thuốc j/gì", "bệnh tiểu đường là gì"): Hãy trả lời khoa học, khách quan về khái niệm, công dụng, cơ chế và chỉ định của thuốc đó. TUYỆT ĐỐI KHÔNG tự ý bịa đặt bệnh nhân bị tác dụng phụ, hoại tử hay uống quá liều khi bệnh nhân không hề nhắc đến! TUYỆT ĐỐI KHÔNG nhắc lại đơn thuốc cũ hay tóm tắt chỉ số xét nghiệm từ lịch sử trò chuyện nếu câu hỏi hiện tại không hỏi về chúng!
                - Nếu bệnh nhân hỏi nguyên nhân, triệu chứng, lối sống, dinh dưỡng: Trả lời trực tiếp vào đúng vấn đề được hỏi.
             2. KHÓA NGÔN NGỮ 100% TIẾNG VIỆT CHUẨN Y KHOA:
                - BẮT BUỘC viết 100% bằng Tiếng Việt chuẩn mực, rõ ràng (ví dụ: dùng "Di truyền" thay vì "Genetics", "Lối sống" thay vì "Lifestyle"). TUYỆT ĐỐI KHÔNG dùng từ tiếng Anh làm tiêu đề hay chèn từ tiếng Anh vào bài tư vấn.
             3. TUYỆT ĐỐI KHÔNG IN TIỀN TỐ, NHÃN PHÂN LOẠI HAY ĐỊNH DẠNG JSON:
                - TUYỆT ĐỐI KHÔNG trả lời bằng chuỗi JSON (như {"action": ...}) hoặc in ra các nhãn dẫn nhập như: "Y khoa:", "Bắt đầu:", "Mã câu hỏi:", "Câu trả lời:", "Input:", "Output:", "Response:".
                - Hãy đi thẳng ngay vào nội dung tư vấn bằng văn bản tiếng Việt tự nhiên, chuẩn mực, chuyên nghiệp.
-            4. CÁCH TRẢ LỜI THEO NGỮ CẢNH VÀ QUYỀN TRUY CẬP DỮ LIỆU CÁ NHÂN:
-               - KHI TRONG PROMPT CÓ CUNG CẤP [DỮ LIỆU HỒ SƠ CÁ NHÂN CỦA BỆNH NHÂN TỪ CƠ SỞ DỮ LIỆU]: Bạn CÓ NGHĨA VỤ tự đọc dữ liệu và trình bày chi tiết cho bệnh nhân xem bằng lời văn bác sĩ tự nhiên, thân thiện.
-               - TUYỆT ĐỐI KHÔNG SINH RA HOẶC CHÈN CÁC CHUỖI GIỮ CHỖ MẪU (PLACEHOLDER) như [Số lượng], [Viên nén / Tiêm dưới da], [Ngày bắt đầu], [Tên thuốc]. Chỉ sử dụng đúng thông tin thực tế từ dữ liệu hồ sơ. TUYỆT ĐỐI KHÔNG bịa thuốc không có trong hồ sơ.
+            4. CÁCH TRẢ LỜI THEO NGỮ CẢNH VÀ QUYỀN TRUY CẬP DỮ LIỆU CÁ NHÂN (TRUNG THỰC TUYỆT ĐỐI VỚI DỮ LIỆU RAG):
+               - KHI TRONG PROMPT CÓ CUNG CẤP [DỮ LIỆU HỒ SƠ CÁ NHÂN CỦA BỆNH NHÂN TỪ CƠ SỞ DỮ LIỆU]: Bạn CÓ NGHĨA VỤ tự đọc kỹ từng dòng dữ liệu và trình bày chi tiết cho bệnh nhân xem bằng lời văn bác sĩ tự nhiên, ân cần, thân thiện.
+               - TUYỆT ĐỐI KHÔNG SINH RA HOẶC CHÈN CÁC CHUỖI GIỮ CHỖ MẪU (PLACEHOLDER) như [Số lượng], [Viên nén / Tiêm dưới da], [Ngày bắt đầu], [Tên thuốc].
+               - TUYỆT ĐỐI KHÔNG tự ý chèn hay suy diễn các thông tin giả định từ tập dữ liệu huấn luyện mẫu (như 'Mã bệnh nhân: #P001', 'Sitagliptin', 'Metformin 500mg' hay bệnh sử giả định) khi dữ liệu RAG không cung cấp. Nếu trong hồ sơ RAG có thuốc hoặc chỉ số nào thì chỉ trình bày đúng thông tin thực tế đó.
                - ĐẶC BIỆT VỚI ĐƠN THUỐC / TOA THUỐC: Bạn BẮT BUỘC phải liệt kê rõ ràng danh sách TÊN TỪNG LOẠI THUỐC có trong đơn (Tên thuốc, Liều lượng, Dạng thuốc, Đường dùng, Thời điểm uống) trước tiên, sau đó mới hướng dẫn cách sử dụng an toàn. TUYỆT ĐỐI KHÔNG nói 'xin lỗi chưa có thông tin' hay 'dựa trên thông tin bạn cung cấp' vì đây là dữ liệu hồ sơ chính thức của bệnh nhân.
-               - KHI TRONG PROMPT KHÔNG CÓ DỮ LIỆU CÁ NHÂN: Đây là câu hỏi kiến thức y khoa chung hoặc lời khuyên lối sống. Hãy phát huy tối đa kiến thức y khoa chuyên sâu để trả lời chi tiết, chính xác và khoa học.
+               - KHI TRONG PROMPT KHÔNG CÓ DỮ LIỆU CÁ NHÂN: Đây là câu hỏi kiến thức y khoa chung hoặc lời khuyên lối sống. Hãy phát huy tối đa kiến thức y khoa chuyên sâu để trả lời chi tiết, chính xác, khách quan và khoa học. TUYỆT ĐỐI KHÔNG tự bịa mã bệnh nhân hay đơn thuốc cá nhân.
             5. CẤU TRÚC & ĐỊNH DẠNG TRÌNH BÀY MARKDOWN ĐẸP MẮT, RÕ RÀNG:
                - Luôn trình bày thông tin hồ sơ y tế (đặc biệt là đơn thuốc, phác đồ, xét nghiệm) dưới dạng danh sách Markdown rõ ràng (dùng gạch đầu dòng "- " hoặc số thứ tự "1. ", "2. " kèm in đậm tiêu đề). TUYỆT ĐỐI KHÔNG viết gộp thành một đoạn văn dài liền tù tì khó đọc.
                - Mở đầu: Chào hỏi thân thiện → Trình bày rõ ràng danh sách thông tin hồ sơ → Lời khuyên an toàn.
@@ -82,14 +85,15 @@ public class AIChatServiceImpl implements AIChatService {
             8. CHUẨN MỰC KIẾN THỨC Y KHOA CHÍNH XÁC (KHÔNG BỊA SỐ LIỆU THỐNG KÊ):
                - TUYỆT ĐỐI KHÔNG tự ý bịa ra các tỷ lệ phần trăm sống sót giả định hay thống kê vô căn cứ (như 'tỷ lệ sống sót 5 năm 80-90% hay 50-60%').
                - Khi tư vấn tiên lượng sống với bệnh tiểu đường: Khẳng định rõ bệnh tiểu đường là bệnh mãn tính, nhưng nếu kiểm soát tốt đường huyết (HbA1c < 7%), huyết áp, ăn uống lành mạnh và tuân thủ phác đồ điều trị thì HOÀN TOÀN CÓ THỂ SỐNG THỌ VÀ KHỎE MẠNH với tuổi thọ bình thường như người không mắc bệnh.
-            9. QUY TẮC BẮT BUỘC VỀ TRÌNH TỰ VÀ SỰ ĐA DẠNG CÂU HỎI MỞ:
-               - BẮT BUỘC phải trả lời CHI TIẾT, ĐẦY ĐỦ KIẾN THỨC Y KHOA giải đáp trực tiếp câu hỏi của bệnh nhân trước tiên. TUYỆT ĐỐI KHÔNG ĐƯỢC CHỈ ĐẶT CÂU HỎI MỞ MÀ KHÔNG TRẢ LỜI KIẾN THỨC CHUYÊN MÔN.
-               - Sau khi đã giải đáp đầy đủ kiến thức y khoa, BẮT BUỘC đặt 1 câu hỏi mở ÂN CẦN, ĐA DẠNG và PHÙ HỢP NGỮ CẢNH ở cuối bài để tiếp tục trò chuyện.
-               - TUYỆT ĐỐI KHÔNG LẶP LẠI MỘT CÂU HỎI MÁY MÓC. Hãy thay đổi câu hỏi linh hoạt theo chủ đề (Ví dụ: hỏi về thói quen ăn uống, lịch đo đường huyết, triệu chứng mệt mỏi, hay việc tuân thủ dùng thuốc của bệnh nhân).
+            9. QUY TẮC VỀ LỜI KHUYÊN HOẶC CÂU HỎI KẾT THÚC TỰ NHIÊN (KHÔNG SỬ DỤNG TEMPLATE):
+               - Bạn BẮT BUỘC phải đọc kỹ dữ liệu RAG (nếu có) và suy nghĩ thật thấu đáo trước khi trả lời. Hãy trả lời CHI TIẾT, ĐẦY ĐỦ KIẾN THỨC Y KHOA giải đáp trực tiếp câu hỏi của bệnh nhân bằng lời văn bác sĩ tự nhiên, ấm áp.
+               - Sau khi đã trình bày xong dữ liệu hoặc kiến thức chuyên môn, chính bạn hãy tự suy nghĩ để đưa ra một lời khuyên an toàn HOẶC 1 câu hỏi mở ân cần, mềm mại và tự nhiên nhất phù hợp với đúng ngữ cảnh vừa trao đổi.
+               - TUYỆT ĐỐI KHÔNG rập khuôn máy móc, không lặp lại câu hỏi kết thúc của lượt trò chuyện trước.
             10. QUY TẮC PHÂN TÍCH NGỮ CẢNH HỘI THOẠI NỐI TIẾP (CHO TẤT CẢ CÁC CHỦ ĐỀ):
-               - TRƯỚC KHI TRẢ LỜI BẤT KỲ CÂU HỎI NÀO: Bạn BẮT BUỘC phải đọc kỹ [LỊCH SỬ TRÒ CHUYỆN GẦN ĐÂY CỦA BỆNH NHÂN] để xác định câu hỏi hiện tại có liên quan hay là câu hỏi nối tiếp câu hỏi/trả lời trước đó hay không.
-               - Nếu là câu hỏi tiếp nối (bất kể về thuốc, xét nghiệm, phác đồ điều trị, khám bệnh hay triệu chứng...): Bạn BẮT BUỘC phải liên kết chặt chẽ với đúng đối tượng/chỉ số/vấn đề ở lượt ngay trước đó để giải đáp chính xác, mạch lạc.
-               - Nếu là chủ đề hoàn toàn mới: Trả lời đi thẳng vào trọng tâm câu hỏi mới bằng chuyên môn y khoa sâu rộng.
+               - TRƯỚC KHI TRẢ LỜI: Hãy kiểm tra [LỊCH SỬ TRÒ CHUYỆN GẦN ĐÂY CỦA BỆNH NHÂN] để xem câu hỏi hiện tại có phải là thắc mắc nối tiếp lượt trả lời trước hay không (ví dụ: "thuốc đó uống thế nào", "chỉ số đó cao hay thấp"). Nếu là câu hỏi nối tiếp rõ ràng: Hãy liên kết để giải đáp mạch lạc.
+               - Nếu bệnh nhân hỏi một khái niệm kiến thức độc lập hoặc chủ đề mới (như "bệnh tiểu đường là gì", "metformin là gì"): BẮT BUỘC phải trả lời đi thẳng vào trọng tâm chuyên môn y khoa của khái niệm mới đó, TUYỆT ĐỐI KHÔNG tóm tắt lại đơn thuốc hay bình luận hồ sơ cũ từ lịch sử trò chuyện.
+            11. TUYỆT ĐỐI KHÔNG MỞ ĐẦU BẰNG LỜI XIN LỖI THỪA THÃI:
+               - TUYỆT ĐỐI KHÔNG mở đầu câu trả lời bằng các lời xin lỗi rập khuôn hay rào đón (ví dụ cấm dùng: 'Tôi xin lỗi vì đã không liệt kê...', 'Xin lỗi bạn vì sự bất tiện...', 'Chào bạn, tôi xin lỗi...'). Hãy chào hỏi thân thiện và đi thẳng ngay vào việc trình bày chính xác nội dung tư vấn y khoa hoặc dữ liệu hồ sơ cá nhân.
             """;
 
     private final RestTemplate restTemplate;
@@ -99,6 +103,7 @@ public class AIChatServiceImpl implements AIChatService {
     private final PatientService patientService;
     private final com.quan.diabetes.service.ai.AiTool aiTool;
     private final AiMonitoringService aiMonitoringService;
+    private final AiProviderManager aiProviderManager;
 
     public AIChatServiceImpl(
             RestTemplate restTemplate,
@@ -107,7 +112,8 @@ public class AIChatServiceImpl implements AIChatService {
             AIAssistantService aiAssistantService,
             PatientService patientService,
             com.quan.diabetes.service.ai.AiTool aiTool,
-            AiMonitoringService aiMonitoringService) {
+            AiMonitoringService aiMonitoringService,
+            AiProviderManager aiProviderManager) {
         this.restTemplate = restTemplate;
         this.aiMessageService = aiMessageService;
         this.aiConversationService = aiConversationService;
@@ -115,6 +121,7 @@ public class AIChatServiceImpl implements AIChatService {
         this.patientService = patientService;
         this.aiTool = aiTool;
         this.aiMonitoringService = aiMonitoringService;
+        this.aiProviderManager = aiProviderManager;
     }
 
     @Override
@@ -149,7 +156,7 @@ public class AIChatServiceImpl implements AIChatService {
             }
 
             String modelToUse = assistant.getModelName();
-            if (modelToUse == null || modelToUse.isEmpty() || "diabetes-ai".equalsIgnoreCase(modelToUse)) {
+            if (modelToUse == null || modelToUse.isEmpty()) {
                 modelToUse = ollamaDefaultModel;
                 assistant.setModelName(modelToUse);
                 aiAssistantService.update(assistant.getAiAssistantId(), assistant);
@@ -245,7 +252,6 @@ public class AIChatServiceImpl implements AIChatService {
                         "Bạn vui lòng kiểm tra lại sau hoặc liên hệ trực tiếp với bác sĩ điều trị để được cập nhật dữ liệu vào hồ sơ nhé!",
                         categoryTitle
                 );
-                aiResponse = appendOpenQuestionIfMissing(aiResponse);
             } else {
                 logger.info("--- CHẶNG 2: Gọi AI Ollama đọc dữ liệu RAG hoặc kiến thức y khoa và tự trả lời ---");
                 String finalSystemPrompt = STAGE_2_SYSTEM_PROMPT;
@@ -254,8 +260,8 @@ public class AIChatServiceImpl implements AIChatService {
                 System.out.println("=================== Final System Prompt :\n" + finalSystemPrompt);
                 System.out.println("=================== Stage 2 Prompt :\n" + chang2Prompt);
 
-                OllamaGenerateRequest.Options options = new OllamaGenerateRequest.Options(0.15, 0.9, 20, 1.15, 1024, 380, 8);
-                aiResponse = callOllamaGenerate(modelToUse, chang2Prompt, finalSystemPrompt, options);
+                AiGenerateOptions options = new AiGenerateOptions(modelToUse, 0.15, 0.9, 8192);
+                aiResponse = aiProviderManager.generateWithModel(modelToUse, chang2Prompt, finalSystemPrompt, options);
                 if (aiResponse == null || aiResponse.trim().isEmpty()) {
                     aiResponse = "Xin lỗi, hiện tại hệ thống AI đang gặp sự cố khi xử lý câu hỏi của bạn. Vui lòng thử lại sau.";
                 } else {
@@ -534,7 +540,7 @@ public class AIChatServiceImpl implements AIChatService {
         sb.append("---\n");
         sb.append(doctorAdvice).append("\n");
 
-        return appendOpenQuestionIfMissing(sb.toString());
+        return sb.toString();
     }
 
     /**
@@ -547,19 +553,24 @@ public class AIChatServiceImpl implements AIChatService {
                          .append(formattedHistory).append("\n\n");
         }
         if (sqlData != null && !sqlData.trim().isEmpty()) {
-            promptBuilder.append("[DỮ LIỆU HỒ SƠ CÁ NHÂN CỦA BỆNH NHÂN TỪ CƠ SỞ DỮ LIỆU]:\n")
+            promptBuilder.append("[DỮ LIỆU HỒ SƠ CÁ NHÂN CỦA BỆNH NHÂN TỪ CƠ SỞ DỮ LIỆU SQL - DỮ LIỆU THẬT]:\n")
                          .append(sqlData).append("\n\n");
             promptBuilder.append("Câu hỏi hiện tại của bệnh nhân: ").append(question).append("\n\n");
-            promptBuilder.append("YÊU CẦU TRÌNH BÀY VÀ ĐỊNH DẠNG TRỰC TIẾP:\n")
-                         .append("- Bệnh nhân đang tra cứu hồ sơ y tế cá nhân. BẮT BUỘC trình bày chính xác, chi tiết thông tin từ [DỮ LIỆU HỒ SƠ CÁ NHÂN CỦA BỆNH NHÂN TỪ CƠ SỞ DỮ LIỆU] ở trên dưới dạng danh sách gạch đầu dòng rõ ràng, đẹp mắt.\n")
-                         .append("- NẾU HỎI VỀ ĐƠN THUỐC: Hãy liệt kê rõ tên thực tế của thuốc, liều lượng cụ thể, dạng thuốc, đường dùng và thời điểm uống trong ngày từ dữ liệu hồ sơ ở trên. Trình bày tách bạch từng thuốc.\n")
-                         .append("- Hãy dùng tiếng Việt chuẩn mực y khoa, không sai chính tả, không dùng từ ngữ tiếng Anh chắp vá.\n")
-                         .append("- TUYỆT ĐỐI KHÔNG sao chép câu hỏi kết thúc của lượt trò chuyện trước trong lịch sử hội thoại. Hãy kết thúc bằng lời khuyên hoặc câu hỏi phù hợp với đúng chủ đề hiện tại.\n")
+            promptBuilder.append("YÊU CẦU DÀNH CHO TRỢ LÝ AI (BẮT BUỘC TRUNG THỰC VỚI DỮ LIỆU RAG):\n")
+                         .append("- Bệnh nhân đang tra cứu hồ sơ y tế thực tế của mình. BẮT BUỘC chỉ sử dụng và trình bày chính xác từng dòng thông tin có trong khối [DỮ LIỆU HỒ SƠ CÁ NHÂN CỦA BỆNH NHÂN TỪ CƠ SỞ DỮ LIỆU SQL - DỮ LIỆU THẬT] ở trên dưới dạng danh sách gạch đầu dòng rõ ràng, đẹp mắt.\n")
+                         .append("- TUYỆT ĐỐI KHÔNG tự bịa ra mã bệnh nhân giả định (như #P001) hay chèn các thuốc từ ký ức mẫu fine-tune (như Sitagliptin, Metformin) khi trong dữ liệu ở trên không ghi nhận.\n")
+                         .append("- NẾU HỎI VỀ ĐƠN THUỐC: Hãy liệt kê rõ tên thực tế của từng thuốc, liều lượng cụ thể, dạng thuốc, đường dùng và thời điểm uống trong ngày từ đúng dữ liệu ở trên. Trình bày tách bạch từng thuốc.\n")
+                         .append("- Hãy dùng tiếng Việt chuẩn mực y khoa, lời văn tự nhiên, ân cần và chuyên nghiệp như bác sĩ.\n")
+                         .append("- TUYỆT ĐỐI KHÔNG sao chép câu hỏi kết thúc của lượt trò chuyện trước trong lịch sử hội thoại. Hãy tự suy nghĩ và kết thúc bằng lời khuyên hoặc 1 câu hỏi mở tự nhiên phù hợp với đúng chủ đề hiện tại.\n")
                          .append("- TUYỆT ĐỐI KHÔNG lặp lại nhãn yêu cầu hay từ 'BẮT BUỘC:' ở đầu câu trả lời.\n");
         } else {
             promptBuilder.append("Câu hỏi hiện tại của bệnh nhân: ").append(question).append("\n\n");
+            promptBuilder.append("LƯU Ý DÀNH CHO TRỢ LÝ AI:\n")
+                         .append("- Đây là câu hỏi kiến thức y khoa chung hoặc khái niệm (" + question + "). Hãy trả lời TRỰC TIẾP, ĐÚNG TRỌNG TÂM vào đúng định nghĩa, nguyên nhân hoặc kiến thức được hỏi bằng sự chuyên sâu, tự nhiên và chuẩn xác.\n")
+                         .append("- TUYỆT ĐỐI KHÔNG tóm tắt hay nhắc lại thông tin đơn thuốc, các chỉ số xét nghiệm, hồ sơ cá nhân cũ từ [LỊCH SỬ TRÒ CHUYỆN GẦN ĐÂY CỦA BỆNH NHÂN] nếu câu hỏi hiện tại không hỏi về chúng!\n")
+                         .append("- TUYỆT ĐỐI KHÔNG bịa đặt hay tự ý chèn thông tin giả định về mã bệnh nhân (#P001), lịch sử y tế hay đơn thuốc cá nhân giả định vào bài tư vấn.\n");
             if (formattedHistory != null && !formattedHistory.trim().isEmpty()) {
-                promptBuilder.append("LƯU Ý: Trước khi trả lời, hãy kiểm tra [LỊCH SỬ TRÒ CHUYỆN GẦN ĐÂY CỦA BỆNH NHÂN] để xem câu hỏi hiện tại có liên quan/tiếp nối nội dung trước đó hay không. Nếu là câu hỏi tiếp nối, hãy trả lời đúng ngữ cảnh; nếu là câu hỏi mới, hãy tư vấn y khoa chính xác.\n");
+                promptBuilder.append("- Chỉ kiểm tra [LỊCH SỬ TRÒ CHUYỆN GẦN ĐÂY CỦA BỆNH NHÂN] để liên kết đúng đối tượng nếu đây là câu hỏi nối tiếp thắc mắc về chính lượt trả lời trước.\n");
             }
         }
         return promptBuilder.toString();
@@ -576,8 +587,11 @@ public class AIChatServiceImpl implements AIChatService {
         // Lọc sạch rò rỉ prompt hệ thống nếu LLM vô tình sinh ra
         cleaned = cleaned.replaceAll("(?m)^.*QUY TẮC BẮT BUỘC.*?(?:\\r?\\n|$)", "");
         cleaned = cleaned.replaceAll("(?m)^MẠNH với tuổi thọ.*?(?:\\r?\\n|$)", "");
+        // Xóa các dòng rác rò rỉ từ tập dữ liệu huấn luyện fine-tune mẫu (như Mã bệnh nhân: #P001, Mã BN: #P...)
+        cleaned = cleaned.replaceAll("(?mi)^Mã\\s*bệnh\\s*nhân\\s*:\\s*#[P\\w\\d]+[^\\n]*?(?:\\r?\\n|$)\\s*", "");
+        cleaned = cleaned.replaceAll("(?mi)^Mã\\s*BN\\s*:\\s*#[P\\w\\d]+[^\\n]*?(?:\\r?\\n|$)\\s*", "");
         // Xóa tất cả các dòng metadata bị rò rỉ ở BẤT KỲ VỊ TRÍ/DÒNG NÀO trong câu trả lời (multiline (?mi))
-        cleaned = cleaned.replaceAll("(?mi)^(?:Mã\\s*số\\s*câu\\s*hỏi|Mã\\s*bạn|Mã\\s*lỗi|Mã\\s*câu\\s*lệnh|Mã\\s*câu\\s*hỏi|Mã\\s*bệnh\\s*án|Lượt\\s*trước|Câu\\s*lệnh|Lệnh|Câu\\s*hỏi|Chủ\\s*đề|Input|Output|### Response)[^\\n]*?(?:\\r?\\n|$)\\s*", "");
+        cleaned = cleaned.replaceAll("(?mi)^(?:Mã\\s*số\\s*câu\\s*hỏi|Mã\\s*bạn|Mã\\s*bệnh\\s*nhân|Mã\\s*lỗi|Mã\\s*câu\\s*lệnh|Mã\\s*câu\\s*hỏi|Mã\\s*bệnh\\s*án|Lượt\\s*trước|Câu\\s*lệnh|Lệnh|Câu\\s*hỏi|Chủ\\s*đề|Input|Output|### Response)[^\\n]*?(?:\\r?\\n|$)\\s*", "");
         // Xóa nhãn dẫn nhập câu trả lời ở đầu bất kỳ dòng nào như "Câu trả lời:", "Lời giải thích:", "Bác sĩ:"
         cleaned = cleaned.replaceAll("(?mi)^(?:Lời\\s*trả\\s*lời|Lời\\s*giải|Trả\\s*lời|Câu\\s*trả\\s*lời|Đáp\\s*án|Giải\\s*thích|Lời\\s*giải\\s*thích|Khái\\s*niệm|Bác\\s*sĩ|Doctor|AI|Trợ\\s*lý(?:\\s*AI)?|Chuyên\\s*gia)\\s*:\\s*", "");
 
@@ -587,6 +601,7 @@ public class AIChatServiceImpl implements AIChatService {
             cleaned = cleaned.replaceAll("(?i)^(?:Bạn\\s*)?BẮT\\s*BUỘC[^:]*:\\s*", "");
             cleaned = cleaned.replaceAll("(?i)^YÊU\\s*CẦU[^:]*:\\s*", "");
             cleaned = cleaned.replaceAll("(?i)^QUY\\s*TẮC[^:]*:\\s*", "");
+            cleaned = cleaned.replaceAll("(?i)^Mã\\s*bệnh\\s*nhân:[^\\n]*?(?:\\r?\\n|$)\\s*", "");
             cleaned = cleaned.replaceAll("(?i)^Mã\\s*số\\s*câu\\s*hỏi:[^\\n]*?(?:\\r?\\n|$)\\s*", "");
             cleaned = cleaned.replaceAll("(?i)^Mã\\s*câu\\s*lệnh:[^\\n]*?(?:\\r?\\n|$)\\s*", "");
             cleaned = cleaned.replaceAll("(?i)^Mã\\s*câu\\s*hỏi:[^\\n]*?(?:\\r?\\n|$)\\s*", "");
@@ -598,6 +613,8 @@ public class AIChatServiceImpl implements AIChatService {
             cleaned = cleaned.replaceAll("(?i)^Input:[^\\n]*?(?:\\r?\\n|$)\\s*", "");
             cleaned = cleaned.replaceAll("(?i)^### Response:(?:\\r?\\n|$|\\s+)", "");
             cleaned = cleaned.replaceAll("(?i)^(?:Bác\\s*sĩ|Doctor|AI|Trợ\\s*lý(?:\\s*AI)?|Chuyên\\s*gia)\\s*:(?:\\r?\\n|$|\\s+)", "");
+            cleaned = cleaned.replaceAll("(?i)^(?:Chào\\s*bạn,?\\s*)?(?:tôi\\s*|AI\\s*)?xin\\s*lỗi[^\\n.]*?[\\.\\:]\\s*", "");
+            cleaned = cleaned.replaceAll("(?i)^Xin\\s*lỗi\\s*(?:bạn|vì|đã)[^\\n.]*?[\\.\\:]\\s*", "");
             cleaned = cleaned.replaceAll("^\\s*\\{[^{}]*\\}[,\\s]*", "");
             cleaned = cleaned.trim();
             changed = !cleaned.equals(prev);
@@ -611,12 +628,17 @@ public class AIChatServiceImpl implements AIChatService {
         cleaned = cleaned.replaceAll("(?m)^(?:Y\\s*khoa|Bắt\\s*đầu|Khởi\\s*đầu|Chuyên\\s*môn|Tư\\s*vấn|Kết\\s*luận|Lời\\s*khuyên)\\s*:\\s*", "");
         // Xóa các câu rào đón thừa ở đầu bài tư vấn
         cleaned = cleaned.replaceAll("(?i)^Bạn cần hướng dẫn[^\\n]*?\\.\\s*", "");
+        // Xóa lời xin lỗi thừa ở đầu câu trả lời nếu AI lỡ sinh ra (như "Chào bạn, tôi xin lỗi vì đã không liệt kê...", "Tôi xin lỗi vì...", "Xin lỗi bạn...")
+        cleaned = cleaned.replaceAll("(?i)^(?:Chào\\s*bạn,?\\s*)?(?:tôi\\s*|AI\\s*)?xin\\s*lỗi[^\\n.]*?[\\.\\:]\\s*", "");
+        cleaned = cleaned.replaceAll("(?i)^Xin\\s*lỗi\\s*(?:bạn|vì|đã)[^\\n.]*?[\\.\\:]\\s*", "");
         // Xóa các cụm đánh số trích dẫn trong ngoặc vuông như [1], [2], [1, 2], [1-4]
         cleaned = cleaned.replaceAll("\\s*\\[\\d+(?:[,\\-]\\s*\\d+)*\\]", "");
         // Sửa lỗi chính tả token y khoa phổ biến do mô hình rút gọn
         cleaned = cleaned.replaceAll("(?i)\\bphút/ty\\b", "phút/tuần");
         cleaned = cleaned.replaceAll("(?i)\\bphút / ty\\b", "phút/tuần");
         cleaned = cleaned.replaceAll("(?i)CÁ\\s+NHA\\b", "CÁ NHÂN");
+        cleaned = cleaned.replaceAll("(?i)C\\s+NH\\b", "CÁ NHÂN");
+        cleaned = cleaned.replaceAll("(?i)CÁ\\s+NHÂN\\b", "CÁ NHÂN");
         cleaned = cleaned.replaceAll("(?i)\\btablet/lần\\b", "viên/lần");
         cleaned = cleaned.replaceAll("(?i)\\btablets/lần\\b", "viên/lần");
         cleaned = cleaned.replaceAll("(?i)\\btablet\\b", "Viên nén");
@@ -699,27 +721,11 @@ public class AIChatServiceImpl implements AIChatService {
      * Gọi API /api/generate của Ollama bằng RestTemplate
      */
     private String callOllamaGenerate(String model, String prompt, String system, OllamaGenerateRequest.Options options) {
-        try {
-            String baseUrl = ollamaUrl.endsWith("/") ? ollamaUrl.substring(0, ollamaUrl.length() - 1) : ollamaUrl;
-            String url = baseUrl + "/api/generate";
-            OllamaGenerateRequest generateRequest = new OllamaGenerateRequest(model, prompt, system, false, options);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            HttpEntity<OllamaGenerateRequest> entity = new HttpEntity<>(generateRequest, headers);
-
-            logger.info("Calling Ollama API at {} with model: {}", url, model);
-            OllamaGenerateResponse response = restTemplate.postForObject(url, entity, OllamaGenerateResponse.class);
-
-            if (response != null && response.response() != null) {
-                return response.response().trim();
-            }
-            logger.warn("Ollama API returned null or empty response");
-            return null;
-        } catch (Exception e) {
-            logger.error("Lỗi khi gọi Ollama API (/api/generate): {}", e.getMessage(), e);
-            return null;
-        }
+        AiGenerateOptions aiOptions = new AiGenerateOptions(model,
+                (options != null) ? options.temperature() : 0.15,
+                (options != null) ? options.topP() : 0.9,
+                (options != null) ? options.numPredict() : 1024);
+        return aiProviderManager.generateWithModel(model, prompt, system, aiOptions);
     }
 
     /**

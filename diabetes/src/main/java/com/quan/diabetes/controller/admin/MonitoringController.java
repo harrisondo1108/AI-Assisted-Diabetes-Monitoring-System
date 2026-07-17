@@ -18,10 +18,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.quan.diabetes.entity.AIAssistant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 @Controller
 @RequestMapping("/admin/monitoring")
@@ -53,9 +55,17 @@ public class MonitoringController {
         Double avgLatencyMs = aiMonitoringService.getAverageLatencyMs();
         Long todayUsersCount = aiMonitoringService.countDistinctPatientsToday();
 
+        AIAssistant activeAssistant = aiMonitoringService.getActiveAssistant();
+        List<AIAssistant> allAssistants = aiMonitoringService.getAllAssistants();
+        String displayModel = (activeAssistant != null && activeAssistant.getAiName() != null)
+                ? activeAssistant.getAiName() + " (" + activeAssistant.getModelName() + ")"
+                : activeModelName;
+
         model.addAttribute("avgLatencyMs", avgLatencyMs);
         model.addAttribute("todayUsersCount", todayUsersCount);
-        model.addAttribute("activeModelName", activeModelName);
+        model.addAttribute("activeModelName", displayModel);
+        model.addAttribute("activeAssistant", activeAssistant);
+        model.addAttribute("allAssistants", allAssistants);
         model.addAttribute("aiEnabled", aiMonitoringService.isAiEnabled());
 
         model.addAttribute("activeTab", activeTab);
@@ -78,5 +88,23 @@ public class MonitoringController {
         response.put("aiEnabled", enabled);
         response.put("message", enabled ? "Đã bật Trợ lý AI!" : "Đã tạm tắt Trợ lý AI!");
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/api/switch-model")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> switchModelApi(@RequestParam Integer assistantId) {
+        try {
+            AIAssistant active = aiMonitoringService.switchActiveAssistant(assistantId);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("activeAssistant", active);
+            response.put("message", "Đã chuyển đổi sang Model AI: " + active.getAiName() + " (" + active.getModelName() + ")");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Lỗi khi chuyển đổi Model AI: " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 }
