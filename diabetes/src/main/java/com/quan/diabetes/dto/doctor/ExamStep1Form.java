@@ -12,10 +12,10 @@ public class ExamStep1Form {
     @NotBlank(message = "Lý do khám không được để trống và không được chứa mỗi space")
     private String medicalHistory;
 
-    private List<String> symptomIds;
+    private List<String> symptomIds = new java.util.ArrayList<>();
 
     /** Map symptomId -> note text */
-    private Map<String, String> symptomComments;
+    private Map<String, String> symptomComments = new java.util.HashMap<>();
 
     // ---- Getters & Setters ----
 
