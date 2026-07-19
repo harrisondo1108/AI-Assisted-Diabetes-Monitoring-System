@@ -93,31 +93,35 @@
             <!-- Main workspace -->
             <div class="examination-workspace" style="flex:1; min-width:0;">
 
-                <!-- Tab navigation form (does NOT submit prescription data) -->
-                <form th:action="@{/doctor/examine/{id}/step4/navigate(id=${exam.clinicalExamId})}"
-                      method="POST" id="tabNavForm">
-                    <div class="exam-tab-bar">
-                        <button type="submit" name="targetTab" value="1" class="exam-tab">
-                            <i class="fas fa-stethoscope"></i><span>Triệu chứng & Lý do khám</span>
-                            <span class="tab-step-num">1</span>
-                        </button>
-                        <button type="submit" name="targetTab" value="2" class="exam-tab">
-                            <i class="fas fa-flask-vial"></i><span>Xét nghiệm & Chẩn đoán</span>
-                            <span class="tab-step-num">2</span>
-                        </button>
-                        <button type="submit" name="targetTab" value="3" class="exam-tab">
-                            <i class="fas fa-notes-medical"></i><span>Phác đồ điều trị</span>
-                            <span class="tab-step-num">3</span>
-                        </button>
-                        <button type="submit" name="targetTab" value="4" class="exam-tab active">
-                            <i class="fas fa-prescription-bottle-medical"></i><span>Kê đơn thuốc</span>
-                            <span class="tab-step-num">4</span>
-                        </button>
-                    </div>
-                </form>
-
-                <!-- Header actions -->
+                <!-- Header actions containing Tab Navigation Form -->
                 <div class="workspace-header">
+                    <!-- Tab navigation form (does NOT submit prescription data) -->
+                    <form th:action="@{/doctor/examine/{id}/step4/navigate(id=${exam.clinicalExamId})}"
+                          method="POST" id="tabNavForm" style="margin: 0;">
+                        <div class="exam-tab-bar" style="border-bottom: none; padding: 0; background: transparent; margin: 0;">
+                            <button type="submit" name="targetTab" value="1" class="exam-tab">
+                                <i class="fas fa-stethoscope"></i>
+                                <span>Triệu chứng</span>
+                                <span class="tab-step-num">1</span>
+                            </button>
+                            <button type="submit" name="targetTab" value="2" class="exam-tab">
+                                <i class="fas fa-flask-vial"></i>
+                                <span>Xét nghiệm & Chẩn đoán</span>
+                                <span class="tab-step-num">2</span>
+                            </button>
+                            <button type="submit" name="targetTab" value="3" class="exam-tab">
+                                <i class="fas fa-notes-medical"></i>
+                                <span>Phác đồ điều trị</span>
+                                <span class="tab-step-num">3</span>
+                            </button>
+                            <button type="submit" name="targetTab" value="4" class="exam-tab active">
+                                <i class="fas fa-prescription-bottle-medical"></i>
+                                <span>Kê đơn thuốc</span>
+                                <span class="tab-step-num">4</span>
+                            </button>
+                        </div>
+                    </form>
+
                     <div class="workspace-actions">
                         <a th:if="${session.examineEditMode}" th:href="@{/doctor/queue}" class="btn btn-secondary"
                            style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
