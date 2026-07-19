@@ -1388,14 +1388,17 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
 
         // Clear old prescription
         prescriptionRepository.findByClinicalExamination_ClinicalExamId(examId)
-                .ifPresent(prescriptionRepository::delete);
+                .ifPresent(p -> {
+                    prescriptionRepository.delete(p);
+                    prescriptionRepository.flush();
+                });
 
         if (prescriptionLines != null && !prescriptionLines.isEmpty()) {
             Prescription presc = new Prescription();
             presc.setPrescriptionId("PRC-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000));
             presc.setClinicalExamination(exam);
             presc.setCreatedAt(LocalDateTime.now());
-            presc = prescriptionRepository.save(presc);
+            presc = prescriptionRepository.saveAndFlush(presc);
 
             for (PrescriptionLineDTO line : prescriptionLines) {
                 Medication med = medicationRepository.findById(line.getMedId()).orElse(null);
@@ -1424,7 +1427,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                     detail.setEndDate(LocalDate.parse(line.getEndDate()));
                 }
                 detail.setPrescriptionTimings(new ArrayList<>());
-                detail = prescriptionDetailRepository.save(detail);
+                detail = prescriptionDetailRepository.saveAndFlush(detail);
 
                 if (line.getTiming() != null) {
                     for (String timingName : line.getTiming()) {
