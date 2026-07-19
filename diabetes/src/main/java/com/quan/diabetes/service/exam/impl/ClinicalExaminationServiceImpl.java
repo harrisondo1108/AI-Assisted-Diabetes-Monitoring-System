@@ -1386,9 +1386,17 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
 
         clinicalExaminationRepository.save(exam);
 
-        // Clear old prescription
+        // Clear old prescription details and timings first, then delete prescription
         prescriptionRepository.findByClinicalExamination_ClinicalExamId(examId)
                 .ifPresent(p -> {
+                    List<PrescriptionDetail> details = prescriptionDetailRepository.findByPrescription_PrescriptionId(p.getPrescriptionId());
+                    for (PrescriptionDetail detail : details) {
+                        prescriptionTimingRepository.deleteByPrescriptionDetail_PrescriptionDetailId(detail.getPrescriptionDetailId());
+                        prescriptionDetailRepository.delete(detail);
+                    }
+                    prescriptionTimingRepository.flush();
+                    prescriptionDetailRepository.flush();
+                    
                     prescriptionRepository.delete(p);
                     prescriptionRepository.flush();
                 });
