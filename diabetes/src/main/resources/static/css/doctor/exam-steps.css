@@ -1,0 +1,187 @@
+/* ===================================================================
+   exam-steps.css — Tab-bar navigation styles for the 4-step clinical
+   examination flow. No JavaScript required.
+   =================================================================== */
+
+/* ---- Tab Bar Container ---- */
+.exam-tab-bar {
+    display: flex;
+    gap: 4px;
+    padding: 12px 16px 0;
+    background: var(--doctor-card-bg, #fff);
+    border-bottom: 2px solid var(--doctor-border, #e5e7eb);
+    border-radius: 12px 12px 0 0;
+    margin-bottom: 0;
+    overflow-x: auto;
+}
+
+/* ---- Individual Tab (submit button styled as tab) ---- */
+.exam-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px 8px 0 0;
+    background: transparent;
+    color: var(--doctor-text-muted, #6b7280);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+}
+
+.exam-tab:hover {
+    background: rgba(99, 102, 241, 0.06);
+    color: var(--doctor-primary, #6366f1);
+}
+
+/* Active tab */
+.exam-tab.active {
+    background: rgba(99, 102, 241, 0.08);
+    color: var(--doctor-primary, #6366f1);
+    font-weight: 600;
+    border-bottom: 3px solid var(--doctor-primary, #6366f1);
+}
+
+/* Step number badge */
+.tab-step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--doctor-border, #e5e7eb);
+    color: var(--doctor-text-muted, #6b7280);
+    font-size: 0.7rem;
+    font-weight: 700;
+    transition: all 0.2s;
+}
+
+.exam-tab.active .tab-step-num {
+    background: var(--doctor-primary, #6366f1);
+    color: #fff;
+}
+
+.exam-tab i {
+    font-size: 0.875rem;
+}
+
+/* ---- Tab content area ---- */
+.tab-content-area {
+    padding: 24px;
+    background: var(--doctor-card-bg, #fff);
+    border-radius: 0 0 12px 12px;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+/* ---- Step navigation buttons (Prev / Next row) ---- */
+.step-nav-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 24px;
+    margin-top: 24px;
+    border-top: 1px solid var(--doctor-border, #e5e7eb);
+    gap: 12px;
+}
+
+/* ---- Workspace header for tab pages ---- */
+.examination-workspace > .workspace-header,
+.examination-workspace form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.examination-workspace > .workspace-header {
+    flex-direction: row;
+    flex: none;
+    justify-content: flex-end;
+    padding: 12px 16px 0;
+    background: var(--doctor-card-bg, #fff);
+}
+
+/* ---- Responsive: collapse tab labels on small screens ---- */
+@media (max-width: 768px) {
+    .exam-tab span:not(.tab-step-num) {
+        display: none;
+    }
+
+    .exam-tab {
+        padding: 10px 12px;
+    }
+}
+
+/* ---- Medication form two-column grid ---- */
+.med-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 700px) {
+    .med-details-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.med-details-panel {
+    background: var(--doctor-bg, #f9fafb);
+    border: 1px solid var(--doctor-border, #e5e7eb);
+    border-radius: 10px;
+    padding: 16px;
+}
+
+.med-details-panel .panel-title {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--doctor-primary, #6366f1);
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--doctor-border, #e5e7eb);
+}
+
+.med-details-panel .form-group {
+    margin-bottom: 12px;
+}
+
+.med-details-panel .form-group label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--doctor-text-muted, #6b7280);
+    margin-bottom: 4px;
+}
+
+/* ---- Prescription list items ---- */
+.prescription-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.no-medications-message {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--doctor-text-muted, #6b7280);
+    border: 2px dashed var(--doctor-border, #e5e7eb);
+    border-radius: 10px;
+}
+
+.no-medications-message i {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+    display: block;
+    opacity: 0.4;
+}
+

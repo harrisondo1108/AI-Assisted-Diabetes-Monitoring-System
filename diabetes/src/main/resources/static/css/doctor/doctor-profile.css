@@ -335,3 +335,7 @@
     color: #92400e; 
 }
 .toast.warning i { color: #f59e0b; font-size: 1.1rem; }
+
+.input-with-icon input[type="password"] {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+}

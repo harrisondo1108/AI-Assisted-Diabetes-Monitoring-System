@@ -31,7 +31,7 @@ public class PatientNotificationController extends BasePatientController {
             Model model, HttpSession session) {
         Patient patient = addCommonData(model, session, "notifications");
 
-        List<AIReminder> allAiReminders = findRemindersByPatient(patient);
+        List<Reminder> allAiReminders = findRemindersByPatient(patient);
         List<MedicationReminderView> medicationReminders = buildTodayMedicationReminders(patient);
 
         int totalItems = allAiReminders.size();
@@ -39,7 +39,7 @@ public class PatientNotificationController extends BasePatientController {
 
         int start = Math.min(page * size, totalItems);
         int end = Math.min((page + 1) * size, totalItems);
-        List<AIReminder> pagedAiReminders = (start < end) ? allAiReminders.subList(start, end) : List.of();
+        List<Reminder> pagedAiReminders = (start < end) ? allAiReminders.subList(start, end) : List.of();
 
         long dueMedicationReminderCount = medicationReminders.stream()
                 .filter(MedicationReminderView::isDueNow)
@@ -69,66 +69,17 @@ public class PatientNotificationController extends BasePatientController {
             Model model, HttpSession session) {
         Patient patient = addCommonData(model, session, "notifications");
 
-        List<AIReminder> allAiReminders = findRemindersByPatient(patient);
-
-        // Seed mock notifications if patient currently has 0 notifications
-        if (allAiReminders.isEmpty() && patient != null) {
-            LocalDateTime today = LocalDateTime.now();
-            LocalDateTime yesterday = today.minusDays(1);
-
-            AIReminder r1 = new AIReminder();
-            r1.setTitle("Nhắc nhở: Uống Metformin 500mg");
-            r1.setMessage("Vui lòng uống 1 viên sau bữa ăn sáng để duy trì đường huyết ổn định.");
-            r1.setScheduledTime(LocalDateTime.of(today.toLocalDate(), LocalTime.of(10, 30)));
-            r1.setIsRead(false);
-            r1.setPatient(patient);
-            aiReminderService.create(r1);
-
-            AIReminder r2 = new AIReminder();
-            r2.setTitle("Xác nhận lịch tái khám");
-            r2.setMessage("Lịch hẹn với BS. Lê Văn Anh vào 09:00 Thứ Tư (25/10) đã được xác nhận.");
-            r2.setScheduledTime(LocalDateTime.of(yesterday.toLocalDate(), LocalTime.of(15, 45)));
-            r2.setIsRead(true);
-            r2.setPatient(patient);
-            aiReminderService.create(r2);
-
-            AIReminder r3 = new AIReminder();
-            r3.setTitle("Kiến thức: Dinh dưỡng Type 2");
-            r3.setMessage("5 bí quyết cân bằng dinh dưỡng giúp kiểm soát đường huyết hiệu quả hơn.");
-            r3.setScheduledTime(LocalDateTime.of(yesterday.toLocalDate(), LocalTime.of(9, 20)));
-            r3.setIsRead(true);
-            r3.setPatient(patient);
-            aiReminderService.create(r3);
-
-            AIReminder r4 = new AIReminder();
-            r4.setTitle("Nhắc nhở: Uống Gliclazide 30mg");
-            r4.setMessage("Vui lòng uống 1 viên trước bữa ăn sáng để ổn định đường huyết.");
-            r4.setScheduledTime(LocalDateTime.of(today.getYear(), 10, 18, 18, 10));
-            r4.setIsRead(false);
-            r4.setPatient(patient);
-            aiReminderService.create(r4);
-
-            AIReminder r5 = new AIReminder();
-            r5.setTitle("Lịch tái khám định kỳ");
-            r5.setMessage("Hẹn gặp BS. Nguyễn Thị Lan vào lúc 08:30 sáng Thứ Hai tuần tới.");
-            r5.setScheduledTime(LocalDateTime.of(today.getYear(), 9, 25, 8, 30));
-            r5.setIsRead(true);
-            r5.setPatient(patient);
-            aiReminderService.create(r5);
-
-            // Re-fetch notifications after seeding
-            allAiReminders = findRemindersByPatient(patient);
-        }
+        List<Reminder> allAiReminders = findRemindersByPatient(patient);
 
         // Filter and Group
-        List<AIReminder> todayNotifications = new ArrayList<>();
-        List<AIReminder> yesterdayNotifications = new ArrayList<>();
-        List<AIReminder> olderNotifications = new ArrayList<>();
+        List<Reminder> todayNotifications = new ArrayList<>();
+        List<Reminder> yesterdayNotifications = new ArrayList<>();
+        List<Reminder> olderNotifications = new ArrayList<>();
 
         LocalDate todayDate = LocalDate.now();
         LocalDate yesterdayDate = todayDate.minusDays(1);
 
-        for (AIReminder reminder : allAiReminders) {
+        for (Reminder reminder : allAiReminders) {
             if (reminder.getScheduledTime() != null) {
                 LocalDate scheduledDate = reminder.getScheduledTime().toLocalDate();
                 if (scheduledDate.isEqual(todayDate)) {
@@ -156,11 +107,11 @@ public class PatientNotificationController extends BasePatientController {
         Map<String, Object> response = new HashMap<>();
         Patient patient = getCurrentPatient(session);
         if (patient != null) {
-            List<AIReminder> allAiReminders = findRemindersByPatient(patient);
-            for (AIReminder reminder : allAiReminders) {
+            List<Reminder> allAiReminders = findRemindersByPatient(patient);
+            for (Reminder reminder : allAiReminders) {
                 if (reminder.getIsRead() == null || !reminder.getIsRead()) {
                     reminder.setIsRead(true);
-                    aiReminderService.update(reminder.getAiReminderId(), reminder);
+                    reminderService.update(reminder.getReminderId(), reminder);
                 }
             }
             response.put("success", true);
@@ -181,7 +132,7 @@ public class PatientNotificationController extends BasePatientController {
             return "redirect:/login";
         }
 
-        AIReminder reminder = aiReminderService.findById(id).orElse(null);
+        Reminder reminder = reminderService.findById(id).orElse(null);
         if (reminder == null || reminder.getPatient() == null || !patient.getUserId().equals(reminder.getPatient().getUserId())) {
             return "redirect:/patient/notifications/history";
         }
@@ -189,7 +140,7 @@ public class PatientNotificationController extends BasePatientController {
         // Update isRead = true
         if (reminder.getIsRead() == null || !reminder.getIsRead()) {
             reminder.setIsRead(true);
-            aiReminderService.update(reminder.getAiReminderId(), reminder);
+            reminderService.update(reminder.getReminderId(), reminder);
         }
 
         // Subtitle formatted date/time
@@ -217,7 +168,7 @@ public class PatientNotificationController extends BasePatientController {
         String dosage = "Theo chỉ định";
         String timingName = "Theo hướng dẫn";
         String instruction = "Uống theo hướng dẫn của bác sĩ.";
-        String doctorNote = "Vui lòng tuân thủ phác đồ điều trị.";
+        String doctorNote = "Không có";
         String doctorName = "Bác sĩ điều trị";
         String doctorSpecialty = "Khoa Nội tiết";
         String examId = null;
@@ -245,9 +196,6 @@ public class PatientNotificationController extends BasePatientController {
                 } else {
                     doctorName = "BS. " + doctorUser.getUserId();
                 }
-            }
-            if (exam.getDiagnosisNote() != null && !exam.getDiagnosisNote().trim().isEmpty()) {
-                doctorNote = exam.getDiagnosisNote();
             }
 
             // Find prescription details for this clinical exam
@@ -281,6 +229,11 @@ public class PatientNotificationController extends BasePatientController {
                     if (matchingDetail.getDosage() != null) {
                         dosage = matchingDetail.getDosage();
                     }
+                    if (matchingDetail.getMedicationPlan() != null && !matchingDetail.getMedicationPlan().trim().isEmpty()) {
+                        doctorNote = matchingDetail.getMedicationPlan();
+                    } else {
+                        doctorNote = "Không có";
+                    }
                 }
             } else if (!details.isEmpty()) {
                 PrescriptionDetail firstDetail = details.get(0);
@@ -292,6 +245,11 @@ public class PatientNotificationController extends BasePatientController {
                 }
                 if (firstDetail.getDosage() != null) {
                     dosage = firstDetail.getDosage();
+                }
+                if (firstDetail.getMedicationPlan() != null && !firstDetail.getMedicationPlan().trim().isEmpty()) {
+                    doctorNote = firstDetail.getMedicationPlan();
+                } else {
+                    doctorNote = "Không có";
                 }
             }
         }

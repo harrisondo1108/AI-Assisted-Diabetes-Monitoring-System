@@ -8,6 +8,9 @@ import com.quan.diabetes.service.user.PatientRoutineService;
 import com.quan.diabetes.service.user.PatientService;
 import com.quan.diabetes.service.user.ProfileService;
 import com.quan.diabetes.service.user.UserService;
+import com.quan.diabetes.service.notification.SmsService;
+import com.quan.diabetes.service.notification.EmailService;
+import com.quan.diabetes.service.systemlog.SystemLogService;
 import com.quan.diabetes.util.ParseUtil;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
@@ -22,6 +25,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import com.quan.diabetes.service.exam.DoctorRatingService;
+import com.quan.diabetes.dto.doctor.DoctorRatingView;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -36,13 +41,23 @@ public class AuthenticationController {
     private final PatientRoutineService patientRoutineService;
     private final ClinicalExaminationService clinicalExaminationService;
     private final PasswordEncoder passwordEncoder;
+    private final DoctorRatingService doctorRatingService;
+    private final SmsService smsService;
+    private final SystemLogService systemLogService;
+
+    @org.springframework.beans.factory.annotation.Autowired
+    private EmailService emailService;
 
     public AuthenticationController(UserService userService,
                                     RoleService roleService,
                                     PatientService patientService,
                                     ProfileService profileService,
                                     PatientRoutineService patientRoutineService,
-                                    ClinicalExaminationService clinicalExaminationService, PasswordEncoder passwordEncoder) {
+                                    ClinicalExaminationService clinicalExaminationService,
+                                    PasswordEncoder passwordEncoder,
+                                    DoctorRatingService doctorRatingService,
+                                    SmsService smsService,
+                                    SystemLogService systemLogService) {
         this.userService = userService;
         this.roleService = roleService;
         this.patientService = patientService;
@@ -50,12 +65,17 @@ public class AuthenticationController {
         this.patientRoutineService = patientRoutineService;
         this.clinicalExaminationService = clinicalExaminationService;
         this.passwordEncoder = passwordEncoder;
+        this.doctorRatingService = doctorRatingService;
+        this.smsService = smsService;
+        this.systemLogService = systemLogService;
     }
 
     // ==================== GET ====================
 
     @GetMapping("/")
-    public String home() {
+    public String home(Model model) {
+        List<DoctorRatingView> topDoctors = doctorRatingService.getTopRatedDoctors(3);
+        model.addAttribute("topDoctors", topDoctors);
         return "index";
     }
 
@@ -106,13 +126,15 @@ public class AuthenticationController {
         Optional<User> userOptional = userService.findByUsernameAndPassword(phoneNumber, password);
 
         if (userOptional.isEmpty()) {
+            systemLogService.saveLog(null, "LOGIN", "Account", null, "Đăng nhập thất bại (Sai thông tin) với SĐT: " + phoneNumber, null, null, "FAILED");
             model.addAttribute("errorMsg", "Tên tài khoản hoặc mật khẩu không chính xác");
             return "auth/login";
         }
         User user = userOptional.get();
         // Sau khi xác thực thành công (user hợp lệ)
         if (User.STATUS_LOCKED.equalsIgnoreCase(user.getStatus())) {
-            model.addAttribute("errorMsg", "Your account has been blocked. Please contact the administrator.");
+            systemLogService.saveLog(user.getUserId(), "LOGIN", "Account", user.getUserId(), "Đăng nhập thất bại (Tài khoản bị khóa)", null, null, "FAILED");
+            model.addAttribute("errorMsg", "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ với quản trị viên.");
             return "auth/login";
         }
         List<SimpleGrantedAuthority> authorities = Collections.singletonList(
@@ -125,6 +147,8 @@ public class AuthenticationController {
         session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
 
         session.setAttribute("loggedInUser", user);
+        
+        systemLogService.saveLog(user.getUserId(), "LOGIN", null, null, "Đăng nhập thành công", null, null, "SUCCESS");
 
         switch (user.getRole().getRoleId()) {
             case "PAT" -> {
@@ -159,6 +183,7 @@ public class AuthenticationController {
                                 @RequestParam String fullName,
                                 @RequestParam String phoneNumber,
                                 @RequestParam String password,
+                                @RequestParam(required = false) String email,
                                 @RequestParam(required = false) String dob,
                                 @RequestParam(required = false) String gender,
                                 @RequestParam(required = false) String bloodGroup,
@@ -174,12 +199,33 @@ public class AuthenticationController {
 
         // Validate required fields
         if (ParseUtil.isBlank(roleId) || ParseUtil.isBlank(fullName) || ParseUtil.isBlank(phoneNumber) || ParseUtil.isBlank(password)) {
+            systemLogService.saveLog(null, "REGISTER", "Account", null, "Đăng ký thất bại (Thiếu thông tin bắt buộc)", null, null, "FAILED");
             model.addAttribute("errorMsg", "Vui lòng nhập đầy đủ các thông tin bắt buộc.");
             return "auth/register";
         }
 
+        if (!ParseUtil.isValidPassword(password)) {
+            systemLogService.saveLog(null, "REGISTER", "Account", null, "Đăng ký thất bại (Mật khẩu yếu) cho SĐT: " + phoneNumber, null, null, "FAILED");
+            model.addAttribute("errorMsg", "Mật khẩu phải chứa ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, ít nhất một chữ số và ký tự đặc biệt (!@#$).");
+            return "auth/register";
+        }
+
+        if (!ParseUtil.isBlank(email)) {
+            if (email.trim().length() > 100) {
+                systemLogService.saveLog(null, "REGISTER", "Account", null, "Đăng ký thất bại (Email quá dài) cho SĐT: " + phoneNumber, null, null, "FAILED");
+                model.addAttribute("errorMsg", "Email không được vượt quá 100 ký tự.");
+                return "auth/register";
+            }
+            if (!email.trim().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+                systemLogService.saveLog(null, "REGISTER", "Account", null, "Đăng ký thất bại (Email không hợp lệ) cho SĐT: " + phoneNumber, null, null, "FAILED");
+                model.addAttribute("errorMsg", "Địa chỉ email không hợp lệ.");
+                return "auth/register";
+            }
+        }
+
         // Kiểm tra số điện thoại đã tồn tại chưa (tránh đăng ký trùng)
         if (userService.findByPhoneNumber(phoneNumber).isPresent()) {
+            systemLogService.saveLog(null, "REGISTER", "Account", null, "Đăng ký thất bại (Số điện thoại đã tồn tại): " + phoneNumber, null, null, "FAILED");
             model.addAttribute("errorMsg", "Số điện thoại đã tồn tại trên hệ thống.");
             return "auth/register";
         }
@@ -187,6 +233,7 @@ public class AuthenticationController {
         // Kiểm tra role tồn tại
         Role role = roleService.findById(roleId).orElse(null);
         if (role == null) {
+            systemLogService.saveLog(null, "REGISTER", "Account", null, "Đăng ký thất bại (Vai trò không hợp lệ) cho SĐT: " + phoneNumber, null, null, "FAILED");
             model.addAttribute("errorMsg", "Vai trò không tồn tại.");
             return "auth/register";
         }
@@ -197,6 +244,7 @@ public class AuthenticationController {
         regData.put("fullName", fullName);
         regData.put("phoneNumber", phoneNumber);
         regData.put("password", password);
+        regData.put("email", email != null ? email.trim() : null);
         regData.put("dob", dob);
         regData.put("gender", gender);
         regData.put("bloodGroup", bloodGroup);
@@ -217,6 +265,13 @@ public class AuthenticationController {
 
         // Mô phỏng gửi OTP (in ra console)
         System.out.println("OTP đăng ký cho số " + phoneNumber + ": " + otp);
+
+        // Gửi OTP qua SMS thực tế
+        System.out.println("Gửi SMS tới số " + phoneNumber + ": Mã OTP của bạn là " + otp);
+        smsService.sendOtp(phoneNumber, otp);
+        
+        String recipientEmail = (email != null && !email.trim().isEmpty()) ? email.trim() : "lequan13112005@gmail.com";
+        emailService.sendSimpleEmail(recipientEmail, "Mã OTP Đăng ký", "Mã OTP của bạn là: " + otp);
 
         return "redirect:/register/otp";
     }
@@ -285,6 +340,7 @@ public class AuthenticationController {
         String fullName = (String) regData.get("fullName");
         String phoneNumber = (String) regData.get("phoneNumber");
         String password = (String) regData.get("password");
+        String email = (String) regData.get("email");
         String dob = (String) regData.get("dob");
         String gender = (String) regData.get("gender");
         String bloodGroup = (String) regData.get("bloodGroup");
@@ -316,6 +372,7 @@ public class AuthenticationController {
             patient.setUser(user);
             patient.setFullName(fullName);
             patient.setPhoneNumber(phoneNumber);
+            patient.setEmail(ParseUtil.parseString(email));
             patient.setDob(ParseUtil.parseDate(dob));
             patient.setGender(ParseUtil.parseGender(gender));
             patient.setBloodgroup(ParseUtil.parseString(bloodGroup));
@@ -329,7 +386,6 @@ public class AuthenticationController {
             PatientRoutine patientRoutine = new PatientRoutine();
             patientRoutine.setPatient(patient);
             patientRoutineService.create(patientRoutine);
-            clinicalExaminationService.createAutoPendingExamination(patient.getUserId());
         } else {
             Profile profile = new Profile();
             profile.setUser(user);
@@ -338,5 +394,7 @@ public class AuthenticationController {
             profile.setSpecialty(specialty);
             profileService.create(profile);
         }
+        
+        systemLogService.saveLog(userId, "REGISTER", null, null, "Đăng ký tài khoản mới", null, null, "SUCCESS");
     }
 }

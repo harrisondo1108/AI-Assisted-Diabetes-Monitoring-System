@@ -3,6 +3,7 @@ package com.quan.diabetes.service.lab.impl;
 import com.quan.diabetes.entity.LabTestCatalog;
 import com.quan.diabetes.repository.LabTestCatalogRepository;
 import com.quan.diabetes.service.lab.LabTestCatalogService;
+import com.quan.diabetes.service.systemlog.SystemLogService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -14,9 +15,11 @@ import java.util.UUID;
 public class LabTestCatalogServiceImpl implements LabTestCatalogService {
 
     private final LabTestCatalogRepository labTestCatalogRepository;
+    private final SystemLogService systemLogService;
 
-    public LabTestCatalogServiceImpl(LabTestCatalogRepository labTestCatalogRepository) {
+    public LabTestCatalogServiceImpl(LabTestCatalogRepository labTestCatalogRepository, SystemLogService systemLogService) {
         this.labTestCatalogRepository = labTestCatalogRepository;
+        this.systemLogService = systemLogService;
     }
 
     @Override
@@ -31,23 +34,34 @@ public class LabTestCatalogServiceImpl implements LabTestCatalogService {
 
     @Override
     public LabTestCatalog create(LabTestCatalog entity) {
-        return labTestCatalogRepository.save(entity);
+        LabTestCatalog saved = labTestCatalogRepository.save(entity);
+        systemLogService.saveLogWithObject(null, "CREATE", "LaboratoryTest", saved.getLabTestId(), "Thêm xét nghiệm mới", null, saved, "SUCCESS");
+        return saved;
     }
 
     @Override
     public LabTestCatalog update(String id, LabTestCatalog entity) {
-        if (!labTestCatalogRepository.existsById(id)) {
-            throw new EntityNotFoundException("LabTestCatalog not found with id: " + id);
-        }
-        return labTestCatalogRepository.save(entity);
+        LabTestCatalog existing = labTestCatalogRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("LabTestCatalog not found with id: " + id));
+        
+        LabTestCatalog oldLabTest = new LabTestCatalog();
+        oldLabTest.setLabTestId(existing.getLabTestId());
+        oldLabTest.setTestName(existing.getTestName());
+        oldLabTest.setUnit(existing.getUnit());
+        oldLabTest.setDescription(existing.getDescription());
+        oldLabTest.setRoomId(existing.getRoomId());
+        oldLabTest.setStatus(existing.getStatus());
+
+        LabTestCatalog updated = labTestCatalogRepository.save(entity);
+        
+        systemLogService.saveLogWithObject(null, "UPDATE", "LaboratoryTest", id, "Cập nhật xét nghiệm", oldLabTest, updated, "SUCCESS");
+        return updated;
     }
 
     @Override
     public void deleteById(String id) {
-        if (!labTestCatalogRepository.existsById(id)) {
-            throw new EntityNotFoundException("LabTestCatalog not found with id: " + id);
-        }
+        LabTestCatalog existing = labTestCatalogRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("LabTestCatalog not found with id: " + id));
         labTestCatalogRepository.deleteById(id);
+        systemLogService.saveLogWithObject(null, "DELETE", "LaboratoryTest", id, "Xóa xét nghiệm", existing, null, "SUCCESS");
     }
 
     @Override

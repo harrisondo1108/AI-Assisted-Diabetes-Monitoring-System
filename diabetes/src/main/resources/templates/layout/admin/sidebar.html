@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<aside class="admin-sidebar" th:fragment="sidebar(activeMenu)">
+    <div class="sidebar-brand">
+        <div class="brand-name">Hệ thống Tiểu đường</div>
+        <div class="brand-sub">Trang Quản trị</div>
+    </div>
+    <nav class="sidebar-nav">
+        <a th:href="@{/admin/dashboard}" class="nav-item" th:classappend="${activeMenu == 'dashboard'} ? 'active' : ''"><i class="fas fa-chart-line"></i> Tổng quan</a>
+        <a th:href="@{/admin/users}"
+           class="nav-item"
+           th:classappend="${activeMenu == 'users'} ? 'active' : ''">
+            <i class="fas fa-users"></i> Quản lý người dùng
+        </a>
+        <a th:href="@{/admin/ratings}"
+           class="nav-item"
+           th:classappend="${activeMenu == 'ratings'} ? 'active' : ''">
+            <i class="fas fa-star"></i> Đánh giá Bác sĩ
+        </a>
+        <a th:href="@{/admin/medicines}"
+           class="nav-item"
+           th:classappend="${activeMenu == 'medicine' || activeMenu == 'medicines'} ? 'active' : ''">
+            <i class="fas fa-pills"></i> Quản lý thuốc
+        </a>
+        <a th:href="@{/admin/lab-tests}" class="nav-item" th:classappend="${activeMenu == 'lab'} ? 'active' : ''"><i class="fas fa-flask"></i> Chỉ số xét nghiệm</a>
+        <a th:href="@{/admin/symptoms}" class="nav-item" th:classappend="${activeMenu == 'symptom'} ? 'active' : ''"><i class="fas fa-notes-medical"></i> Danh mục triệu chứng</a>
+        <a th:href="@{/admin/configure}" class="nav-item" th:classappend="${activeMenu == 'configure'} ? 'active' : ''"><i class="fas fa-sliders"></i> Cấu hình hệ thống</a>
+        <a th:href="@{/admin/change-password}" class="nav-item" th:classappend="${activeMenu == 'change-password'} ? 'active' : ''"><i class="fas fa-key"></i> Đổi mật khẩu</a>
+        <a th:href="@{/admin/monitoring}" class="nav-item" th:classappend="${activeMenu == 'monitoring'} ? 'active' : ''"><i class="fas fa-desktop"></i> Giám sát</a>
+        <a th:href="@{/admin/system-log}" class="nav-item" th:classappend="${activeMenu == 'system-log'} ? 'active' : ''"><i class="fas fa-history"></i> Nhật ký hệ thống</a>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="sidebar-footer-links">
+            <a th:href="@{/logout}"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+        </div>
+    </div>
+</aside>
+</body>
+</html>

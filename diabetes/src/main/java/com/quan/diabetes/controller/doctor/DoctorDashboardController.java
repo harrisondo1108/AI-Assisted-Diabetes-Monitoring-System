@@ -8,8 +8,10 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -19,26 +21,17 @@ public class DoctorDashboardController {
 
     private final ClinicalExaminationService clinicalExaminationService;
     private final ProfileService profileService;
-    private final LabResultRepository labResultRepository;
-    private final PrescriptionRepository prescriptionRepository;
-    private final PrescriptionDetailRepository prescriptionDetailRepository;
-    private final ExamSymptomRepository examSymptomRepository;
+    private final ReminderRepository reminderRepository;
     private final ClinicalExaminationRepository clinicalExaminationRepository;
 
     public DoctorDashboardController(
             ClinicalExaminationService clinicalExaminationService,
             ProfileService profileService,
-            LabResultRepository labResultRepository,
-            PrescriptionRepository prescriptionRepository,
-            PrescriptionDetailRepository prescriptionDetailRepository,
-            ExamSymptomRepository examSymptomRepository,
+            ReminderRepository reminderRepository,
             ClinicalExaminationRepository clinicalExaminationRepository) {
         this.clinicalExaminationService = clinicalExaminationService;
         this.profileService = profileService;
-        this.labResultRepository = labResultRepository;
-        this.prescriptionRepository = prescriptionRepository;
-        this.prescriptionDetailRepository = prescriptionDetailRepository;
-        this.examSymptomRepository = examSymptomRepository;
+        this.reminderRepository = reminderRepository;
         this.clinicalExaminationRepository = clinicalExaminationRepository;
     }
 
@@ -56,64 +49,34 @@ public class DoctorDashboardController {
             session.setAttribute("userProfile", profile);
         }
 
-        // Check if there is an in-progress exam for this doctor in the database
-        Optional<ClinicalExamination> activeExam = clinicalExaminationRepository
-                .findFirstByDoctor_UserIdAndStatus(doctorId, "InProgress");
-        if (activeExam.isPresent()) {
-            return "redirect:/doctor/examine?patientId=" + activeExam.get().getPatient().getUserId() + "&warning=in-progress";
-        }
-
-        // Lấy tất cả ca khám của bác sĩ
         List<ClinicalExamination> allExams = clinicalExaminationService.findByDoctorId(doctorId);
         LocalDate today = LocalDate.now();
 
-        // Lọc danh sách ca khám hôm nay
-        List<ClinicalExamination> todayQueue = allExams.stream()
-                .filter(e -> e.getExamDate() != null && e.getExamDate().toLocalDate().isEqual(today))
+        // 1. Pending Requests (Yêu cầu chờ duyệt)
+        List<ClinicalExamination> requestedExams = allExams.stream()
+                .filter(e -> "Requested".equalsIgnoreCase(e.getStatus()))
+                .sorted((e1, e2) -> e2.getExamDate().compareTo(e1.getExamDate()))
                 .collect(Collectors.toList());
 
-        // Tính toán các metrics
-        long pending = todayQueue.stream().filter(e -> "Pending".equalsIgnoreCase(e.getStatus())).count();
-        long inProgress = todayQueue.stream().filter(e -> "InProgress".equalsIgnoreCase(e.getStatus())).count();
-        long completed = todayQueue.stream().filter(e -> "Completed".equalsIgnoreCase(e.getStatus())).count();
+        // 2. Today Queue (Đang chờ khám ngoài cửa)
+        long todayQueueCount = allExams.stream()
+                .filter(e -> ("Pending".equalsIgnoreCase(e.getStatus()) || "InProgress".equalsIgnoreCase(e.getStatus()))
+                        && e.getExamDate() != null && e.getExamDate().toLocalDate().isEqual(today))
+                .count();
 
-        model.addAttribute("todayQueue", todayQueue);
-        model.addAttribute("queueCount", pending + inProgress);
-        model.addAttribute("completedCount", completed);
-        long alertCount = labResultRepository.countByLabOrder_ClinicalExamination_Doctor_UserIdAndFlag(doctorId, "HIGH");
-        model.addAttribute("alertCount", alertCount);
+        // 3. Medication Reminders/Alerts (Cảnh báo tuân thủ)
+        List<Reminder> recentReminders = reminderRepository
+                .findTop10ByClinicalExamination_Doctor_UserIdOrderByScheduledTimeDesc(doctorId);
+        long unreadRemindersCount = recentReminders.stream()
+                .filter(r -> r.getIsRead() == null || !r.getIsRead())
+                .count();
+
+        model.addAttribute("requestedExams", requestedExams);
+        model.addAttribute("pendingRequestsCount", requestedExams.size());
+        model.addAttribute("todayQueueCount", todayQueueCount);
+        model.addAttribute("recentReminders", recentReminders);
+        model.addAttribute("unreadRemindersCount", unreadRemindersCount);
 
         return "doctor/dashboard";
-    }
-
-    @GetMapping("/dashboard/view-exam/{examId}")
-    public String viewExamDetail(@PathVariable("examId") String examId, Model model) {
-        ClinicalExamination exam = clinicalExaminationService.findById(examId).orElse(null);
-        if (exam == null) {
-            return "doctor/dashboard :: examDetail";
-        }
-
-        model.addAttribute("exam", exam);
-
-        // Nạp triệu chứng liên quan
-        List<ExamSymptom> symptoms = examSymptomRepository.findAll().stream()
-                .filter(s -> s.getId().getClinicalExamId().equals(examId))
-                .collect(Collectors.toList());
-        model.addAttribute("symptoms", symptoms);
-
-        // Nạp kết quả xét nghiệm liên quan
-        List<LabResult> labResults = labResultRepository.findByLabOrder_ClinicalExamination_ClinicalExamId(examId);
-        model.addAttribute("labResults", labResults);
-
-        // Nạp chi tiết đơn thuốc
-        Prescription prescription = prescriptionRepository.findByClinicalExamination_ClinicalExamId(examId).orElse(null);
-        if (prescription != null) {
-            List<PrescriptionDetail> details = prescriptionDetailRepository.findByPrescription_PrescriptionId(prescription.getPrescriptionId());
-            model.addAttribute("prescriptionDetails", details);
-        } else {
-            model.addAttribute("prescriptionDetails", Collections.emptyList());
-        }
-
-        return "doctor/dashboard :: examDetail";
     }
 }

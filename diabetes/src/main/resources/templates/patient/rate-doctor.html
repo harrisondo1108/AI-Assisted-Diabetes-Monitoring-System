@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đánh giá Bác sĩ | Hệ thống chăm sóc tiểu đường</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/patient/patient.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .rate-container {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 0 16px;
+        }
+        .rate-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            padding: 32px;
+            border: 1px solid #e5e7eb;
+        }
+        .rate-title {
+            color: #111827;
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .rate-subtitle {
+            color: #6b7280;
+            font-size: 0.9rem;
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .doctor-box {
+            background-color: #f0fdf4;
+            border: 1px solid #dcfce7;
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .doctor-avatar-placeholder {
+            width: 48px;
+            height: 48px;
+            background-color: var(--green-600, #10b981);
+            color: white;
+            font-weight: 700;
+            font-size: 1.25rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .doctor-details h4 {
+            margin: 0 0 4px 0;
+            color: #1a6b56;
+            font-size: 1.05rem;
+            font-weight: 700;
+        }
+        .doctor-details p {
+            margin: 0;
+            color: #4b5563;
+            font-size: 0.85rem;
+        }
+        .form-group {
+            margin-bottom: 24px;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #374151;
+        }
+        .required {
+            color: #ef4444;
+        }
+        .stars-container {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            font-size: 2.5rem;
+            cursor: pointer;
+            color: #d1d5db;
+            margin: 16px 0;
+        }
+        .star-item {
+            transition: transform 0.2s, color 0.2s;
+        }
+        .star-item:hover {
+            transform: scale(1.15);
+        }
+        .star-item.hovered, .star-item.selected {
+            color: #eab308;
+        }
+        textarea.comment-input {
+            width: 100%;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            padding: 14px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: vertical;
+            min-height: 120px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-sizing: border-box;
+        }
+        textarea.comment-input:focus {
+            border-color: #1a6b56;
+            box-shadow: 0 0 0 3px rgba(26, 107, 86, 0.15);
+        }
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 32px;
+        }
+        .btn-back {
+            padding: 12px 24px;
+            border: 1px solid #d1d5db;
+            background: #ffffff;
+            color: #4b5563;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .btn-back:hover {
+            background-color: #f9fafb;
+            color: #111827;
+        }
+        .btn-submit {
+            padding: 12px 24px;
+            border: none;
+            background: #1a6b56;
+            color: #ffffff;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .btn-submit:hover {
+            background-color: #145343;
+        }
+        .error-message {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 6px;
+            display: none;
+            text-align: center;
+            font-weight: 500;
+        }
+        .alert-error-box {
+            background-color: rgba(220, 38, 38, 0.1);
+            border: 1px solid rgba(220, 38, 38, 0.2);
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="admin-layout">
+    <div th:replace="~{layout/patient/sidebar :: patientSidebar('history')}"></div>
+
+    <div class="admin-main">
+        <div th:replace="~{layout/patient/header :: patientHeader('Đánh giá bác sĩ')}"></div>
+
+        <main class="admin-content">
+            <div class="rate-container">
+                <div class="rate-card">
+                    <h2 class="rate-title">Đánh giá Bác sĩ điều trị</h2>
+                    <p class="rate-subtitle">Cảm ơn bạn đã đóng góp ý kiến để giúp nâng cao chất lượng dịch vụ của chúng tôi.</p>
+
+                    <!-- Alert message if any -->
+                    <div th:if="${errorMessage != null}" class="alert-error-box">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span th:text="${errorMessage}">Lỗi xảy ra</span>
+                    </div>
+
+                    <div class="doctor-box">
+                        <div class="doctor-avatar-placeholder" th:text="${exam.doctor != null && exam.doctor.profile != null ? #strings.substring(exam.doctor.profile.fullName, 0, 1) : 'D'}">
+                            B
+                        </div>
+                        <div class="doctor-details">
+                            <h4 th:text="${exam.doctor != null && exam.doctor.profile != null ? 'BS. ' + exam.doctor.profile.fullName : 'Bác sĩ chuyên khoa'}">BS. Nguyễn Văn A</h4>
+                            <p th:text="${'Mã lượt khám: ' + exam.clinicalExamId}">Mã lượt khám: EX0001</p>
+                        </div>
+                    </div>
+
+                    <form id="ratingForm" th:action="@{/patient/history/rate}" method="post" onsubmit="return validateForm(event)">
+                        <input type="hidden" name="examId" th:value="${exam.clinicalExamId}">
+                        
+                        <div class="form-group" style="text-align: center;">
+                            <label class="form-label" style="text-align: left;">Số sao đánh giá <span class="required">*</span></label>
+                            
+                            <div class="stars-container" id="starsContainer">
+                                <i class="far fa-star star-item" data-value="1" onclick="selectStar(1)" onmouseover="hoverStar(1)" onmouseout="clearStarHover()"></i>
+                                <i class="far fa-star star-item" data-value="2" onclick="selectStar(2)" onmouseover="hoverStar(2)" onmouseout="clearStarHover()"></i>
+                                <i class="far fa-star star-item" data-value="3" onclick="selectStar(3)" onmouseover="hoverStar(3)" onmouseout="clearStarHover()"></i>
+                                <i class="far fa-star star-item" data-value="4" onclick="selectStar(4)" onmouseover="hoverStar(4)" onmouseout="clearStarHover()"></i>
+                                <i class="far fa-star star-item" data-value="5" onclick="selectStar(5)" onmouseover="hoverStar(5)" onmouseout="clearStarHover()"></i>
+                            </div>
+                            
+                            <input type="hidden" id="ratingValue" name="ratingValue" required>
+                            <div id="ratingError" class="error-message">Vui lòng chọn số sao trước khi gửi đánh giá.</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="comment" class="form-label">Ý kiến nhận xét / Góp ý</label>
+                            <textarea id="comment" name="comment" class="comment-input" placeholder="Viết phản hồi chi tiết của bạn tại đây..."></textarea>
+                        </div>
+
+                        <div class="btn-group">
+                            <a th:href="@{/patient/history}" class="btn-back">Quay lại</a>
+                            <button type="submit" class="btn-submit">Gửi đánh giá</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    let currentRating = 0;
+
+    function hoverStar(val) {
+        const stars = document.querySelectorAll('.star-item');
+        stars.forEach(star => {
+            const starValue = parseInt(star.getAttribute('data-value'));
+            if (starValue <= val) {
+                star.classList.remove('far');
+                star.classList.add('fas', 'hovered');
+            } else {
+                star.classList.remove('fas', 'hovered');
+                star.classList.add('far');
+            }
+        });
+    }
+
+    function clearStarHover() {
+        const stars = document.querySelectorAll('.star-item');
+        stars.forEach(star => {
+            star.classList.remove('hovered');
+            const starValue = parseInt(star.getAttribute('data-value'));
+            if (starValue <= currentRating) {
+                star.classList.remove('far');
+                star.classList.add('fas', 'selected');
+            } else {
+                star.classList.remove('fas', 'selected');
+                star.classList.add('far');
+            }
+        });
+    }
+
+    function selectStar(val) {
+        currentRating = val;
+        document.getElementById('ratingValue').value = val;
+        document.getElementById('ratingError').style.display = 'none';
+        
+        const stars = document.querySelectorAll('.star-item');
+        stars.forEach(star => {
+            const starValue = parseInt(star.getAttribute('data-value'));
+            if (starValue <= val) {
+                star.classList.remove('far');
+                star.classList.add('fas', 'selected');
+            } else {
+                star.classList.remove('fas', 'selected');
+                star.classList.add('far');
+            }
+        });
+    }
+
+    function validateForm(event) {
+        const rating = document.getElementById('ratingValue').value;
+        if (!rating) {
+            event.preventDefault();
+            document.getElementById('ratingError').style.display = 'block';
+            return false;
+        }
+        return true;
+    }
+</script>
+</body>
+</html>

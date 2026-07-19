@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<aside class="admin-sidebar patient-sidebar" th:fragment="patientSidebar(activeMenu)">
+    <div class="sidebar-brand patient-brand">
+        <div class="brand-logo-mark">
+            <i class="fas fa-heart-pulse"></i>
+        </div>
+        <div>
+            <div class="brand-name">Chăm sóc tiểu đường</div>
+            <div class="brand-sub">Cổng hỗ trợ bệnh nhân</div>
+        </div>
+    </div>
+
+    <div class="sidebar-care-card">
+        <div class="care-card-icon">
+            <i class="fas fa-droplet"></i>
+        </div>
+        <div>
+            <strong>Chăm sóc đường huyết</strong>
+            <span>Theo dõi xét nghiệm, thuốc và tái khám đúng hẹn.</span>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav patient-nav">
+        <a th:href="@{/patient/dashboard}"
+           class="nav-item"
+           th:classappend="${activeMenu == 'dashboard'} ? 'active' : ''">
+            <i class="fas fa-chart-line"></i>
+            <span>Bảng điều khiển</span>
+        </a>
+
+        <a th:href="@{/patient/booking}"
+           class="nav-item"
+           th:classappend="${activeMenu == 'booking'} ? 'active' : ''">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Đặt lịch khám</span>
+        </a>
+
+        <a th:href="@{/patient/profile}"
+           class="nav-item"
+           th:classappend="${activeMenu == 'profile'} ? 'active' : ''">
+            <i class="fas fa-user-shield"></i>
+            <span>Hồ sơ cá nhân</span>
+        </a>
+
+        <a th:href="@{/patient/notifications}"
+           class="nav-item"
+           th:classappend="${activeMenu == 'notifications'} ? 'active' : ''">
+            <i class="fas fa-bell"></i>
+            <span>Nhắc nhở dùng thuốc</span>
+        </a>
+
+        <a th:href="@{/patient/progress}"
+           class="nav-item"
+           th:classappend="${activeMenu == 'progress'} ? 'active' : ''">
+            <i class="fas fa-notes-medical"></i>
+            <span>Tiến trình y tế</span>
+        </a>
+
+        <a th:href="@{/patient/risk}"
+           class="nav-item"
+           th:classappend="${activeMenu == 'risk'} ? 'active' : ''">
+            <i class="fas fa-shield-heart"></i>
+            <span>Đánh giá nguy cơ</span>
+        </a>
+
+        <a th:href="@{/patient/history}"
+           class="nav-item"
+           th:classappend="${activeMenu == 'history'} ? 'active' : ''">
+            <i class="fas fa-clock-rotate-left"></i>
+            <span>Lịch sử y tế</span>
+        </a>
+
+        <a th:href="@{/patient/chat}"
+           class="nav-item"
+           th:classappend="${activeMenu == 'chat'} ? 'active' : ''">
+            <i class="fas fa-robot"></i>
+            <span>Hỗ trợ AI</span>
+        </a>
+    </nav>
+
+    <div class="sidebar-footer patient-sidebar-footer">
+        <div class="sidebar-footer-status">
+            <i class="fas fa-circle-check"></i>
+            <span>Đang hoạt động</span>
+        </div>
+
+        <div class="sidebar-footer-links">
+            <a th:href="@{/logout}">
+                <i class="fas fa-sign-out-alt"></i>
+                Đăng xuất
+            </a>
+        </div>
+    </div>
+</aside>
+</body>
+</html>

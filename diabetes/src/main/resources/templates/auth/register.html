@@ -5,10 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng ký - Diabetes Care System</title>
     <link rel="stylesheet" th:href="@{/css/pages/auth.css}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+    
+<div class="bg-glowing-dots">
+    <div class="glowing-orb orb-1"></div>
+    <div class="glowing-orb orb-2"></div>
+    <div class="glowing-orb orb-3"></div>
+</div>
+
+<a th:href="@{/}" class="btn-back">
+    <i class="fas fa-arrow-left"></i> Quay lại trang chủ
+</a>
+
 <div class="container">
     <div class="portal-wrapper">
         <div class="left-panel">
@@ -35,15 +46,15 @@
             <div class="register-form">
                 <h2>Đăng ký tài khoản</h2>
 
-                <div id="errorMsg" class="error-message" style="display: none;"></div>
-                <div id="successMsg" class="success-message" style="display: none;"></div>
+                <div id="errorMsg" class="error-message"></div>
+                <div id="successMsg" class="success-message"></div>
 
                 <form id="registerForm" th:action="@{/register}" method="post">
                     <div class="input-group">
                         <label for="role">Loại tài khoản <span class="required">*</span></label>
-                        <select id="role" name="roleId" required>
-                            <option value="PAT">Bệnh nhân</option>
-                        </select>
+                        <!-- Hidden input submits the backend code; visible label shows friendly text to the user -->
+                        <input type="hidden" id="role" name="roleId" value="PAT" />
+                        <span class="role-label">Patient</span>
                         <i class="fas fa-user-tag input-icon"></i>
                     </div>
 
@@ -61,10 +72,28 @@
                     </div>
 
                     <div class="input-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="example@gmail.com">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <div class="error-hint" id="emailHint">Địa chỉ email không hợp lệ.</div>
+                    </div>
+
+                    <div class="input-group">
                         <label for="password">Mật khẩu <span class="required">*</span></label>
                         <input type="password" id="password" name="password" placeholder="••••••••" required>
                         <i class="fas fa-lock input-icon"></i>
-                        <div class="error-hint" id="passwordHint">Mật khẩu phải chứa ít nhất 6 ký tự</div>
+                        <div class="error-hint" id="passwordHint">Mật khẩu chưa đạt yêu cầu bảo mật.</div>
+
+                        <!-- PWD Validator Card -->
+                        <div class="pwd-validator-card" id="pwdValidatorCard">
+                            <h4><i class="fas fa-lightbulb"></i> Mật khẩu mạnh</h4>
+                            <ul>
+                                <li id="reqLength"><i class="far fa-circle-check"></i> Chứa ít nhất 8 ký tự</li>
+                                <li id="reqCase"><i class="far fa-circle-check"></i> Bao gồm chữ hoa và chữ thường</li>
+                                <li id="reqDigit"><i class="far fa-circle-check"></i> Chứa ít nhất một chữ số</li>
+                                <li id="reqSpecial"><i class="far fa-circle-check"></i> Chứa ký tự đặc biệt (!@#$)</li>
+                            </ul>
+                        </div>
                     </div>
 
                     <div class="input-group">
@@ -127,8 +156,8 @@
                         </div>
                         <div class="input-group">
                             <label for="medicalHistory">Tiền sử bệnh án</label>
-                            <textarea id="medicalHistory" name="medicalHistory" rows="2" style="width:100%; padding:12px; border:2px solid #e2e8f0; border-radius:12px;" placeholder="Bệnh lý nền, tiền sử gia đình..."></textarea>
-                            <i class="fas fa-notes-medical input-icon" style="top: 45px;"></i>
+                            <textarea id="medicalHistory" name="medicalHistory" rows="2" placeholder="Bệnh lý nền, tiền sử gia đình..."></textarea>
+                            <i class="fas fa-notes-medical input-icon notes-icon"></i>
                         </div>
                         <div class="input-group">
                             <label for="allergyNotes">Dị ứng</label>

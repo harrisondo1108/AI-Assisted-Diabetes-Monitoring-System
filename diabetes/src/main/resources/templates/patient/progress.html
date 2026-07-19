@@ -2,7 +2,7 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Tiến trình Y tế | Hệ thống Chăm sóc Tiểu đường</title>
+    <title>Tiến trình y tế | Hệ thống chăm sóc tiểu đường</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/patient/patient.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -10,29 +10,35 @@
 
 <body>
 <div class="admin-layout">
-    <div th:replace="~{layout/patient-sidebar :: patientSidebar('progress')}"></div>
+    <div th:replace="~{layout/patient/sidebar :: patientSidebar('progress')}"></div>
 
     <div class="admin-main">
-        <div th:replace="~{layout/patient-header :: patientHeader('Tiến trình Y tế')}"></div>
+        <div th:replace="~{layout/patient/header :: patientHeader('Tiến trình y tế')}"></div>
 
         <main class="admin-content">
             <div class="page-header">
                 <div>
-                    <h1><i class="fas fa-notes-medical"></i> Tiến trình Khám bệnh</h1>
+                    <h1><i class="fas fa-notes-medical"></i> Tiến trình khám bệnh</h1>
                     <p class="subtitle">
                         Theo dõi từng cuộc khám bệnh từ đánh giá của bác sĩ, yêu cầu xét nghiệm, kết quả xét nghiệm đến đơn thuốc.
                     </p>
                 </div>
+                <div class="dashboard-actions">
+                    <button class="primary-btn" onclick="openPatientModal('requestExamModal')" style="cursor: pointer;">
+                        <i class="fas fa-calendar-plus"></i> Yêu cầu khám bệnh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Message Alerts -->
+            <div th:if="${requestSuccessMessage != null}" class="alert alert-success" style="margin-bottom: 15px; width: 100%; padding: 12px; border-radius: 8px; background: rgba(22, 163, 74, 0.15); color: #16a34a; border: 1px solid rgba(22, 163, 74, 0.25);">
+                <i class="fas fa-check-circle"></i> <span th:text="${requestSuccessMessage}"></span>
+            </div>
+            <div th:if="${requestErrorMessage != null}" class="alert alert-danger" style="margin-bottom: 15px; width: 100%; padding: 12px; border-radius: 8px; background: rgba(220, 38, 38, 0.15); color: #dc2626; border: 1px solid rgba(220, 38, 38, 0.25);">
+                <i class="fas fa-exclamation-circle"></i> <span th:text="${requestErrorMessage}"></span>
             </div>
 
             <div class="dashboard-stats progress-stats">
-                <div class="stat-card">
-                    <div class="stat-info">
-                        <h4><i class="fas fa-stethoscope"></i> Tổng số lần khám</h4>
-                        <div class="stat-number" th:text="${examinations != null ? examinations.size() : 0}">0</div>
-                    </div>
-                    <span class="badge badge-info">Lượt khám</span>
-                </div>
 
                 <div class="stat-card">
                     <div class="stat-info">
@@ -59,32 +65,6 @@
                 </div>
             </div>
 
-            <!-- Date Search Filter Card -->
-            <div class="patient-card search-filter-card">
-                <div id="dateValidationError" class="alert alert-danger" 
-                     th:style="${errorMessage != null} ? 'display: block; margin-bottom: 15px; width: 100%;' : 'display: none; margin-bottom: 15px; width: 100%;'"
-                     th:text="${errorMessage}">
-                </div>
-
-                <form method="get" th:action="@{/patient/progress}" class="search-filter-form" onsubmit="return validateDateFilter(this)">
-                    <div class="search-filter-field">
-                        <label for="startDate">Từ ngày</label>
-                        <input type="date" id="startDate" name="startDate" th:value="${startDate}">
-                    </div>
-                    <div class="search-filter-field">
-                        <label for="endDate">Đến ngày</label>
-                        <input type="date" id="endDate" name="endDate" th:value="${endDate}">
-                    </div>
-                    <div class="search-filter-actions">
-                        <button type="submit" class="primary-btn">
-                            <i class="fas fa-search"></i> Tìm kiếm
-                        </button>
-                        <a th:href="@{/patient/progress}" class="secondary-btn">
-                            <i class="fas fa-undo"></i> Làm mới
-                        </a>
-                    </div>
-                </form>
-            </div>
 
             <div class="progress-timeline" th:if="${examinations != null && !examinations.isEmpty()}">
                 <section class="progress-card"
@@ -110,8 +90,8 @@
                             </div>
 
                             <span class="badge"
-                                  th:classappend="${exam.status != null && #strings.contains(#strings.toLowerCase(exam.status), 'complete')} ? ' badge-success' : (${exam.status != null && #strings.contains(#strings.toLowerCase(exam.status), 'cancel')} ? ' badge-danger' : ' badge-info')"
-                                  th:text="${exam.status != null ? exam.status : 'Đang tiến hành'}">Đang tiến hành</span>
+                                  th:classappend="${exam.status == 'Completed' ? 'badge-success' : (exam.status == 'Cancelled' ? 'badge-danger' : (exam.status == 'InProgress' ? 'badge-info' : 'badge-warning'))}"
+                                  th:text="${exam.status == 'Completed' ? 'Hoàn thành' : (exam.status == 'Cancelled' ? 'Đã hủy' : (exam.status == 'InProgress' ? 'Đang khám' : (exam.status == 'Pending' ? 'Đang chờ' : (exam.status == 'Requested' ? 'Chờ duyệt' : exam.status))))}">Đang tiến hành</span>
                         </div>
 
                         <div class="progress-section-grid">
@@ -147,7 +127,7 @@
                         <div class="progress-subsection" th:if="${treatmentPlansByExam[exam.clinicalExamId] != null}" th:with="plan=${treatmentPlansByExam[exam.clinicalExamId]}">
                             <div class="card-header">
                                 <i class="fas fa-file-medical-alt" style="color: var(--green-600);"></i>
-                                <h3>Phác đồ & Kế hoạch Điều trị</h3>
+                                <h3>Phác đồ & kế hoạch điều trị</h3>
                             </div>
                             <div class="progress-note-grid" style="margin-top: 12px; margin-bottom: 0;">
                                 <div class="progress-note">
@@ -172,7 +152,7 @@
                         <div class="progress-subsection">
                             <div class="card-header">
                                 <i class="fas fa-vial" style="color: var(--green-600);"></i>
-                                <h3>Yêu cầu & Kết quả Xét nghiệm</h3>
+                                <h3>Yêu cầu & kết quả xét nghiệm</h3>
                             </div>
 
                             <div class="lab-order-list" th:if="${examOrders != null && !examOrders.isEmpty()}">
@@ -276,29 +256,6 @@
                 </section>
             </div>
 
-            <!-- Pagination Controls -->
-            <div class="pagination-container" th:if="${totalPages > 0}">
-                <div class="pagination-size">
-                    <label for="pageSizeSelect">Hiển thị:</label>
-                    <select id="pageSizeSelect" class="page-size-select" onchange="changePageSize(this.value)">
-                        <option value="2" th:selected="${pageSize == 2}">2 hàng / trang</option>
-                        <option value="5" th:selected="${pageSize == 5}">5 hàng / trang</option>
-                        <option value="10" th:selected="${pageSize == 10}">10 hàng / trang</option>
-                        <option value="20" th:selected="${pageSize == 20}">20 hàng / trang</option>
-                    </select>
-                </div>
-                <div class="pagination-controls">
-                    <a th:if="${currentPage > 0}" th:href="@{/patient/progress(page=0, size=${pageSize}, startDate=${startDate}, endDate=${endDate})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> Trang đầu</a>
-                    <a th:if="${currentPage > 0}" th:href="@{/patient/progress(page=${currentPage - 1}, size=${pageSize}, startDate=${startDate}, endDate=${endDate})}" class="pagination-btn"><i class="fas fa-chevron-left"></i> Trước</a>
-                    <div class="pagination-pages">
-                        <th:block th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}">
-                            <a th:if="${pageNum >= currentPage - 2 and pageNum <= currentPage + 2}" th:href="@{/patient/progress(page=${pageNum}, size=${pageSize}, startDate=${startDate}, endDate=${endDate})}" class="page-number" th:classappend="${pageNum == currentPage} ? 'active' : ''" th:text="${pageNum + 1}"></a>
-                        </th:block>
-                    </div>
-                    <a th:if="${currentPage < totalPages - 1}" th:href="@{/patient/progress(page=${currentPage + 1}, size=${pageSize}, startDate=${startDate}, endDate=${endDate})}" class="pagination-btn">Sau <i class="fas fa-chevron-right"></i></a>
-                    <a th:if="${currentPage < totalPages - 1}" th:href="@{/patient/progress(page=${totalPages - 1}, size=${pageSize}, startDate=${startDate}, endDate=${endDate})}" class="pagination-btn">Trang cuối <i class="fas fa-chevron-right"></i></a>
-                </div>
-            </div>
 
 
             <div class="patient-card" th:if="${examinations == null || examinations.isEmpty()}">
@@ -310,7 +267,44 @@
             </div>
         </main>
 
-        <div th:replace="~{layout/footer :: footer}"></div>
+        <div th:replace="~{layout/patient/footer :: footer}"></div>
+    </div>
+</div>
+
+<!-- REQUEST EXAMINATIONS MODAL -->
+<div class="patient-modal-overlay" id="requestExamModal">
+    <div class="patient-modal">
+        <div class="patient-modal-header">
+            <h2>Yêu cầu khám bệnh mới</h2>
+            <button type="button" class="modal-close-btn" onclick="closePatientModal('requestExamModal')">
+                ×
+            </button>
+        </div>
+
+        <form th:action="@{/patient/request-exam}" method="post">
+            <div class="patient-modal-body">
+                <div class="modal-form-grid">
+                    <div class="modal-form-group full" style="display: flex; flex-direction: column; gap: 8px;">
+                        <label for="requestSymptomNote" style="font-weight: 600; color: var(--text-primary);">Lý do khám / Triệu chứng hiện tại <span style="color: var(--danger-color, #ef4444);">*</span></label>
+                        <textarea id="requestSymptomNote" 
+                                  name="medicalHistory" 
+                                  required 
+                                  rows="4" 
+                                  placeholder="Ví dụ: Đường huyết đo tại nhà tăng cao, mệt mỏi kéo dài, cảm thấy khát nước nhiều..."
+                                  style="width: 100%; border: 1px solid var(--border-color, #e2e8f0); border-radius: 8px; padding: 10px; font-family: inherit; font-size: 0.9rem; resize: vertical;"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="patient-modal-footer">
+                <button type="button" class="modal-cancel-btn" onclick="closePatientModal('requestExamModal')">
+                    Hủy
+                </button>
+                <button type="submit" class="modal-save-btn">
+                    Gửi yêu cầu
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 

@@ -2,7 +2,7 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Đánh giá Nguy cơ | Hệ thống Chăm sóc Tiểu đường</title>
+    <title>Đánh giá nguy cơ | Hệ thống chăm sóc tiểu đường</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/patient/patient.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -10,17 +10,17 @@
 
 <body>
 <div class="admin-layout">
-    <div th:replace="~{layout/patient-sidebar :: patientSidebar('risk')}"></div>
+    <div th:replace="~{layout/patient/sidebar :: patientSidebar('risk')}"></div>
 
     <div class="admin-main">
-        <div th:replace="~{layout/patient-header :: patientHeader('Đánh giá Nguy cơ')}"></div>
+        <div th:replace="~{layout/patient/header :: patientHeader('Đánh giá nguy cơ')}"></div>
 
         <main class="admin-content">
             <div class="page-header dashboard-hero">
                 <div>
                     <h1>
                         <i class="fas fa-shield-heart"></i>
-                        Đánh giá Nguy cơ Tiểu đường
+                        Đánh giá nguy cơ tiểu đường
                     </h1>
                     <p class="subtitle">
                         Xem xét mức độ nguy cơ liên quan đến tiểu đường của bạn dựa trên chỉ số HbA1c, lượng đường huyết lúc đói, BMI,
@@ -31,7 +31,7 @@
                 <div class="dashboard-actions">
                     <a th:href="@{/patient/progress}" class="btn-primary-link">
                         <i class="fas fa-notes-medical"></i>
-                        Xem Tiến trình Y tế
+                        Xem tiến trình y tế
                     </a>
                 </div>
             </div>
@@ -51,7 +51,7 @@
                             Nguy cơ thấp
                         </span>
 
-                        <h2>Nguy cơ Tiểu đường Hiện tại của Bạn</h2>
+                        <h2>Nguy cơ tiểu đường hiện tại của bạn</h2>
                         <p th:text="${riskDescription}">
                             Các chỉ số hiện tại của bạn cho thấy nguy cơ thấp dựa trên dữ liệu hiện có.
                         </p>
@@ -135,7 +135,7 @@
                                 <p th:text="${latestHbA1cStatus}">Không có dữ liệu</p>
                             </div>
                             <span class="badge"
-                                  th:classappend="${latestHbA1cStatus == 'Ngưỡng tiểu đường'} ? ' badge-danger' : (${latestHbA1cStatus == 'Ngưỡng tiền tiểu đường'} ? ' badge-warning' : ' badge-success')"
+                                  th:classappend="${hba1cBadgeClass}"
                                   th:text="${latestHbA1cStatus}">
                                 Không có dữ liệu
                             </span>
@@ -147,7 +147,7 @@
                                 <p th:text="${latestGlucoseStatus}">Không có dữ liệu</p>
                             </div>
                             <span class="badge"
-                                  th:classappend="${latestGlucoseStatus == 'Cao'} ? ' badge-danger' : (${latestGlucoseStatus == 'Cận ranh giới'} ? ' badge-warning' : ' badge-success')"
+                                  th:classappend="${glucoseBadgeClass}"
                                   th:text="${latestGlucoseStatus}">
                                 Không có dữ liệu
                             </span>
@@ -159,7 +159,7 @@
                                 <p th:text="${bmiStatus}">Không có dữ liệu</p>
                             </div>
                             <span class="badge"
-                                  th:classappend="${bmiStatus == 'Béo phì'} ? ' badge-danger' : (${bmiStatus == 'Thừa cân'} ? ' badge-warning' : ' badge-success')"
+                                  th:classappend="${bmiBadgeClass}"
                                   th:text="${bmiStatus}">
                                 Không có dữ liệu
                             </span>
@@ -267,7 +267,7 @@
                 <section class="insight-card">
                     <div class="card-header">
                         <i class="fas fa-triangle-exclamation" style="color: var(--green-600);"></i>
-                        <h3>Kết quả xét nghiệm bất thường</h3>
+                        <h3>Top 5 kết quả xét nghiệm bất thường gần nhất</h3>
                     </div>
 
                     <div class="table-wrapper" th:if="${abnormalResults != null && !abnormalResults.isEmpty()}">
@@ -345,7 +345,7 @@
             </div>
         </main>
 
-        <div th:replace="~{layout/footer :: footer}"></div>
+        <div th:replace="~{layout/patient/footer :: footer}"></div>
     </div>
 </div>
 

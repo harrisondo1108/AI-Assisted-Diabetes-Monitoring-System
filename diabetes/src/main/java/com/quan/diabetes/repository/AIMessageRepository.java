@@ -19,5 +19,7 @@ public interface AIMessageRepository extends JpaRepository<AIMessage, Long> {
 
     @Query("SELECT m FROM AIMessage m WHERE m.content LIKE %:keyword%")
     List<AIMessage> searchByContent(@Param("keyword") String keyword);
+
+    List<AIMessage> findTop20ByAiConversation_AiConversationIdOrderByTimeDesc(String conversationId);
 }
 

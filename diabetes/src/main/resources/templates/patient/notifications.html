@@ -2,7 +2,7 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Nhắc nhở Dùng thuốc | Hệ thống Chăm sóc Tiểu đường</title>
+    <title>Nhắc nhở dùng thuốc | Hệ thống chăm sóc tiểu đường</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/patient/patient.css}">
     <link rel="stylesheet" th:href="@{/css/patient/notifications.css}">
@@ -11,17 +11,17 @@
 
 <body>
 <div class="admin-layout">
-    <div th:replace="~{layout/patient-sidebar :: patientSidebar('notifications')}"></div>
+    <div th:replace="~{layout/patient/sidebar :: patientSidebar('notifications')}"></div>
 
     <div class="admin-main">
-        <div th:replace="~{layout/patient-header :: patientHeader('Thông báo')}"></div>
+        <div th:replace="~{layout/patient/header :: patientHeader('Thông báo')}"></div>
 
         <main class="admin-content">
             <div class="page-header dashboard-hero">
                 <div>
                     <h1 id="page-title">
                         <i class="fas fa-bell"></i>
-                        Nhắc nhở Dùng thuốc
+                        Nhắc nhở dùng thuốc
                     </h1>
                     <p class="subtitle" id="page-subtitle">
                         Hệ thống nhắc nhở bạn uống thuốc tiểu đường trước 30 phút trước mỗi liều lượng được lên lịch.
@@ -180,7 +180,7 @@
 
         </main>
 
-        <div th:replace="~{layout/footer :: footer}"></div>
+        <div th:replace="~{layout/patient/footer :: footer}"></div>
     </div>
 </div>
 

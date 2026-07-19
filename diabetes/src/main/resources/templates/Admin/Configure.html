@@ -12,13 +12,13 @@
 <div class="admin-layout">
 
     <!-- SIDEBAR -->
-    <div th:replace="~{layout/sidebar :: sidebar('configure')}"></div>
+    <div th:replace="~{layout/admin/sidebar :: sidebar('configure')}"></div>
 
     <!-- MAIN -->
     <div class="admin-main">
 
         <!-- Header -->
-        <div th:replace="~{layout/header :: header('Cấu hình Hệ thống')}"></div>
+        <div th:replace="~{layout/admin/header :: header('Cấu hình Hệ thống')}"></div>
 
         <!-- Content -->
         <main class="admin-content">
@@ -183,7 +183,7 @@
         </main>
 
         <!-- Footer -->
-        <div th:replace="~{layout/footer :: footer}"></div>
+        <div th:replace="~{layout/admin/footer :: footer}"></div>
 
     </div><!-- /.admin-main -->
 </div><!-- /.admin-layout -->

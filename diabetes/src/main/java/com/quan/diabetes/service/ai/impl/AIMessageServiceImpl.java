@@ -7,9 +7,11 @@ import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
+import com.quan.diabetes.dto.AIChat.AiHistoryDto;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AIMessageServiceImpl implements AIMessageService {
@@ -86,5 +88,25 @@ public class AIMessageServiceImpl implements AIMessageService {
     @Override
     public List<AIMessage> searchByContent(String keyword) {
         return aIMessageRepository.searchByContent(keyword);
+    }
+
+    @Override
+    public String getFormattedConversationHistory(String conversationId, int limit) {
+        List<AIMessage> topMessages = aIMessageRepository
+                .findTop20ByAiConversation_AiConversationIdOrderByTimeDesc(conversationId);
+
+        // Cần đảo ngược lại để hiển thị đúng thứ tự thời gian tăng dần
+        Collections.reverse(topMessages);
+
+        List<AiHistoryDto> historyDtos = topMessages.stream()
+                .limit(limit)
+                .map(m -> new AiHistoryDto(
+                        m.getSender().equalsIgnoreCase("Patient") ? "user" : "ai",
+                        m.getContent()))
+                .collect(Collectors.toList());
+
+        return historyDtos.stream()
+                .map(dto -> (dto.getRole().equals("user") ? "Bệnh nhân: " : "Bạn: ") + dto.getMessage())
+                .collect(Collectors.joining("\n"));
     }
 }

@@ -15,5 +15,6 @@ public interface SymptomsCatalogService {
     SymptomsCatalog update(String id, SymptomsCatalog entity);
     void softDelete(String id);
     void restore(String id);
+    void delete(String id);
     Map<String, Object> getSummaryStats();
 }

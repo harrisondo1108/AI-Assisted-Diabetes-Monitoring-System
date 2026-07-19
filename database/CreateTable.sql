@@ -10,7 +10,8 @@ GO
 
 CREATE TABLE [Room] (
     [RoomID] INT IDENTITY(1,1) PRIMARY KEY,
-    [RoomName] NVARCHAR(100) NOT NULL UNIQUE
+    [RoomName] NVARCHAR(50) NOT NULL UNIQUE,
+    [Description] NVARCHAR(255) NULL
 );
 
 -- 1. Role
@@ -25,7 +26,7 @@ CREATE TABLE [Account] (
     PhoneNumber NVARCHAR(50) NOT NULL UNIQUE, -- accountName
     PasswordHash VARCHAR(255) NOT NULL, -- password
     RoleID VARCHAR(50),
-	Status VARCHAR(20) DEFAULT('Active') CHECK (Status in ('Active', 'Clocked'))
+	Status VARCHAR(20) DEFAULT('Active') CHECK (Status in ('Active', 'Clocked')),
     FOREIGN KEY (RoleID) REFERENCES Role(RoleID) ON DELETE SET NULL ON UPDATE CASCADE
 	-- "ON DELETE SET NULL": nếu ta xóa 1 dòng A bên bảng Role thì thuộc tính FK RoleID của các dòng ở bảng User
 	--                       tham chiếu đến dòng A sẽ được sửa thành null
@@ -44,6 +45,7 @@ CREATE TABLE [Profile] (
 	[RoomID] INT NULL,
 	Specialty NVARCHAR(60),
 	ImageURL NVARCHAR(255) NULL,
+    Email VARCHAR(100) NULL,
     FOREIGN KEY (UserID) REFERENCES [Account](UserID) ON DELETE CASCADE  ON UPDATE CASCADE,
 	FOREIGN KEY ([RoomID]) REFERENCES [Room]([RoomID]) ON DELETE SET NULL ON UPDATE CASCADE
 );
@@ -64,6 +66,7 @@ CREATE TABLE [Patient] (
     SupervisorName NVARCHAR(90),
     SupervisorPhone VARCHAR(15),
 	ImageURL NVARCHAR(255) NULL,
+    Email VARCHAR(100) NULL,
     FOREIGN KEY (UserID) REFERENCES [Account](UserID) ON DELETE CASCADE ON UPDATE CASCADE,
     CHECK (Bloodgroup IN ('A+','A-','B+','B-','AB+','AB-','O+','O-'))
 );
@@ -85,12 +88,12 @@ CREATE TABLE PatientRoutine (
 CREATE TABLE [ClinicalExamination] (
     ClinicalExamID VARCHAR(50) PRIMARY KEY,
     ExamDate DATETIME DEFAULT GETDATE(),
-    MedicalHistory NVARCHAR(MAX), -- tiền sử bệnh
+    MedicalHistory NVARCHAR(MAX), -- li do khám bệnh
     DiagnosisNote NVARCHAR(MAX), -- chẩn đoán
     CancelReason NVARCHAR(MAX), -- lý do hủy
     NextAppointment DATETIME, -- lịch tái khám
-    Status NVARCHAR(20) DEFAULT 'Pending'
-        CHECK (Status IN ('Pending','InProgress','Completed','Cancelled')),
+    Status NVARCHAR(20) DEFAULT 'Requested'
+        CHECK (Status IN ('Requested','Pending','InProgress','Completed','Cancelled')),
     PatientID VARCHAR(50) NOT NULL,
     DoctorID VARCHAR(50) NOT NULL,
     FOREIGN KEY (PatientID) REFERENCES Patient(UserID) ON UPDATE CASCADE,
@@ -138,6 +141,8 @@ CREATE TABLE [Lab_Test_Catalog] (
     LabTestID VARCHAR(50) PRIMARY KEY,
     TestName NVARCHAR(100) UNIQUE,
     Unit NVARCHAR(20), -- đơn vị mô tả
+    MinValue INT NULL,
+    MaxValue INT NULL,
     Description NVARCHAR(MAX),
 	RoomID INT,
 	FOREIGN KEY (RoomID) REFERENCES Room(RoomID) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -291,18 +296,45 @@ CREATE TABLE [AI_Message] (
 );
 
 -- 17. Notification
-CREATE TABLE [AI_Reminder] (
-    AIReminderID BIGINT IDENTITY(1,1)PRIMARY KEY,
+CREATE TABLE [Reminder] (
+    ReminderID BIGINT IDENTITY(1,1)PRIMARY KEY,
     Title NVARCHAR(50),
     Message NVARCHAR(MAX),
     ScheduledTime DATETIME,
     IsRead BIT DEFAULT 0,
+    IsSent BIT DEFAULT 0,
+    LockStatus BIT DEFAULT 0,
 	AIAssistantID INT,
     PatientID VARCHAR(50),
 	TimingID INT,
+    ClinicalExamID VARCHAR(50),
     FOREIGN KEY (PatientID) REFERENCES Patient(UserID) ON DELETE CASCADE,
 	FOREIGN KEY (AIAssistantID) REFERENCES AI_Assistant(AIAssistantID) ON DELETE CASCADE,
-	FOREIGN KEY (TimingID) REFERENCES MedicationTiming(TimingID)
+	FOREIGN KEY (TimingID) REFERENCES MedicationTiming(TimingID),
+    FOREIGN KEY (ClinicalExamID) REFERENCES ClinicalExamination(ClinicalExamID)
+);
+
+-- 18. Doctor Rating
+CREATE TABLE [DoctorRating] (
+    [RatingID] INT IDENTITY(1,1) PRIMARY KEY,
+    [ClinicalExamID] VARCHAR(50) NOT NULL UNIQUE,
+    [PatientID] VARCHAR(50) NOT NULL,
+    [DoctorID] VARCHAR(50) NOT NULL,
+    [RatingValue] INT NOT NULL CHECK (RatingValue BETWEEN 1 AND 5),
+    [Comment] NVARCHAR(MAX),
+    [CreatedAt] DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (ClinicalExamID) REFERENCES ClinicalExamination(ClinicalExamID),
+    FOREIGN KEY (PatientID) REFERENCES Patient(UserID),
+    FOREIGN KEY (DoctorID) REFERENCES [Account](UserID)
+);
+
+-- 19. AI Patient Access Log
+CREATE TABLE [ai_patient_access_log] (
+    [id] BIGINT IDENTITY(1,1) PRIMARY KEY,
+    [queryLogId] BIGINT,
+    [patientId] VARCHAR(50) NOT NULL,
+    [dataType] VARCHAR(100) NOT NULL,
+    [accessedAt] DATETIME NOT NULL
 );
 
 ------------------  INSERT  ----------------------------------------
@@ -362,3 +394,17 @@ VALUES
 ('DOC00002', N'BS. Trần Thị B', '0328938602', N'456 Đường Nguyễn Huệ, Quận 1, TP. HCM', '1985-08-20', 1, 1, N'Nội tiết - Tiểu đường', NULL),
 ('DOC00003', N'BS. Phạm Minh C', '0328938603', N'789 Đường Lê Duẩn, Hải Châu, Đà Nẵng', '1990-12-10', 0, 1, N'Nội tiết - Tiểu đường', NULL);
 
+-- Table: SystemLog
+CREATE TABLE SystemLog (
+    LogID INT IDENTITY(1,1) PRIMARY KEY,
+    AccountID VARCHAR(50),
+    Action VARCHAR(50) NOT NULL,
+    EntityName VARCHAR(100),
+    EntityID VARCHAR(100),
+    Description NVARCHAR(1000),
+    OldValue NVARCHAR(MAX),
+    NewValue NVARCHAR(MAX),
+    Status VARCHAR(20),
+    CreatedAt DATETIME2 DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT FK_SystemLog_Account FOREIGN KEY (AccountID) REFERENCES Account(UserID)
+);

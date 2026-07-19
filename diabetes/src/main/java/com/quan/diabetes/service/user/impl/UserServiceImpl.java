@@ -81,6 +81,7 @@ public class UserServiceImpl implements UserService {
         newUser.setUserId(entity.getUserId());
         newUser.setPhoneNumber(entity.getPhoneNumber());
         newUser.setRole(entity.getRole());
+        newUser.setStatus(entity.getStatus());
         
         String pwd = entity.getPasswordHash();
         if (pwd != null && (pwd.startsWith("$2a$") || pwd.startsWith("$2b$") || pwd.startsWith("$2y$"))) {

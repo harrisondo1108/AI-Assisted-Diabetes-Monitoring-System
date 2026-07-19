@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Nhật ký hệ thống · Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/admin/dashboard.css}">
+    <link rel="stylesheet" th:href="@{/css/admin/system_log.css}">
+</head>
+
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <div th:replace="~{layout/admin/sidebar :: sidebar('system-log')}"></div>
+
+        <div class="admin-main">
+            <div th:replace="~{layout/admin/header :: header('Nhật ký hệ thống')}"></div>
+
+            <main class="admin-content">
+                <div class="page-header">
+                    <div>
+                        <h1>Nhật ký hệ thống</h1>
+                        <p class="subtitle">Theo dõi và quản lý lịch sử thao tác của tất cả người dùng trong hệ thống.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Báo lỗi từ filter -->
+                <div th:if="${error}" class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span th:text="${error}"></span>
+                </div>
+
+                <!-- Form lọc -->
+                <div class="filter-card">
+                    <form action="/admin/system-log" method="GET">
+                        <div class="filter-grid">
+                            <div class="filter-group">
+                                <label for="keyword">Từ khóa tìm kiếm</label>
+                                <input type="text" id="keyword" name="keyword" class="form-control"
+                                    th:value="${keyword}" placeholder="Mã tài khoản, SĐT, Họ tên...">
+                            </div>
+                            <div class="filter-group">
+                                <label for="role">Vai trò</label>
+                                <select id="role" name="role" class="form-control">
+                                    <option value="">Tất cả vai trò</option>
+                                    <option value="AD" th:selected="${role == 'AD'}">Quản trị viên</option>
+                                    <option value="DOC" th:selected="${role == 'DOC'}">Bác sĩ</option>
+                                    <option value="PAT" th:selected="${role == 'PAT'}">Bệnh nhân</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label for="action">Hoạt động</label>
+                                <select id="action" name="action" class="form-control">
+                                    <option value="">Tất cả hoạt động</option>
+                                    <option th:each="entry : ${actionMap}" th:value="${entry.key}"
+                                        th:text="${entry.value}" th:selected="${action == entry.key}"></option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label for="fromDate">Từ ngày</label>
+                                <input type="date" id="fromDate" name="fromDate" class="form-control"
+                                    th:value="${fromDate}">
+                            </div>
+                            <div class="filter-group">
+                                <label for="toDate">Đến ngày</label>
+                                <input type="date" id="toDate" name="toDate" class="form-control" th:value="${toDate}">
+                            </div>
+                        </div>
+                        <div class="filter-actions">
+                            <a th:href="@{/admin/system-log}" class="btn btn-outline">
+                                <i class="fas fa-undo"></i> Làm mới
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"></i> Tìm kiếm
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Bảng dữ liệu -->
+                <div class="table-card">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Thời gian</th>
+                                    <th>Mã TK</th>
+                                    <th>Họ tên</th>
+                                    <th>SĐT</th>
+                                    <th>Vai trò</th>
+                                    <th>Hoạt động</th>
+                                    <th>Trạng thái</th>
+                                    <th class="action-cell">Chi tiết</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="log : ${logPage.content}">
+                                    <td th:text="${#temporals.format(log.createdAt, 'dd/MM/yyyy HH:mm:ss')}"></td>
+                                    <td th:text="${log.account != null ? log.account.userId : 'N/A'}"></td>
+                                    <td>
+                                        <!-- Lấy fullName từ Profile hoặc Patient -->
+                                        <span th:if="${log.account != null and log.account.profile != null}"
+                                            th:text="${log.account.profile.fullName}"></span>
+                                        <span th:if="${log.account != null and log.account.patient != null}"
+                                            th:text="${log.account.patient.fullName}"></span>
+                                        <span
+                                            th:if="${log.account == null or (log.account.profile == null and log.account.patient == null)}">Chưa
+                                            cập nhật</span>
+                                    </td>
+                                    <td th:text="${log.account != null ? log.account.phoneNumber : 'N/A'}"></td>
+                                    <td>
+                                        <span th:if="${log.account != null and log.account.role != null}"
+                                            th:class="'badge badge-role-' + ${#strings.toLowerCase(log.account.role.roleId)}"
+                                            th:text="${roleMap.get(log.account.role.roleId) ?: log.account.role.roleId}">
+                                        </span>
+                                    </td>
+                                    <td th:text="${actionMap.get(log.action) ?: log.action}"></td>
+                                    <td>
+                                        <span th:class="'badge badge-status-' + ${#strings.toLowerCase(log.status)}"
+                                            th:text="${statusMap.get(log.status) ?: log.status}">
+                                        </span>
+                                    </td>
+                                    <td class="action-cell">
+                                        <!-- Chuyển params qua trang chi tiết để khi Back về vẫn giữ nguyên -->
+                                        <a th:href="@{/admin/system-log/detail/{id}(id=${log.logId}, page=${logPage.number + 1}, keyword=${keyword}, role=${role}, action=${action}, fromDate=${fromDate}, toDate=${toDate})}"
+                                            class="btn-icon" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr th:if="${logPage.empty}">
+                                    <td colspan="8">
+                                        <div class="empty-state">
+                                            <i class="fas fa-folder-open"></i>
+                                            <p>Không tìm thấy nhật ký hệ thống nào phù hợp.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Phân trang -->
+                    <div class="pagination-container" th:if="${logPage.totalPages > 0}">
+                        <span class="pagination-info"
+                              th:with="start=${logPage.totalElements == 0 ? 0 : logPage.number * logPage.size + 1}, end=${(logPage.number + 1) * logPage.size > logPage.totalElements ? logPage.totalElements : (logPage.number + 1) * logPage.size}"
+                              th:text="|Hiển thị ${start} - ${end} / ${logPage.totalElements} nhật ký|">
+                        </span>
+                        
+                        <div class="pagination-controls">
+                            <!-- Nút Trước -->
+                            <a th:if="${!logPage.first}" 
+                               th:href="@{/admin/system-log(page=${logPage.number}, keyword=${keyword}, role=${role}, action=${action}, fromDate=${fromDate}, toDate=${toDate})}" 
+                               class="pagination-btn">Trước</a>
+                            <span th:if="${logPage.first}" class="pagination-btn disabled">Trước</span>
+                            
+                            <!-- Các số trang -->
+                            <div class="pagination-pages">
+                                <th:block th:each="pageNum : ${#numbers.sequence(1, logPage.totalPages)}">
+                                    <a th:href="@{/admin/system-log(page=${pageNum}, keyword=${keyword}, role=${role}, action=${action}, fromDate=${fromDate}, toDate=${toDate})}" 
+                                       class="page-number" 
+                                       th:classappend="${pageNum == logPage.number + 1} ? 'active' : ''" 
+                                       th:text="${pageNum}"></a>
+                                </th:block>
+                            </div>
+                            
+                            <!-- Nút Sau -->
+                            <a th:if="${!logPage.last}" 
+                               th:href="@{/admin/system-log(page=${logPage.number + 2}, keyword=${keyword}, role=${role}, action=${action}, fromDate=${fromDate}, toDate=${toDate})}" 
+                               class="pagination-btn">Sau</a>
+                            <span th:if="${logPage.last}" class="pagination-btn disabled">Sau</span>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -34,6 +34,7 @@ public class AdminInitializer implements CommandLineRunner {
     private com.quan.diabetes.service.user.PatientRoutineService patientRoutineService;
 
     private final String PHONE_NUMBER = "0328938692";
+
     @Override
     public void run(String... args) {
         // 1. Khởi tạo role REC nếu chưa có

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giám sát hệ thống AI · Hệ thống chăm sóc tiểu đường</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/admin/monitoring.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<div class="admin-layout">
+    <!-- SIDEBAR -->
+    <div th:replace="~{layout/admin/sidebar :: sidebar('monitoring')}"></div>
+    <!-- MAIN CONTENT -->
+    <div class="admin-main">
+        <!-- Header đồng bộ với các trang Admin khác -->
+        <div th:replace="~{layout/admin/header :: header('Giám sát hệ thống AI')}">
+        </div>
+
+        <main class="admin-content">
+
+            <!-- Stats Overview Cards (Synchronized with Admin Features) -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-stopwatch"></i></div>
+                    <div class="stat-label">Tốc độ trung bình</div>
+                    <div class="stat-value" th:text="${avgLatencyMs >= 1000 ? #numbers.formatDecimal(avgLatencyMs / 1000.0, 1, 1) + ' s' : #numbers.formatDecimal(avgLatencyMs, 1, 0) + ' ms'}">0.0 ms</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-brain"></i></div>
+                    <div class="stat-label">Tên model AI</div>
+                    <div class="stat-value" style="font-size: 1.4rem; text-transform: uppercase;" th:text="${activeModelName}">diabetes</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-users"></i></div>
+                    <div class="stat-label">Người dùng hôm nay</div>
+                    <div class="stat-value" th:text="${todayUsersCount}">0</div>
+                </div>
+
+                <div class="stat-card" id="aiStatusCard" th:style="${aiEnabled} ? 'border: 1px solid var(--border); background: var(--bg-card); display: flex; align-items: center; justify-content: space-between; padding: 20px;' : 'border: 1px solid #fca5a5; background: #fffcfc; display: flex; align-items: center; justify-content: space-between; padding: 20px;'">
+                    <div style="display: grid; grid-template-columns: 44px 1fr; column-gap: 14px; align-items: center;">
+                        <div id="aiStatusIcon" class="stat-icon" th:style="${aiEnabled} ? 'background: var(--mint-200); color: var(--green-700); grid-row: span 2; width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;' : 'background: #fee2e2; color: #dc2626; grid-row: span 2; width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;'"><i class="fas fa-power-off"></i></div>
+                        <div class="stat-label" style="font-size: 0.75rem; color: var(--text-muted); align-self: end; font-weight: 500;">Trạng thái AI</div>
+                        <div id="aiStatusText" class="stat-value" th:style="${aiEnabled} ? 'font-size: 1.4rem; font-weight: 700; color: var(--text-primary); align-self: start;' : 'font-size: 1.4rem; font-weight: 700; color: #dc2626; align-self: start;'" th:text="${aiEnabled ? 'Đang hoạt động' : 'Tạm tắt'}">Đang hoạt động</div>
+                    </div>
+                    <label class="ai-switch" style="position: relative; display: inline-block; width: 44px; height: 24px; margin: 0; flex-shrink: 0;">
+                        <input type="checkbox" id="aiToggleInput" th:checked="${aiEnabled}" onchange="handleAiToggleChange(this)" style="opacity: 0; width: 0; height: 0;">
+                        <span class="ai-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .3s; border-radius: 24px;"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="page-header" style="margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--green-800); margin: 0;"><i class="fas fa-history" style="margin-right: 8px; color: var(--green-600);"></i>Nhật ký truy xuất dữ liệu bệnh nhân (RAG Access Logs)</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin: 4px 0 0 0;">Giám sát nhật ký truy vấn AI và kiểm soát truy xuất dữ liệu y khoa của bệnh nhân.</p>
+                </div>
+                <span style="background: var(--mint-200); color: var(--green-800); padding: 6px 14px; border-radius: 40px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center;">
+                    <i class="fas fa-user-shield" style="margin-right: 6px;"></i> Dữ liệu bảo mật
+                </span>
+            </div>
+
+            <!-- PATIENT ACCESS LOG (RAG LOGS ONLY) -->
+            <div class="table-card">
+                <!-- Toolbar / Filter -->
+                <div class="table-toolbar">
+                    <form th:action="@{/admin/monitoring}" method="get" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center; width: 100%; justify-content: space-between;">
+                        <input type="hidden" name="activeTab" value="access"/>
+                        
+                        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                            <div style="position: relative;">
+                                <i class="fas fa-search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.85rem;"></i>
+                                <input type="text" name="accessPatientId" th:value="${accessPatientId}" placeholder="Lọc theo Mã Bệnh nhân..." class="filter-input" style="padding: 8px 14px 8px 36px; border-radius: 8px; border: 1px solid var(--border); width: 220px; font-size: 0.85rem;"/>
+                            </div>
+                            
+                            <select name="dataType" class="filter-select" style="padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border); background-color: #fff; font-size: 0.85rem; cursor: pointer;">
+                                <option value="">-- Tất cả loại dữ liệu --</option>
+                                <option value="get_general_record" th:selected="${dataType == 'get_general_record'}">Hồ sơ chung (get_general_record)</option>
+                                <option value="get_clinical_examination" th:selected="${dataType == 'get_clinical_examination'}">Khám lâm sàng (get_clinical_examination)</option>
+                                <option value="get_treatment_plan" th:selected="${dataType == 'get_treatment_plan'}">Kế hoạch điều trị (get_treatment_plan)</option>
+                                <option value="get_lab_results" th:selected="${dataType == 'get_lab_results'}">Kết quả xét nghiệm (get_lab_results)</option>
+                                <option value="get_prescriptions" th:selected="${dataType == 'get_prescriptions'}">Đơn thuốc (get_prescriptions)</option>
+                            </select>
+                            
+                            <div style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--text-secondary);">
+                                <span>Từ:</span>
+                                <input type="date" name="accessFromDate" th:value="${accessFromDate}" style="padding: 6px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.85rem; color: var(--text-primary); font-family: inherit;"/>
+                                <span>Đến:</span>
+                                <input type="date" name="accessToDate" th:value="${accessToDate}" style="padding: 6px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.85rem; color: var(--text-primary); font-family: inherit;"/>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 8px;">
+                            <button type="submit" class="btn btn-primary" style="padding: 8px 16px; border-radius: 8px; background: var(--green-800); color: white; font-weight: 600; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px;"><i class="fas fa-filter"></i> Lọc</button>
+                            <a th:href="@{/admin/monitoring(activeTab='access')}" class="btn btn-outline" style="padding: 8px 16px; border-radius: 8px; background: #fff; border: 1px solid var(--border); color: var(--text-primary); text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 6px;"><i class="fas fa-redo"></i> Đặt lại</a>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Data Table -->
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Mã Bệnh nhân</th>
+                                <th>Loại dữ liệu (Data Type)</th>
+                                <th>Câu hỏi gốc (Khi AI gọi RAG)</th>
+                                <th>Thời gian truy xuất</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="access : ${accessLogs.content}">
+                                <td style="font-weight: 600;" th:text="${'#' + access.id}">#1</td>
+                                <td style="font-weight: 600;" th:text="${access.patientId}">PT001</td>
+                                <td>
+                                    <span class="dataType-tag" style="margin: 0; background: var(--mint-200); color: var(--green-700); border: 1px solid #bae6fd; font-family: monospace; font-size: 0.82rem; padding: 4px 10px; border-radius: 6px; font-weight: 600;" th:text="${access.dataType}">get_general_record</span>
+                                </td>
+                                <td>
+                                    <div th:if="${access.question != null}" style="max-width: 380px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-style: italic;" th:title="${access.question}" th:text="${access.question}">"Câu hỏi gốc..."</div>
+                                    <span th:unless="${access.question != null}" style="color: var(--text-muted); font-style: italic;">Không có câu hỏi</span>
+                                </td>
+                                <td style="color: var(--text-secondary); font-size: 0.82rem;" th:text="${#temporals.format(access.accessedAt, 'dd/MM/yyyy HH:mm:ss')}">05/07/2026</td>
+                            </tr>
+                            <tr th:if="${accessLogs.empty}">
+                                <td colspan="5" style="text-align: center; padding: 48px 24px; color: var(--text-muted);">
+                                    <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--mint-50); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;">
+                                        <i class="fas fa-folder-open" style="font-size: 1.8rem; color: var(--green-600);"></i>
+                                    </div>
+                                    <div style="font-weight: 600; font-size: 1rem; color: var(--green-800); margin-bottom: 4px;">Không tìm thấy dữ liệu truy xuất nào</div>
+                                    <div style="font-size: 0.85rem;">Thử thay đổi điều kiện lọc hoặc từ khóa tìm kiếm.</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination (Medicine Management Style) -->
+                <div class="pagination-container" th:if="${accessLogs.totalPages > 0}">
+                    <div class="pagination-controls">
+                        <a th:if="${accessLogs.number > 0}"
+                            th:href="@{/admin/monitoring(activeTab='access', accessPage=0, accessSize=${accessLogs.size}, accessPatientId=${accessPatientId}, dataType=${dataType}, accessFromDate=${accessFromDate}, accessToDate=${accessToDate})}"
+                            class="pagination-btn"><i class="fas fa-chevron-left"></i> Đầu</a>
+                        <a th:if="${accessLogs.number > 0}"
+                            th:href="@{/admin/monitoring(activeTab='access', accessPage=${accessLogs.number - 1}, accessSize=${accessLogs.size}, accessPatientId=${accessPatientId}, dataType=${dataType}, accessFromDate=${accessFromDate}, accessToDate=${accessToDate})}"
+                            class="pagination-btn"><i class="fas fa-chevron-left"></i> Trước</a>
+                        <div class="pagination-pages">
+                            <th:block th:each="pageNum : ${#numbers.sequence(0, accessLogs.totalPages - 1)}">
+                                <a th:if="${pageNum >= accessLogs.number - 2 and pageNum <= accessLogs.number + 2}"
+                                    th:href="@{/admin/monitoring(activeTab='access', accessPage=${pageNum}, accessSize=${accessLogs.size}, accessPatientId=${accessPatientId}, dataType=${dataType}, accessFromDate=${accessFromDate}, accessToDate=${accessToDate})}"
+                                    class="page-number" th:classappend="${pageNum == accessLogs.number} ? 'active' : ''"
+                                    th:text="${pageNum + 1}"></a>
+                            </th:block>
+                        </div>
+                        <a th:if="${accessLogs.number < accessLogs.totalPages - 1}"
+                            th:href="@{/admin/monitoring(activeTab='access', accessPage=${accessLogs.number + 1}, accessSize=${accessLogs.size}, accessPatientId=${accessPatientId}, dataType=${dataType}, accessFromDate=${accessFromDate}, accessToDate=${accessToDate})}"
+                            class="pagination-btn">Tiếp <i class="fas fa-chevron-right"></i></a>
+                        <a th:if="${accessLogs.number < accessLogs.totalPages - 1}"
+                            th:href="@{/admin/monitoring(activeTab='access', accessPage=${accessLogs.totalPages - 1}, accessSize=${accessLogs.size}, accessPatientId=${accessPatientId}, dataType=${dataType}, accessFromDate=${accessFromDate}, accessToDate=${accessToDate})}"
+                            class="pagination-btn">Cuối <i class="fas fa-chevron-right"></i></a>
+                    </div>
+                    <div class="page-size-selector" style="display: flex; align-items: center; gap: 8px; font-size: 0.875rem; color: #5a6f68;">
+                        <label>Hiển thị: </label>
+                        <select id="accessSizeSelect" style="padding: 6px 12px; border: 1px solid #e2ebe7; border-radius: 8px; background-color: #fff; color: #0f2e26; font-size: 0.875rem; font-weight: 500; cursor: pointer;" onchange="changeAccessPageSize()">
+                            <option value="5" th:selected="${accessLogs.size == 5}">5 hàng / trang</option>
+                            <option value="7" th:selected="${accessLogs.size == 7}">7 hàng / trang</option>
+                            <option value="10" th:selected="${accessLogs.size == 10}">10 hàng / trang</option>
+                            <option value="20" th:selected="${accessLogs.size == 20}">20 hàng / trang</option>
+                            <option value="50" th:selected="${accessLogs.size == 50}">50 hàng / trang</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+        <!-- Footer -->
+        <div th:replace="~{layout/admin/footer :: footer}"></div>
+    </div>
+</div>
+
+<!-- AI TOGGLE CONFIRM MODAL (Upgraded Premium Design) -->
+<div class="modal-overlay" id="aiConfirmModal">
+    <div class="modal confirm-modal" style="max-width: 440px; border-radius: 24px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.8); background: #fff;">
+        <div style="padding: 16px 20px 0; display: flex; justify-content: flex-end;">
+            <button type="button" class="modal-close" onclick="closeAiConfirmModal()" style="font-size: 1.5rem; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #f1f5f9; color: #64748b; border: none; cursor: pointer; transition: 0.2s;">&times;</button>
+        </div>
+        <div class="modal-body" style="text-align: center; padding: 10px 32px 24px;">
+            <div id="aiConfirmIconDiv" style="width: 88px; height: 88px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.06); transition: 0.3s;">
+                <i id="aiConfirmIcon" class="fas fa-power-off" style="font-size: 40px; transition: 0.3s;"></i>
+            </div>
+            <h3 id="aiConfirmTitle" style="font-size: 1.3rem; font-weight: 700; color: #0f172a; margin: 0 0 10px 0;">Xác nhận tạm tắt AI</h3>
+            <p id="aiConfirmMessage" style="font-size: 0.95rem; color: #475569; line-height: 1.6; margin: 0 0 8px 0; font-weight: 500;">Bạn có chắc chắn muốn tạm dừng toàn bộ hệ thống AI?</p>
+            <p id="aiConfirmSubMessage" style="font-size: 0.85rem; color: #94a3b8; margin: 0; line-height: 1.5;">Khi tắt, hệ thống sẽ ngừng trả lời tự động các truy vấn cho đến khi được bật lại.</p>
+        </div>
+        <div style="padding: 12px 32px 32px; display: flex; justify-content: center; align-items: center; gap: 16px; background: transparent;">
+            <button type="button" onclick="closeAiConfirmModal()" style="padding: 12px 24px; border-radius: 12px; border: 1px solid #cbd5e1; background: #fff; font-weight: 600; color: #475569; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; min-width: 130px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
+                <i class="fas fa-times"></i> Hủy bỏ
+            </button>
+            <button type="button" id="aiConfirmOkBtn" onclick="executeAiToggle()" style="padding: 12px 26px; border-radius: 12px; font-weight: 600; font-size: 0.95rem; border: none; cursor: pointer; min-width: 160px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 14px rgba(0,0,0,0.15); transition: all 0.2s;">
+                <i class="fas fa-power-off"></i> Tạm tắt AI
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+let pendingAiState = false;
+
+function handleAiToggleChange(checkbox) {
+    pendingAiState = checkbox.checked;
+    checkbox.checked = !pendingAiState; // Hoàn tác trạng thái checkbox chờ người dùng xác nhận trong modal
+
+    const modal = document.getElementById('aiConfirmModal');
+    const title = document.getElementById('aiConfirmTitle');
+    const msg = document.getElementById('aiConfirmMessage');
+    const sub = document.getElementById('aiConfirmSubMessage');
+    const iconDiv = document.getElementById('aiConfirmIconDiv');
+    const icon = document.getElementById('aiConfirmIcon');
+    const okBtn = document.getElementById('aiConfirmOkBtn');
+
+    if (pendingAiState) {
+        title.textContent = 'Xác nhận bật hệ thống AI';
+        msg.textContent = 'Bạn có chắc chắn muốn bật hệ thống AI hỗ trợ y khoa?';
+        sub.textContent = 'AI sẽ ngay lập tức kết nối và phản hồi các truy vấn của bệnh nhân & bác sĩ.';
+        iconDiv.style.background = 'linear-gradient(135deg, #d1fae5, #a7f3d0)';
+        icon.className = 'fas fa-shield-alt';
+        icon.style.color = '#059669';
+        okBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+        okBtn.style.color = '#fff';
+        okBtn.style.boxShadow = '0 4px 14px rgba(16, 185, 129, 0.35)';
+        okBtn.innerHTML = '<i class="fas fa-check"></i> Đồng ý bật';
+    } else {
+        title.textContent = 'Xác nhận tạm tắt AI';
+        msg.textContent = 'Bạn có chắc chắn muốn tạm dừng toàn bộ hệ thống AI?';
+        sub.textContent = 'Khi tắt, hệ thống sẽ ngừng trả lời tự động các truy vấn cho đến khi được bật lại.';
+        iconDiv.style.background = 'linear-gradient(135deg, #fee2e2, #fecaca)';
+        icon.className = 'fas fa-power-off';
+        icon.style.color = '#dc2626';
+        okBtn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+        okBtn.style.color = '#fff';
+        okBtn.style.boxShadow = '0 4px 14px rgba(239, 68, 68, 0.35)';
+        okBtn.innerHTML = '<i class="fas fa-power-off"></i> Tạm tắt AI';
+    }
+
+    modal.classList.add('open');
+}
+
+function closeAiConfirmModal() {
+    document.getElementById('aiConfirmModal').classList.remove('open');
+}
+
+async function executeAiToggle() {
+    closeAiConfirmModal();
+    const checkbox = document.getElementById('aiToggleInput');
+    checkbox.checked = pendingAiState;
+    await toggleAiSystem(pendingAiState);
+}
+
+async function toggleAiSystem(enabled) {
+    const card = document.getElementById('aiStatusCard');
+    const icon = document.getElementById('aiStatusIcon');
+    const text = document.getElementById('aiStatusText');
+    const desc = document.getElementById('aiStatusDesc');
+
+    try {
+        const response = await fetch('/admin/monitoring/api/toggle-ai?enabled=' + enabled, {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const data = await response.json();
+        if (data.success) {
+            if (enabled) {
+                card.style.borderColor = 'var(--border)';
+                card.style.background = 'var(--bg-card)';
+                icon.style.background = 'var(--mint-200)';
+                icon.style.color = 'var(--green-700)';
+                text.style.color = 'var(--text-primary)';
+                text.textContent = 'Đang hoạt động';
+                if (desc) desc.textContent = 'Cho phép AI phản hồi tư vấn';
+            } else {
+                card.style.borderColor = '#fca5a5';
+                card.style.background = '#fffcfc';
+                icon.style.background = '#fee2e2';
+                icon.style.color = '#dc2626';
+                text.style.color = '#dc2626';
+                text.textContent = 'Tạm tắt';
+                if (desc) desc.textContent = 'AI tạm ngắt kết nối với bệnh nhân';
+            }
+        }
+    } catch (err) {
+        alert('Có lỗi xảy ra khi cập nhật trạng thái AI!');
+        document.getElementById('aiToggleInput').checked = !enabled;
+    }
+}
+
+function changeAccessPageSize() {
+    const size = document.getElementById('accessSizeSelect').value;
+    const url = new URL(window.location.href);
+    url.searchParams.set('accessSize', size);
+    url.searchParams.set('accessPage', '0');
+    window.location.href = url.toString();
+}
+</script>
+</body>
+</html>

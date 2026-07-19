@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duyệt yêu cầu khám | Hệ thống chăm sóc tiểu đường</title>
+    <!-- Premium Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Page CSS -->
+    <link rel="stylesheet" th:href="@{/css/doctor/doctor-common.css}">
+    <link rel="stylesheet" th:href="@{/css/doctor/requests.css}">
+</head>
+<body>
+    <div class="doctor-layout">
+        <div class="doctor-main">
+            <!-- Header layout replacement -->
+            <div th:replace="~{layout/doctor/header :: header('Duyệt yêu cầu khám', 'requests')}"></div>
+
+            <main class="doctor-content">
+                <!-- Status/Alert Messages -->
+                <div th:if="${successMessage != null}" class="alert-msg success" style="margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 8px; font-size: 0.88rem; font-weight: 500; background: rgba(16, 185, 129, 0.08); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);">
+                    <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
+                </div>
+                <div th:if="${errorMessage != null}" class="alert-msg error" style="margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 8px; font-size: 0.88rem; font-weight: 500; background: rgba(239, 68, 68, 0.08); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2);">
+                    <i class="fas fa-exclamation-circle"></i> <span th:text="${errorMessage}"></span>
+                </div>
+
+                <div class="content-grid" style="grid-template-columns: 1fr;">
+                    <div class="card grid-span-3">
+                        <div class="card-header" style="background-color: rgba(5, 150, 105, 0.03);">
+                            <div class="header-titles">
+                                <h2 class="card-title" style="color: var(--doctor-primary);"><i class="fas fa-clipboard-list-check"></i> Yêu cầu khám từ bệnh nhân</h2>
+                                <p class="card-subtitle">Duyệt hoặc từ chối các yêu cầu khám mới từ người bệnh</p>
+                            </div>
+                        </div>
+                        <div class="requests-list" style="display: flex; flex-direction: column; gap: 16px; padding: 24px; background-color: #f8fafc;">
+                            <div th:if="${requestedExams == null || requestedExams.isEmpty()}" style="text-align: center; color: var(--doctor-text-muted); padding: 40px; background: white; border-radius: 12px; border: 1px dashed #cbd5e1;">
+                                <i class="fas fa-inbox fa-3x" style="color: #cbd5e1; margin-bottom: 16px;"></i>
+                                <p style="font-size: 1.1rem; margin: 0;">Không có yêu cầu khám bệnh nào cần duyệt.</p>
+                            </div>
+                            
+                            <div class="request-item" th:each="req : ${requestedExams}" style="background: #ffffff; border-radius: 16px; padding: 20px 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                                <div class="req-info" style="display: flex; align-items: flex-start; gap: 20px; flex: 1;">
+                                    <div class="req-avatar" style="width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #d1fae5, #6ee7b7); display: flex; align-items: center; justify-content: center; color: #059669; font-weight: bold; font-size: 1.5rem; flex-shrink: 0;">
+                                        <i class="fas fa-user-injured"></i>
+                                    </div>
+                                    <div class="req-details" style="flex: 1; overflow: hidden;">
+                                        <h4 style="margin: 0 0 4px 0; font-size: 1.15rem; color: #1e293b; font-weight: 700;" th:text="${req.patient.fullName}">Patient Name</h4>
+                                        <p style="margin: 0 0 12px 0; font-size: 0.9rem; color: #64748b; display: flex; align-items: center; gap: 16px;">
+                                            <span><i class="far fa-calendar-alt" style="color: #94a3b8;"></i> <span th:text="${#temporals.format(req.examDate, 'dd/MM/yyyy HH:mm')}">Date</span></span>
+                                            <span><i class="fas fa-venus-mars" style="color: #94a3b8;"></i> <span th:text="${(req.patient.dob != null ? (T(java.time.Period).between(req.patient.dob, T(java.time.LocalDate).now()).getYears()) + ' tuổi' : 'N/A') + ' - ' + (req.patient.gender != null ? (req.patient.gender ? 'Nữ' : 'Nam') : 'N/A')}">Age/Gender</span></span>
+                                        </p>
+                                        <div style="padding: 12px 16px; background: #ecfdf5; border-radius: 10px; font-size: 0.95rem; color: #334155; border-left: 4px solid #10b981;">
+                                            <strong style="color: #1e293b; margin-right: 6px;"><i class="fas fa-notes-medical" style="color: #10b981;"></i> Lý do khám:</strong> <span th:text="${req.medicalHistory}">Triệu chứng</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="req-actions" style="display: flex; gap: 12px; flex-shrink: 0; margin-left: 30px;">
+                                    <form th:action="@{/doctor/request/approve/{id}(id=${req.clinicalExamId})}" method="post" style="margin: 0;">
+                                        <button type="submit" class="btn" style="background: linear-gradient(135deg, var(--doctor-accent), var(--doctor-primary)); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 0.95rem; display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; min-width: 130px; box-shadow: 0 4px 12px rgba(20, 92, 74, 0.25); cursor: pointer; transition: all 0.2s ease;">
+                                            <i class="fas fa-check"></i> Duyệt
+                                        </button>
+                                    </form>
+                                    <form th:action="@{/doctor/request/reject/{id}(id=${req.clinicalExamId})}" method="post" style="margin: 0;">
+                                        <button type="submit" class="btn" style="background: linear-gradient(135deg, #e53e3e, var(--doctor-danger)); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 0.95rem; display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; min-width: 130px; box-shadow: 0 4px 12px rgba(197, 48, 48, 0.25); cursor: pointer; transition: all 0.2s ease;" onclick="return confirm('Bạn có chắc chắn muốn từ chối yêu cầu khám này?')">
+                                            <i class="fas fa-times"></i> Từ chối
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <!-- CSS Toast Animation for pure CSS notification -->
+    <style>
+        @keyframes toastAnimation {
+            0% { transform: translateY(-50px); opacity: 0; }
+            10% { transform: translateY(0); opacity: 1; }
+            90% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-50px); opacity: 0; pointer-events: none; visibility: hidden; }
+        }
+        .toast-container .toast {
+            animation: toastAnimation 4s forwards;
+        }
+    </style>
+    <!-- Native Toast Container -->
+    <div id="toast-container" class="toast-container" th:if="${param.toast}">
+        <div class="toast show success">
+            <i class="fas fa-check-circle"></i>
+            <span>Thao tác thành công!</span>
+        </div>
+    </div>
+</body>
+</html>

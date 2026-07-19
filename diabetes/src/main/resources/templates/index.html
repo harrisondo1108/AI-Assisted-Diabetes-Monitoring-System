@@ -370,62 +370,96 @@
       </div>
       
       <div class="doctors-grid">
-        <!-- Doctor 1 -->
-        <div class="doctor-card glass-card reveal">
-          <div class="doc-photo-wrapper">
-            <i class="fas fa-user-md"></i>
-            <span class="doc-room-badge">Phòng Nội tiết Chuyên sâu</span>
-          </div>
-          <div class="doc-info">
-            <h3 class="doc-name">ThS. BS. Nguyễn Thị Lan</h3>
-            <p class="doc-specialty">Chuyên khoa Nội tiết & Đái tháo đường</p>
-            <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; height: 60px; overflow: hidden;">
-              Hơn 12 năm công tác tại Bệnh viện Nội tiết Trung ương, chuyên trị các ca đái tháo đường thai kỳ và biến chứng mạch máu.
-            </p>
-            <div class="doc-meta-row">
-              <span><i class="fas fa-graduation-cap"></i> Thạc sĩ Y khoa</span>
-              <span><i class="fas fa-briefcase"></i> 12 năm kinh nghiệm</span>
+        <!-- Render top doctors dynamically using Thymeleaf if topDoctors is not empty -->
+        <th:block th:if="${topDoctors != null and !topDoctors.isEmpty()}">
+          <div th:each="doc : ${topDoctors}" class="doctor-card glass-card reveal">
+            <div class="doc-photo-wrapper" style="display: flex; align-items: center; justify-content: center; height: 180px; background: rgba(26,107,86,0.05); border-radius: 12px; overflow: hidden; position: relative;">
+              <img th:if="${doc.imageUrl != null and doc.imageUrl != ''}" th:src="${doc.imageUrl}" alt="Doctor Photo" style="width: 100%; height: 100%; object-fit: cover;" />
+              <i th:unless="${doc.imageUrl != null and doc.imageUrl != ''}" class="fas fa-user-md" style="font-size: 3.5rem; color: var(--accent, #1a6b56);"></i>
+              <span class="doc-room-badge" th:text="${doc.roomName}">Phòng Nội tiết</span>
+            </div>
+            <div class="doc-info">
+              <h3 class="doc-name" th:text="${doc.fullName}">Họ Tên Bác Sĩ</h3>
+              <p class="doc-specialty" th:text="${doc.specialty != null and doc.specialty != '' ? doc.specialty : 'Bác sĩ chuyên khoa Nội tiết'}">Chuyên khoa</p>
+              
+              <!-- Hiển thị đánh giá sao trung bình -->
+              <div style="display: flex; align-items: center; gap: 8px; margin: 8px 0; font-size: 0.9rem;">
+                <div style="color: #eab308; display: inline-flex; gap: 2px;">
+                  <!-- Vòng lặp vẽ sao -->
+                  <i class="fas fa-star" th:each="star : ${doc.averageRating >= 1.0 ? #numbers.sequence(1, T(java.lang.Math).round(doc.averageRating)) : {}}"></i>
+                  <i class="far fa-star" th:each="star : ${T(java.lang.Math).round(doc.averageRating) < 5 ? #numbers.sequence(T(java.lang.Math).round(doc.averageRating) + 1, 5) : {}}"></i>
+                </div>
+                <span style="font-weight: 700; color: var(--text-dark, #0f2e26);" th:text="${#numbers.formatDecimal(doc.averageRating, 1, 1)}">0.0</span>
+                <span style="color: var(--text-muted, #5a6f68); font-size: 0.8rem;" th:text="${'(' + doc.ratingCount + ' đánh giá)'}">(0 đánh giá)</span>
+              </div>
+              
+              <div class="doc-meta-row" style="margin-top: 12px; display: flex; gap: 12px; font-size: 0.78rem; color: var(--text-muted, #5a6f68);">
+                <span><i class="fas fa-graduation-cap"></i> Thầy thuốc Ưu tú</span>
+                <span><i class="fas fa-briefcase"></i> 10+ năm kinh nghiệm</span>
+              </div>
             </div>
           </div>
-        </div>
-        
-        <!-- Doctor 2 -->
-        <div class="doctor-card glass-card reveal">
-          <div class="doc-photo-wrapper">
-            <i class="fas fa-user-md"></i>
-            <span class="doc-room-badge">Phòng Xét nghiệm Hóa sinh</span>
-          </div>
-          <div class="doc-info">
-            <h3 class="doc-name">BSCKI. Trần Hoàng Nam</h3>
-            <p class="doc-specialty">Chẩn đoán Lâm sàng & Chỉ số Hóa sinh</p>
-            <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; height: 60px; overflow: hidden;">
-              Chuyên gia phân tích ngưỡng dung nạp đường huyết và thiết lập các chỉ số cảnh báo sớm cho bệnh nhân tiểu đường Type 1 và 2.
-            </p>
-            <div class="doc-meta-row">
-              <span><i class="fas fa-graduation-cap"></i> Bác sĩ CKI</span>
-              <span><i class="fas fa-briefcase"></i> 10 năm kinh nghiệm</span>
+        </th:block>
+
+        <!-- Fallback to static doctors if no topDoctors is loaded -->
+        <th:block th:unless="${topDoctors != null and !topDoctors.isEmpty()}">
+          <!-- Doctor 1 -->
+          <div class="doctor-card glass-card reveal">
+            <div class="doc-photo-wrapper">
+              <i class="fas fa-user-md"></i>
+              <span class="doc-room-badge">Phòng Nội tiết Chuyên sâu</span>
+            </div>
+            <div class="doc-info">
+              <h3 class="doc-name">ThS. BS. Nguyễn Thị Lan</h3>
+              <p class="doc-specialty">Chuyên khoa Nội tiết & Đái tháo đường</p>
+              <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; height: 60px; overflow: hidden;">
+                Hơn 12 năm công tác tại Bệnh viện Nội tiết Trung ương, chuyên trị các ca đái tháo đường thai kỳ và biến chứng mạch máu.
+              </p>
+              <div class="doc-meta-row">
+                <span><i class="fas fa-graduation-cap"></i> Thạc sĩ Y khoa</span>
+                <span><i class="fas fa-briefcase"></i> 12 năm kinh nghiệm</span>
+              </div>
             </div>
           </div>
-        </div>
-        
-        <!-- Doctor 3 -->
-        <div class="doctor-card glass-card reveal">
-          <div class="doc-photo-wrapper">
-            <i class="fas fa-user-md"></i>
-            <span class="doc-room-badge">Phòng Nội tiết Tổng hợp</span>
-          </div>
-          <div class="doc-info">
-            <h3 class="doc-name">PGS. TS. BS. Lê Minh Triết</h3>
-            <p class="doc-specialty">Cố vấn Phác đồ & Kiểm soát Biến chứng</p>
-            <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; height: 60px; overflow: hidden;">
-              Nguyên trưởng khoa Nội tiết bệnh viện lớn, giảng viên cao cấp chuyên ngành đái tháo đường và nội tiết tổng hợp.
-            </p>
-            <div class="doc-meta-row">
-              <span><i class="fas fa-graduation-cap"></i> Phó Giáo sư, Tiến sĩ</span>
-              <span><i class="fas fa-briefcase"></i> 25 năm kinh nghiệm</span>
+          
+          <!-- Doctor 2 -->
+          <div class="doctor-card glass-card reveal">
+            <div class="doc-photo-wrapper">
+              <i class="fas fa-user-md"></i>
+              <span class="doc-room-badge">Phòng Xét nghiệm Hóa sinh</span>
+            </div>
+            <div class="doc-info">
+              <h3 class="doc-name">BSCKI. Trần Hoàng Nam</h3>
+              <p class="doc-specialty">Chẩn đoán Lâm sàng & Chỉ số Hóa sinh</p>
+              <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; height: 60px; overflow: hidden;">
+                Chuyên gia phân tích ngưỡng dung nạp đường huyết và thiết lập các chỉ số cảnh báo sớm cho bệnh nhân tiểu đường Type 1 và 2.
+              </p>
+              <div class="doc-meta-row">
+                <span><i class="fas fa-graduation-cap"></i> Bác sĩ CKI</span>
+                <span><i class="fas fa-briefcase"></i> 10 năm kinh nghiệm</span>
+              </div>
             </div>
           </div>
-        </div>
+          
+          <!-- Doctor 3 -->
+          <div class="doctor-card glass-card reveal">
+            <div class="doc-photo-wrapper">
+              <i class="fas fa-user-md"></i>
+              <span class="doc-room-badge">Phòng Nội tiết Tổng hợp</span>
+            </div>
+            <div class="doc-info">
+              <h3 class="doc-name">PGS. TS. BS. Lê Minh Triết</h3>
+              <p class="doc-specialty">Cố vấn Phác đồ & Kiểm soát Biến chứng</p>
+              <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; height: 60px; overflow: hidden;">
+                Nguyên trưởng khoa Nội tiết bệnh viện lớn, giảng viên cao cấp chuyên ngành đái tháo đường và nội tiết tổng hợp.
+              </p>
+              <div class="doc-meta-row">
+                <span><i class="fas fa-graduation-cap"></i> Phó Giáo sư, Tiến sĩ</span>
+                <span><i class="fas fa-briefcase"></i> 25 năm kinh nghiệm</span>
+              </div>
+            </div>
+          </div>
+        </th:block>
       </div>
     </div>
   </section>

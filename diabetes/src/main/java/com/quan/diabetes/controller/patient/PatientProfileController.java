@@ -3,7 +3,9 @@ package com.quan.diabetes.controller.patient;
 import com.quan.diabetes.entity.*;
 
 import com.quan.diabetes.service.user.UserService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import com.quan.diabetes.service.cloudinary.CloudinaryService;
+import com.quan.diabetes.service.systemlog.SystemLogService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -12,8 +14,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import java.util.Map;
+import java.util.HashMap;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -26,10 +33,18 @@ public class PatientProfileController extends BasePatientController {
     private UserService userService;
 
     @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
     private CloudinaryService cloudinaryService;
 
+    @Autowired
+    private SystemLogService systemLogService;
+
     @GetMapping("/patient/profile")
-    public String profile(Model model, HttpSession session) {
+    public String profile(Model model, HttpSession session,
+                          @RequestParam(value = "successMessage", required = false) String successMessage,
+                          @RequestParam(value = "errorMessage", required = false) String errorMessage) {
         User currentUser = getCurrentUser(session);
         Patient patient = getCurrentPatient(session);
 
@@ -39,6 +54,13 @@ public class PatientProfileController extends BasePatientController {
             routine = patientRoutineService.findById(patient.getUserId()).orElse(null);
         }
 
+        if (successMessage != null) {
+            model.addAttribute("successMessage", successMessage);
+        }
+        if (errorMessage != null) {
+            model.addAttribute("errorMessage", errorMessage);
+        }
+
         model.addAttribute("activeMenu", "profile");
         model.addAttribute("patient", patient);
         model.addAttribute("routine", routine);
@@ -46,6 +68,7 @@ public class PatientProfileController extends BasePatientController {
         model.addAttribute("patientCode", patient != null ? patient.getUserId() : "");
         model.addAttribute("pageRole", "Patient Portal");
         model.addAttribute("isCreateMode", patient == null);
+        model.addAttribute("userPhone", currentUser != null ? currentUser.getPhoneNumber() : "");
 
         return "patient/profile";
     }
@@ -64,6 +87,7 @@ public class PatientProfileController extends BasePatientController {
                               @RequestParam(value = "allergyNotes", required = false) String allergyNotes,
                               @RequestParam(value = "supervisorName", required = false) String supervisorName,
                               @RequestParam(value = "supervisorPhone", required = false) String supervisorPhone,
+                              @RequestParam(value = "email", required = false) String email,
                               @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
                               HttpSession session,
                               RedirectAttributes redirectAttributes) {
@@ -120,6 +144,17 @@ public class PatientProfileController extends BasePatientController {
             }
         }
 
+        if (email != null && !email.trim().isEmpty()) {
+            if (email.trim().length() > 100) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Email không được vượt quá 100 ký tự.");
+                return "redirect:/patient/profile";
+            }
+            if (!email.trim().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Địa chỉ email không hợp lệ.");
+                return "redirect:/patient/profile";
+            }
+        }
+
         if (height != null && (height < 50 || height > 250)) {
             redirectAttributes.addFlashAttribute("errorMessage", "Chiều cao phải từ 50 đến 250 cm.");
             return "redirect:/patient/profile";
@@ -134,6 +169,24 @@ public class PatientProfileController extends BasePatientController {
         String userId = currentUser.getUserId();
 
         Patient patient = patientService.findById(userId).orElse(new Patient());
+        
+        // Clone đối tượng cũ để lưu log
+        Patient oldPatient = new Patient();
+        oldPatient.setUserId(patient.getUserId());
+        oldPatient.setFullName(patient.getFullName());
+        oldPatient.setPhoneNumber(patient.getPhoneNumber());
+        oldPatient.setAddress(patient.getAddress());
+        oldPatient.setDob(patient.getDob());
+        oldPatient.setGender(patient.getGender());
+        oldPatient.setHeight(patient.getHeight());
+        oldPatient.setWeight(patient.getWeight());
+        oldPatient.setBloodgroup(patient.getBloodgroup());
+        oldPatient.setPermanentMedicalHistory(patient.getPermanentMedicalHistory());
+        oldPatient.setAllergyNotes(patient.getAllergyNotes());
+        oldPatient.setSupervisorName(patient.getSupervisorName());
+        oldPatient.setSupervisorPhone(patient.getSupervisorPhone());
+        oldPatient.setEmail(patient.getEmail());
+        oldPatient.setImageUrl(patient.getImageUrl());
 
         patient.setUserId(userId);
         patient.setUser(currentUser);
@@ -149,25 +202,63 @@ public class PatientProfileController extends BasePatientController {
         patient.setAllergyNotes(clean(allergyNotes));
         patient.setSupervisorName(clean(supervisorName));
         patient.setSupervisorPhone(clean(supervisorPhone));
+        patient.setEmail(clean(email));
+
+        Patient logNewPatient = new Patient();
+        logNewPatient.setUserId(patient.getUserId());
+        logNewPatient.setFullName(patient.getFullName());
+        logNewPatient.setPhoneNumber(patient.getPhoneNumber());
+        logNewPatient.setAddress(patient.getAddress());
+        logNewPatient.setDob(patient.getDob());
+        logNewPatient.setGender(patient.getGender());
+        logNewPatient.setHeight(patient.getHeight());
+        logNewPatient.setWeight(patient.getWeight());
+        logNewPatient.setBloodgroup(patient.getBloodgroup());
+        logNewPatient.setPermanentMedicalHistory(patient.getPermanentMedicalHistory());
+        logNewPatient.setAllergyNotes(patient.getAllergyNotes());
+        logNewPatient.setSupervisorName(patient.getSupervisorName());
+        logNewPatient.setSupervisorPhone(patient.getSupervisorPhone());
+        logNewPatient.setEmail(patient.getEmail());
+        logNewPatient.setImageUrl(patient.getImageUrl());
 
         if (imageFile != null && !imageFile.isEmpty()) {
+            if (imageFile.getSize() > 2 * 1024 * 1024) {
+                systemLogService.saveLogWithObject(userId, "UPDATE_PROFILE", "Patient", userId, "Cập nhật hồ sơ bệnh nhân thất bại (Ảnh > 2MB)", oldPatient, logNewPatient, "FAILED");
+                redirectAttributes.addFlashAttribute("errorMessage", "Ảnh đại diện không được vượt quá 2MB.");
+                return "redirect:/patient/profile";
+            }
+            String contentType = imageFile.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                systemLogService.saveLogWithObject(userId, "UPDATE_PROFILE", "Patient", userId, "Cập nhật hồ sơ bệnh nhân thất bại (Định dạng ảnh không hợp lệ)", oldPatient, logNewPatient, "FAILED");
+                redirectAttributes.addFlashAttribute("errorMessage", "Định dạng tệp không hợp lệ. Chỉ chấp nhận các tệp ảnh.");
+                return "redirect:/patient/profile";
+            }
             try {
-                String imageUrl = cloudinaryService.uploadFile(imageFile);
+                String imageUrl = cloudinaryService.uploadImage(imageFile);
                 if (imageUrl != null) {
                     patient.setImageUrl(imageUrl);
+                    logNewPatient.setImageUrl(imageUrl);
                 }
             } catch (Exception e) {
+                systemLogService.saveLogWithObject(userId, "UPDATE_PROFILE", "Patient", userId, "Cập nhật hồ sơ bệnh nhân thất bại (Lỗi tải ảnh)", oldPatient, logNewPatient, "FAILED");
                 redirectAttributes.addFlashAttribute("errorMessage", "Không thể tải lên ảnh đại diện: " + e.getMessage());
                 return "redirect:/patient/profile";
             }
         }
-
-        if (patientService.existsById(userId)) {
-            patientService.update(userId, patient);
-            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật hồ sơ thành công.");
-        } else {
-            patientService.create(patient);
-            redirectAttributes.addFlashAttribute("successMessage", "Tạo hồ sơ thành công.");
+        try {
+            if (patientService.existsById(userId)) {
+                patientService.update(userId, patient);
+                redirectAttributes.addFlashAttribute("successMessage", "Cập nhật hồ sơ thành công.");
+            } else {
+                patientService.create(patient);
+                redirectAttributes.addFlashAttribute("successMessage", "Tạo hồ sơ thành công.");
+            }
+            
+            systemLogService.saveLogWithObject(userId, "UPDATE_PROFILE", "Patient", userId, "Cập nhật hồ sơ bệnh nhân", oldPatient, logNewPatient, "SUCCESS");
+        } catch (Exception e) {
+            systemLogService.saveLogWithObject(userId, "UPDATE_PROFILE", "Patient", userId, "Cập nhật hồ sơ bệnh nhân thất bại: " + e.getMessage(), oldPatient, logNewPatient, "FAILED");
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi lưu hồ sơ: " + e.getMessage());
+            return "redirect:/patient/profile";
         }
 
         currentUser.setPhoneNumber(normalizedPhone);
@@ -211,6 +302,17 @@ public class PatientProfileController extends BasePatientController {
                 .findById(userId)
                 .orElse(new PatientRoutine());
 
+        PatientRoutine oldRoutine = null;
+        if (routine.getUserId() != null) {
+            oldRoutine = new PatientRoutine();
+            oldRoutine.setUserId(routine.getUserId());
+            oldRoutine.setWakeUpTime(routine.getWakeUpTime());
+            oldRoutine.setBreakfastTime(routine.getBreakfastTime());
+            oldRoutine.setLunchTime(routine.getLunchTime());
+            oldRoutine.setDinnerTime(routine.getDinnerTime());
+            oldRoutine.setSleepTime(routine.getSleepTime());
+        }
+
         routine.setUserId(userId);
         routine.setWakeUpTime(wakeUpTime != null ? wakeUpTime : LocalTime.of(6, 0));
         routine.setBreakfastTime(breakfastTime != null ? breakfastTime : LocalTime.of(7, 0));
@@ -218,12 +320,26 @@ public class PatientProfileController extends BasePatientController {
         routine.setDinnerTime(dinnerTime != null ? dinnerTime : LocalTime.of(18, 0));
         routine.setSleepTime(sleepTime != null ? sleepTime : LocalTime.of(22, 0));
 
-        if (patientRoutineService.existsById(userId)) {
-            patientRoutineService.update(userId, routine);
-            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật lịch sinh hoạt thành công.");
-        } else {
-            patientRoutineService.create(routine);
-            redirectAttributes.addFlashAttribute("successMessage", "Tạo lịch sinh hoạt thành công.");
+        PatientRoutine logNewRoutine = new PatientRoutine();
+        logNewRoutine.setUserId(routine.getUserId());
+        logNewRoutine.setWakeUpTime(routine.getWakeUpTime());
+        logNewRoutine.setBreakfastTime(routine.getBreakfastTime());
+        logNewRoutine.setLunchTime(routine.getLunchTime());
+        logNewRoutine.setDinnerTime(routine.getDinnerTime());
+        logNewRoutine.setSleepTime(routine.getSleepTime());
+
+        try {
+            if (patientRoutineService.existsById(userId)) {
+                patientRoutineService.update(userId, routine);
+                redirectAttributes.addFlashAttribute("successMessage", "Cập nhật lịch sinh hoạt thành công.");
+            } else {
+                patientRoutineService.create(routine);
+                redirectAttributes.addFlashAttribute("successMessage", "Tạo lịch sinh hoạt thành công.");
+            }
+            systemLogService.saveLogWithObject(userId, "UPDATE_ROUTINE", "PatientRoutine", userId, "Cập nhật lịch sinh hoạt bệnh nhân", oldRoutine, logNewRoutine, "SUCCESS");
+        } catch (Exception e) {
+            systemLogService.saveLogWithObject(userId, "UPDATE_ROUTINE", "PatientRoutine", userId, "Cập nhật lịch sinh hoạt bệnh nhân thất bại: " + e.getMessage(), oldRoutine, logNewRoutine, "FAILED");
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi lưu lịch sinh hoạt: " + e.getMessage());
         }
 
         return "redirect:/patient/profile";
@@ -240,7 +356,19 @@ public class PatientProfileController extends BasePatientController {
         }
 
         if (patientRoutineService.existsById(patient.getUserId())) {
+            PatientRoutine currentRoutine = patientRoutineService.findById(patient.getUserId()).orElse(null);
+            PatientRoutine logOldRoutine = null;
+            if (currentRoutine != null) {
+                logOldRoutine = new PatientRoutine();
+                logOldRoutine.setUserId(currentRoutine.getUserId());
+                logOldRoutine.setWakeUpTime(currentRoutine.getWakeUpTime());
+                logOldRoutine.setBreakfastTime(currentRoutine.getBreakfastTime());
+                logOldRoutine.setLunchTime(currentRoutine.getLunchTime());
+                logOldRoutine.setDinnerTime(currentRoutine.getDinnerTime());
+                logOldRoutine.setSleepTime(currentRoutine.getSleepTime());
+            }
             patientRoutineService.deleteById(patient.getUserId());
+            systemLogService.saveLogWithObject(patient.getUserId(), "DELETE_ROUTINE", "PatientRoutine", patient.getUserId(), "Xóa lịch sinh hoạt bệnh nhân", logOldRoutine, null, "SUCCESS");
             redirectAttributes.addFlashAttribute("successMessage", "Xóa lịch sinh hoạt thành công.");
         } else {
             redirectAttributes.addFlashAttribute("errorMessage", "Lịch sinh hoạt không tồn tại.");
@@ -250,52 +378,73 @@ public class PatientProfileController extends BasePatientController {
     }
 
     @PostMapping("/patient/profile/change-password")
-    public String changePassword(
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> changePassword(
             @RequestParam("currentPassword") String currentPassword,
             @RequestParam("newPassword") String newPassword,
             @RequestParam("confirmPassword") String confirmPassword,
-            HttpSession session,
-            RedirectAttributes redirectAttributes) {
+            HttpSession session) {
 
+        Map<String, Object> response = new HashMap<>();
         User currentUser = getCurrentUser(session);
         
         if (currentUser == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Bạn phải đăng nhập trước.");
-            return "redirect:/login";
+            response.put("success", false);
+            response.put("message", "Bạn phải đăng nhập trước.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
 
         if (!"PAT".equalsIgnoreCase(currentUser.getRole().getRoleId())) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Từ chối truy cập. Chỉ bệnh nhân mới được thay đổi mật khẩu ở đây.");
-            return "redirect:/patient/profile";
+            response.put("success", false);
+            response.put("message", "Từ chối truy cập. Chỉ bệnh nhân mới được thay đổi mật khẩu ở đây.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
         }
 
         if (currentPassword == null || currentPassword.trim().isEmpty()
                 || newPassword == null || newPassword.trim().isEmpty()
                 || confirmPassword == null || confirmPassword.trim().isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Tất cả các trường mật khẩu đều bắt buộc.");
-            return "redirect:/patient/profile";
+            response.put("success", false);
+            response.put("message", "Tất cả các trường mật khẩu đều bắt buộc.");
+            return ResponseEntity.badRequest().body(response);
         }
 
-        if (!currentUser.getPasswordHash().equals(currentPassword.trim())) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Mật khẩu hiện tại không đúng.");
-            return "redirect:/patient/profile";
+        User user = userService.findById(currentUser.getUserId()).orElse(null);
+        if (user == null) {
+            response.put("success", false);
+            response.put("message", "Không tìm thấy tài khoản người dùng.");
+            return ResponseEntity.badRequest().body(response);
         }
 
-        if (newPassword.trim().length() < 6) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Mật khẩu mới phải có ít nhất 6 ký tự.");
-            return "redirect:/patient/profile";
+        if (!passwordEncoder.matches(currentPassword.trim(), user.getPasswordHash())) {
+            response.put("success", false);
+            response.put("message", "Mật khẩu hiện tại không đúng.");
+            return ResponseEntity.badRequest().body(response);
+        }
+
+        if (!com.quan.diabetes.util.ParseUtil.isValidPassword(newPassword.trim())) {
+            response.put("success", false);
+            response.put("message", "Mật khẩu mới phải chứa ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, ít nhất một chữ số và ký tự đặc biệt (!@#$).");
+            return ResponseEntity.badRequest().body(response);
         }
 
         if (!newPassword.trim().equals(confirmPassword.trim())) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Mật khẩu mới và xác nhận mật khẩu không khớp.");
-            return "redirect:/patient/profile";
+            response.put("success", false);
+            response.put("message", "Mật khẩu mới và xác nhận mật khẩu không khớp.");
+            return ResponseEntity.badRequest().body(response);
         }
 
-        currentUser.setPasswordHash(newPassword.trim());
-        userService.update(currentUser.getUserId(), currentUser);
-        session.setAttribute("loggedInUser", currentUser);
+        if (passwordEncoder.matches(newPassword.trim(), user.getPasswordHash())) {
+            response.put("success", false);
+            response.put("message", "Mật khẩu mới không được trùng với mật khẩu hiện tại.");
+            return ResponseEntity.badRequest().body(response);
+        }
 
-        redirectAttributes.addFlashAttribute("successMessage", "Thay đổi mật khẩu thành công.");
-        return "redirect:/patient/profile";
+        user.setPasswordHash(newPassword.trim());
+        User updatedUser = userService.update(user.getUserId(), user);
+        session.setAttribute("loggedInUser", updatedUser);
+
+        response.put("success", true);
+        response.put("message", "Thay đổi mật khẩu thành công.");
+        return ResponseEntity.ok(response);
     }
 }

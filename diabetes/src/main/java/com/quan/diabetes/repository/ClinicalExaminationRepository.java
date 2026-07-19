@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,11 +15,15 @@ import java.util.Optional;
 public interface ClinicalExaminationRepository extends JpaRepository<ClinicalExamination, String> {
     List<ClinicalExamination> findByDoctor_UserIdOrderByExamDateAsc(String doctorId);
     List<ClinicalExamination> findByPatient_UserIdOrderByExamDateDesc(String patientId);
+    Optional<ClinicalExamination> findFirstByPatient_UserIdOrderByExamDateDesc(String patientId);
     Optional<ClinicalExamination> findFirstByPatient_UserIdAndDoctor_UserIdAndStatusIn(String patientId, String doctorId, List<String> statuses);
     Optional<ClinicalExamination> findFirstByDoctor_UserIdAndStatus(String doctorId, String status);
+    List<ClinicalExamination> findByExamDateBetweenAndStatus(java.time.LocalDateTime start, java.time.LocalDateTime end, String status);
     @Query("SELECT p FROM ClinicalExamination ce "
             + "JOIN ce.patient p "
             + "WHERE ce.clinicalExamId = :clinicalExamId")
     Patient findPatientByClinicalExamId(@Param("clinicalExamId") String clinicalExamId);
+
+    List<ClinicalExamination> findTop2ByPatient_UserIdAndDoctor_UserIdAndStatusInOrderByExamDateDesc(String patientUserId, String doctorUserId, List<String> statuses);
 }
 

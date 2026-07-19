@@ -87,6 +87,9 @@ public class Patient implements Persistable<String> {
     @Column(name = "ImageURL", length = 255, columnDefinition = "NVARCHAR(255)")
     private String imageUrl;
 
+    @Column(name = "Email", length = 100)
+    private String email;
+
     public Patient() {
     }
 
@@ -212,6 +215,14 @@ public class Patient implements Persistable<String> {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }
 

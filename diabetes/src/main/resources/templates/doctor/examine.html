@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Phòng khám | Hệ thống Theo dõi Đường huyết</title>
     <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Page CSS -->
@@ -18,7 +18,7 @@
     <div class="doctor-layout">
         <div class="doctor-main">
             <!-- Header layout replacement -->
-            <div th:replace="~{doctor/doctor_header :: header('Consultation & Diagnostic', 'examine')}"></div>
+            <div th:replace="~{layout/doctor/header :: header('Consultation & Diagnostic', 'examine')}"></div>
 
             <main class="doctor-content flex-row-container">
 
@@ -26,32 +26,38 @@
                 <aside class="patient-medical-card">
                     <div class="patient-card-header">
                         <div class="patient-avatar-large">
-                            <img th:if="${patient.imageUrl != null}" 
-                                 th:src="${patient.imageUrl}" 
-                                 alt="Avatar" 
-                                 style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />
-                            <i th:unless="${patient.imageUrl != null}" class="fas fa-hospital-user"></i>
+                            <img th:if="${patient.imageUrl != null && !#strings.isEmpty(patient.imageUrl)}"
+                                th:src="${patient.imageUrl}" alt="Avatar"
+                                style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />
+                            <i th:unless="${patient.imageUrl != null && !#strings.isEmpty(patient.imageUrl)}"
+                                class="fas fa-hospital-user"></i>
                         </div>
                         <h2 class="patient-name-title" id="patName" th:text="${patient.fullName}"></h2>
-                        <span class="patient-id-badge" id="patId" style="display: none;" th:text="${patient.userId}">P012932</span>
+                        <span class="patient-id-badge" id="patId" style="display: none;"
+                            th:text="${patient.userId}">P012932</span>
                     </div>
 
                     <div class="patient-specs-grid">
                         <div class="spec-item">
                             <span class="spec-label">Tuổi</span>
-                            <span class="spec-val" id="patAge" th:text="${patient.dob != null ? (T(java.time.Period).between(patient.dob, T(java.time.LocalDate).now()).getYears() + ' tuổi') : 'N/A'}"></span>
+                            <span class="spec-val" id="patAge"
+                                th:text="${patient.dob != null ? (T(java.time.Period).between(patient.dob, T(java.time.LocalDate).now()).getYears() + ' tuổi') : 'N/A'}"></span>
                         </div>
                         <div class="spec-item">
                             <span class="spec-label">Giới tính</span>
-                            <span class="spec-val" id="patGender" th:text="${patient.gender != null ? (patient.gender ? 'Nữ' : 'Nam') : 'N/A'}"></span>
+                            <span class="spec-val" id="patGender"
+                                th:text="${patient.gender != null ? (patient.gender ? 'Nữ' : 'Nam') : 'N/A'}"></span>
                         </div>
                         <div class="spec-item">
                             <span class="spec-label">Nhóm máu</span>
-                            <span class="spec-val" id="patBlood" th:text="${patient.bloodgroup != null ? patient.bloodgroup : 'N/A'}">O+</span>
+                            <span class="spec-val" id="patBlood"
+                                th:text="${patient.bloodgroup != null ? patient.bloodgroup : 'N/A'}">O+</span>
                         </div>
                         <div class="spec-item">
                             <span class="spec-label">BMI</span>
-                            <span class="spec-val" id="patBmi" th:with="h_m=${patient.height != null ? patient.height / 100.0 : 0.0}, bmi=${(patient.weight != null && h_m > 0) ? (patient.weight.doubleValue() / (h_m * h_m)) : 0.0}" th:text="${bmi > 0 ? #numbers.formatDecimal(bmi, 1, 1) + (bmi < 18.5 ? ' (Thiếu cân)' : (bmi < 25.0 ? ' (Bình thường)' : (bmi < 30.0 ? ' (Thừa cân)' : ' (Béo phì)'))) : 'N/A'}"></span>
+                            <span class="spec-val" id="patBmi"
+                                th:with="h_m=${patient.height != null ? patient.height / 100.0 : 0.0}, bmi=${(patient.weight != null && h_m > 0) ? (patient.weight.doubleValue() / (h_m * h_m)) : 0.0}"
+                                th:text="${bmi > 0 ? #numbers.formatDecimal(bmi, 1, 1) + (bmi < 18.5 ? ' (Thiếu cân)' : (bmi < 25.0 ? ' (Bình thường)' : (bmi < 30.0 ? ' (Thừa cân)' : ' (Béo phì)'))) : 'N/A'}"></span>
                         </div>
                     </div>
 
@@ -59,10 +65,12 @@
                     <div class="medical-details-section">
                         <h4 class="section-title"><i class="fas fa-weight-scale"></i> Chỉ số cơ thể</h4>
                         <div class="detail-row">
-                            <span>Chiều cao:</span> <strong id="patHeight" th:text="${patient.height != null ? patient.height + ' cm' : 'N/A'}"></strong>
+                            <span>Chiều cao:</span> <strong id="patHeight"
+                                th:text="${patient.height != null ? patient.height + ' cm' : 'N/A'}"></strong>
                         </div>
                         <div class="detail-row">
-                            <span>Cân nặng:</span> <strong id="patWeight" th:text="${patient.weight != null ? patient.weight + ' kg' : 'N/A'}"></strong>
+                            <span>Cân nặng:</span> <strong id="patWeight"
+                                th:text="${patient.weight != null ? patient.weight + ' kg' : 'N/A'}"></strong>
                         </div>
                     </div>
 
@@ -70,43 +78,55 @@
                         <h4 class="section-title"><i class="fas fa-circle-exclamation"></i> Cảnh báo y tế</h4>
                         <div class="alert-box alert-danger">
                             <strong>Dị ứng:</strong>
-                            <p id="patAllergy" th:text="${patient.allergyNotes != null ? patient.allergyNotes : 'Không có dị ứng thuốc nào được ghi nhận'}"></p>
+                            <p id="patAllergy"
+                                th:text="${patient.allergyNotes != null ? patient.allergyNotes : 'Không có dị ứng thuốc nào được ghi nhận'}">
+                            </p>
                         </div>
                         <div class="alert-box alert-info">
                             <strong>Tiền sử bệnh án:</strong>
-                            <p id="patHistory" th:text="${patient.permanentMedicalHistory != null  ? patient.permanentMedicalHistory : 'Không có tiền sử bệnh án được ghi nhận'}"></p>
+                            <p id="patHistory"
+                                th:text="${patient.permanentMedicalHistory != null  ? patient.permanentMedicalHistory : 'Không có tiền sử bệnh án được ghi nhận'}">
+                            </p>
                         </div>
                     </div>
 
                     <div class="medical-details-section">
                         <h4 class="section-title"><i class="fas fa-clock"></i> Sinh hoạt hàng ngày</h4>
                         <div class="routine-item">
-                            <i class="fas fa-mug-saucer"></i> <span>Bữa sáng:</span> <strong id="patBreakfast" th:text="${routine != null && routine.breakfastTime != null ? #temporals.format(routine.breakfastTime, 'hh:mm a') : 'N/A'}"></strong>
+                            <i class="fas fa-mug-saucer"></i> <span>Bữa sáng:</span> <strong id="patBreakfast"
+                                th:text="${routine != null && routine.breakfastTime != null ? #temporals.format(routine.breakfastTime, 'hh:mm a') : 'N/A'}"></strong>
                         </div>
                         <div class="routine-item">
-                            <i class="fas fa-utensils"></i> <span>Bữa trưa:</span> <strong id="patLunch" th:text="${routine != null && routine.lunchTime != null ? #temporals.format(routine.lunchTime, 'hh:mm a') : 'N/A'}"></strong>
+                            <i class="fas fa-utensils"></i> <span>Bữa trưa:</span> <strong id="patLunch"
+                                th:text="${routine != null && routine.lunchTime != null ? #temporals.format(routine.lunchTime, 'hh:mm a') : 'N/A'}"></strong>
                         </div>
                         <div class="routine-item">
-                            <i class="fas fa-bowl-food"></i> <span>Bữa tối:</span> <strong id="patDinner" th:text="${routine != null && routine.dinnerTime != null ? #temporals.format(routine.dinnerTime, 'hh:mm a') : 'N/A'}"></strong>
+                            <i class="fas fa-bowl-food"></i> <span>Bữa tối:</span> <strong id="patDinner"
+                                th:text="${routine != null && routine.dinnerTime != null ? #temporals.format(routine.dinnerTime, 'hh:mm a') : 'N/A'}"></strong>
                         </div>
                         <div class="routine-item">
-                            <i class="fas fa-bed"></i> <span>Ngủ / Thức dậy:</span> <strong id="patSleep" th:text="${(routine != null && routine.sleepTime != null ? #temporals.format(routine.sleepTime, 'hh:mm a') : 'N/A') + ' / ' + (routine != null && routine.wakeUpTime != null ? #temporals.format(routine.wakeUpTime, 'hh:mm a') : 'N/A')}"></strong>
+                            <i class="fas fa-bed"></i> <span>Ngủ / Thức dậy:</span> <strong id="patSleep"
+                                th:text="${(routine != null && routine.sleepTime != null ? #temporals.format(routine.sleepTime, 'hh:mm a') : 'N/A') + ' / ' + (routine != null && routine.wakeUpTime != null ? #temporals.format(routine.wakeUpTime, 'hh:mm a') : 'N/A')}"></strong>
                         </div>
                     </div>
 
-                    <button type="button" class="btn btn-secondary btn-sm" id="viewHistoryBtn" onclick="goToHistory()"
+                    <button th:if="${viewOnly == null || !viewOnly}" type="submit" form="examineForm" th:formaction="@{'/doctor/examine/' + ${patient.userId} + '/draft'}" class="btn btn-secondary btn-sm" id="viewHistoryBtn"
                         style="width: 100%; margin: 12px 0 0 0; justify-content: center; gap: 8px;">
                         <i class="fas fa-clock-rotate-left"></i> Lịch sử bệnh án
                     </button>
+                    <a th:if="${viewOnly != null && viewOnly}" th:href="@{/doctor/history(patientId=${patient.userId}, from='examine')}" class="btn btn-secondary btn-sm" id="viewHistoryBtn"
+                        style="width: 100%; margin: 12px 0 0 0; justify-content: center; gap: 8px; text-decoration: none; display: inline-flex; align-items: center;">
+                        <i class="fas fa-clock-rotate-left"></i> Lịch sử bệnh án
+                    </a>
                 </aside>
 
                 <!-- Right/Main Workspace Container -->
-                <form th:action="${isEditMode} ? @{/doctor/examine/update/{examId}(examId=${lastExam.clinicalExamId})} : @{/doctor/examine/{id}/submit(id=${patient.userId})}" method="POST" id="examineForm" th:object="${examForm}" 
-                      class="examination-workspace" 
-                      th:classappend="${activeExam != null && activeExam.status == 'Pending' ? 'exam-pending' : ''}">
+                <form
+                    th:action="${isEditMode} ? @{/doctor/examine/update/{examId}(examId=${lastExam != null ? lastExam.clinicalExamId : ''})} : @{/doctor/examine/{id}/submit(id=${patient.userId})}"
+                    method="POST" id="examineForm" th:object="${examForm}" class="examination-workspace"
+                    th:classappend="${(isEditMode == null || !isEditMode) && activeExam != null && activeExam.status == 'Pending' ? 'exam-pending' : ''}">
                     <input type="hidden" id="prescriptionJson" name="prescriptionJson" value="">
                     <input type="hidden" id="symptomCommentsJson" name="symptomCommentsJson" value="">
-                    <input type="hidden" id="labResultsJson" name="labResultsJson" value="">
                     <div class="workspace-header">
                         <!-- Diagnostic Session Status -->
                         <div class="session-info" style="display: none;">
@@ -115,8 +135,11 @@
                         </div>
                         <!-- Top actions -->
                         <div class="workspace-actions">
-                            <button type="button" class="btn btn-outline-danger" onclick="cancelExam()">Hủy ca khám</button>
-                            <button type="button" class="btn btn-primary" onclick="saveExam()"><i
+                            <a th:if="${isEditMode}" th:href="@{/doctor/queue}" class="btn btn-secondary"
+                                style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px;"><i
+                                    class="fas fa-arrow-left"></i> Quay lại</a>
+                            <button th:unless="${isEditMode}" type="submit" form="cancelExamForm" class="btn btn-outline-danger">Hủy ca khám</button>
+                            <button type="submit" class="btn btn-primary"><i
                                     class="fas fa-floppy-disk"></i> Hoàn thành khám bệnh</button>
                         </div>
                     </div>
@@ -132,11 +155,14 @@
                     </div>
 
                     <!-- Examination Start Overlay -->
-                    <div id="examStartOverlay" class="exam-start-overlay" th:style="${activeExam != null && activeExam.status == 'Pending' ? 'display: flex;' : 'display: none;'}">
+                    <div id="examStartOverlay" class="exam-start-overlay"
+                        th:style="${(isEditMode == null || !isEditMode) && activeExam != null && activeExam.status == 'Pending' ? 'display: flex;' : 'display: none;'}">
                         <i class="fas fa-stethoscope"></i>
                         <h3>Bắt đầu khám lâm sàng</h3>
-                        <p>Bạn chuẩn bị bắt đầu ca khám cho bệnh nhân <strong th:text="${patient.fullName}">this patient</strong></p>
-                        <button type="submit" form="startExamForm" class="btn btn-primary" style="font-size: 1.1rem; padding: 12px 24px;">
+                        <p>Bạn chuẩn bị bắt đầu ca khám cho bệnh nhân <strong th:text="${patient.fullName}">this
+                                patient</strong></p>
+                        <button type="submit" form="startExamForm" class="btn btn-primary"
+                            style="font-size: 1.1rem; padding: 12px 24px;">
                             <i class="fas fa-play"></i> Bắt đầu khám
                         </button>
                     </div>
@@ -144,35 +170,58 @@
                     <!-- SECTION 1: Symptoms Checklist -->
                     <div class="workspace-section" id="symptoms-section">
                         <div class="form-section">
-                            <p class="section-description">Chọn triệu chứng của bệnh nhân và ghi chú tiền sử/bệnh sử lâm sàng</p>
+                            <p class="section-description">Chọn triệu chứng của bệnh nhân và ghi chú tiền sử/bệnh sử lâm
+                                sàng</p>
 
                             <!-- Pregnant classification checkbox for Female patients -->
-                            <div th:if="${patient.gender}" class="pregnant-toggle-container" style="margin: 12px 0 16px 0; padding: 10px 14px; background: rgba(220, 38, 38, 0.05); border-radius: 8px; border: 1px dashed rgba(220, 38, 38, 0.2); display: flex; align-items: center; gap: 8px; width: fit-content;">
-                                <input type="checkbox" id="isPregnant" th:field="*{isPregnant}" style="width: 18px; height: 18px; cursor: pointer;" />
-                                <label for="isPregnant" style="font-weight: 600; margin-bottom: 0; color: var(--doctor-danger); cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                            <div th:if="${patient.gender}" class="pregnant-toggle-container"
+                                style="margin: 12px 0 16px 0; padding: 10px 14px; background: rgba(220, 38, 38, 0.05); border-radius: 8px; border: 1px dashed rgba(220, 38, 38, 0.2); display: flex; align-items: center; gap: 8px; width: fit-content;">
+                                <input type="checkbox" id="isPregnant" th:field="*{isPregnant}"
+                                    style="width: 18px; height: 18px; cursor: pointer;" />
+                                <label for="isPregnant"
+                                    style="font-weight: 600; margin-bottom: 0; color: var(--doctor-danger); cursor: pointer; display: flex; align-items: center; gap: 6px;">
                                     <i class="fas fa-person-pregnant"></i> Bệnh nhân đang mang thai
                                 </label>
                             </div>
 
                             <div class="form-grid-columns-2">
                                 <div class="form-group full-width">
-                                    <label for="examHistory">Lý do khám & Bệnh sử hiện tại <span class="required">*</span></label>
+                                    <label for="examHistory">Lý do khám <span class="required">*</span></label>
                                     <textarea id="examHistory" th:field="*{medicalHistory}" rows="3"
-                                        placeholder="Nhập mô tả của bệnh nhân về triệu chứng, thời gian và hoàn cảnh xuất hiện..."
+                                        placeholder="Mô tả lý do khám của bệnh nhân..." readonly
                                         th:classappend="${#fields.hasErrors('medicalHistory')} ? 'is-invalid' : ''"></textarea>
-                                    <div class="error-feedback" th:if="${#fields.hasErrors('medicalHistory')}" th:errors="*{medicalHistory}"></div>
+                                    <div class="error-feedback" th:if="${#fields.hasErrors('medicalHistory')}"
+                                        th:errors="*{medicalHistory}"></div>
                                 </div>
                                 <div class="form-group">
                                     <label for="examNextDate">Hẹn ngày tái khám</label>
-                                    <input type="date" id="examNextDate" th:field="*{nextAppointment}">
+                                    <input type="date" id="examNextDate" th:field="*{nextAppointment}" th:min="${tomorrowDate}">
                                 </div>
                             </div>
                         </div>
 
                         <div class="form-section" style="margin-top: 20px;">
-                            <h3 class="section-header-title">Danh mục phân loại triệu chứng <span class="required">*</span></h3>
-                            <div class="error-feedback" th:if="${#fields.hasErrors('symptomIds')}" th:errors="*{symptomIds}"></div>
+                            <h3 class="section-header-title">Danh mục phân loại triệu chứng <span
+                                    class="required">*</span></h3>
+                            <div class="error-feedback" th:if="${#fields.hasErrors('symptomIds')}"
+                                th:errors="*{symptomIds}"></div>
                             <div class="symptoms-selection-grid" id="symptomsGrid">
+                                <div th:each="symptom : ${symptomsCatalog}" class="symptom-card"
+                                    th:attr="data-id=${symptom.symptomId}">
+                                    <div class="symptom-card-header">
+                                        <input type="checkbox" th:field="*{symptomIds}"
+                                            th:id="'chk-' + ${symptom.symptomId}" th:value="${symptom.symptomId}"
+                                            class="symptom-checkbox" />
+                                        <label th:for="'chk-' + ${symptom.symptomId}"
+                                            th:text="${symptom.symptomName}"></label>
+                                    </div>
+                                    <div class="symptom-comment-box">
+                                        <input type="text" th:field="*{symptomComments['__${symptom.symptomId}__']}"
+                                            th:id="'comment-' + ${symptom.symptomId}"
+                                            placeholder="Thêm ghi chú cụ thể (mức độ, thời gian)..."
+                                            class="symptom-comment-input" />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -182,17 +231,20 @@
                         <div class="form-section">
                             <div class="prescription-header">
                                 <div class="prescription-titles">
-                                    <p class="section-description">Chỉ định các xét nghiệm cận lâm sàng cho bệnh nhân</p>
+                                    <p class="section-description">Chỉ định các xét nghiệm cận lâm sàng cho bệnh nhân
+                                    </p>
                                 </div>
-                                <button type="button" class="btn btn-secondary btn-sm" onclick="assignAllLabTests()"><i
-                                        class="fas fa-flask"></i> Chỉ định nhanh toàn bộ xét nghiệm</button>
+                                <button type="submit" th:formaction="@{'/doctor/examine/' + ${lastExam != null ? lastExam.clinicalExamId : (activeExam != null ? activeExam.clinicalExamId : '')} + '/order-labs'}" class="btn btn-secondary btn-sm">
+                                    <i class="fas fa-flask"></i> Chỉ định nhanh toàn bộ xét nghiệm
+                                </button>
                             </div>
                         </div>
 
                         <div class="form-section" style="margin-top: 20px;">
                             <div class="card">
                                 <div class="card-header">
-                                    <span class="badge-status badge-completed"><i class="fas fa-vial"></i> Kết quả xét nghiệm cận lâm sàng </span>
+                                    <span class="badge-status badge-completed"><i class="fas fa-vial"></i> Kết quả xét
+                                        nghiệm cận lâm sàng </span>
                                 </div>
                                 <div class="table-container">
                                     <table class="clinical-table">
@@ -204,11 +256,26 @@
                                                 <th>Trạng thái</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="labResultsTableBody">
-                                            <tr>
+                                        <tbody id="labResultsTableBody" th:fragment="labResultsTable">
+                                            <tr th:each="l : ${labResults}">
+                                                <td><strong th:text="${l.labTest.testName}"></strong></td>
+                                                <td><span style="font-weight:500; color: var(--doctor-text-muted);"
+                                                        th:text="${l.referenceRange + ' ' + l.labTest.unit}"></span>
+                                                </td>
+                                                <td><strong th:text="${l.resultValue + ' ' + l.labTest.unit}"></strong>
+                                                </td>
+                                                <td>
+                                                    <span
+                                                        th:class="'flag-badge ' + (${l.flag == 'HIGH'} ? 'flag-high' : (${l.flag == 'LOW'} ? 'flag-low' : 'flag-normal'))"
+                                                        th:text="${l.flag == 'HIGH' ? 'CAO' : (l.flag == 'LOW' ? 'THẤP' : 'BÌNH THƯỜNG')}">
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <tr th:if="${#lists.isEmpty(labResults)}">
                                                 <td colspan="4"
                                                     style="text-align: center; color: var(--doctor-text-muted); padding: 30px;">
-                                                    Vui lòng chỉ định một hoặc nhiều xét nghiệm từ danh mục phía trên để xem kết quả
+                                                    Vui lòng chỉ định một hoặc nhiều xét nghiệm từ danh mục phía trên để
+                                                    xem kết quả
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -221,13 +288,17 @@
                     <!-- SECTION: Diagnosis Note -->
                     <div class="workspace-section" id="diagnosis-section">
                         <div class="form-section">
-                            <h3 class="section-header-title"><i class="fas fa-comment-medical"></i> Chẩn đoán lâm sàng <span class="required">*</span></h3>
-                            <p class="section-description">Nhập chẩn đoán lâm sàng và ghi chú chi tiết cho ca khám này</p>
+                            <h3 class="section-header-title"><i class="fas fa-comment-medical"></i> Chẩn đoán lâm sàng
+                                <span class="required">*</span>
+                            </h3>
+                            <p class="section-description">Nhập chẩn đoán lâm sàng và ghi chú chi tiết cho ca khám này
+                            </p>
                             <div class="form-group full-width" style="margin-top: 15px;">
                                 <textarea id="examDiagnosis" th:field="*{diagnosisNote}" rows="3"
                                     placeholder="Nhập chẩn đoán lâm sàng và ghi chú..."
                                     th:classappend="${#fields.hasErrors('diagnosisNote')} ? 'is-invalid' : ''"></textarea>
-                                <div class="error-feedback" th:if="${#fields.hasErrors('diagnosisNote')}" th:errors="*{diagnosisNote}"></div>
+                                <div class="error-feedback" th:if="${#fields.hasErrors('diagnosisNote')}"
+                                    th:errors="*{diagnosisNote}"></div>
                             </div>
                         </div>
                     </div>
@@ -238,8 +309,11 @@
                         <!-- Treatment Plan Form Section -->
                         <div class="form-section" style="margin-bottom: 20px;">
                             <h3 class="section-header-title"><i class="fas fa-notes-medical"
-                                    style="color: var(--doctor-primary);"></i> Kế hoạch & Phác đồ điều trị <span class="required">*</span></h3>
-                            <p class="section-description" style="margin-bottom: 15px;">Kế hoạch điều trị bao gồm mục tiêu, dinh dưỡng, vận động, tự theo dõi và hướng dẫn sử dụng thuốc (yêu cầu ít nhất 1 trường)</p>
+                                    style="color: var(--doctor-primary);"></i> Kế hoạch & Phác đồ điều trị <span
+                                    class="required">*</span></h3>
+                            <p class="section-description" style="margin-bottom: 15px;">Kế hoạch điều trị bao gồm mục
+                                tiêu, dinh dưỡng, vận động, tự theo dõi và hướng dẫn sử dụng thuốc (yêu cầu ít nhất 1
+                                trường)</p>
 
                             <div class="form-grid-columns-2">
                                 <div class="form-group full-width">
@@ -247,22 +321,32 @@
                                     <input type="text" id="planGoal" th:field="*{treatmentGoal}"
                                         placeholder="Ví dụ: Giảm đường huyết lúc đói < 5.6 mmol/L và HbA1c < 6.5%"
                                         th:classappend="${#fields.hasErrors('treatmentGoal')} ? 'is-invalid' : ''">
-                                    <div class="error-feedback" th:if="${#fields.hasErrors('treatmentGoal')}" th:errors="*{treatmentGoal}"></div>
+                                    <div class="error-feedback" th:if="${#fields.hasErrors('treatmentGoal')}"
+                                        th:errors="*{treatmentGoal}"></div>
                                 </div>
                                 <div class="form-group">
                                     <label for="planDiet">Chế độ dinh dưỡng</label>
                                     <textarea id="planDiet" th:field="*{dietPlan}" rows="3"
-                                        placeholder="Ví dụ: Hạn chế đường, tinh bột, ăn nhiều thực phẩm giàu chất xơ..."></textarea>
+                                        placeholder="Ví dụ: Hạn chế đường, tinh bột, ăn nhiều thực phẩm giàu chất xơ..."
+                                        th:classappend="${#fields.hasErrors('dietPlan')} ? 'is-invalid' : ''"></textarea>
+                                    <div class="error-feedback" th:if="${#fields.hasErrors('dietPlan')}"
+                                        th:errors="*{dietPlan}"></div>
                                 </div>
                                 <div class="form-group">
                                     <label for="planExercise">Chế độ vận động & Tập luyện</label>
                                     <textarea id="planExercise" th:field="*{exercisePlan}" rows="3"
-                                        placeholder="Ví dụ: Đi bộ hoặc chạy bộ 30 phút mỗi ngày, 5 lần một tuần..."></textarea>
+                                        placeholder="Ví dụ: Đi bộ hoặc chạy bộ 30 phút mỗi ngày, 5 lần một tuần..."
+                                        th:classappend="${#fields.hasErrors('exercisePlan')} ? 'is-invalid' : ''"></textarea>
+                                    <div class="error-feedback" th:if="${#fields.hasErrors('exercisePlan')}"
+                                        th:errors="*{exercisePlan}"></div>
                                 </div>
                                 <div class="form-group">
                                     <label for="planGlucose">Tần suất tự theo dõi đường huyết</label>
                                     <textarea id="planGlucose" th:field="*{glucoseMonitoringPlan}" rows="3"
-                                        placeholder="Ví dụ: Đo đường huyết lúc đói vào buổi sáng và 2 giờ sau khi ăn trưa..."></textarea>
+                                        placeholder="Ví dụ: Đo đường huyết lúc đói vào buổi sáng và 2 giờ sau khi ăn trưa..."
+                                        th:classappend="${#fields.hasErrors('glucoseMonitoringPlan')} ? 'is-invalid' : ''"></textarea>
+                                    <div class="error-feedback" th:if="${#fields.hasErrors('glucoseMonitoringPlan')}"
+                                        th:errors="*{glucoseMonitoringPlan}"></div>
                                 </div>
 
                             </div>
@@ -271,22 +355,66 @@
                         <!-- Medication Prescription Section -->
                         <div class="form-section">
                             <h3 class="section-header-title"><i class="fas fa-prescription-bottle-medical"
-                                    style="color: var(--doctor-primary);"></i> Đơn thuốc điều trị <span class="required">*</span></h3>
-                            <div class="error-feedback" th:if="${#fields.hasErrors('prescriptionJson')}" th:errors="*{prescriptionJson}"></div>
+                                    style="color: var(--doctor-primary);"></i> Đơn thuốc điều trị <span
+                                    class="required">*</span></h3>
+                            <div class="error-feedback" th:if="${#fields.hasErrors('prescriptionJson')}"
+                                th:errors="*{prescriptionJson}"></div>
                             <div class="prescription-header"
                                 style="border-bottom: none; margin-bottom: 0; padding-bottom: 0; margin-top: 10px;">
                                 <div class="prescription-titles">
-                                    <p class="section-description">Thêm các loại thuốc điều trị, nồng độ/hàm lượng, số lượng cung cấp và thời điểm sử dụng</p>
+                                    <p class="section-description">Thêm các loại thuốc điều trị, nồng độ/hàm lượng, số
+                                        lượng cung cấp và thời điểm sử dụng</p>
                                 </div>
-                                <button type="button" class="btn btn-secondary btn-sm"
-                                    onclick="showMedicationModal()"><i class="fas fa-plus"></i> Kê đơn thuốc</button>
+                                <button type="submit" 
+                                    th:formaction="${isEditMode} ? @{'/doctor/examine/edit/' + ${lastExam.clinicalExamId} + '/draft?redirectAction=add-medication'} : @{'/doctor/examine/' + ${patient.userId} + '/draft?redirectAction=add-medication'}"
+                                    class="btn btn-secondary btn-sm"><i class="fas fa-plus"></i> Kê đơn thuốc</button>
                             </div>
 
-                            <div class="prescription-items-list" id="prescriptionLines" style="margin-top: 15px;">
-                                <!-- Dynamic prescription detail rows loaded via JS -->
-                                <div class="no-medications-message" id="emptyPrescription">
+                            <div class="prescription-items-list" id="prescriptionSection" th:fragment="prescriptionSection" style="margin-top: 15px;">
+                                <div class="no-medications-message" id="emptyPrescription" th:if="${prescriptionLines == null || prescriptionLines.isEmpty()}">
                                     <i class="fas fa-prescription-bottle-medical"></i>
                                     <p>Chưa có thuốc nào được kê trong đơn thuốc này.</p>
+                                </div>
+                                <div th:each="line, stat : ${prescriptionLines}" class="prescription-line" 
+                                     th:data-med-id="${line.medId}"
+                                     th:data-dosage-per-dose="${line.dosagePerDose}"
+                                     th:data-duration="${line.duration}"
+                                     th:data-quantity="${line.quantity}"
+                                     th:data-medication-plan="${line.medicationPlan}"
+                                     th:data-start-date="${line.startDate}"
+                                     th:data-end-date="${line.endDate}"
+                                     th:data-timings="${line.timingText}"
+                                     style="padding: 0; border: 1px solid var(--doctor-border); border-radius: 8px; margin-bottom: 10px; overflow: hidden; background-color: var(--doctor-card-bg);">
+                                    <div class="presc-card-main" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 16px;">
+                                        <div class="presc-med-info" style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
+                                            <span style="font-size: 1.25rem; color: var(--doctor-primary);"><i class="fas fa-pills"></i></span>
+                                            <div class="presc-med-name" style="font-weight: 700; color: var(--doctor-text-main); font-size: 0.95rem;">
+                                                <span th:text="${line.name}"></span> 
+                                                <span class="presc-med-conc" style="font-weight: 500; color: var(--doctor-text-muted); font-size: 0.85rem;" th:text="'(' + ${line.concentration} + ')'"></span>
+                                            </div>
+                                        </div>
+                                        <div class="presc-card-actions" style="display: flex; gap: 8px;">
+                                            <button type="submit" th:formaction="${isEditMode} ? @{'/doctor/examine/edit/' + ${lastExam.clinicalExamId} + '/draft?redirectAction=edit-medication&editIndex=' + ${stat.index}} : @{'/doctor/examine/' + ${patient.userId} + '/draft?redirectAction=edit-medication&editIndex=' + ${stat.index}}" class="btn-presc-action edit-btn" title="Sửa" 
+                                                    style="background-color: #f3f4f6; color: var(--doctor-primary); border: 1px solid #d1d5db; border-radius: 6px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;"><i class="fas fa-pen"></i></button>
+                                            <button type="submit" th:formaction="${isEditMode} ? @{'/doctor/examine/edit/' + ${lastExam.clinicalExamId} + '/draft?redirectAction=delete-medication&deleteIndex=' + ${stat.index}} : @{'/doctor/examine/' + ${patient.userId} + '/draft?redirectAction=delete-medication&deleteIndex=' + ${stat.index}}" class="btn-presc-action delete-btn" title="Xóa" 
+                                                    style="background-color: #f3f4f6; color: var(--doctor-danger); border: 1px solid #d1d5db; border-radius: 6px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;"><i class="fas fa-trash"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="presc-card-dropdown" th:id="'presc-dropdown-' + ${stat.index}" style="display: block; padding: 12px 16px; background-color: #f9fafb; border-top: 1px solid #e5e7eb; font-size: 0.85rem; color: #374151; line-height: 1.6;">
+                                        <div style="margin-bottom: 6px;"><strong style="color: var(--doctor-text-muted);"><i class="fas fa-cubes"></i> Dạng bào chế:</strong> <span th:text="${line.form}"></span></div>
+                                        <div th:if="${line.startDate != null && !#strings.isEmpty(line.startDate)}" style="margin-bottom: 6px;">
+                                            <strong style="color: var(--doctor-text-muted);"><i class="far fa-calendar-alt"></i> Liệu trình:</strong> 
+                                            Từ <span th:text="${#strings.substring(line.startDate, 8, 10) + '/' + #strings.substring(line.startDate, 5, 7) + '/' + #strings.substring(line.startDate, 0, 4)}"></span>
+                                            đến <span th:text="${#strings.substring(line.endDate, 8, 10) + '/' + #strings.substring(line.endDate, 5, 7) + '/' + #strings.substring(line.endDate, 0, 4)}"></span>
+                                        </div>
+                                        <div style="margin-bottom: 6px;"><strong style="color: var(--doctor-text-muted);"><i class="fas fa-prescription-bottle"></i> Liều dùng:</strong> <span th:text="${line.dosage}"></span></div>
+                                        <div style="margin-bottom: 6px;"><strong style="color: var(--doctor-text-muted);"><i class="far fa-calendar-days"></i> Thời gian sử dụng:</strong> <span th:text="${line.duration}"></span> ngày</div>
+                                        <div style="margin-bottom: 6px;"><strong style="color: var(--doctor-text-muted);"><i class="fas fa-calculator"></i> Số lượng:</strong> <span th:text="${line.quantity}"></span> <span th:text="${line.form.toLowerCase().contains('viên') || line.form.toLowerCase().contains('tablet') || line.form.toLowerCase().contains('capsule') ? 'viên' : (line.form.toLowerCase().contains('gói') || line.form.toLowerCase().contains('sachet') ? 'gói' : (line.form.toLowerCase().contains('chai') || line.form.toLowerCase().contains('bottle') || line.form.toLowerCase().contains('lọ') ? 'chai' : (line.form.toLowerCase().contains('ống') || line.form.toLowerCase().contains('ampoule') ? 'ống' : (line.form.toLowerCase().contains('tuýp') || line.form.toLowerCase().contains('tube') ? 'tuýp' : 'đơn vị'))))}"></span></div>
+                                        <div style="margin-bottom: 6px;"><strong style="color: var(--doctor-text-muted);"><i class="far fa-clock"></i> Thời điểm sử dụng:</strong> <span th:text="${line.timingText}"></span></div>
+                                        <div th:if="${line.medicationPlan != null && !#strings.isEmpty(line.medicationPlan)}" style="margin-bottom: 0;">
+                                            <strong style="color: var(--doctor-text-muted);"><i class="fas fa-info-circle"></i> Hướng dẫn:</strong> <span th:text="${line.medicationPlan}"></span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -294,210 +422,122 @@
 
                 </form>
                 <!-- Hidden Start Examination Form to avoid nested form tags -->
-                <form th:action="@{/doctor/examine/{id}/start(id=${patient.userId})}" method="POST" id="startExamForm" style="display: none;"></form>
+                <form th:action="@{/doctor/examine/{id}/start(id=${patient.userId})}" method="POST" id="startExamForm"
+                    style="display: none;"></form>
             </main>
         </div>
     </div>
 
     <!-- MEDICATION DIALOG MODAL -->
-    <div class="modal-overlay" id="medicationModal">
+    <div class="modal-overlay" id="medicationModal" th:classappend="${showModal} ? 'open' : ''">
         <div class="modal modal-prescription">
             <div class="modal-header">
                 <h2>Kê đơn thuốc</h2>
-                <button type="button" class="modal-close" onclick="closeMedicationModal()"><i
-                        class="fas fa-times"></i></button>
+                <a th:href="@{${isEditMode} ? '/doctor/examine/edit/' + ${lastExam.clinicalExamId} : '/doctor/examine'}" class="modal-close"><i class="fas fa-times"></i></a>
             </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label style="font-weight: 600; display: flex; align-items: center; gap: 6px;">
-                        <i class="fas fa-prescription-bottle-medical" style="color: var(--doctor-primary);"></i> Chọn thuốc <span class="required">*</span>
-                    </label>
-                    <div class="custom-select-autocomplete">
-                        <i class="fas fa-search autocomplete-search-icon"></i>
-                        <input type="text" id="medSearch" placeholder="Nhập tên thuốc hoặc hàm lượng để tìm kiếm..."
-                            onkeyup="filterMedications()">
-                        <div class="autocomplete-list" id="medAutocompleteList">
-                            <!-- Populated dynamically -->
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="med-details-container" id="medDetailFields" style="display: none;">
-                    <!-- Selected Medication Info Banner -->
-                    <div class="selected-med-banner">
-                        <div class="med-banner-icon"><i class="fas fa-pills"></i></div>
-                        <div class="med-banner-details">
-                            <h4 id="medBannerName">Tên thuốc</h4>
-                            <p id="medBannerForm">Dạng bào chế / Đường dùng</p>
-                        </div>
+            <form th:action="@{/doctor/examine/prescription/save}" method="POST">
+                <input type="hidden" name="editingIndex" th:value="${editIndex}">
+                <input type="hidden" name="examId" th:value="${isEditMode == true && lastExam != null ? lastExam.clinicalExamId : ''}">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label style="font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-prescription-bottle-medical" style="color: var(--doctor-primary);"></i> Chọn thuốc <span class="required">*</span>
+                        </label>
+                        <select name="medId" class="form-control" required style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--doctor-border);">
+                            <option value="">-- Chọn thuốc --</option>
+                            <option th:each="m : ${medicationsCatalog}" 
+                                    th:value="${m.medicationId}" 
+                                    th:selected="${editingMed != null && editingMed.medId == m.medicationId}"
+                                    th:text="${m.medicationName + ' (' + m.concentration + ') - ' + m.form}"></option>
+                        </select>
                     </div>
 
-                    <div class="med-details-grid">
-                        <!-- Left Panel: Duration & Dates -->
-                        <div class="med-details-panel">
-                            <div class="panel-title">
-                                <i class="far fa-calendar-alt"></i> Thời gian &amp; Liệu trình
+                    <div class="med-details-container" id="medDetailFields">
+                        <div class="med-details-grid">
+                            <!-- Left Panel: Duration & Dates -->
+                            <div class="med-details-panel">
+                                <div class="panel-title">
+                                    <i class="far fa-calendar-alt"></i> Thời gian &amp; Liệu trình
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                                        <i class="fas fa-calendar-day"></i> Số ngày sử dụng <span class="required">*</span>
+                                    </label>
+                                    <input type="number" name="duration" min="1" max="180" th:value="${editingMed != null ? editingMed.duration : 30}" required style="width: 100%; box-sizing: border-box;">
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                                        <i class="fas fa-calendar-plus"></i> Ngày bắt đầu <span class="required">*</span>
+                                    </label>
+                                    <input type="date" name="startDate" th:value="${editingMed != null ? editingMed.startDate : tomorrowDate}" required style="width: 100%; box-sizing: border-box;">
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                                        <i class="fas fa-calendar-check"></i> Ngày kết thúc dự kiến (Tự động tính)
+                                    </label>
+                                    <div class="readonly-date-wrapper">
+                                        <input type="date" name="endDate" th:value="${editingMed != null ? editingMed.endDate : ''}" readonly placeholder="Tự động tính khi lưu" style="width: 100%; box-sizing: border-box; background-color: #f3f4f6;">
+                                    </div>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label style="font-weight: 600; display: flex; align-items: center; gap: 6px;">
-                                    <i class="fas fa-calendar-day"></i> Số ngày sử dụng <span class="required">*</span>
-                                </label>
-                                <input type="number" id="medDuration" min="1" max="180" value="30" style="width: 100%; box-sizing: border-box;">
-                                <span class="error-msg" id="error-medDuration"></span>
-                            </div>
-                            <div class="form-group">
-                                <label style="font-weight: 600; display: flex; align-items: center; gap: 6px;">
-                                    <i class="fas fa-calendar-plus"></i> Ngày bắt đầu <span class="required">*</span>
-                                </label>
-                                <input type="date" id="medStartDate" style="width: 100%; box-sizing: border-box;">
-                                <span class="error-msg" id="error-medStartDate"></span>
-                            </div>
-                            <div class="form-group">
-                                <label style="font-weight: 600; display: flex; align-items: center; gap: 6px;">
-                                    <i class="fas fa-calendar-check"></i> Ngày kết thúc dự kiến
-                                </label>
-                                <div class="readonly-date-wrapper">
-                                    <input type="date" id="medEndDate" readonly style="width: 100%; box-sizing: border-box;">
-                                    <i class="fas fa-lock lock-icon" title="Ngày kết thúc được tự động tính dựa trên ngày bắt đầu và số ngày sử dụng"></i>
+
+                            <!-- Right Panel: Quantity, Timing & Advice -->
+                            <div class="med-details-panel">
+                                <div class="panel-title">
+                                    <i class="fas fa-hand-holding-medical"></i> Liều lượng &amp; Chỉ dẫn
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                                        <i class="fas fa-capsules"></i> Liều dùng mỗi lần <span class="required">*</span>
+                                    </label>
+                                    <input type="number" name="dosagePerDose" min="0.1" step="0.1" th:value="${editingMed != null ? editingMed.dosagePerDose : 1.0}" required style="width: 100%; box-sizing: border-box;">
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                                        <i class="fas fa-clipboard-list"></i> Tổng số lượng cấp (Tự động tính)
+                                    </label>
+                                    <div class="readonly-date-wrapper">
+                                        <input type="number" name="quantity" min="1" max="500" th:value="${editingMed != null ? editingMed.quantity : 30}" readonly placeholder="Tự động tính khi lưu" style="width: 100%; box-sizing: border-box; background-color: #f3f4f6;">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                                        <i class="fas fa-clock"></i> Thời điểm sử dụng <span class="required">*</span>
+                                    </label>
+                                    <div style="display: flex; flex-direction: column; gap: 8px; border: 1px solid var(--doctor-border); padding: 10px; border-radius: 6px; max-height: 120px; overflow-y: auto;">
+                                        <div th:each="t : ${medicationTimings}" style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="timing" th:id="${'timing-' + t.timingID}" th:value="${t.timingName}" 
+                                                   th:checked="${editingMed != null && editingMed.timing != null && editingMed.timing.contains(t.timingName)}">
+                                            <label th:for="${'timing-' + t.timingID}" th:text="${t.timingName}"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                                        <i class="fas fa-file-medical"></i> Hướng dẫn bổ sung
+                                    </label>
+                                    <textarea name="medicationPlan" rows="2" placeholder="Ví dụ: Uống sau khi ăn 30 phút, uống với nhiều nước..." th:text="${editingMed != null ? editingMed.medicationPlan : ''}" style="width: 100%; box-sizing: border-box; resize: none;"></textarea>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Right Panel: Quantity, Timing & Advice -->
-                        <div class="med-details-panel">
-                            <div class="panel-title">
-                                <i class="fas fa-hand-holding-medical"></i> Liều lượng &amp; Chỉ dẫn
-                            </div>
-                            <div class="form-group">
-                                <label style="font-weight: 600; display: flex; align-items: center; gap: 6px;">
-                                    <i class="fas fa-capsules"></i> Liều dùng mỗi lần <span class="required">*</span>
-                                </label>
-                                <input type="number" id="medDosage" min="0.1" step="0.1" value="1" placeholder="Nhập liều dùng mỗi lần..." style="width: 100%; box-sizing: border-box;">
-                                <span class="error-msg" id="error-medDosage"></span>
-                            </div>
-                            <div class="form-group">
-                                <label style="font-weight: 600; display: flex; align-items: center; gap: 6px;">
-                                    <i class="fas fa-clipboard-list"></i> Tổng số lượng cấp <span class="required">*</span>
-                                </label>
-                                <div class="readonly-date-wrapper">
-                                    <input type="number" id="medQuantity" min="1" max="500" value="30" readonly style="width: 100%; box-sizing: border-box;">
-                                    <i class="fas fa-lock lock-icon" title="Số lượng cấp tự động tính = Liều dùng mỗi lần * Số lần dùng/ngày * Số ngày dùng"></i>
-                                </div>
-                                <span class="error-msg" id="error-medQuantity"></span>
-                            </div>
-                            <div class="form-group">
-                                 <label style="font-weight: 600; display: flex; align-items: center; justify-content: space-between; gap: 6px; width: 100%;">
-                                     <span><i class="fas fa-clock"></i> Thời điểm sử dụng <span class="required">*</span></span>
-                                 </label>
-                                 <div class="custom-multiselect-container" id="medTimingContainer">
-                                     <div class="custom-multiselect-header" onclick="toggleTimingDropdown(event)">
-                                         <span id="medTimingPlaceholder">Chọn thời điểm...</span>
-                                         <i class="fas fa-chevron-down"></i>
-                                     </div>
-                                     <div class="custom-multiselect-options" id="medTimingOptions">
-                                         <div class="custom-multiselect-option" th:each="t : ${medicationTimings}" th:data-value="${t.timingName}" onclick="selectTimingOption(this, event)">
-                                             <input type="checkbox" th:id="${'timing-' + t.timingID}" th:value="${t.timingName}" onclick="event.stopPropagation(); updateTimingPlaceholder();">
-                                             <label th:for="${'timing-' + t.timingID}" th:text="${t.timingName}" onclick="event.stopPropagation()"></label>
-                                         </div>
-                                         <!-- Fallbacks if empty -->
-                                         <div th:if="${medicationTimings == null }" class="custom-multiselect-option" data-value="Breakfast Time (07:30 AM)" onclick="selectTimingOption(this, event)">
-                                             <input type="checkbox" id="timing-fb1" value="Breakfast Time (07:30 AM)" onclick="event.stopPropagation(); updateTimingPlaceholder();">
-                                             <label for="timing-fb1" onclick="event.stopPropagation()">Thời điểm ăn sáng (07:30 AM)</label>
-                                         </div>
-                                         <div th:if="${medicationTimings == null }" class="custom-multiselect-option" data-value="Lunch Time (12:15 PM)" onclick="selectTimingOption(this, event)">
-                                             <input type="checkbox" id="timing-fb2" value="Lunch Time (12:15 PM)" onclick="event.stopPropagation(); updateTimingPlaceholder();">
-                                             <label for="timing-fb2" onclick="event.stopPropagation()">Thời điểm ăn trưa (12:15 PM)</label>
-                                         </div>
-                                         <div th:if="${medicationTimings == null }" class="custom-multiselect-option" data-value="Dinner Time (07:00 PM)" onclick="selectTimingOption(this, event)">
-                                             <input type="checkbox" id="timing-fb3" value="Dinner Time (07:00 PM)" onclick="event.stopPropagation(); updateTimingPlaceholder();">
-                                             <label for="timing-fb3" onclick="event.stopPropagation()">Thời điểm ăn tối (07:00 PM)</label>
-                                         </div>
-                                     </div>
-                                 </div>
-                                 <span class="error-msg" id="error-medTiming"></span>
-                            </div>
-                            <div class="form-group">
-                                <label style="font-weight: 600; display: flex; align-items: center; gap: 6px;">
-                                    <i class="fas fa-file-medical"></i> Hướng dẫn bổ sung
-                                </label>
-                                <textarea id="medPlan" rows="2" placeholder="Ví dụ: Uống sau khi ăn 30 phút, uống với nhiều nước..." style="width: 100%; box-sizing: border-box;"></textarea>
-                            </div>
-                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeMedicationModal()">Hủy</button>
-                <button type="button" class="btn btn-primary" id="addMedBtn" onclick="addMedicationLine()">Thêm vào đơn thuốc</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- CANCEL CONFIRMATION MODAL -->
-    <div class="modal-overlay" id="cancelConfirmModal">
-        <div class="modal" style="max-width: 420px; padding: 20px; border-radius: 12px;">
-            <form th:action="@{/doctor/examine/{id}/cancel(id=${patient.userId})}" method="POST" id="cancelForm">
-                <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
-                    <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--doctor-text-main);">Hủy ca khám</h3>
-                    <button type="button" class="close-btn" onclick="closeCancelModal()" style="font-size: 1.2rem;"><i
-                            class="fas fa-times"></i></button>
-                </div>
-                <div class="modal-body" style="text-align: center; padding: 15px 10px 10px 10px;">
-                    <i class="fas fa-exclamation-triangle"
-                        style="font-size: 2.8rem; color: var(--doctor-danger); margin-bottom: 15px;"></i>
-                    <p
-                        style="font-size: 1.05rem; font-weight: 600; color: var(--doctor-text-main); margin-bottom: 8px; line-height: 1.4;">
-                        Bạn có chắc chắn muốn hủy ca khám này?</p>
-                    <p style="font-size: 0.85rem; color: var(--doctor-text-muted); margin-bottom: 15px; line-height: 1.4;">
-                        Tất cả tiến trình chưa lưu sẽ bị mất vĩnh viễn</p>
-                    <div style="margin-top: 12px; text-align: left;">
-                        <label
-                            style="font-weight: 600; font-size: 0.8rem; color: var(--doctor-text-main); display: block; margin-bottom: 5px;">Lý do hủy
-                            <span class="required" style="color: var(--doctor-danger);">*</span></label>
-                        <textarea id="cancelReason" name="reason" rows="2" placeholder="Vui lòng nêu rõ lý do hủy..." required
-                            style="width: 100%; border: 1px solid var(--doctor-border); border-radius: 6px; padding: 8px 10px; font-size: 0.8rem; outline: none; resize: none; box-sizing: border-box; font-family: inherit; line-height: 1.4; transition: border-color 0.2s;"
-                            onfocus="this.style.borderColor='var(--doctor-primary)'"
-                            onblur="this.style.borderColor='var(--doctor-border)'"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer" style="justify-content: center; gap: 12px; padding-top: 10px; border-top: none;">
-                    <button type="button" class="btn btn-secondary" onclick="closeCancelModal()"
-                        style="font-size: 0.9rem; padding: 8px 18px; border-radius: 6px;">Không</button>
-                    <button type="submit" class="btn"
-                        style="background: var(--doctor-danger); color: white; font-size: 0.9rem; padding: 8px 18px; border-radius: 6px; font-weight: 600; border: none; cursor: pointer; transition: opacity 0.2s;"
-                        onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">Có, hủy khám</button>
+                <div class="modal-footer">
+                    <a th:href="@{${isEditMode} ? '/doctor/examine/edit/' + ${lastExam.clinicalExamId} : '/doctor/examine'}" class="btn btn-secondary">Hủy</a>
+                    <button type="submit" class="btn btn-primary" th:text="${editingMed != null} ? 'Cập nhật đơn thuốc' : 'Thêm vào đơn thuốc'"></button>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- Hidden Cancel Examination Form -->
+    <form th:action="@{/doctor/examine/{id}/cancel(id=${patient.userId})}" method="POST" id="cancelExamForm" style="display: none;">
+        <input type="hidden" name="reason" value="Bác sĩ hủy ca khám">
+    </form>
 
 
 
-
-
-
-    <!-- Script assets -->
-    <script th:inline="javascript">
-        /*<![CDATA[*/
-        const thPatient = /*[[${patientData}]]*/ null;
-        const thRoutine = /*[[${routineData}]]*/ null;
-        const thActiveExam = /*[[${activeExamData}]]*/ null;
-        const thViewOnly = /*[[${viewOnly}]]*/ false;
-        const thIsEditMode = /*[[${isEditMode != null ? isEditMode : false}]]*/ false;
-        const thLastExam = /*[[${lastExamData}]]*/ null;
-        const thChosenSymptomIds = /*[[${chosenSymptomIds}]]*/ [];
-        const thChosenSymptomNotes = /*[[${chosenSymptomNotes}]]*/ {};
-        const thLastExamLabResults = /*[[${lastExamLabResultsData}]]*/ [];
-        const thLastExamPrescriptionDetails = /*[[${lastExamPrescriptionDetailsData}]]*/ [];
-        const rawSymptomsCatalog = /*[[${symptomsCatalog}]]*/ [];
-        const rawLabTestsCatalog = /*[[${labTestsCatalogData}]]*/ [];
-        const rawLabTestsPregnantCatalog = /*[[${labTestsPregnantCatalogData}]]*/ [];
-        const rawMedicationsCatalog = /*[[${medicationsCatalogData}]]*/ [];
-        /*]]>*/
-    </script>
-    <script th:src="@{/js/doctor/examine.js}"></script>
+    <!-- Script assets removed to comply with 0% JS policy -->
 </body>
 
 </html>

@@ -38,10 +38,11 @@ function handleUrlMessages() {
     }
 }
 
-// ==================== CONFIRM MODAL (Lock/Unlock) ====================
+// ==================== CONFIRM MODAL (Lock/Unlock/Delete) ====================
 let pendingId = null;
 let pendingStatus = null;   // 'Active' or 'Clocked'
 let pendingName = null;
+let pendingAction = null;   // 'lock' or 'delete'
 
 window.showConfirmModal = function(id, currentStatus, symptomName) {
     const isActive = currentStatus === 'Active';
@@ -76,6 +77,33 @@ window.showConfirmModal = function(id, currentStatus, symptomName) {
     pendingId = id;
     pendingStatus = currentStatus;
     pendingName = symptomName;
+    pendingAction = 'lock';
+    document.getElementById('confirmModal').classList.add('open');
+    document.body.classList.add('modal-open');
+};
+
+window.showDeleteConfirmModal = function(id, symptomName) {
+    const title = 'Xóa triệu chứng';
+    const message = `Bạn có chắc chắn muốn xóa triệu chứng "${symptomName}"?`;
+    const subMessage = 'Hành động này sẽ xóa vĩnh viễn triệu chứng này khỏi hệ thống và không thể hoàn tác.';
+
+    document.getElementById('confirmModalTitle').innerHTML = `<i class="fas fa-trash-alt" style="margin-right: 8px; color: #dc2626;"></i> ${title}`;
+    document.getElementById('confirmMessage').innerHTML = `<i class="fas fa-head-side-medical" style="margin-right: 8px; color: #dc2626;"></i> ${message}`;
+    document.getElementById('confirmSubMessage').innerText = subMessage;
+
+    const iconElement = document.querySelector('#confirmModal .confirm-icon i');
+    const iconDiv = document.querySelector('#confirmModal .confirm-icon');
+    const okBtn = document.getElementById('okConfirmBtn');
+
+    iconElement.className = 'fas fa-trash-alt';
+    iconElement.style.color = '#dc2626';
+    iconDiv.style.background = 'linear-gradient(135deg, #fee2e2, #fecaca)';
+    okBtn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+
+    pendingId = id;
+    pendingStatus = null;
+    pendingName = symptomName;
+    pendingAction = 'delete';
     document.getElementById('confirmModal').classList.add('open');
     document.body.classList.add('modal-open');
 };
@@ -87,20 +115,25 @@ function closeConfirmModal() {
         pendingId = null;
         pendingStatus = null;
         pendingName = null;
+        pendingAction = null;
     }, 300);
 }
 
 function executeAction() {
-    if (pendingId && pendingStatus) {
-        const isActive = pendingStatus === 'Active';
-        const url = isActive ? `/admin/symptoms/soft-delete/${pendingId}` : `/admin/symptoms/restore/${pendingId}`;
+    if (pendingId && pendingAction) {
+        let url;
+        if (pendingAction === 'delete') {
+            url = `/admin/symptoms/delete/${pendingId}`;
+        } else {
+            const isActive = pendingStatus === 'Active';
+            url = isActive ? `/admin/symptoms/soft-delete/${pendingId}` : `/admin/symptoms/restore/${pendingId}`;
+        }
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = url;
         document.body.appendChild(form);
         // Disable button to prevent double submit
         const okBtn = document.getElementById('okConfirmBtn');
-        const originalText = okBtn.innerHTML;
         okBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
         okBtn.disabled = true;
         setTimeout(() => form.submit(), 100);
@@ -156,7 +189,7 @@ window.openEditModal = function(id) {
         })
         .catch(err => {
             console.error('Error loading symptom:', err);
-            showToast('Error loading symptom data', 'error');
+            showToast('Lỗi khi tải dữ liệu triệu chứng', 'error');
         });
 };
 

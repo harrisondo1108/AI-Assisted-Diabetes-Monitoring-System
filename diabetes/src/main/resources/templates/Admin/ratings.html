@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Đánh giá Bác sĩ - Admin | Hệ thống Tiểu đường</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CSS files -->
+    <link rel="stylesheet" th:href="@{/css/admin/ratings.css}">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <div th:replace="~{layout/admin/sidebar :: sidebar('ratings')}"></div>
+
+        <div class="admin-main">
+            <!-- Header -->
+            <div th:replace="~{layout/admin/header :: header('Đánh giá Bác sĩ')}"></div>
+
+            <main class="admin-content">
+                <div class="page-header">
+                    <h1>Giám sát đánh giá Bác sĩ</h1>
+                    <p class="subtitle">Xem xét ý kiến phản hồi và xếp hạng từ bệnh nhân đối với đội ngũ y bác sĩ.</p>
+                </div>
+
+                <div class="ratings-grid">
+                    <!-- Cột trái: Thống kê tổng quan -->
+                    <div class="ratings-card">
+                        <h2 class="ratings-title">
+                            <i class="fas fa-chart-pie"></i> Thống kê tổng quan
+                        </h2>
+                        <div style="text-align: center; margin-bottom: 24px;">
+                            <div class="score-large" th:text="${#numbers.formatDecimal(averageRating, 1, 1)}">0.0</div>
+                            <div class="stars-row" style="justify-content: center;">
+                                <th:block th:if="${averageRating >= 1.0}">
+                                    <i class="fas fa-star" th:each="star : ${#numbers.sequence(1, T(java.lang.Math).round(averageRating))}"></i>
+                                    <i class="far fa-star" th:each="star : ${T(java.lang.Math).round(averageRating) < 5 ? #numbers.sequence(T(java.lang.Math).round(averageRating) + 1, 5) : {}}"></i>
+                                </th:block>
+                                <th:block th:if="${averageRating < 1.0}">
+                                    <i class="far fa-star" th:each="star : ${#numbers.sequence(1, 5)}"></i>
+                                </th:block>
+                            </div>
+                            <div style="font-size: 0.9rem; color: var(--text-secondary); font-weight: 600;" th:text="${'Dựa trên ' + ratingCount + ' đánh giá'}">
+                                Dựa trên 0 đánh giá
+                            </div>
+                        </div>
+                        
+                        <!-- Phân bố tỷ lệ sao -->
+                        <div style="border-top: 1px solid #f3f4f6; padding-top: 20px;">
+                            <div class="distribution-bar">
+                                <span style="width: 45px; font-weight: 600;">5 sao</span>
+                                <div class="bar-outer">
+                                    <div class="bar-inner" th:style="'width: ' + ${star5Pct} + '%'"></div>
+                                </div>
+                                <span style="width: 35px; text-align: right;" th:text="${star5Pct + '%'}">0%</span>
+                            </div>
+                            <div class="distribution-bar">
+                                <span style="width: 45px; font-weight: 600;">4 sao</span>
+                                <div class="bar-outer">
+                                    <div class="bar-inner" th:style="'width: ' + ${star4Pct} + '%'"></div>
+                                </div>
+                                <span style="width: 35px; text-align: right;" th:text="${star4Pct + '%'}">0%</span>
+                            </div>
+                            <div class="distribution-bar">
+                                <span style="width: 45px; font-weight: 600;">3 sao</span>
+                                <div class="bar-outer">
+                                    <div class="bar-inner" th:style="'width: ' + ${star3Pct} + '%'"></div>
+                                </div>
+                                <span style="width: 35px; text-align: right;" th:text="${star3Pct + '%'}">0%</span>
+                            </div>
+                            <div class="distribution-bar">
+                                <span style="width: 45px; font-weight: 600;">2 sao</span>
+                                <div class="bar-outer">
+                                    <div class="bar-inner" th:style="'width: ' + ${star2Pct} + '%'"></div>
+                                </div>
+                                <span style="width: 35px; text-align: right;" th:text="${star2Pct + '%'}">0%</span>
+                            </div>
+                            <div class="distribution-bar">
+                                <span style="width: 45px; font-weight: 600;">1 sao</span>
+                                <div class="bar-outer">
+                                    <div class="bar-inner" th:style="'width: ' + ${star1Pct} + '%'"></div>
+                                </div>
+                                <span style="width: 35px; text-align: right;" th:text="${star1Pct + '%'}">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cột phải: Feed nhận xét chi tiết -->
+                    <div class="ratings-card">
+                        <h2 class="ratings-title">
+                            <i class="fas fa-comments"></i> Nhật ký phản hồi chi tiết
+                        </h2>
+
+                        <!-- Toolbar: Lọc Bác sĩ & Sao -->
+                        <div class="ratings-toolbar">
+                            <!-- Lọc Bác sĩ (Dropdown) -->
+                            <form method="get" th:action="@{/admin/ratings}" id="doctorFilterForm">
+                                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                                    <label for="doctorSelect" style="font-weight: 600; font-size: 0.85rem; color: var(--text-primary);">Bác sĩ:</label>
+                                    <select name="doctorId" id="doctorSelect" onchange="this.form.submit()" style="padding: 6px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); font-family: inherit; font-size: 0.85rem; color: var(--text-primary); background: white; cursor: pointer; min-width: 180px;">
+                                        <option value="">Tất cả bác sĩ</option>
+                                        <option th:each="doc : ${doctors}"
+                                                th:value="${doc.userId}"
+                                                th:text="${doc.fullName + ' (' + doc.specialty + ')'}"
+                                                th:selected="${selectedDoctorId == doc.userId}">
+                                            Bác sĩ
+                                        </option>
+                                    </select>
+                                    <input type="hidden" name="star" th:if="${selectedStar != null}" th:value="${selectedStar}" />
+                                </div>
+                            </form>
+
+                            <!-- Lọc theo sao -->
+                            <div class="rating-filters">
+                                <a th:href="@{/admin/ratings(star=null, doctorId=${selectedDoctorId})}"
+                                   class="filter-tag"
+                                   th:style="${selectedStar == null} ? 'background: var(--green-600); color: white; border: 1px solid var(--green-600); border-radius: 20px; padding: 5px 12px; font-size: 0.8rem; font-weight: 600; text-decoration: none; cursor: pointer;' : 'background: #f3f4f6; color: #4b5563; border: 1px solid #e5e7eb; border-radius: 20px; padding: 5px 12px; font-size: 0.8rem; font-weight: 600; text-decoration: none; cursor: pointer;'">
+                                    Tất cả sao
+                                </a>
+                                <a th:each="val : ${#numbers.sequence(5, 1)}"
+                                   th:href="@{/admin/ratings(star=${val}, doctorId=${selectedDoctorId})}"
+                                   class="filter-tag"
+                                   th:style="${selectedStar == val} ? 'background: var(--green-600); color: white; border: 1px solid var(--green-600); border-radius: 20px; padding: 5px 12px; font-size: 0.8rem; font-weight: 600; text-decoration: none; cursor: pointer;' : 'background: #f3f4f6; color: #4b5563; border: 1px solid #e5e7eb; border-radius: 20px; padding: 5px 12px; font-size: 0.8rem; font-weight: 600; text-decoration: none; cursor: pointer;'">
+                                    <span th:text="${val}">5</span> <i class="fas fa-star" style="color: #eab308; margin-left: 2px;"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Feedback feed -->
+                        <div class="feedback-feed">
+                            <div th:each="r : ${ratings}" class="feedback-item">
+                                <div class="feedback-header">
+                                    <div class="patient-info">
+                                        <div class="patient-avatar" th:text="${r.patient != null ? #strings.substring(r.patient.fullName, 0, 1) : 'B'}">B</div>
+                                        <div>
+                                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                                <strong style="color: #111827; font-size: 0.95rem;" th:text="${r.patient != null ? r.patient.fullName : 'Bệnh nhân ẩn danh'}">Họ Tên</strong>
+                                                <span class="doctor-tag" title="Bác sĩ nhận đánh giá">
+                                                    <i class="fas fa-user-md"></i>
+                                                    <span th:text="${r.doctor != null and r.doctor.profile != null ? r.doctor.profile.fullName : 'Bác sĩ ẩn danh'}">Bác sĩ</span>
+                                                </span>
+                                            </div>
+                                            <div class="stars-row" style="font-size: 0.75rem; margin: 4px 0 0 0;">
+                                                <i class="fas fa-star" th:each="star : ${#numbers.sequence(1, r.ratingValue)}"></i>
+                                                <i class="far fa-star" th:each="star : ${r.ratingValue < 5 ? #numbers.sequence(r.ratingValue + 1, 5) : {}}"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <span style="font-size: 0.8rem; color: var(--text-muted); display: block;" th:text="${#temporals.format(r.createdAt, 'dd/MM/yyyy HH:mm')}">Ngày giờ</span>
+                                        <span class="exam-tag" th:text="${'Mã lượt khám: ' + r.clinicalExamination.clinicalExamId}">EX000001</span>
+                                    </div>
+                                </div>
+                                <div class="comment-text" th:text="${r.comment != null and r.comment != '' ? r.comment : 'Không có bình luận chi tiết.'}">Nội dung bình luận</div>
+                            </div>
+                            
+                            <div th:if="${ratings == null or ratings.isEmpty()}" style="text-align: center; padding: 60px 20px; color: #9ca3af;">
+                                <i class="far fa-comments" style="font-size: 3.5rem; color: #d1d5db; margin-bottom: 16px; display: block;"></i>
+                                Không có đánh giá nào phù hợp với bộ lọc.
+                            </div>
+                        </div>
+
+                        <!-- Phân trang -->
+                        <div class="pagination-bar" th:if="${totalPages > 1}" style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px; border-top: 1px solid #f3f4f6; padding-top: 20px;">
+                            <span class="pagination-info" style="font-size: 0.85rem; color: var(--text-secondary);"
+                                  th:with="start=${currentPage * pageSize + 1}, end=${(currentPage + 1) * pageSize > totalItems ? totalItems : (currentPage + 1) * pageSize}"
+                                  th:text="${'Hiển thị ' + start + ' - ' + end + ' trong tổng số ' + totalItems + ' đánh giá'}">
+                                Hiển thị 1 - 5 trong tổng số 10 đánh giá
+                            </span>
+                            <div class="pagination" style="display: flex; align-items: center; gap: 6px;">
+                                <!-- Prev Button -->
+                                <a th:if="${currentPage > 0}"
+                                   th:href="@{/admin/ratings(page=${currentPage - 1}, size=${pageSize}, star=${selectedStar}, doctorId=${selectedDoctorId})}"
+                                   style="display: inline-flex; align-items: center; justify-content: center; min-width: 32px; height: 32px; padding: 0 8px; border-radius: 6px; border: 1px solid var(--border); background-color: #ffffff; color: #4b5563; font-size: 0.8rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.2s;">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                                <span th:unless="${currentPage > 0}" style="display: inline-flex; align-items: center; justify-content: center; min-width: 32px; height: 32px; padding: 0 8px; border-radius: 6px; border: 1px solid var(--border); background-color: #ffffff; color: #4b5563; font-size: 0.8rem; font-weight: 600; cursor: not-allowed; text-decoration: none; opacity: 0.4;">
+                                    <i class="fas fa-chevron-left"></i>
+                                </span>
+
+                                <!-- Page Numbers -->
+                                <th:block th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}">
+                                    <a th:href="@{/admin/ratings(page=${pageNum}, size=${pageSize}, star=${selectedStar}, doctorId=${selectedDoctorId})}"
+                                       th:text="${pageNum + 1}"
+                                       th:classappend="${pageNum == currentPage} ? 'active' : ''"
+                                       th:style="${pageNum == currentPage} ? 'background-color: var(--green-600); color: #ffffff; border-color: var(--green-600); display: inline-flex; align-items: center; justify-content: center; min-width: 32px; height: 32px; padding: 0 8px; border-radius: 6px; border: 1px solid var(--border); font-size: 0.8rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.2s;' : 'display: inline-flex; align-items: center; justify-content: center; min-width: 32px; height: 32px; padding: 0 8px; border-radius: 6px; border: 1px solid var(--border); background-color: #ffffff; color: #4b5563; font-size: 0.8rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.2s;'">
+                                    </a>
+                                </th:block>
+
+                                <!-- Next Button -->
+                                <a th:if="${currentPage < totalPages - 1}"
+                                   th:href="@{/admin/ratings(page=${currentPage + 1}, size=${pageSize}, star=${selectedStar}, doctorId=${selectedDoctorId})}"
+                                   style="display: inline-flex; align-items: center; justify-content: center; min-width: 32px; height: 32px; padding: 0 8px; border-radius: 6px; border: 1px solid var(--border); background-color: #ffffff; color: #4b5563; font-size: 0.8rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.2s;">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                                <span th:unless="${currentPage < totalPages - 1}" style="display: inline-flex; align-items: center; justify-content: center; min-width: 32px; height: 32px; padding: 0 8px; border-radius: 6px; border: 1px solid var(--border); background-color: #ffffff; color: #4b5563; font-size: 0.8rem; font-weight: 600; cursor: not-allowed; text-decoration: none; opacity: 0.4;">
+                                    <i class="fas fa-chevron-right"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+</html>

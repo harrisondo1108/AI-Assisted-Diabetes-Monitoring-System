@@ -40,7 +40,20 @@ public class SymptomsCatalogServiceImpl implements SymptomsCatalogService {
         if (keyword == null || keyword.trim().isEmpty()) {
             return findByStatus(status, pageable);
         }
-        return repository.searchByKeywordAndStatus(keyword.trim(), status, pageable);
+        java.util.List<SymptomsCatalog> filtered = repository.findAll().stream()
+                .filter(s -> (status == null || status.equals(s.getStatus())))
+                .filter(s -> com.quan.diabetes.util.SearchUtil.matches(s.getSymptomId(), keyword)
+                        || com.quan.diabetes.util.SearchUtil.matches(s.getSymptomName(), keyword))
+                .collect(java.util.stream.Collectors.toList());
+
+        int total = filtered.size();
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), total);
+        java.util.List<SymptomsCatalog> pageContent = new java.util.ArrayList<>();
+        if (start < total) {
+            pageContent = filtered.subList(start, end);
+        }
+        return new org.springframework.data.domain.PageImpl<>(pageContent, pageable, total);
     }
 
     @Override
@@ -48,8 +61,20 @@ public class SymptomsCatalogServiceImpl implements SymptomsCatalogService {
         return repository.findById(id);
     }
 
+    private void validateSymptomName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Tên triệu chứng không được để trống!");
+        }
+        // Cho phép chữ cái (Unicode), số, khoảng trắng, dấu ngoặc đơn, dấu phẩy, dấu chấm, dấu gạch ngang
+        String pattern = "^[\\p{L}\\p{N} (),.\\-]+$";
+        if (!name.matches(pattern)) {
+            throw new IllegalArgumentException("Tên triệu chứng không được chứa ký tự đặc biệt!");
+        }
+    }
+
     @Override
     public SymptomsCatalog create(SymptomsCatalog entity) {
+        validateSymptomName(entity.getSymptomName());
         // Tạo ID mới: SYM + 4 chữ số ngẫu nhiên
         String newId;
         do {
@@ -59,7 +84,7 @@ public class SymptomsCatalogServiceImpl implements SymptomsCatalogService {
         entity.setSymptomId(newId);
 
         if (repository.existsBySymptomNameIgnoreCase(entity.getSymptomName())) {
-            throw new IllegalArgumentException("Symptom name already exists: " + entity.getSymptomName());
+            throw new IllegalArgumentException("Tên triệu chứng đã tồn tại: " + entity.getSymptomName());
         }
         if (entity.getStatus() == null) entity.setStatus(true);
         return repository.save(entity);
@@ -67,11 +92,12 @@ public class SymptomsCatalogServiceImpl implements SymptomsCatalogService {
 
     @Override
     public SymptomsCatalog update(String id, SymptomsCatalog entity) {
+        validateSymptomName(entity.getSymptomName());
         SymptomsCatalog existing = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Symptom not found: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy triệu chứng: " + id));
         if (!existing.getSymptomName().equalsIgnoreCase(entity.getSymptomName()) &&
                 repository.existsBySymptomNameIgnoreCase(entity.getSymptomName())) {
-            throw new IllegalArgumentException("Symptom name already exists: " + entity.getSymptomName());
+            throw new IllegalArgumentException("Tên triệu chứng đã tồn tại: " + entity.getSymptomName());
         }
         existing.setSymptomName(entity.getSymptomName());
         return repository.save(existing);
@@ -80,7 +106,7 @@ public class SymptomsCatalogServiceImpl implements SymptomsCatalogService {
     @Override
     public void softDelete(String id) {
         SymptomsCatalog symptom = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Symptom not found: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy triệu chứng: " + id));
         symptom.setStatus(false);
         repository.save(symptom);
     }
@@ -88,9 +114,16 @@ public class SymptomsCatalogServiceImpl implements SymptomsCatalogService {
     @Override
     public void restore(String id) {
         SymptomsCatalog symptom = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Symptom not found: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy triệu chứng: " + id));
         symptom.setStatus(true);
         repository.save(symptom);
+    }
+
+    @Override
+    public void delete(String id) {
+        SymptomsCatalog symptom = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy triệu chứng: " + id));
+        repository.delete(symptom);
     }
 
     @Override

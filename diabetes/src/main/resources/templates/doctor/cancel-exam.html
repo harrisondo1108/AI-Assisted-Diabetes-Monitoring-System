@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hủy ca khám | Hệ thống chăm sóc tiểu đường</title>
+    <!-- Premium Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Page CSS -->
+    <link rel="stylesheet" th:href="@{/css/doctor/doctor-common.css}">
+    <link rel="stylesheet" th:href="@{/css/doctor/queue.css}">
+    <style>
+        .cancel-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 30px;
+        }
+        .cancel-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .cancel-header i {
+            font-size: 48px;
+            color: #dc2626;
+            margin-bottom: 16px;
+        }
+        .cancel-header h2 {
+            font-size: 1.5rem;
+            color: #111827;
+            font-weight: 600;
+            margin: 0;
+        }
+        .patient-info {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+        .patient-info p {
+            margin: 0 0 8px 0;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+        .patient-info p:last-child {
+            margin: 0;
+        }
+        .form-group {
+            margin-bottom: 24px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            resize: vertical;
+            min-height: 120px;
+            transition: all 0.2s;
+        }
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--doctor-primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            text-decoration: none;
+            border: none;
+            transition: all 0.2s;
+        }
+        .btn-cancel {
+            background-color: #f3f4f6;
+            color: #374151;
+        }
+        .btn-cancel:hover {
+            background-color: #e5e7eb;
+        }
+        .btn-danger {
+            background-color: #dc2626;
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #b91c1c;
+        }
+        .alert-error {
+            background-color: #fef2f2;
+            color: #991b1b;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            border: 1px solid #fecaca;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="doctor-layout">
+        <div class="doctor-main">
+            <!-- Header layout replacement -->
+            <div th:replace="~{layout/doctor/header :: header('Hủy ca khám', 'queue')}"></div>
+
+            <main class="doctor-content">
+                <div class="cancel-container">
+                    <div class="cancel-header">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h2>Xác nhận hủy ca khám</h2>
+                    </div>
+
+                    <div th:if="${error}" class="alert-error">
+                        <i class="fas fa-info-circle"></i>
+                        <span th:text="${error}"></span>
+                    </div>
+
+                    <div class="patient-info">
+                        <p><strong>Mã bệnh nhân:</strong> <span th:text="${patient.userId}"></span></p>
+                        <p><strong>Họ và tên:</strong> <span th:text="${patient.fullName}"></span></p>
+                        <p><strong>Ngày sinh:</strong> <span th:text="${#temporals.format(patient.dob, 'dd/MM/yyyy')}"></span></p>
+                    </div>
+
+                    <form th:action="@{/doctor/examine/{id}/cancel(id=${patient.userId})}" method="POST">
+                        <div class="form-group">
+                            <label for="cancelReason">Lý do hủy khám <span style="color: #dc2626;">*</span></label>
+                            <textarea id="cancelReason" name="cancelReason" placeholder="Vui lòng nhập lý do cụ thể..." required></textarea>
+                        </div>
+
+                        <div class="action-buttons">
+                            <a th:href="@{/doctor/queue}" class="btn btn-cancel">
+                                Hủy bỏ
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-ban"></i> Xác nhận hủy
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+
+</html>

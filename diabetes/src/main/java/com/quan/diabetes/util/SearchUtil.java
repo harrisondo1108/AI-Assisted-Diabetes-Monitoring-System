@@ -9,23 +9,36 @@ public final class SearchUtil {
 
     private SearchUtil() {}
 
-    public static String toUnaccented(String input) {
-        if (input == null) {
+    public static String removeAccents(String src) {
+        if (src == null) {
             return "";
         }
-        String temp = Normalizer.normalize(input, Normalizer.Form.NFD);
-        return DIACRITICS.matcher(temp).replaceAll("").replace('đ', 'd').replace('Đ', 'D').toLowerCase().trim();
+        String normalized = Normalizer.normalize(src, Normalizer.Form.NFD);
+        String cleared = DIACRITICS.matcher(normalized).replaceAll("");
+        return cleared.replace("đ", "d").replace("Đ", "D");
     }
 
-    public static boolean matches(String target, String keyword) {
+    public static boolean matches(String text, String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {
             return true;
         }
-        if (target == null) {
+        if (text == null) {
             return false;
         }
-        String normalizedTarget = toUnaccented(target);
-        String normalizedKeyword = toUnaccented(keyword);
-        return normalizedTarget.contains(normalizedKeyword);
+        String normalizedText = removeAccents(text).toLowerCase();
+        String normalizedKeyword = removeAccents(keyword).toLowerCase().trim();
+        return normalizedText.contains(normalizedKeyword);
+    }
+
+    public static boolean startsWith(String text, String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return true;
+        }
+        if (text == null) {
+            return false;
+        }
+        String normalizedText = removeAccents(text).toLowerCase();
+        String normalizedKeyword = removeAccents(keyword).toLowerCase().trim();
+        return normalizedText.startsWith(normalizedKeyword);
     }
 }

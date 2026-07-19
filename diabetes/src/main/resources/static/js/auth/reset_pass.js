@@ -24,36 +24,27 @@ setupToggle('newPassword', 'togglePswd');
 setupToggle('confirmPassword', 'toggleConfirm');
 
 // Password strength
-const strengthContainer = document.getElementById('strengthContainer');
-const line1 = document.getElementById('line1');
-const line2 = document.getElementById('line2');
-const line3 = document.getElementById('line3');
-const strengthText = document.getElementById('strengthText');
+const pwdCard = document.getElementById('pwdValidatorCard');
+
+function checkPasswordStrength(val) {
+    const isLenVal = val.length >= 8;
+    const isCaseVal = /[a-z]/.test(val) && /[A-Z]/.test(val);
+    const isDigitVal = /\d/.test(val);
+    const isSpecialVal = /[!@#$]/.test(val);
+
+    return isLenVal && isCaseVal && isDigitVal && isSpecialVal;
+}
+
+newPassword.addEventListener('focus', function() {
+    pwdCard.classList.add('open');
+});
 
 newPassword.addEventListener('input', function() {
     const val = this.value;
+    pwdCard.classList.add('open');
+    const isValid = checkPasswordStrength(val);
 
-    strengthContainer.style.display = val.length > 0 ? 'block' : 'none';
-
-    let strength = 0;
-    if (val.length >= 6) strength += 1;
-    if (val.match(/[a-z]/) && val.match(/[A-Z]/)) strength += 1;
-    if (val.match(/\d/) && val.match(/[^a-zA-Z\d]/)) strength += 1;
-
-    [line1, line2, line3].forEach(el => el.className = 'line');
-
-    if (strength === 3) {
-        line1.classList.add('strong'); line2.classList.add('strong'); line3.classList.add('strong');
-        strengthText.textContent = 'Mạnh'; strengthText.style.color = '#10b981';
-    } else if (strength === 2) {
-        line1.classList.add('medium'); line2.classList.add('medium');
-        strengthText.textContent = 'Trung bình'; strengthText.style.color = '#f59e0b';
-    } else if (strength === 1 || val.length > 0) {
-        line1.classList.add('weak');
-        strengthText.textContent = 'Yếu'; strengthText.style.color = '#ef4444';
-    }
-
-    if (val.length > 0 && val.length < 6) {
+    if (val.length > 0 && !isValid) {
         passwordHint.style.display = 'block'; this.classList.add('error');
     } else {
         passwordHint.style.display = 'none'; this.classList.remove('error');
@@ -79,10 +70,17 @@ document.getElementById('resetPasswordForm').addEventListener('submit', function
     const errorDiv = document.getElementById('errorMsg');
     errorDiv.style.display = 'none';
 
-    if (!newPassword.value || newPassword.value.length < 6) {
+    const val = newPassword.value;
+    const isLenVal = val.length >= 8;
+    const isCaseVal = /[a-z]/.test(val) && /[A-Z]/.test(val);
+    const isDigitVal = /\d/.test(val);
+    const isSpecialVal = /[!@#$]/.test(val);
+    const isPasswordValid = isLenVal && isCaseVal && isDigitVal && isSpecialVal;
+
+    if (!val || !isPasswordValid) {
         e.preventDefault();
         errorDiv.style.display = 'block';
-        errorDiv.textContent = 'Mật khẩu phải có ít nhất 6 ký tự';
+        errorDiv.textContent = 'Mật khẩu chưa đạt yêu cầu bảo mật!';
         return;
     }
     if (newPassword.value !== confirmPassword.value) {

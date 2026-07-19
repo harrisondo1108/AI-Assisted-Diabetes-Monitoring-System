@@ -79,8 +79,28 @@ body {
 
 .sidebar-nav {
     flex: 1;
+    min-height: 0;
     padding: 16px 12px;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.35);
 }
 
 .nav-item {
@@ -500,6 +520,10 @@ body {
 .action-btn.soft-delete {
     background: #fef3c7;
     color: #d97706;
+}
+.action-btn.delete {
+    background: #fee2e2;
+    color: #dc2626;
 }
 .action-btn:hover {
     transform: scale(1.1);
