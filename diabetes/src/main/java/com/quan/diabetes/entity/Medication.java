@@ -31,6 +31,9 @@ public class Medication {
     @Column(name = "Status", length = 20, columnDefinition = "VARCHAR(20) DEFAULT 'Active'")
     private String status;
 
+    @Column(name = "IsActive")
+    private Boolean isActive = true;
+
     public Medication() {
     }
 
@@ -88,6 +91,14 @@ public class Medication {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
     }
 }
 

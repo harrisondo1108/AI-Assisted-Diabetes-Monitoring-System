@@ -137,6 +137,11 @@ public class AuthenticationController {
                 session.setAttribute("userProfile", profile);
                 return "redirect:/doctor/dashboard";
             }
+            case "REC" -> {
+                Profile profile = profileService.findById(user.getUserId()).orElse(null);
+                session.setAttribute("userProfile", profile);
+                return "redirect:/receptionist/dashboard";
+            }
             case "AD" -> {
                 return "redirect:/admin/dashboard";
             }

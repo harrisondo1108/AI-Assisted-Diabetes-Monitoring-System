@@ -1,0 +1,2689 @@
+Index: diabetes/src/main/resources/templates/Admin/LabTest.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><!DOCTYPE html>\r\n<html lang=\"vi\" xmlns:th=\"http://www.thymeleaf.org\">\r\n<head>\r\n    <meta charset=\"UTF-8\">\r\n    <title>Medical Tests Management</title>\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n\r\n    <link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap\"\r\n          rel=\"stylesheet\">\r\n\r\n    <link rel=\"stylesheet\"\r\n          href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css\">\r\n\r\n    <link rel=\"stylesheet\" th:href=\"@{/css/pages/lab-test-page.css}\">\r\n</head>\r\n\r\n<body>\r\n\r\n<div class=\"page-layout\">\r\n\r\n    <aside class=\"sidebar\">\r\n        <div>\r\n            <div class=\"brand\">\r\n                <h1>Diabetes Care</h1>\r\n                <p>Admin Console</p>\r\n            </div>\r\n\r\n            <nav class=\"nav-menu\">\r\n                <a href=\"#\" class=\"nav-link\">\r\n                    <i class=\"fa-solid fa-chart-line\"></i>\r\n                    <span>Dashboard</span>\r\n                </a>\r\n\r\n                <a href=\"#\" class=\"nav-link\">\r\n                    <i class=\"fa-solid fa-users\"></i>\r\n                    <span>User Management</span>\r\n                </a>\r\n\r\n                <a href=\"#\" class=\"nav-link\">\r\n                    <i class=\"fa-solid fa-pills\"></i>\r\n                    <span>Medicine Management</span>\r\n                </a>\r\n\r\n                <a th:href=\"@{/admin/lab-tests}\" class=\"nav-link active\">\r\n                    <i class=\"fa-solid fa-flask\"></i>\r\n                    <span>Medical Tests</span>\r\n                </a>\r\n\r\n                <a href=\"#\" class=\"nav-link\">\r\n                    <i class=\"fa-solid fa-sliders\"></i>\r\n                    <span>Threshold Config</span>\r\n                </a>\r\n\r\n                <a href=\"#\" class=\"nav-link\">\r\n                    <i class=\"fa-solid fa-desktop\"></i>\r\n                    <span>Monitoring</span>\r\n                </a>\r\n            </nav>\r\n        </div>\r\n\r\n        <div class=\"sidebar-footer\">\r\n            <button type=\"button\" class=\"new-report-btn\">\r\n                <i class=\"fa-solid fa-plus\"></i>\r\n                <span>New Report</span>\r\n            </button>\r\n\r\n            <a href=\"#\" class=\"footer-link\">\r\n                <i class=\"fa-solid fa-gear\"></i>\r\n                <span>Settings</span>\r\n            </a>\r\n\r\n            <a href=\"#\" class=\"footer-link\">\r\n                <i class=\"fa-regular fa-circle-question\"></i>\r\n                <span>Support</span>\r\n            </a>\r\n        </div>\r\n    </aside>\r\n\r\n    <main class=\"main-content\">\r\n\r\n        <header class=\"topbar\">\r\n            <div class=\"search-box\">\r\n                <i class=\"fa-solid fa-magnifying-glass\"></i>\r\n                <input type=\"text\"\r\n                       id=\"tableSearch\"\r\n                       placeholder=\"Tìm theo tên xét nghiệm...\">\r\n            </div>\r\n\r\n            <div class=\"user-area\">\r\n                <button type=\"button\" class=\"notification-btn\">\r\n                    <i class=\"fa-solid fa-bell\"></i>\r\n                    <span class=\"dot\"></span>\r\n                </button>\r\n\r\n                <button type=\"button\" class=\"notification-btn\">\r\n                    <i class=\"fa-solid fa-circle-question\"></i>\r\n                </button>\r\n\r\n                <div class=\"divider\"></div>\r\n\r\n                <div class=\"user-info\">\r\n                    <h4>Quản trị viên</h4>\r\n                    <p>Chief Administrator</p>\r\n                </div>\r\n\r\n                <img src=\"https://i.pravatar.cc/100?img=12\"\r\n                     alt=\"avatar\"\r\n                     class=\"avatar\">\r\n            </div>\r\n        </header>\r\n\r\n        <section class=\"content\">\r\n\r\n            <div th:if=\"${errorMessage != null}\"\r\n                 class=\"alert-error\"\r\n                 th:text=\"${errorMessage}\">\r\n                Tên xét nghiệm đã tồn tại.\r\n            </div>\r\n\r\n            <div class=\"page-header\">\r\n                <div>\r\n                    <h2>Medical Tests Management</h2>\r\n                    <p>Configure diagnostic parameters and manage clinical medical tests.</p>\r\n                </div>\r\n\r\n                <button type=\"button\"\r\n                        class=\"btn btn-primary\"\r\n                        id=\"btnDefineTest\">\r\n                    <i class=\"fa-solid fa-plus\"></i>\r\n                    <span>Define New Test</span>\r\n                </button>\r\n            </div>\r\n\r\n            <div class=\"tabs\">\r\n                <button type=\"button\" class=\"tab active\">Test Catalog</button>\r\n            </div>\r\n\r\n            <div class=\"card\">\r\n\r\n                <div class=\"card-header\">\r\n                    <h3>Test Definitions</h3>\r\n                    <button type=\"button\" class=\"filter-btn\">\r\n                        <i class=\"fa-solid fa-filter\"></i>\r\n                    </button>\r\n                </div>\r\n\r\n                <table class=\"test-table\">\r\n                    <thead>\r\n                    <tr>\r\n                        <th>Test Name</th>\r\n                        <th>Unit</th>\r\n                        <th>Room</th>\r\n                        <th>Status</th>\r\n                        <th class=\"actions-column\">Actions</th>\r\n                    </tr>\r\n                    </thead>\r\n\r\n                    <tbody id=\"labTestTableBody\">\r\n\r\n                    <tr th:each=\"test : ${testList}\">\r\n                        <td>\r\n                            <div class=\"test-info\">\r\n                                <div class=\"test-icon\">\r\n                                    <i class=\"fa-solid fa-vial\"></i>\r\n                                </div>\r\n\r\n                                <strong th:text=\"${test.testName}\">HbA1c</strong>\r\n                            </div>\r\n                        </td>\r\n\r\n                        <td th:text=\"${test.unit}\">%</td>\r\n\r\n                        <td th:text=\"${test.roomId}\">1</td>\r\n\r\n                        <td>\r\n                            <span th:class=\"${test.status} ? 'status-badge active' : 'status-badge inactive'\"\r\n                                  th:text=\"${test.status} ? 'Active' : 'Inactive'\">\r\n                                Active\r\n                            </span>\r\n                        </td>\r\n\r\n                        <td>\r\n                            <div class=\"row-actions\">\r\n\r\n                                <button type=\"button\"\r\n                                        class=\"action-btn view-btn\"\r\n                                        th:attr=\"data-id=${test.labTestId},\r\n                                                 data-name=${test.testName},\r\n                                                 data-unit=${test.unit},\r\n                                                 data-min=${test.minValue},\r\n                                                 data-max=${test.maxValue},\r\n                                                 data-room=${test.roomId},\r\n                                                 data-status=${test.status},\r\n                                                 data-description=${test.description}\">\r\n                                    <i class=\"fa-regular fa-eye\"></i>\r\n                                </button>\r\n\r\n                                <button type=\"button\"\r\n                                        class=\"action-btn edit-btn\"\r\n                                        th:attr=\"data-id=${test.labTestId},\r\n                                                 data-name=${test.testName},\r\n                                                 data-unit=${test.unit},\r\n                                                 data-min=${test.minValue},\r\n                                                 data-max=${test.maxValue},\r\n                                                 data-room=${test.roomId},\r\n                                                 data-description=${test.description}\">\r\n                                    <i class=\"fa-solid fa-pen\"></i>\r\n                                </button>\r\n\r\n                                <form th:action=\"@{/admin/lab-tests/toggle-status/{id}(id=${test.labTestId})}\"\r\n                                      method=\"post\"\r\n                                      class=\"lock-form\">\r\n                                    <button type=\"submit\"\r\n                                            class=\"action-btn lock-btn\"\r\n                                            th:title=\"${test.status} ? 'Deactivate' : 'Activate'\">\r\n                                        <i th:class=\"${test.status} ? 'fa-solid fa-lock-open' : 'fa-solid fa-lock'\"></i>\r\n                                    </button>\r\n                                </form>\r\n\r\n                            </div>\r\n                        </td>\r\n                    </tr>\r\n\r\n                    <tr th:if=\"${testList == null || testList.isEmpty()}\">\r\n                        <td colspan=\"5\" class=\"empty-row\">\r\n                            Chưa có dữ liệu xét nghiệm.\r\n                        </td>\r\n                    </tr>\r\n\r\n                    </tbody>\r\n                </table>\r\n\r\n                <div class=\"pagination-wrapper\">\r\n                    <div class=\"pagination-info\" id=\"paginationInfo\">\r\n                        Hiển thị 0 - 0 / 0 xét nghiệm\r\n                    </div>\r\n\r\n                    <div class=\"pagination-buttons\">\r\n                        <button type=\"button\" id=\"prevPageBtn\">Previous</button>\r\n                        <div id=\"pageNumbers\"></div>\r\n                        <button type=\"button\" id=\"nextPageBtn\">Next</button>\r\n                    </div>\r\n                </div>\r\n\r\n            </div>\r\n\r\n        </section>\r\n    </main>\r\n</div>\r\n\r\n<!-- CREATE MODAL -->\r\n<div class=\"modal-overlay\" id=\"defineTestModal\">\r\n    <div class=\"modal-box large-modal-box\">\r\n\r\n        <div class=\"modal-header\">\r\n            <h2>Define New Test</h2>\r\n\r\n            <button type=\"button\"\r\n                    class=\"modal-close\"\r\n                    id=\"btnCloseModal\">\r\n                <i class=\"fa-solid fa-xmark\"></i>\r\n            </button>\r\n        </div>\r\n\r\n        <form th:action=\"@{/admin/lab-tests/create}\"\r\n              method=\"post\"\r\n              class=\"modal-form\"\r\n              id=\"createTestForm\">\r\n\r\n            <div class=\"form-group\">\r\n                <label>Test Name</label>\r\n                <input type=\"text\"\r\n                       name=\"testName\"\r\n                       maxlength=\"100\"\r\n                       placeholder=\"VD: Fasting Blood Sugar\"\r\n                       required>\r\n            </div>\r\n\r\n            <div class=\"form-row two-col\">\r\n                <div class=\"form-group\">\r\n                    <label>Unit</label>\r\n                    <input type=\"text\"\r\n                           name=\"unit\"\r\n                           maxlength=\"20\"\r\n                           placeholder=\"VD: mg/dL\"\r\n                           required>\r\n                </div>\r\n\r\n                <div class=\"form-group\">\r\n                    <label>Room</label>\r\n                    <select name=\"roomId\" required>\r\n                        <option value=\"\">-- Chọn phòng xét nghiệm --</option>\r\n                        <option th:each=\"room : ${roomList}\"\r\n                                th:value=\"${room.roomId}\"\r\n                                th:text=\"${room.roomName}\">\r\n                            Room 1\r\n                        </option>\r\n                    </select>\r\n                </div>\r\n            </div>\r\n\r\n            <div class=\"threshold-input-section\">\r\n                <label class=\"section-label\">\r\n                    Config Min - Max theo từng nhóm bệnh nhân\r\n                </label>\r\n\r\n                <div class=\"threshold-input-grid\">\r\n\r\n                    <div class=\"threshold-input-card\">\r\n                        <h4>Người trẻ</h4>\r\n                        <div class=\"form-row two-col\">\r\n                            <div class=\"form-group\">\r\n                                <label>Min</label>\r\n                                <input type=\"number\" id=\"createYoungMin\" min=\"0\" required>\r\n                            </div>\r\n                            <div class=\"form-group\">\r\n                                <label>Max</label>\r\n                                <input type=\"number\" id=\"createYoungMax\" min=\"0\" required>\r\n                            </div>\r\n                        </div>\r\n                    </div>\r\n\r\n                    <div class=\"threshold-input-card\">\r\n                        <h4>Trung niên</h4>\r\n                        <div class=\"form-row two-col\">\r\n                            <div class=\"form-group\">\r\n                                <label>Min</label>\r\n                                <input type=\"number\" id=\"createMiddleMin\" min=\"0\" required>\r\n                            </div>\r\n                            <div class=\"form-group\">\r\n                                <label>Max</label>\r\n                                <input type=\"number\" id=\"createMiddleMax\" min=\"0\" required>\r\n                            </div>\r\n                        </div>\r\n                    </div>\r\n\r\n                    <div class=\"threshold-input-card\">\r\n                        <h4>Cao tuổi</h4>\r\n                        <div class=\"form-row two-col\">\r\n                            <div class=\"form-group\">\r\n                                <label>Min</label>\r\n                                <input type=\"number\" id=\"createElderMin\" min=\"0\" required>\r\n                            </div>\r\n                            <div class=\"form-group\">\r\n                                <label>Max</label>\r\n                                <input type=\"number\" id=\"createElderMax\" min=\"0\" required>\r\n                            </div>\r\n                        </div>\r\n                    </div>\r\n\r\n                    <div class=\"threshold-input-card\">\r\n                        <h4>Người có bầu</h4>\r\n                        <div class=\"form-row two-col\">\r\n                            <div class=\"form-group\">\r\n                                <label>Min</label>\r\n                                <input type=\"number\" id=\"createPregnantMin\" min=\"0\" required>\r\n                            </div>\r\n                            <div class=\"form-group\">\r\n                                <label>Max</label>\r\n                                <input type=\"number\" id=\"createPregnantMax\" min=\"0\" required>\r\n                            </div>\r\n                        </div>\r\n                    </div>\r\n\r\n                </div>\r\n            </div>\r\n\r\n            <input type=\"hidden\" name=\"minValue\" id=\"createMainMinValue\">\r\n            <input type=\"hidden\" name=\"maxValue\" id=\"createMainMaxValue\">\r\n\r\n            <div class=\"form-group\">\r\n                <label>Description</label>\r\n                <textarea name=\"description\"\r\n                          rows=\"4\"\r\n                          placeholder=\"Enter description...\"></textarea>\r\n            </div>\r\n\r\n            <div class=\"modal-actions\">\r\n                <button type=\"button\"\r\n                        class=\"btn-cancel\"\r\n                        id=\"btnCancelModal\">\r\n                    Cancel\r\n                </button>\r\n\r\n                <button type=\"submit\"\r\n                        class=\"btn-save\">\r\n                    Save Test\r\n                </button>\r\n            </div>\r\n        </form>\r\n    </div>\r\n</div>\r\n\r\n<!-- EDIT MODAL -->\r\n<div class=\"modal-overlay\" id=\"editTestModal\">\r\n    <div class=\"modal-box large-modal-box\">\r\n\r\n        <div class=\"modal-header\">\r\n            <h2>Edit Medical Test</h2>\r\n\r\n            <button type=\"button\"\r\n                    class=\"modal-close\"\r\n                    id=\"btnCloseEditModal\">\r\n                <i class=\"fa-solid fa-xmark\"></i>\r\n            </button>\r\n        </div>\r\n\r\n        <form id=\"editTestForm\"\r\n              method=\"post\"\r\n              class=\"modal-form\">\r\n\r\n            <div class=\"form-group\">\r\n                <label>Lab Test ID</label>\r\n                <input type=\"text\"\r\n                       id=\"editLabTestId\"\r\n                       disabled>\r\n            </div>\r\n\r\n            <div class=\"form-group\">\r\n                <label>Test Name</label>\r\n                <input type=\"text\"\r\n                       id=\"editTestName\"\r\n                       name=\"testName\"\r\n                       maxlength=\"100\"\r\n                       required>\r\n            </div>\r\n\r\n            <div class=\"form-row two-col\">\r\n                <div class=\"form-group\">\r\n                    <label>Unit</label>\r\n                    <input type=\"text\"\r\n                           id=\"editUnit\"\r\n                           name=\"unit\"\r\n                           maxlength=\"20\"\r\n                           required>\r\n                </div>\r\n\r\n                <div class=\"form-group\">\r\n                    <label>Room</label>\r\n                    <select id=\"editRoomId\" name=\"roomId\" required>\r\n                        <option value=\"\">-- Chọn phòng xét nghiệm --</option>\r\n                        <option th:each=\"room : ${roomList}\"\r\n                                th:value=\"${room.roomId}\"\r\n                                th:text=\"${room.roomName}\">\r\n                            Room 1\r\n                        </option>\r\n                    </select>\r\n                </div>\r\n            </div>\r\n\r\n            <div class=\"threshold-input-section\">\r\n                <label class=\"section-label\">\r\n                    Config Min - Max theo từng nhóm bệnh nhân\r\n                </label>\r\n\r\n                <div class=\"threshold-input-grid\">\r\n\r\n                    <div class=\"threshold-input-card\">\r\n                        <h4>Người trẻ</h4>\r\n                        <div class=\"form-row two-col\">\r\n                            <div class=\"form-group\">\r\n                                <label>Min</label>\r\n                                <input type=\"number\" id=\"editYoungMin\" min=\"0\" required>\r\n                            </div>\r\n                            <div class=\"form-group\">\r\n                                <label>Max</label>\r\n                                <input type=\"number\" id=\"editYoungMax\" min=\"0\" required>\r\n                            </div>\r\n                        </div>\r\n                    </div>\r\n\r\n                    <div class=\"threshold-input-card\">\r\n                        <h4>Trung niên</h4>\r\n                        <div class=\"form-row two-col\">\r\n                            <div class=\"form-group\">\r\n                                <label>Min</label>\r\n                                <input type=\"number\" id=\"editMiddleMin\" min=\"0\" required>\r\n                            </div>\r\n                            <div class=\"form-group\">\r\n                                <label>Max</label>\r\n                                <input type=\"number\" id=\"editMiddleMax\" min=\"0\" required>\r\n                            </div>\r\n                        </div>\r\n                    </div>\r\n\r\n                    <div class=\"threshold-input-card\">\r\n                        <h4>Cao tuổi</h4>\r\n                        <div class=\"form-row two-col\">\r\n                            <div class=\"form-group\">\r\n                                <label>Min</label>\r\n                                <input type=\"number\" id=\"editElderMin\" min=\"0\" required>\r\n                            </div>\r\n                            <div class=\"form-group\">\r\n                                <label>Max</label>\r\n                                <input type=\"number\" id=\"editElderMax\" min=\"0\" required>\r\n                            </div>\r\n                        </div>\r\n                    </div>\r\n\r\n                    <div class=\"threshold-input-card\">\r\n                        <h4>Người có bầu</h4>\r\n                        <div class=\"form-row two-col\">\r\n                            <div class=\"form-group\">\r\n                                <label>Min</label>\r\n                                <input type=\"number\" id=\"editPregnantMin\" min=\"0\" required>\r\n                            </div>\r\n                            <div class=\"form-group\">\r\n                                <label>Max</label>\r\n                                <input type=\"number\" id=\"editPregnantMax\" min=\"0\" required>\r\n                            </div>\r\n                        </div>\r\n                    </div>\r\n\r\n                </div>\r\n            </div>\r\n\r\n            <input type=\"hidden\" name=\"minValue\" id=\"editMainMinValue\">\r\n            <input type=\"hidden\" name=\"maxValue\" id=\"editMainMaxValue\">\r\n\r\n            <div class=\"form-group\">\r\n                <label>Description</label>\r\n                <textarea id=\"editDescription\"\r\n                          name=\"description\"\r\n                          rows=\"4\"></textarea>\r\n            </div>\r\n\r\n            <div class=\"modal-actions\">\r\n                <button type=\"button\"\r\n                        class=\"btn-cancel\"\r\n                        id=\"btnCancelEditModal\">\r\n                    Cancel\r\n                </button>\r\n\r\n                <button type=\"submit\"\r\n                        class=\"btn-save\">\r\n                    Update Test\r\n                </button>\r\n            </div>\r\n        </form>\r\n    </div>\r\n</div>\r\n\r\n<!-- VIEW DETAIL MODAL -->\r\n<div class=\"modal-overlay\" id=\"viewDetailModal\">\r\n    <div class=\"modal-box detail-modal-box\">\r\n\r\n        <div class=\"modal-header\">\r\n            <h2>Medical Test Detail</h2>\r\n\r\n            <button type=\"button\"\r\n                    class=\"modal-close\"\r\n                    id=\"btnCloseViewModal\">\r\n                <i class=\"fa-solid fa-xmark\"></i>\r\n            </button>\r\n        </div>\r\n\r\n        <div class=\"detail-container\">\r\n\r\n            <div class=\"detail-row\">\r\n                <div class=\"detail-item\">\r\n                    <label>Lab Test ID</label>\r\n                    <p id=\"detailId\">---</p>\r\n                </div>\r\n\r\n                <div class=\"detail-item\">\r\n                    <label>Test Name</label>\r\n                    <p id=\"detailName\">---</p>\r\n                </div>\r\n            </div>\r\n\r\n            <div class=\"detail-row\">\r\n                <div class=\"detail-item\">\r\n                    <label>Unit</label>\r\n                    <p id=\"detailUnit\">---</p>\r\n                </div>\r\n\r\n                <div class=\"detail-item\">\r\n                    <label>Room ID</label>\r\n                    <p id=\"detailRoom\">---</p>\r\n                </div>\r\n\r\n                <div class=\"detail-item\">\r\n                    <label>Status</label>\r\n                    <p id=\"detailStatus\">---</p>\r\n                </div>\r\n            </div>\r\n\r\n            <div class=\"detail-item\">\r\n                <label>Diabetes Threshold by Group</label>\r\n\r\n                <div class=\"threshold-grid\">\r\n\r\n                    <div class=\"threshold-card\">\r\n                        <h4>Người trẻ</h4>\r\n                        <p>Min: <b id=\"youngMin\">---</b></p>\r\n                        <p>Max: <b id=\"youngMax\">---</b></p>\r\n                    </div>\r\n\r\n                    <div class=\"threshold-card\">\r\n                        <h4>Trung niên</h4>\r\n                        <p>Min: <b id=\"middleMin\">---</b></p>\r\n                        <p>Max: <b id=\"middleMax\">---</b></p>\r\n                    </div>\r\n\r\n                    <div class=\"threshold-card\">\r\n                        <h4>Cao tuổi</h4>\r\n                        <p>Min: <b id=\"elderMin\">---</b></p>\r\n                        <p>Max: <b id=\"elderMax\">---</b></p>\r\n                    </div>\r\n\r\n                    <div class=\"threshold-card\">\r\n                        <h4>Người có bầu</h4>\r\n                        <p>Min: <b id=\"pregnantMin\">---</b></p>\r\n                        <p>Max: <b id=\"pregnantMax\">---</b></p>\r\n                    </div>\r\n\r\n                </div>\r\n            </div>\r\n\r\n            <div class=\"detail-item\">\r\n                <label>Description</label>\r\n                <div class=\"description-box\" id=\"detailDescription\">\r\n                    ---\r\n                </div>\r\n            </div>\r\n\r\n        </div>\r\n    </div>\r\n</div>\r\n\r\n<script th:src=\"@{/js/lab-tests.js}\"></script>\r\n\r\n</body>\r\n</html>
+===================================================================
+diff --git a/diabetes/src/main/resources/templates/Admin/LabTest.html b/diabetes/src/main/resources/templates/Admin/LabTest.html
+--- a/diabetes/src/main/resources/templates/Admin/LabTest.html	(revision c4dd63b06a24f1cb0d87b1e3d81ac0c7751cad25)
++++ b/diabetes/src/main/resources/templates/Admin/LabTest.html	(date 1782047551810)
+@@ -2,22 +2,23 @@
+ <html lang="vi" xmlns:th="http://www.thymeleaf.org">
+ <head>
+     <meta charset="UTF-8">
+-    <title>Medical Tests Management</title>
++    <title>Medical Tests Management – Diabetes Care System</title>
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
++    <meta name="description" content="Admin panel for managing medical lab tests in the Diabetes Care System.">
+ 
+     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+           rel="stylesheet">
+-
+     <link rel="stylesheet"
+           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+-
+     <link rel="stylesheet" th:href="@{/css/pages/lab-test-page.css}">
+ </head>
+ 
+ <body>
+-
+ <div class="page-layout">
+ 
++    <!-- ══════════════════════════════════════
++         SIDEBAR
++    ══════════════════════════════════════ -->
+     <aside class="sidebar">
+         <div>
+             <div class="brand">
+@@ -30,27 +31,22 @@
+                     <i class="fa-solid fa-chart-line"></i>
+                     <span>Dashboard</span>
+                 </a>
+-
+                 <a href="#" class="nav-link">
+                     <i class="fa-solid fa-users"></i>
+                     <span>User Management</span>
+                 </a>
+-
+                 <a href="#" class="nav-link">
+                     <i class="fa-solid fa-pills"></i>
+                     <span>Medicine Management</span>
+                 </a>
+-
+                 <a th:href="@{/admin/lab-tests}" class="nav-link active">
+                     <i class="fa-solid fa-flask"></i>
+                     <span>Medical Tests</span>
+                 </a>
+-
+                 <a href="#" class="nav-link">
+                     <i class="fa-solid fa-sliders"></i>
+                     <span>Threshold Config</span>
+                 </a>
+-
+                 <a href="#" class="nav-link">
+                     <i class="fa-solid fa-desktop"></i>
+                     <span>Monitoring</span>
+@@ -63,12 +59,10 @@
+                 <i class="fa-solid fa-plus"></i>
+                 <span>New Report</span>
+             </button>
+-
+             <a href="#" class="footer-link">
+                 <i class="fa-solid fa-gear"></i>
+                 <span>Settings</span>
+             </a>
+-
+             <a href="#" class="footer-link">
+                 <i class="fa-regular fa-circle-question"></i>
+                 <span>Support</span>
+@@ -76,114 +70,133 @@
+         </div>
+     </aside>
+ 
+-    <main class="main-content">
++    <!-- ══════════════════════════════════════
++         MAIN
++    ══════════════════════════════════════ -->
++    <div class="main-content">
+ 
++        <!-- Top bar -->
+         <header class="topbar">
+             <div class="search-box">
+                 <i class="fa-solid fa-magnifying-glass"></i>
+-                <input type="text"
+-                       id="tableSearch"
+-                       placeholder="Tìm theo tên xét nghiệm...">
++                <input type="text" id="topbarSearch" placeholder="Tìm theo tên xét nghiệm...">
+             </div>
+-
+             <div class="user-area">
+-                <button type="button" class="notification-btn">
++                <button type="button" class="icon-btn" title="Notifications">
+                     <i class="fa-solid fa-bell"></i>
+-                    <span class="dot"></span>
++                    <span class="notif-dot"></span>
+                 </button>
+-
+-                <button type="button" class="notification-btn">
++                <button type="button" class="icon-btn" title="Help">
+                     <i class="fa-solid fa-circle-question"></i>
+                 </button>
+-
+-                <div class="divider"></div>
+-
+-                <div class="user-info">
+-                    <h4>Quản trị viên</h4>
+-                    <p>Chief Administrator</p>
++                <div class="topbar-divider"></div>
++                <div class="admin-info">
++                    <span class="admin-name">Quản trị viên</span>
++                    <span class="admin-role">Chief Administrator</span>
+                 </div>
+-
+-                <img src="https://i.pravatar.cc/100?img=12"
+-                     alt="avatar"
+-                     class="avatar">
++                <img src="https://i.pravatar.cc/100?img=12" alt="Avatar" class="avatar">
+             </div>
+         </header>
+ 
++        <!-- Content -->
+         <section class="content">
+ 
+-            <div th:if="${errorMessage != null}"
+-                 class="alert-error"
+-                 th:text="${errorMessage}">
++            <!-- Error banner -->
++            <div th:if="${errorMessage != null}" class="alert-error" th:text="${errorMessage}">
+                 Tên xét nghiệm đã tồn tại.
+             </div>
+ 
+-            <div class="page-header">
+-                <div>
+-                    <h2>Medical Tests Management</h2>
+-                    <p>Configure diagnostic parameters and manage clinical medical tests.</p>
++            <!-- ── STAT CARDS ── -->
++            <div class="stat-row">
++                <div class="stat-card">
++                    <div class="stat-icon stat-icon--teal">
++                        <i class="fa-solid fa-flask"></i>
++                    </div>
++                    <div>
++                        <p class="stat-label">Total Tests</p>
++                        <p class="stat-value" id="statTotal">0</p>
++                    </div>
+                 </div>
+-
+-                <button type="button"
+-                        class="btn btn-primary"
+-                        id="btnDefineTest">
+-                    <i class="fa-solid fa-plus"></i>
+-                    <span>Define New Test</span>
+-                </button>
+-            </div>
+-
+-            <div class="tabs">
+-                <button type="button" class="tab active">Test Catalog</button>
++                <div class="stat-card">
++                    <div class="stat-icon stat-icon--green">
++                        <i class="fa-solid fa-circle-check"></i>
++                    </div>
++                    <div>
++                        <p class="stat-label">Active Tests</p>
++                        <p class="stat-value" id="statActive">0</p>
++                    </div>
++                </div>
++                <div class="stat-card">
++                    <div class="stat-icon stat-icon--gray">
++                        <i class="fa-solid fa-circle-xmark"></i>
++                    </div>
++                    <div>
++                        <p class="stat-label">Inactive Tests</p>
++                        <p class="stat-value" id="statInactive">0</p>
++                    </div>
++                </div>
+             </div>
+ 
+-            <div class="card">
+-
+-                <div class="card-header">
+-                    <h3>Test Definitions</h3>
+-                    <button type="button" class="filter-btn">
+-                        <i class="fa-solid fa-filter"></i>
+-                    </button>
++            <!-- ── ACTION BAR ── -->
++            <div class="action-bar">
++                <button type="button" class="btn-add" id="btnDefineTest">
++                    <i class="fa-solid fa-plus"></i> Define New Test
++                </button>
++            </div>
++
++            <!-- ── TABLE CARD ── -->
++            <div class="table-card">
++
++                <!-- Toolbar: tabs + search -->
++                <div class="table-toolbar">
++                    <div class="tab-group">
++                        <button type="button" class="tab active" id="tabAll">Test Catalog</button>
++                        <button type="button" class="tab" id="tabActive">Active</button>
++                        <button type="button" class="tab" id="tabInactive">Inactive</button>
++                    </div>
++                    <div class="table-search-box">
++                        <i class="fa-solid fa-magnifying-glass"></i>
++                        <input type="text" id="tableSearch"
++                               placeholder="Search by test name, unit or room...">
++                    </div>
+                 </div>
+ 
+-                <table class="test-table">
++                <!-- Table -->
++                <table class="data-table">
+                     <thead>
+                     <tr>
+-                        <th>Test Name</th>
+-                        <th>Unit</th>
+-                        <th>Room</th>
+-                        <th>Status</th>
+-                        <th class="actions-column">Actions</th>
++                        <th>TEST NAME</th>
++                        <th>UNIT</th>
++                        <th>ROOM</th>
++                        <th>STATUS</th>
++                        <th class="col-center">ACTIONS</th>
+                     </tr>
+                     </thead>
+-
+                     <tbody id="labTestTableBody">
+ 
+-                    <tr th:each="test : ${testList}">
++                    <tr th:each="test : ${testList}" class="data-row">
+                         <td>
+                             <div class="test-info">
+                                 <div class="test-icon">
+                                     <i class="fa-solid fa-vial"></i>
+                                 </div>
+-
+                                 <strong th:text="${test.testName}">HbA1c</strong>
+                             </div>
+                         </td>
+ 
+                         <td th:text="${test.unit}">%</td>
+-
+                         <td th:text="${test.roomId}">1</td>
+ 
+                         <td>
+-                            <span th:class="${test.status} ? 'status-badge active' : 'status-badge inactive'"
+-                                  th:text="${test.status} ? 'Active' : 'Inactive'">
+-                                Active
+-                            </span>
++                            <span th:class="${test.status} ? 'badge badge--active' : 'badge badge--inactive'"
++                                  th:text="${test.status} ? 'Active' : 'Inactive'">Active</span>
+                         </td>
+ 
+-                        <td>
++                        <td class="col-center">
+                             <div class="row-actions">
+-
+                                 <button type="button"
+-                                        class="action-btn view-btn"
++                                        class="action-btn btn-view"
++                                        title="View detail"
+                                         th:attr="data-id=${test.labTestId},
+                                                  data-name=${test.testName},
+                                                  data-unit=${test.unit},
+@@ -196,7 +209,8 @@
+                                 </button>
+ 
+                                 <button type="button"
+-                                        class="action-btn edit-btn"
++                                        class="action-btn btn-edit"
++                                        title="Edit"
+                                         th:attr="data-id=${test.labTestId},
+                                                  data-name=${test.testName},
+                                                  data-unit=${test.unit},
+@@ -208,160 +222,119 @@
+                                 </button>
+ 
+                                 <form th:action="@{/admin/lab-tests/toggle-status/{id}(id=${test.labTestId})}"
+-                                      method="post"
+-                                      class="lock-form">
++                                      method="post" class="inline-form">
+                                     <button type="submit"
+-                                            class="action-btn lock-btn"
++                                            class="action-btn btn-lock"
+                                             th:title="${test.status} ? 'Deactivate' : 'Activate'">
+                                         <i th:class="${test.status} ? 'fa-solid fa-lock-open' : 'fa-solid fa-lock'"></i>
+                                     </button>
+                                 </form>
+-
+                             </div>
+                         </td>
+                     </tr>
+ 
+                     <tr th:if="${testList == null || testList.isEmpty()}">
+-                        <td colspan="5" class="empty-row">
+-                            Chưa có dữ liệu xét nghiệm.
+-                        </td>
++                        <td colspan="5" class="empty-row">Chưa có dữ liệu xét nghiệm.</td>
+                     </tr>
+ 
+                     </tbody>
+                 </table>
+ 
+-                <div class="pagination-wrapper">
+-                    <div class="pagination-info" id="paginationInfo">
+-                        Hiển thị 0 - 0 / 0 xét nghiệm
+-                    </div>
+-
+-                    <div class="pagination-buttons">
++                <!-- Pagination -->
++                <div class="pagination-bar">
++                    <span class="pagination-info" id="paginationInfo">Hiển thị 0 – 0 / 0 xét nghiệm</span>
++                    <div class="pagination-btns">
+                         <button type="button" id="prevPageBtn">Previous</button>
+                         <div id="pageNumbers"></div>
+                         <button type="button" id="nextPageBtn">Next</button>
+                     </div>
+                 </div>
+ 
+-            </div>
++            </div><!-- /.table-card -->
+ 
+         </section>
+-    </main>
+-</div>
++
++        <!-- Footer -->
++        <footer class="site-footer">
++            <span>© 2024 Diabetes Care System</span>
++            <div class="footer-links">
++                <a href="#">Legal</a>
++                <a href="#">Privacy Policy</a>
++            </div>
++        </footer>
++
++    </div><!-- /.main-content -->
++</div><!-- /.page-layout -->
+ 
+-<!-- CREATE MODAL -->
++
++<!-- ════════════════════════════════════════════
++     CREATE MODAL
++════════════════════════════════════════════ -->
+ <div class="modal-overlay" id="defineTestModal">
+     <div class="modal-box large-modal-box">
+-
+         <div class="modal-header">
+             <h2>Define New Test</h2>
+-
+-            <button type="button"
+-                    class="modal-close"
+-                    id="btnCloseModal">
++            <button type="button" class="modal-close" id="btnCloseModal">
+                 <i class="fa-solid fa-xmark"></i>
+             </button>
+         </div>
+ 
+-        <form th:action="@{/admin/lab-tests/create}"
+-              method="post"
+-              class="modal-form"
+-              id="createTestForm">
++        <form th:action="@{/admin/lab-tests/create}" method="post"
++              class="modal-form" id="createTestForm">
+ 
+             <div class="form-group">
+                 <label>Test Name</label>
+-                <input type="text"
+-                       name="testName"
+-                       maxlength="100"
+-                       placeholder="VD: Fasting Blood Sugar"
+-                       required>
++                <input type="text" name="testName" maxlength="100"
++                       placeholder="VD: Fasting Blood Sugar" required>
+             </div>
+ 
+             <div class="form-row two-col">
+                 <div class="form-group">
+                     <label>Unit</label>
+-                    <input type="text"
+-                           name="unit"
+-                           maxlength="20"
+-                           placeholder="VD: mg/dL"
+-                           required>
++                    <input type="text" name="unit" maxlength="20" placeholder="VD: mg/dL" required>
+                 </div>
+-
+                 <div class="form-group">
+                     <label>Room</label>
+                     <select name="roomId" required>
+                         <option value="">-- Chọn phòng xét nghiệm --</option>
+                         <option th:each="room : ${roomList}"
+                                 th:value="${room.roomId}"
+-                                th:text="${room.roomName}">
+-                            Room 1
+-                        </option>
++                                th:text="${room.roomName}">Room 1</option>
+                     </select>
+                 </div>
+             </div>
+ 
+             <div class="threshold-input-section">
+-                <label class="section-label">
+-                    Config Min - Max theo từng nhóm bệnh nhân
+-                </label>
+-
++                <label class="section-label">Config Min – Max theo từng nhóm bệnh nhân</label>
+                 <div class="threshold-input-grid">
+-
+                     <div class="threshold-input-card">
+                         <h4>Người trẻ</h4>
+                         <div class="form-row two-col">
+-                            <div class="form-group">
+-                                <label>Min</label>
+-                                <input type="number" id="createYoungMin" min="0" required>
+-                            </div>
+-                            <div class="form-group">
+-                                <label>Max</label>
+-                                <input type="number" id="createYoungMax" min="0" required>
+-                            </div>
++                            <div class="form-group"><label>Min</label><input type="number" id="createYoungMin" min="0" required></div>
++                            <div class="form-group"><label>Max</label><input type="number" id="createYoungMax" min="0" required></div>
+                         </div>
+                     </div>
+-
+                     <div class="threshold-input-card">
+                         <h4>Trung niên</h4>
+                         <div class="form-row two-col">
+-                            <div class="form-group">
+-                                <label>Min</label>
+-                                <input type="number" id="createMiddleMin" min="0" required>
+-                            </div>
+-                            <div class="form-group">
+-                                <label>Max</label>
+-                                <input type="number" id="createMiddleMax" min="0" required>
+-                            </div>
++                            <div class="form-group"><label>Min</label><input type="number" id="createMiddleMin" min="0" required></div>
++                            <div class="form-group"><label>Max</label><input type="number" id="createMiddleMax" min="0" required></div>
+                         </div>
+                     </div>
+-
+                     <div class="threshold-input-card">
+                         <h4>Cao tuổi</h4>
+                         <div class="form-row two-col">
+-                            <div class="form-group">
+-                                <label>Min</label>
+-                                <input type="number" id="createElderMin" min="0" required>
+-                            </div>
+-                            <div class="form-group">
+-                                <label>Max</label>
+-                                <input type="number" id="createElderMax" min="0" required>
+-                            </div>
++                            <div class="form-group"><label>Min</label><input type="number" id="createElderMin" min="0" required></div>
++                            <div class="form-group"><label>Max</label><input type="number" id="createElderMax" min="0" required></div>
+                         </div>
+                     </div>
+-
+                     <div class="threshold-input-card">
+                         <h4>Người có bầu</h4>
+                         <div class="form-row two-col">
+-                            <div class="form-group">
+-                                <label>Min</label>
+-                                <input type="number" id="createPregnantMin" min="0" required>
+-                            </div>
+-                            <div class="form-group">
+-                                <label>Max</label>
+-                                <input type="number" id="createPregnantMax" min="0" required>
+-                            </div>
++                            <div class="form-group"><label>Min</label><input type="number" id="createPregnantMin" min="0" required></div>
++                            <div class="form-group"><label>Max</label><input type="number" id="createPregnantMax" min="0" required></div>
+                         </div>
+                     </div>
+-
+                 </div>
+             </div>
+ 
+@@ -370,147 +343,88 @@
+ 
+             <div class="form-group">
+                 <label>Description</label>
+-                <textarea name="description"
+-                          rows="4"
+-                          placeholder="Enter description..."></textarea>
++                <textarea name="description" rows="4" placeholder="Enter description..."></textarea>
+             </div>
+ 
+             <div class="modal-actions">
+-                <button type="button"
+-                        class="btn-cancel"
+-                        id="btnCancelModal">
+-                    Cancel
+-                </button>
+-
+-                <button type="submit"
+-                        class="btn-save">
+-                    Save Test
+-                </button>
++                <button type="button" class="btn-cancel" id="btnCancelModal">Cancel</button>
++                <button type="submit" class="btn-save">Save Test</button>
+             </div>
+         </form>
+     </div>
+ </div>
+ 
+-<!-- EDIT MODAL -->
++
++<!-- ════════════════════════════════════════════
++     EDIT MODAL
++════════════════════════════════════════════ -->
+ <div class="modal-overlay" id="editTestModal">
+     <div class="modal-box large-modal-box">
+-
+         <div class="modal-header">
+             <h2>Edit Medical Test</h2>
+-
+-            <button type="button"
+-                    class="modal-close"
+-                    id="btnCloseEditModal">
++            <button type="button" class="modal-close" id="btnCloseEditModal">
+                 <i class="fa-solid fa-xmark"></i>
+             </button>
+         </div>
+ 
+-        <form id="editTestForm"
+-              method="post"
+-              class="modal-form">
++        <form id="editTestForm" method="post" class="modal-form">
+ 
+             <div class="form-group">
+                 <label>Lab Test ID</label>
+-                <input type="text"
+-                       id="editLabTestId"
+-                       disabled>
++                <input type="text" id="editLabTestId" disabled>
+             </div>
+-
+             <div class="form-group">
+                 <label>Test Name</label>
+-                <input type="text"
+-                       id="editTestName"
+-                       name="testName"
+-                       maxlength="100"
+-                       required>
++                <input type="text" id="editTestName" name="testName" maxlength="100" required>
+             </div>
+ 
+             <div class="form-row two-col">
+                 <div class="form-group">
+                     <label>Unit</label>
+-                    <input type="text"
+-                           id="editUnit"
+-                           name="unit"
+-                           maxlength="20"
+-                           required>
++                    <input type="text" id="editUnit" name="unit" maxlength="20" required>
+                 </div>
+-
+                 <div class="form-group">
+                     <label>Room</label>
+                     <select id="editRoomId" name="roomId" required>
+                         <option value="">-- Chọn phòng xét nghiệm --</option>
+                         <option th:each="room : ${roomList}"
+                                 th:value="${room.roomId}"
+-                                th:text="${room.roomName}">
+-                            Room 1
+-                        </option>
++                                th:text="${room.roomName}">Room 1</option>
+                     </select>
+                 </div>
+             </div>
+ 
+             <div class="threshold-input-section">
+-                <label class="section-label">
+-                    Config Min - Max theo từng nhóm bệnh nhân
+-                </label>
+-
++                <label class="section-label">Config Min – Max theo từng nhóm bệnh nhân</label>
+                 <div class="threshold-input-grid">
+-
+                     <div class="threshold-input-card">
+                         <h4>Người trẻ</h4>
+                         <div class="form-row two-col">
+-                            <div class="form-group">
+-                                <label>Min</label>
+-                                <input type="number" id="editYoungMin" min="0" required>
+-                            </div>
+-                            <div class="form-group">
+-                                <label>Max</label>
+-                                <input type="number" id="editYoungMax" min="0" required>
+-                            </div>
++                            <div class="form-group"><label>Min</label><input type="number" id="editYoungMin" min="0" required></div>
++                            <div class="form-group"><label>Max</label><input type="number" id="editYoungMax" min="0" required></div>
+                         </div>
+                     </div>
+-
+                     <div class="threshold-input-card">
+                         <h4>Trung niên</h4>
+                         <div class="form-row two-col">
+-                            <div class="form-group">
+-                                <label>Min</label>
+-                                <input type="number" id="editMiddleMin" min="0" required>
+-                            </div>
+-                            <div class="form-group">
+-                                <label>Max</label>
+-                                <input type="number" id="editMiddleMax" min="0" required>
+-                            </div>
++                            <div class="form-group"><label>Min</label><input type="number" id="editMiddleMin" min="0" required></div>
++                            <div class="form-group"><label>Max</label><input type="number" id="editMiddleMax" min="0" required></div>
+                         </div>
+                     </div>
+-
+                     <div class="threshold-input-card">
+                         <h4>Cao tuổi</h4>
+                         <div class="form-row two-col">
+-                            <div class="form-group">
+-                                <label>Min</label>
+-                                <input type="number" id="editElderMin" min="0" required>
+-                            </div>
+-                            <div class="form-group">
+-                                <label>Max</label>
+-                                <input type="number" id="editElderMax" min="0" required>
+-                            </div>
++                            <div class="form-group"><label>Min</label><input type="number" id="editElderMin" min="0" required></div>
++                            <div class="form-group"><label>Max</label><input type="number" id="editElderMax" min="0" required></div>
+                         </div>
+                     </div>
+-
+                     <div class="threshold-input-card">
+                         <h4>Người có bầu</h4>
+                         <div class="form-row two-col">
+-                            <div class="form-group">
+-                                <label>Min</label>
+-                                <input type="number" id="editPregnantMin" min="0" required>
+-                            </div>
+-                            <div class="form-group">
+-                                <label>Max</label>
+-                                <input type="number" id="editPregnantMax" min="0" required>
+-                            </div>
++                            <div class="form-group"><label>Min</label><input type="number" id="editPregnantMin" min="0" required></div>
++                            <div class="form-group"><label>Max</label><input type="number" id="editPregnantMax" min="0" required></div>
+                         </div>
+                     </div>
+-
+                 </div>
+             </div>
+ 
+@@ -519,49 +433,36 @@
+ 
+             <div class="form-group">
+                 <label>Description</label>
+-                <textarea id="editDescription"
+-                          name="description"
+-                          rows="4"></textarea>
++                <textarea id="editDescription" name="description" rows="4"></textarea>
+             </div>
+ 
+             <div class="modal-actions">
+-                <button type="button"
+-                        class="btn-cancel"
+-                        id="btnCancelEditModal">
+-                    Cancel
+-                </button>
+-
+-                <button type="submit"
+-                        class="btn-save">
+-                    Update Test
+-                </button>
++                <button type="button" class="btn-cancel" id="btnCancelEditModal">Cancel</button>
++                <button type="submit" class="btn-save">Update Test</button>
+             </div>
+         </form>
+     </div>
+ </div>
+ 
+-<!-- VIEW DETAIL MODAL -->
++
++<!-- ════════════════════════════════════════════
++     VIEW DETAIL MODAL
++════════════════════════════════════════════ -->
+ <div class="modal-overlay" id="viewDetailModal">
+     <div class="modal-box detail-modal-box">
+-
+         <div class="modal-header">
+             <h2>Medical Test Detail</h2>
+-
+-            <button type="button"
+-                    class="modal-close"
+-                    id="btnCloseViewModal">
++            <button type="button" class="modal-close" id="btnCloseViewModal">
+                 <i class="fa-solid fa-xmark"></i>
+             </button>
+         </div>
+ 
+         <div class="detail-container">
+-
+             <div class="detail-row">
+                 <div class="detail-item">
+                     <label>Lab Test ID</label>
+                     <p id="detailId">---</p>
+                 </div>
+-
+                 <div class="detail-item">
+                     <label>Test Name</label>
+                     <p id="detailName">---</p>
+@@ -573,12 +474,10 @@
+                     <label>Unit</label>
+                     <p id="detailUnit">---</p>
+                 </div>
+-
+                 <div class="detail-item">
+                     <label>Room ID</label>
+                     <p id="detailRoom">---</p>
+                 </div>
+-
+                 <div class="detail-item">
+                     <label>Status</label>
+                     <p id="detailStatus">---</p>
+@@ -587,48 +486,55 @@
+ 
+             <div class="detail-item">
+                 <label>Diabetes Threshold by Group</label>
+-
+                 <div class="threshold-grid">
+-
+                     <div class="threshold-card">
+                         <h4>Người trẻ</h4>
+                         <p>Min: <b id="youngMin">---</b></p>
+                         <p>Max: <b id="youngMax">---</b></p>
+                     </div>
+-
+                     <div class="threshold-card">
+                         <h4>Trung niên</h4>
+                         <p>Min: <b id="middleMin">---</b></p>
+                         <p>Max: <b id="middleMax">---</b></p>
+                     </div>
+-
+                     <div class="threshold-card">
+                         <h4>Cao tuổi</h4>
+                         <p>Min: <b id="elderMin">---</b></p>
+                         <p>Max: <b id="elderMax">---</b></p>
+                     </div>
+-
+                     <div class="threshold-card">
+                         <h4>Người có bầu</h4>
+                         <p>Min: <b id="pregnantMin">---</b></p>
+                         <p>Max: <b id="pregnantMax">---</b></p>
+                     </div>
+-
+                 </div>
+             </div>
+ 
+             <div class="detail-item">
+                 <label>Description</label>
+-                <div class="description-box" id="detailDescription">
+-                    ---
+-                </div>
++                <div class="description-box" id="detailDescription">---</div>
+             </div>
+-
+         </div>
+     </div>
+ </div>
++
+ 
+ <script th:src="@{/js/lab-tests.js}"></script>
+ 
++<!-- Count stats from rendered rows -->
++<script>
++    (function () {
++        const rows = document.querySelectorAll('#labTestTableBody tr.data-row');
++        let active = 0, inactive = 0;
++        rows.forEach(function (r) {
++            if (r.querySelector('.badge--active')) active++;
++            else inactive++;
++        });
++        document.getElementById('statTotal').textContent    = rows.length;
++        document.getElementById('statActive').textContent   = active;
++        document.getElementById('statInactive').textContent = inactive;
++    })();
++</script>
++
+ </body>
+ </html>
+\ No newline at end of file
+Index: diabetes/src/main/resources/static/css/pages/lab-test-page.css
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>* {\r\n    margin: 0;\r\n    padding: 0;\r\n    box-sizing: border-box;\r\n}\r\n\r\nbody {\r\n    font-family: 'Inter', sans-serif;\r\n    background: #f4f8f6;\r\n    color: #0f172a;\r\n}\r\n\r\n.page-layout {\r\n    display: flex;\r\n    min-height: 100vh;\r\n}\r\n\r\n.sidebar {\r\n    width: 260px;\r\n    min-width: 260px;\r\n    background: #064b38;\r\n    color: white;\r\n    display: flex;\r\n    flex-direction: column;\r\n    justify-content: space-between;\r\n}\r\n\r\n.brand {\r\n    padding: 28px 16px 34px;\r\n    border-bottom: 1px solid rgba(255, 255, 255, 0.08);\r\n}\r\n\r\n.brand h1 {\r\n    font-size: 20px;\r\n    font-weight: 800;\r\n}\r\n\r\n.brand p {\r\n    margin-top: 4px;\r\n    font-size: 14px;\r\n    color: #cce7dd;\r\n}\r\n\r\n.nav-menu {\r\n    padding: 24px 8px;\r\n    display: flex;\r\n    flex-direction: column;\r\n    gap: 8px;\r\n}\r\n\r\n.nav-link,\r\n.footer-link {\r\n    height: 46px;\r\n    padding: 0 16px;\r\n    border-radius: 8px;\r\n    color: #d6ebe4;\r\n    text-decoration: none;\r\n    display: flex;\r\n    align-items: center;\r\n    gap: 14px;\r\n    font-weight: 600;\r\n    font-size: 15px;\r\n}\r\n\r\n.nav-link i,\r\n.footer-link i {\r\n    width: 18px;\r\n}\r\n\r\n.nav-link:hover,\r\n.footer-link:hover {\r\n    background: rgba(255, 255, 255, 0.08);\r\n}\r\n\r\n.nav-link.active {\r\n    background: #79e8b5;\r\n    color: #063f30;\r\n}\r\n\r\n.sidebar-footer {\r\n    padding: 16px 8px 28px;\r\n    display: flex;\r\n    flex-direction: column;\r\n    gap: 10px;\r\n}\r\n\r\n.new-report-btn {\r\n    height: 42px;\r\n    border-radius: 8px;\r\n    border: 1px solid rgba(121, 232, 181, 0.5);\r\n    background: rgba(121, 232, 181, 0.12);\r\n    color: white;\r\n    font-weight: 700;\r\n    cursor: pointer;\r\n}\r\n\r\n.main-content {\r\n    flex: 1;\r\n    min-width: 0;\r\n    background: #f4f8f6;\r\n}\r\n\r\n.topbar {\r\n    height: 76px;\r\n    background: white;\r\n    border-bottom: 1px solid #dfe7e4;\r\n    padding: 0 28px;\r\n    display: flex;\r\n    align-items: center;\r\n    justify-content: space-between;\r\n}\r\n\r\n.search-box {\r\n    width: 490px;\r\n    height: 40px;\r\n    background: #f1f5f3;\r\n    border: 1px solid #dfe7e4;\r\n    border-radius: 999px;\r\n    display: flex;\r\n    align-items: center;\r\n    padding: 0 16px;\r\n    gap: 12px;\r\n}\r\n\r\n.search-box i {\r\n    color: #7b8b87;\r\n}\r\n\r\n.search-box input {\r\n    border: none;\r\n    outline: none;\r\n    background: transparent;\r\n    width: 100%;\r\n    font-size: 14px;\r\n}\r\n\r\n.user-area {\r\n    display: flex;\r\n    align-items: center;\r\n    gap: 18px;\r\n}\r\n\r\n.notification-btn {\r\n    width: 42px;\r\n    height: 42px;\r\n    border: 1px solid #dfe7e4;\r\n    border-radius: 50%;\r\n    background: white;\r\n    position: relative;\r\n    cursor: pointer;\r\n}\r\n\r\n.notification-btn i {\r\n    color: #064b38;\r\n}\r\n\r\n.dot {\r\n    width: 8px;\r\n    height: 8px;\r\n    background: #ef4444;\r\n    border-radius: 50%;\r\n    position: absolute;\r\n    right: 10px;\r\n    top: 8px;\r\n}\r\n\r\n.divider {\r\n    width: 1px;\r\n    height: 36px;\r\n    background: #dfe7e4;\r\n}\r\n\r\n.user-info h4 {\r\n    font-size: 14px;\r\n    font-weight: 800;\r\n}\r\n\r\n.user-info p {\r\n    margin-top: 2px;\r\n    font-size: 12px;\r\n    color: #64748b;\r\n}\r\n\r\n.avatar {\r\n    width: 42px;\r\n    height: 42px;\r\n    border-radius: 50%;\r\n    object-fit: cover;\r\n}\r\n\r\n.content {\r\n    padding: 28px;\r\n}\r\n\r\n.alert-error {\r\n    margin-bottom: 16px;\r\n    padding: 12px 16px;\r\n    border-radius: 10px;\r\n    background: #fee2e2;\r\n    color: #991b1b;\r\n    font-weight: 700;\r\n}\r\n\r\n.page-header {\r\n    display: flex;\r\n    justify-content: space-between;\r\n    align-items: flex-start;\r\n    margin-bottom: 24px;\r\n}\r\n\r\n.page-header h2 {\r\n    color: #064b38;\r\n    font-size: 30px;\r\n    font-weight: 800;\r\n    margin-bottom: 8px;\r\n}\r\n\r\n.page-header p {\r\n    color: #64748b;\r\n    line-height: 1.5;\r\n}\r\n\r\n.btn {\r\n    height: 40px;\r\n    padding: 0 18px;\r\n    border-radius: 8px;\r\n    border: none;\r\n    background: #064b38;\r\n    color: white;\r\n    font-weight: 800;\r\n    display: inline-flex;\r\n    align-items: center;\r\n    gap: 10px;\r\n    cursor: pointer;\r\n}\r\n\r\n.tabs {\r\n    display: flex;\r\n    gap: 22px;\r\n    margin-bottom: 22px;\r\n    border-bottom: 1px solid #dfe7e4;\r\n}\r\n\r\n.tab {\r\n    border: none;\r\n    background: transparent;\r\n    padding: 0 0 14px;\r\n    font-size: 15px;\r\n    cursor: pointer;\r\n    color: #334155;\r\n}\r\n\r\n.tab.active {\r\n    color: #064b38;\r\n    font-weight: 800;\r\n    border-bottom: 3px solid #064b38;\r\n}\r\n\r\n.card {\r\n    background: white;\r\n    border: 1px solid #dfe7e4;\r\n    border-radius: 12px;\r\n    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);\r\n    overflow: hidden;\r\n}\r\n\r\n.card-header {\r\n    height: 72px;\r\n    padding: 0 22px;\r\n    border-bottom: 1px solid #e5ece9;\r\n    display: flex;\r\n    align-items: center;\r\n    justify-content: space-between;\r\n}\r\n\r\n.card-header h3 {\r\n    font-size: 20px;\r\n    font-weight: 800;\r\n}\r\n\r\n.filter-btn {\r\n    width: 38px;\r\n    height: 38px;\r\n    border: 1px solid #dfe7e4;\r\n    border-radius: 50%;\r\n    background: white;\r\n    cursor: pointer;\r\n}\r\n\r\n.test-table {\r\n    width: 100%;\r\n    border-collapse: collapse;\r\n}\r\n\r\n.test-table thead {\r\n    background: #fbfdfc;\r\n}\r\n\r\n.test-table th {\r\n    text-align: left;\r\n    padding: 14px 22px;\r\n    font-size: 12px;\r\n    color: #78908a;\r\n    text-transform: uppercase;\r\n}\r\n\r\n.test-table td {\r\n    padding: 16px 22px;\r\n    border-top: 1px solid #e5ece9;\r\n    font-size: 14px;\r\n    vertical-align: middle;\r\n}\r\n\r\n.test-info {\r\n    display: flex;\r\n    align-items: center;\r\n    gap: 14px;\r\n}\r\n\r\n.test-icon {\r\n    width: 42px;\r\n    height: 42px;\r\n    background: #d9f8ea;\r\n    color: #064b38;\r\n    border-radius: 10px;\r\n    display: flex;\r\n    align-items: center;\r\n    justify-content: center;\r\n}\r\n\r\n.actions-column {\r\n    text-align: center;\r\n}\r\n\r\n.row-actions {\r\n    display: flex;\r\n    justify-content: center;\r\n    align-items: center;\r\n    gap: 14px;\r\n}\r\n\r\n.row-actions form {\r\n    display: inline-flex;\r\n}\r\n\r\n.action-btn {\r\n    width: 34px;\r\n    height: 34px;\r\n    border: none;\r\n    border-radius: 8px;\r\n    background: transparent;\r\n    cursor: pointer;\r\n    font-size: 16px;\r\n    display: inline-flex;\r\n    align-items: center;\r\n    justify-content: center;\r\n}\r\n\r\n.action-btn:hover {\r\n    background: #eef7f3;\r\n}\r\n\r\n.view-btn {\r\n    color: #064b38;\r\n}\r\n\r\n.edit-btn {\r\n    color: #047857;\r\n}\r\n\r\n.lock-btn {\r\n    color: #d97706;\r\n}\r\n\r\n.status-badge {\r\n    min-width: 82px;\r\n    height: 28px;\r\n    border-radius: 999px;\r\n    font-size: 13px;\r\n    font-weight: 800;\r\n    display: inline-flex;\r\n    align-items: center;\r\n    justify-content: center;\r\n}\r\n\r\n.status-badge.active {\r\n    background: #dcfce7;\r\n    color: #166534;\r\n}\r\n\r\n.status-badge.inactive {\r\n    background: #fee2e2;\r\n    color: #991b1b;\r\n}\r\n\r\n.empty-row {\r\n    text-align: center;\r\n    color: #64748b;\r\n    padding: 32px;\r\n}\r\n\r\n.pagination-wrapper {\r\n    padding: 18px 22px;\r\n    border-top: 1px solid #e5ece9;\r\n    display: flex;\r\n    justify-content: space-between;\r\n    align-items: center;\r\n}\r\n\r\n.pagination-info {\r\n    color: #64748b;\r\n    font-size: 14px;\r\n}\r\n\r\n.pagination-buttons {\r\n    display: flex;\r\n    align-items: center;\r\n    gap: 8px;\r\n}\r\n\r\n#pageNumbers {\r\n    display: flex;\r\n    align-items: center;\r\n    gap: 8px;\r\n}\r\n\r\n.pagination-buttons button,\r\n.page-number {\r\n    min-width: 36px;\r\n    height: 36px;\r\n    border: 1px solid #d1d5db;\r\n    background: white;\r\n    border-radius: 8px;\r\n    cursor: pointer;\r\n    font-weight: 700;\r\n    padding: 0 10px;\r\n}\r\n\r\n.page-number.active {\r\n    background: #064b38;\r\n    color: white;\r\n    border-color: #064b38;\r\n}\r\n\r\n.pagination-buttons button:disabled {\r\n    opacity: 0.4;\r\n    cursor: not-allowed;\r\n}\r\n\r\n.modal-overlay {\r\n    position: fixed;\r\n    inset: 0;\r\n    background: rgba(15, 23, 42, 0.45);\r\n    display: flex;\r\n    align-items: center;\r\n    justify-content: center;\r\n    opacity: 0;\r\n    visibility: hidden;\r\n    transition: 0.25s ease;\r\n    z-index: 999;\r\n}\r\n\r\n.modal-overlay.show {\r\n    opacity: 1;\r\n    visibility: visible;\r\n}\r\n\r\n.modal-box {\r\n    width: 560px;\r\n    max-width: 92vw;\r\n    background: white;\r\n    border-radius: 16px;\r\n    transform: translateY(32px) scale(0.94);\r\n    transition: 0.25s ease;\r\n    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.25);\r\n    overflow: hidden;\r\n}\r\n\r\n.large-modal-box,\r\n.detail-modal-box {\r\n    width: 760px;\r\n}\r\n\r\n.modal-overlay.show .modal-box {\r\n    transform: translateY(0) scale(1);\r\n}\r\n\r\n.modal-header {\r\n    padding: 20px 24px;\r\n    border-bottom: 1px solid #e5ece9;\r\n    display: flex;\r\n    justify-content: space-between;\r\n    align-items: center;\r\n}\r\n\r\n.modal-header h2 {\r\n    color: #064b38;\r\n    font-size: 22px;\r\n    font-weight: 800;\r\n}\r\n\r\n.modal-close {\r\n    border: none;\r\n    background: #f1f5f3;\r\n    border-radius: 8px;\r\n    width: 36px;\r\n    height: 36px;\r\n    cursor: pointer;\r\n}\r\n\r\n.modal-form {\r\n    padding: 24px;\r\n    max-height: 75vh;\r\n    overflow-y: auto;\r\n}\r\n\r\n.form-group {\r\n    margin-bottom: 16px;\r\n}\r\n\r\n.form-group label,\r\n.detail-item label {\r\n    display: block;\r\n    font-weight: 700;\r\n    margin-bottom: 8px;\r\n    font-size: 14px;\r\n    color: #64748b;\r\n}\r\n\r\n.form-group input,\r\n.form-group textarea,\r\n.form-group select {\r\n    width: 100%;\r\n    border: 1px solid #d1d5db;\r\n    border-radius: 10px;\r\n    padding: 12px 14px;\r\n    outline: none;\r\n    font-size: 14px;\r\n    font-family: 'Inter', sans-serif;\r\n    background: white;\r\n}\r\n\r\n.form-row,\r\n.detail-row {\r\n    display: grid;\r\n    grid-template-columns: repeat(3, 1fr);\r\n    gap: 14px;\r\n}\r\n\r\n.two-col {\r\n    grid-template-columns: repeat(2, 1fr);\r\n}\r\n\r\n.modal-actions {\r\n    padding-top: 6px;\r\n    display: flex;\r\n    justify-content: flex-end;\r\n    gap: 12px;\r\n}\r\n\r\n.btn-cancel,\r\n.btn-save {\r\n    height: 40px;\r\n    padding: 0 18px;\r\n    border-radius: 8px;\r\n    font-weight: 800;\r\n    cursor: pointer;\r\n}\r\n\r\n.btn-cancel {\r\n    background: white;\r\n    border: 1px solid #d1d5db;\r\n}\r\n\r\n.btn-save {\r\n    border: none;\r\n    background: #064b38;\r\n    color: white;\r\n}\r\n\r\n.threshold-input-section {\r\n    margin-bottom: 16px;\r\n}\r\n\r\n.section-label {\r\n    display: block;\r\n    font-weight: 800;\r\n    margin-bottom: 12px;\r\n    color: #064b38;\r\n}\r\n\r\n.threshold-input-grid,\r\n.threshold-grid {\r\n    display: grid;\r\n    grid-template-columns: repeat(2, 1fr);\r\n    gap: 14px;\r\n}\r\n\r\n.threshold-input-card,\r\n.threshold-card {\r\n    border: 1px solid #dfe7e4;\r\n    background: #f8fafc;\r\n    border-radius: 12px;\r\n    padding: 14px;\r\n}\r\n\r\n.threshold-input-card h4,\r\n.threshold-card h4 {\r\n    color: #064b38;\r\n    margin-bottom: 8px;\r\n    font-size: 15px;\r\n}\r\n\r\n.detail-container {\r\n    padding: 24px;\r\n    max-height: 75vh;\r\n    overflow-y: auto;\r\n}\r\n\r\n.detail-item {\r\n    margin-bottom: 18px;\r\n}\r\n\r\n.detail-item p {\r\n    font-size: 15px;\r\n    color: #0f172a;\r\n    font-weight: 600;\r\n}\r\n\r\n.description-box {\r\n    background: #f8fafc;\r\n    border: 1px solid #dfe7e4;\r\n    border-radius: 12px;\r\n    padding: 16px;\r\n    line-height: 1.7;\r\n    color: #334155;\r\n}
+===================================================================
+diff --git a/diabetes/src/main/resources/static/css/pages/lab-test-page.css b/diabetes/src/main/resources/static/css/pages/lab-test-page.css
+--- a/diabetes/src/main/resources/static/css/pages/lab-test-page.css	(revision c4dd63b06a24f1cb0d87b1e3d81ac0c7751cad25)
++++ b/diabetes/src/main/resources/static/css/pages/lab-test-page.css	(date 1782047568846)
+@@ -1,4 +1,9 @@
+-* {
++/* =====================================================
++   lab-test-page.css  –  Medical Tests Management
++   Layout: dark green sidebar + clean main content
++===================================================== */
++
++*, *::before, *::after {
+     margin: 0;
+     padding: 0;
+     box-sizing: border-box;
+@@ -6,15 +11,21 @@
+ 
+ body {
+     font-family: 'Inter', sans-serif;
+-    background: #f4f8f6;
++    background: #eef1ef;
+     color: #0f172a;
+ }
+ 
++/* ════════════════════════════════════════
++   PAGE LAYOUT (sidebar + main)
++════════════════════════════════════════ */
+ .page-layout {
+     display: flex;
+     min-height: 100vh;
+ }
+ 
++/* ════════════════════════════════════════
++   SIDEBAR
++════════════════════════════════════════ */
+ .sidebar {
+     width: 260px;
+     min-width: 260px;
+@@ -23,107 +34,158 @@
+     display: flex;
+     flex-direction: column;
+     justify-content: space-between;
++    position: sticky;
++    top: 0;
++    height: 100vh;
+ }
+ 
+ .brand {
+-    padding: 28px 16px 34px;
+-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
++    padding: 28px 20px 26px;
++    border-bottom: 1px solid rgba(255,255,255,0.08);
+ }
+ 
+ .brand h1 {
+-    font-size: 20px;
++    font-size: 19px;
+     font-weight: 800;
++    letter-spacing: -0.3px;
+ }
+ 
+ .brand p {
+     margin-top: 4px;
+-    font-size: 14px;
+-    color: #cce7dd;
++    font-size: 13px;
++    color: #a8d8c8;
+ }
+ 
+ .nav-menu {
+-    padding: 24px 8px;
++    padding: 20px 10px;
+     display: flex;
+     flex-direction: column;
+-    gap: 8px;
++    gap: 4px;
+ }
+ 
+-.nav-link,
+-.footer-link {
+-    height: 46px;
+-    padding: 0 16px;
++.nav-link {
++    height: 44px;
++    padding: 0 14px;
+     border-radius: 8px;
+-    color: #d6ebe4;
++    color: #c6e6d8;
+     text-decoration: none;
+     display: flex;
+     align-items: center;
+-    gap: 14px;
+-    font-weight: 600;
+-    font-size: 15px;
++    gap: 12px;
++    font-size: 14px;
++    font-weight: 500;
++    transition: background 0.15s;
+ }
+ 
+-.nav-link i,
+-.footer-link i {
++.nav-link i {
+     width: 18px;
++    text-align: center;
++    font-size: 15px;
+ }
+ 
+-.nav-link:hover,
+-.footer-link:hover {
+-    background: rgba(255, 255, 255, 0.08);
++.nav-link:hover {
++    background: rgba(255,255,255,0.08);
++    color: #fff;
+ }
+ 
+ .nav-link.active {
+     background: #79e8b5;
+     color: #063f30;
++    font-weight: 700;
+ }
+ 
+ .sidebar-footer {
+-    padding: 16px 8px 28px;
++    padding: 14px 10px 24px;
+     display: flex;
+     flex-direction: column;
+-    gap: 10px;
++    gap: 4px;
++    border-top: 1px solid rgba(255,255,255,0.08);
+ }
+ 
+ .new-report-btn {
+-    height: 42px;
++    height: 40px;
+     border-radius: 8px;
+-    border: 1px solid rgba(121, 232, 181, 0.5);
+-    background: rgba(121, 232, 181, 0.12);
++    border: 1px solid rgba(121,232,181,0.45);
++    background: rgba(121,232,181,0.12);
+     color: white;
+     font-weight: 700;
++    font-size: 14px;
+     cursor: pointer;
++    display: flex;
++    align-items: center;
++    justify-content: center;
++    gap: 8px;
++    margin-bottom: 4px;
++    transition: background 0.15s;
++}
++
++.new-report-btn:hover {
++    background: rgba(121,232,181,0.22);
++}
++
++.footer-link {
++    height: 40px;
++    padding: 0 14px;
++    border-radius: 8px;
++    color: #a8d8c8;
++    text-decoration: none;
++    display: flex;
++    align-items: center;
++    gap: 12px;
++    font-size: 14px;
++    font-weight: 500;
++    transition: background 0.15s;
++}
++
++.footer-link i {
++    width: 18px;
++    text-align: center;
++}
++
++.footer-link:hover {
++    background: rgba(255,255,255,0.07);
++    color: #fff;
+ }
+ 
++/* ════════════════════════════════════════
++   MAIN CONTENT
++════════════════════════════════════════ */
+ .main-content {
+     flex: 1;
+     min-width: 0;
+-    background: #f4f8f6;
++    background: #eef1ef;
++    display: flex;
++    flex-direction: column;
+ }
+ 
++/* ── TOP BAR ── */
+ .topbar {
+-    height: 76px;
+-    background: white;
+-    border-bottom: 1px solid #dfe7e4;
++    height: 68px;
++    background: #fff;
++    border-bottom: 1px solid #dde4e0;
+     padding: 0 28px;
+     display: flex;
+     align-items: center;
+     justify-content: space-between;
++    gap: 16px;
++    flex-shrink: 0;
+ }
+ 
+ .search-box {
+-    width: 490px;
+-    height: 40px;
+-    background: #f1f5f3;
+-    border: 1px solid #dfe7e4;
++    width: 340px;
++    height: 38px;
++    background: #f4f8f6;
++    border: 1px solid #dde4e0;
+     border-radius: 999px;
+     display: flex;
+     align-items: center;
+     padding: 0 16px;
+-    gap: 12px;
++    gap: 10px;
+ }
+ 
+ .search-box i {
+-    color: #7b8b87;
++    color: #8aaa9e;
++    font-size: 14px;
+ }
+ 
+ .search-box input {
+@@ -132,216 +194,332 @@
+     background: transparent;
+     width: 100%;
+     font-size: 14px;
++    font-family: 'Inter', sans-serif;
++    color: #0f172a;
++}
++
++.search-box input::placeholder {
++    color: #9ab5ac;
+ }
+ 
+ .user-area {
+     display: flex;
+     align-items: center;
+-    gap: 18px;
++    gap: 14px;
+ }
+ 
+-.notification-btn {
+-    width: 42px;
+-    height: 42px;
+-    border: 1px solid #dfe7e4;
++.icon-btn {
++    width: 38px;
++    height: 38px;
++    border: 1px solid #dde4e0;
+     border-radius: 50%;
+-    background: white;
+-    position: relative;
++    background: #fff;
+     cursor: pointer;
+-}
+-
+-.notification-btn i {
++    position: relative;
++    display: inline-flex;
++    align-items: center;
++    justify-content: center;
++    font-size: 15px;
+     color: #064b38;
++    transition: background 0.15s;
++}
++
++.icon-btn:hover {
++    background: #f2f7f5;
+ }
+ 
+-.dot {
++.notif-dot {
+     width: 8px;
+     height: 8px;
+     background: #ef4444;
+     border-radius: 50%;
+     position: absolute;
+-    right: 10px;
+-    top: 8px;
++    top: 7px;
++    right: 8px;
+ }
+ 
+-.divider {
++.topbar-divider {
+     width: 1px;
+-    height: 36px;
+-    background: #dfe7e4;
++    height: 30px;
++    background: #dde4e0;
++}
++
++.admin-info {
++    display: flex;
++    flex-direction: column;
++    align-items: flex-end;
+ }
+ 
+-.user-info h4 {
+-    font-size: 14px;
+-    font-weight: 800;
++.admin-name {
++    font-size: 13px;
++    font-weight: 700;
++    color: #0f172a;
+ }
+ 
+-.user-info p {
+-    margin-top: 2px;
+-    font-size: 12px;
+-    color: #64748b;
++.admin-role {
++    font-size: 11px;
++    color: #6b8277;
+ }
+ 
+ .avatar {
+-    width: 42px;
+-    height: 42px;
++    width: 38px;
++    height: 38px;
+     border-radius: 50%;
+     object-fit: cover;
+ }
+ 
++/* ── CONTENT SECTION ── */
+ .content {
+-    padding: 28px;
++    flex: 1;
++    padding: 26px 28px;
+ }
+ 
+ .alert-error {
+-    margin-bottom: 16px;
++    margin-bottom: 18px;
+     padding: 12px 16px;
+     border-radius: 10px;
+     background: #fee2e2;
+     color: #991b1b;
+-    font-weight: 700;
++    font-weight: 600;
++    font-size: 14px;
++}
++
++/* ── STAT CARDS ── */
++.stat-row {
++    display: grid;
++    grid-template-columns: repeat(3, 1fr);
++    gap: 16px;
++    margin-bottom: 20px;
++}
++
++.stat-card {
++    background: #fff;
++    border: 1px solid #dde4e0;
++    border-radius: 14px;
++    padding: 18px 20px;
++    display: flex;
++    align-items: center;
++    gap: 16px;
++    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
++    transition: box-shadow 0.2s;
+ }
+ 
+-.page-header {
++.stat-card:hover {
++    box-shadow: 0 4px 16px rgba(6,75,56,0.10);
++}
++
++.stat-icon {
++    width: 48px;
++    height: 48px;
++    border-radius: 12px;
+     display: flex;
+-    justify-content: space-between;
+-    align-items: flex-start;
+-    margin-bottom: 24px;
++    align-items: center;
++    justify-content: center;
++    font-size: 20px;
++    flex-shrink: 0;
+ }
+ 
+-.page-header h2 {
+-    color: #064b38;
+-    font-size: 30px;
++.stat-icon--teal  { background: #ccf0e3; color: #064b38; }
++.stat-icon--green { background: #d1fae5; color: #065f46; }
++.stat-icon--gray  { background: #f1f5f9; color: #475569; }
++
++.stat-label {
++    font-size: 12px;
++    color: #6b8277;
++    font-weight: 500;
++    margin-bottom: 4px;
++}
++
++.stat-value {
++    font-size: 26px;
+     font-weight: 800;
+-    margin-bottom: 8px;
++    color: #0f172a;
++    line-height: 1;
+ }
+ 
+-.page-header p {
+-    color: #64748b;
+-    line-height: 1.5;
++/* ── ACTION BAR ── */
++.action-bar {
++    display: flex;
++    justify-content: flex-end;
++    margin-bottom: 18px;
+ }
+ 
+-.btn {
++.btn-add {
+     height: 40px;
+-    padding: 0 18px;
+-    border-radius: 8px;
++    padding: 0 20px;
+     border: none;
++    border-radius: 10px;
+     background: #064b38;
+-    color: white;
+-    font-weight: 800;
++    color: #fff;
++    font-size: 14px;
++    font-weight: 700;
++    cursor: pointer;
+     display: inline-flex;
+     align-items: center;
+-    gap: 10px;
+-    cursor: pointer;
++    gap: 8px;
++    transition: background 0.15s, box-shadow 0.15s;
++}
++
++.btn-add:hover {
++    background: #053c2d;
++    box-shadow: 0 4px 14px rgba(6,75,56,0.28);
++}
++
++/* ── TABLE CARD ── */
++.table-card {
++    background: #fff;
++    border: 1px solid #dde4e0;
++    border-radius: 16px;
++    box-shadow: 0 1px 6px rgba(0,0,0,0.04);
++    overflow: hidden;
+ }
+ 
+-.tabs {
++/* toolbar: tabs + search */
++.table-toolbar {
++    padding: 16px 22px;
++    display: flex;
++    align-items: center;
++    justify-content: space-between;
++    gap: 16px;
++    border-bottom: 1px solid #eaf0ed;
++}
++
++.tab-group {
+     display: flex;
+-    gap: 22px;
+-    margin-bottom: 22px;
+-    border-bottom: 1px solid #dfe7e4;
++    gap: 4px;
+ }
+ 
+ .tab {
++    height: 34px;
++    padding: 0 16px;
+     border: none;
++    border-radius: 8px;
+     background: transparent;
+-    padding: 0 0 14px;
+-    font-size: 15px;
++    color: #4a6860;
++    font-size: 14px;
++    font-weight: 600;
+     cursor: pointer;
+-    color: #334155;
++    transition: background 0.15s, color 0.15s;
++}
++
++.tab:hover {
++    background: #f0f6f3;
+ }
+ 
+ .tab.active {
+-    color: #064b38;
+-    font-weight: 800;
+-    border-bottom: 3px solid #064b38;
+-}
+-
+-.card {
+-    background: white;
+-    border: 1px solid #dfe7e4;
+-    border-radius: 12px;
+-    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+-    overflow: hidden;
++    background: #064b38;
++    color: #fff;
+ }
+ 
+-.card-header {
+-    height: 72px;
+-    padding: 0 22px;
+-    border-bottom: 1px solid #e5ece9;
++.table-search-box {
++    height: 36px;
++    min-width: 260px;
++    background: #f4f8f6;
++    border: 1px solid #dde4e0;
++    border-radius: 999px;
++    padding: 0 14px;
+     display: flex;
+     align-items: center;
+-    justify-content: space-between;
++    gap: 8px;
++}
++
++.table-search-box i {
++    color: #8aaa9e;
++    font-size: 13px;
++    flex-shrink: 0;
+ }
+ 
+-.card-header h3 {
+-    font-size: 20px;
+-    font-weight: 800;
++.table-search-box input {
++    border: none;
++    outline: none;
++    background: transparent;
++    width: 100%;
++    font-size: 13px;
++    font-family: 'Inter', sans-serif;
++    color: #0f172a;
+ }
+ 
+-.filter-btn {
+-    width: 38px;
+-    height: 38px;
+-    border: 1px solid #dfe7e4;
+-    border-radius: 50%;
+-    background: white;
+-    cursor: pointer;
++.table-search-box input::placeholder {
++    color: #9ab5ac;
+ }
+ 
+-.test-table {
++/* ── Data table ── */
++.data-table {
+     width: 100%;
+     border-collapse: collapse;
+ }
+ 
+-.test-table thead {
+-    background: #fbfdfc;
++.data-table thead {
++    background: #f9fbfa;
+ }
+ 
+-.test-table th {
++.data-table th {
+     text-align: left;
+-    padding: 14px 22px;
+-    font-size: 12px;
+-    color: #78908a;
+-    text-transform: uppercase;
++    padding: 12px 22px;
++    font-size: 11px;
++    font-weight: 700;
++    letter-spacing: 0.07em;
++    color: #8aaa9e;
++    white-space: nowrap;
+ }
+ 
+-.test-table td {
+-    padding: 16px 22px;
+-    border-top: 1px solid #e5ece9;
++.data-table td {
++    padding: 15px 22px;
++    border-top: 1px solid #eef2f0;
+     font-size: 14px;
+     vertical-align: middle;
+ }
+ 
++.data-row:hover td {
++    background: #f7faf8;
++}
++
++.col-center { text-align: center; }
++
++/* test info cell */
+ .test-info {
+     display: flex;
+     align-items: center;
+-    gap: 14px;
++    gap: 12px;
+ }
+ 
+ .test-icon {
+-    width: 42px;
+-    height: 42px;
+-    background: #d9f8ea;
+-    color: #064b38;
++    width: 38px;
++    height: 38px;
++    background: #d1fae5;
++    color: #065f46;
+     border-radius: 10px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
++    font-size: 15px;
++    flex-shrink: 0;
+ }
+ 
+-.actions-column {
+-    text-align: center;
++/* badges */
++.badge {
++    display: inline-flex;
++    align-items: center;
++    justify-content: center;
++    height: 26px;
++    padding: 0 12px;
++    border-radius: 999px;
++    font-size: 12px;
++    font-weight: 700;
+ }
+ 
++.badge--active   { background: #d1fae5; color: #065f46; }
++.badge--inactive { background: #fee2e2; color: #991b1b; }
++
++/* action buttons */
+ .row-actions {
+     display: flex;
+     justify-content: center;
+     align-items: center;
+-    gap: 14px;
++    gap: 8px;
+ }
+ 
+-.row-actions form {
+-    display: inline-flex;
+-}
++.inline-form { display: inline-flex; }
+ 
+ .action-btn {
+     width: 34px;
+@@ -350,114 +528,127 @@
+     border-radius: 8px;
+     background: transparent;
+     cursor: pointer;
+-    font-size: 16px;
+-    display: inline-flex;
+-    align-items: center;
+-    justify-content: center;
+-}
+-
+-.action-btn:hover {
+-    background: #eef7f3;
+-}
+-
+-.view-btn {
+-    color: #064b38;
+-}
+-
+-.edit-btn {
+-    color: #047857;
+-}
+-
+-.lock-btn {
+-    color: #d97706;
+-}
+-
+-.status-badge {
+-    min-width: 82px;
+-    height: 28px;
+-    border-radius: 999px;
+-    font-size: 13px;
+-    font-weight: 800;
++    font-size: 15px;
+     display: inline-flex;
+     align-items: center;
+     justify-content: center;
++    transition: background 0.15s;
+ }
+ 
+-.status-badge.active {
+-    background: #dcfce7;
+-    color: #166534;
+-}
++.btn-view  { background: #e0f2fe; color: #0369a1; }
++.btn-edit  { background: #fef3c7; color: #d97706; }
++.btn-lock  { background: #fee2e2; color: #dc2626; }
+ 
+-.status-badge.inactive {
+-    background: #fee2e2;
+-    color: #991b1b;
+-}
++.btn-view:hover  { background: #bae6fd; }
++.btn-edit:hover  { background: #fde68a; }
++.btn-lock:hover  { background: #fecaca; }
+ 
++/* empty row */
+ .empty-row {
+     text-align: center;
+-    color: #64748b;
+-    padding: 32px;
++    padding: 40px;
++    color: #8aaa9e;
++    font-size: 14px;
+ }
+ 
+-.pagination-wrapper {
+-    padding: 18px 22px;
+-    border-top: 1px solid #e5ece9;
++/* ── Pagination ── */
++.pagination-bar {
++    padding: 14px 22px;
++    border-top: 1px solid #eef2f0;
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+ }
+ 
+ .pagination-info {
+-    color: #64748b;
+-    font-size: 14px;
++    font-size: 13px;
++    color: #8aaa9e;
+ }
+ 
+-.pagination-buttons {
++.pagination-btns {
+     display: flex;
+     align-items: center;
+-    gap: 8px;
++    gap: 6px;
+ }
+ 
+ #pageNumbers {
+     display: flex;
+-    align-items: center;
+-    gap: 8px;
++    gap: 6px;
+ }
+ 
+-.pagination-buttons button,
++.pagination-btns button,
+ .page-number {
+-    min-width: 36px;
+-    height: 36px;
+-    border: 1px solid #d1d5db;
+-    background: white;
++    height: 34px;
++    padding: 0 14px;
++    border: 1px solid #dde4e0;
++    background: #fff;
+     border-radius: 8px;
++    font-size: 13px;
++    font-weight: 600;
+     cursor: pointer;
+-    font-weight: 700;
+-    padding: 0 10px;
++    color: #0f172a;
++    transition: background 0.15s;
++}
++
++.pagination-btns button:hover,
++.page-number:hover {
++    background: #f2f7f5;
+ }
+ 
+ .page-number.active {
+     background: #064b38;
+-    color: white;
++    color: #fff;
+     border-color: #064b38;
+ }
+ 
+-.pagination-buttons button:disabled {
+-    opacity: 0.4;
++.pagination-btns button:disabled {
++    opacity: 0.38;
+     cursor: not-allowed;
+ }
+ 
++/* ── FOOTER ── */
++.site-footer {
++    background: #fff;
++    border-top: 1px solid #dde4e0;
++    padding: 14px 28px;
++    display: flex;
++    justify-content: space-between;
++    align-items: center;
++    font-size: 13px;
++    color: #8aaa9e;
++    flex-shrink: 0;
++}
++
++.footer-links {
++    display: flex;
++    gap: 18px;
++}
++
++.footer-links a {
++    color: #6b8277;
++    text-decoration: none;
++    font-weight: 500;
++    transition: color 0.15s;
++}
++
++.footer-links a:hover {
++    color: #064b38;
++}
++
++/* ════════════════════════════════════════
++   MODALS
++════════════════════════════════════════ */
+ .modal-overlay {
+     position: fixed;
+     inset: 0;
+-    background: rgba(15, 23, 42, 0.45);
++    background: rgba(10,20,15,0.46);
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     opacity: 0;
+     visibility: hidden;
+-    transition: 0.25s ease;
+-    z-index: 999;
++    transition: opacity 0.22s ease, visibility 0.22s ease;
++    z-index: 1000;
+ }
+ 
+ .modal-overlay.show {
+@@ -468,12 +659,12 @@
+ .modal-box {
+     width: 560px;
+     max-width: 92vw;
+-    background: white;
++    background: #fff;
+     border-radius: 16px;
+-    transform: translateY(32px) scale(0.94);
+-    transition: 0.25s ease;
+-    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.25);
++    box-shadow: 0 20px 60px rgba(10,20,15,0.22);
+     overflow: hidden;
++    transform: translateY(28px) scale(0.95);
++    transition: transform 0.22s ease;
+ }
+ 
+ .large-modal-box,
+@@ -486,31 +677,41 @@
+ }
+ 
+ .modal-header {
+-    padding: 20px 24px;
+-    border-bottom: 1px solid #e5ece9;
++    padding: 20px 26px;
++    border-bottom: 1px solid #eef2f0;
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+ }
+ 
+ .modal-header h2 {
+-    color: #064b38;
+-    font-size: 22px;
++    font-size: 20px;
+     font-weight: 800;
++    color: #064b38;
+ }
+ 
+ .modal-close {
++    width: 34px;
++    height: 34px;
+     border: none;
+-    background: #f1f5f3;
++    background: #f2f7f5;
+     border-radius: 8px;
+-    width: 36px;
+-    height: 36px;
+     cursor: pointer;
++    font-size: 16px;
++    color: #4a6860;
++    display: flex;
++    align-items: center;
++    justify-content: center;
++    transition: background 0.15s;
++}
++
++.modal-close:hover {
++    background: #e2ece8;
+ }
+ 
+ .modal-form {
+-    padding: 24px;
+-    max-height: 75vh;
++    padding: 22px 26px;
++    max-height: 74vh;
+     overflow-y: auto;
+ }
+ 
+@@ -521,117 +722,155 @@
+ .form-group label,
+ .detail-item label {
+     display: block;
+-    font-weight: 700;
+-    margin-bottom: 8px;
+-    font-size: 14px;
+-    color: #64748b;
++    font-size: 13px;
++    font-weight: 600;
++    color: #4a6860;
++    margin-bottom: 6px;
+ }
+ 
+ .form-group input,
+ .form-group textarea,
+ .form-group select {
+     width: 100%;
+-    border: 1px solid #d1d5db;
++    border: 1px solid #ccd8d3;
+     border-radius: 10px;
+-    padding: 12px 14px;
++    padding: 10px 14px;
+     outline: none;
+     font-size: 14px;
+     font-family: 'Inter', sans-serif;
+-    background: white;
++    background: #fff;
++    color: #0f172a;
++    transition: border-color 0.15s, box-shadow 0.15s;
++}
++
++.form-group input:focus,
++.form-group textarea:focus,
++.form-group select:focus {
++    border-color: #064b38;
++    box-shadow: 0 0 0 3px rgba(6,75,56,0.10);
++}
++
++.form-group input:disabled {
++    background: #f4f8f6;
++    color: #8aaa9e;
+ }
+ 
+-.form-row,
+-.detail-row {
++.form-row {
+     display: grid;
+     grid-template-columns: repeat(3, 1fr);
+     gap: 14px;
+ }
+ 
+-.two-col {
+-    grid-template-columns: repeat(2, 1fr);
+-}
+-
+-.modal-actions {
+-    padding-top: 6px;
+-    display: flex;
+-    justify-content: flex-end;
+-    gap: 12px;
+-}
+-
+-.btn-cancel,
+-.btn-save {
+-    height: 40px;
+-    padding: 0 18px;
+-    border-radius: 8px;
+-    font-weight: 800;
+-    cursor: pointer;
+-}
+-
+-.btn-cancel {
+-    background: white;
+-    border: 1px solid #d1d5db;
+-}
++.two-col { grid-template-columns: 1fr 1fr; }
+ 
+-.btn-save {
+-    border: none;
+-    background: #064b38;
+-    color: white;
+-}
+-
+-.threshold-input-section {
+-    margin-bottom: 16px;
+-}
++/* threshold */
++.threshold-input-section { margin-bottom: 16px; }
+ 
+ .section-label {
+     display: block;
+-    font-weight: 800;
+-    margin-bottom: 12px;
++    font-size: 13px;
++    font-weight: 700;
+     color: #064b38;
++    margin-bottom: 12px;
+ }
+ 
+ .threshold-input-grid,
+ .threshold-grid {
+     display: grid;
+-    grid-template-columns: repeat(2, 1fr);
+-    gap: 14px;
++    grid-template-columns: 1fr 1fr;
++    gap: 12px;
+ }
+ 
+ .threshold-input-card,
+ .threshold-card {
+-    border: 1px solid #dfe7e4;
+-    background: #f8fafc;
++    border: 1px solid #dde4e0;
++    background: #f9fbfa;
+     border-radius: 12px;
+     padding: 14px;
+ }
+ 
+ .threshold-input-card h4,
+ .threshold-card h4 {
++    font-size: 13px;
++    font-weight: 700;
+     color: #064b38;
+-    margin-bottom: 8px;
+-    font-size: 15px;
++    margin-bottom: 10px;
++}
++
++.threshold-card p {
++    font-size: 13px;
++    color: #334155;
++    margin-bottom: 4px;
++}
++
++/* modal actions */
++.modal-actions {
++    padding-top: 8px;
++    display: flex;
++    justify-content: flex-end;
++    gap: 10px;
++}
++
++.btn-cancel {
++    height: 38px;
++    padding: 0 18px;
++    border: 1px solid #ccd8d3;
++    border-radius: 9px;
++    background: #fff;
++    font-size: 14px;
++    font-weight: 600;
++    color: #4a6860;
++    cursor: pointer;
++    transition: background 0.15s;
+ }
+ 
++.btn-cancel:hover { background: #f2f7f5; }
++
++.btn-save {
++    height: 38px;
++    padding: 0 22px;
++    border: none;
++    border-radius: 9px;
++    background: #064b38;
++    color: #fff;
++    font-size: 14px;
++    font-weight: 700;
++    cursor: pointer;
++    transition: background 0.15s;
++}
++
++.btn-save:hover { background: #053c2d; }
++
++/* detail modal */
+ .detail-container {
+-    padding: 24px;
+-    max-height: 75vh;
++    padding: 22px 26px;
++    max-height: 74vh;
+     overflow-y: auto;
+ }
+ 
++.detail-row {
++    display: grid;
++    grid-template-columns: repeat(3, 1fr);
++    gap: 14px;
++    margin-bottom: 18px;
++}
++
+ .detail-item {
+     margin-bottom: 18px;
+ }
+ 
+ .detail-item p {
+     font-size: 15px;
+-    color: #0f172a;
+     font-weight: 600;
++    color: #0f172a;
+ }
+ 
+ .description-box {
+-    background: #f8fafc;
+-    border: 1px solid #dfe7e4;
+-    border-radius: 12px;
+-    padding: 16px;
++    background: #f4f8f6;
++    border: 1px solid #dde4e0;
++    border-radius: 10px;
++    padding: 14px 16px;
++    font-size: 14px;
+     line-height: 1.7;
+     color: #334155;
+ }
+\ No newline at end of file
+Index: diabetes/src/main/resources/static/js/lab-tests.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>document.addEventListener('DOMContentLoaded', function () {\r\n    initCreateModal();\r\n    initEditModal();\r\n    initViewDetailModal();\r\n    initTableSearch();\r\n    initPagination();\r\n    initValidation();\r\n});\r\n\r\nlet currentPage = 1;\r\nconst rowsPerPage = 8;\r\n\r\nfunction openModal(modal) {\r\n    modal.classList.add('show');\r\n    document.body.style.overflow = 'hidden';\r\n}\r\n\r\nfunction closeModal(modal) {\r\n    modal.classList.remove('show');\r\n    document.body.style.overflow = '';\r\n}\r\n\r\nfunction saveThreshold(testId, data) {\r\n    localStorage.setItem('threshold_' + testId, JSON.stringify(data));\r\n}\r\n\r\nfunction getThreshold(testId) {\r\n    const data = localStorage.getItem('threshold_' + testId);\r\n    return data ? JSON.parse(data) : null;\r\n}\r\n\r\nfunction buildThresholdData(prefix) {\r\n    return {\r\n        young: {\r\n            min: document.getElementById(prefix + 'YoungMin').value,\r\n            max: document.getElementById(prefix + 'YoungMax').value\r\n        },\r\n        middle: {\r\n            min: document.getElementById(prefix + 'MiddleMin').value,\r\n            max: document.getElementById(prefix + 'MiddleMax').value\r\n        },\r\n        elder: {\r\n            min: document.getElementById(prefix + 'ElderMin').value,\r\n            max: document.getElementById(prefix + 'ElderMax').value\r\n        },\r\n        pregnant: {\r\n            min: document.getElementById(prefix + 'PregnantMin').value,\r\n            max: document.getElementById(prefix + 'PregnantMax').value\r\n        }\r\n    };\r\n}\r\n\r\nfunction fillThresholdInputs(prefix, data, fallbackMin, fallbackMax) {\r\n    document.getElementById(prefix + 'YoungMin').value = data?.young?.min ?? fallbackMin;\r\n    document.getElementById(prefix + 'YoungMax').value = data?.young?.max ?? fallbackMax;\r\n\r\n    document.getElementById(prefix + 'MiddleMin').value = data?.middle?.min ?? fallbackMin;\r\n    document.getElementById(prefix + 'MiddleMax').value = data?.middle?.max ?? fallbackMax;\r\n\r\n    document.getElementById(prefix + 'ElderMin').value = data?.elder?.min ?? fallbackMin;\r\n    document.getElementById(prefix + 'ElderMax').value = data?.elder?.max ?? fallbackMax;\r\n\r\n    document.getElementById(prefix + 'PregnantMin').value = data?.pregnant?.min ?? fallbackMin;\r\n    document.getElementById(prefix + 'PregnantMax').value = data?.pregnant?.max ?? fallbackMax;\r\n}\r\n\r\nfunction validateThresholdData(data) {\r\n    const groups = ['young', 'middle', 'elder', 'pregnant'];\r\n\r\n    for (const group of groups) {\r\n        const min = Number(data[group].min);\r\n        const max = Number(data[group].max);\r\n\r\n        if (data[group].min === '' || data[group].max === '') {\r\n            alert('Vui lòng nhập đầy đủ Min/Max cho tất cả nhóm bệnh nhân');\r\n            return false;\r\n        }\r\n\r\n        if (min < 0 || max < 0) {\r\n            alert('Min/Max không được nhỏ hơn 0');\r\n            return false;\r\n        }\r\n\r\n        if (min > max) {\r\n            alert('Min không được lớn hơn Max trong từng nhóm bệnh nhân');\r\n            return false;\r\n        }\r\n    }\r\n\r\n    return true;\r\n}\r\n\r\nfunction validateBaseForm(form) {\r\n    const testName = form.querySelector('[name=\"testName\"]');\r\n    const unit = form.querySelector('[name=\"unit\"]');\r\n    const roomId = form.querySelector('[name=\"roomId\"]');\r\n\r\n    if (!testName || testName.value.trim() === '') {\r\n        alert('Vui lòng nhập Test Name');\r\n        return false;\r\n    }\r\n\r\n    if (testName.value.trim().length > 100) {\r\n        alert('Test Name tối đa 100 ký tự');\r\n        return false;\r\n    }\r\n\r\n    if (!unit || unit.value.trim() === '') {\r\n        alert('Vui lòng nhập Unit');\r\n        return false;\r\n    }\r\n\r\n    if (unit.value.trim().length > 20) {\r\n        alert('Unit tối đa 20 ký tự');\r\n        return false;\r\n    }\r\n\r\n    if (!roomId || roomId.value === '') {\r\n        alert('Vui lòng chọn phòng xét nghiệm');\r\n        return false;\r\n    }\r\n\r\n    return true;\r\n}\r\n\r\nfunction initCreateModal() {\r\n    const openBtn = document.getElementById('btnDefineTest');\r\n    const modal = document.getElementById('defineTestModal');\r\n    const closeBtn = document.getElementById('btnCloseModal');\r\n    const cancelBtn = document.getElementById('btnCancelModal');\r\n\r\n    if (!openBtn || !modal) {\r\n        return;\r\n    }\r\n\r\n    openBtn.addEventListener('click', function () {\r\n        document.getElementById('createTestForm').reset();\r\n        openModal(modal);\r\n    });\r\n\r\n    closeBtn?.addEventListener('click', function () {\r\n        closeModal(modal);\r\n    });\r\n\r\n    cancelBtn?.addEventListener('click', function () {\r\n        closeModal(modal);\r\n    });\r\n\r\n    modal.addEventListener('click', function (event) {\r\n        if (event.target === modal) {\r\n            closeModal(modal);\r\n        }\r\n    });\r\n}\r\n\r\nfunction initEditModal() {\r\n    const modal = document.getElementById('editTestModal');\r\n    const form = document.getElementById('editTestForm');\r\n    const closeBtn = document.getElementById('btnCloseEditModal');\r\n    const cancelBtn = document.getElementById('btnCancelEditModal');\r\n\r\n    if (!modal || !form) {\r\n        return;\r\n    }\r\n\r\n    document.querySelectorAll('.edit-btn').forEach(function (button) {\r\n        button.addEventListener('click', function () {\r\n            const id = button.dataset.id;\r\n            const oldThreshold = getThreshold(id);\r\n\r\n            document.getElementById('editLabTestId').value = id || '';\r\n            document.getElementById('editTestName').value = button.dataset.name || '';\r\n            document.getElementById('editUnit').value = button.dataset.unit || '';\r\n            document.getElementById('editRoomId').value = button.dataset.room || '';\r\n            document.getElementById('editDescription').value = button.dataset.description || '';\r\n\r\n            fillThresholdInputs(\r\n                'edit',\r\n                oldThreshold,\r\n                button.dataset.min || 0,\r\n                button.dataset.max || 0\r\n            );\r\n\r\n            form.action = '/admin/lab-tests/update/' + id;\r\n\r\n            openModal(modal);\r\n        });\r\n    });\r\n\r\n    closeBtn?.addEventListener('click', function () {\r\n        closeModal(modal);\r\n    });\r\n\r\n    cancelBtn?.addEventListener('click', function () {\r\n        closeModal(modal);\r\n    });\r\n\r\n    modal.addEventListener('click', function (event) {\r\n        if (event.target === modal) {\r\n            closeModal(modal);\r\n        }\r\n    });\r\n}\r\n\r\nfunction initValidation() {\r\n    const createForm = document.getElementById('createTestForm');\r\n    const editForm = document.getElementById('editTestForm');\r\n\r\n    if (createForm) {\r\n        createForm.addEventListener('submit', function (event) {\r\n            const data = buildThresholdData('create');\r\n\r\n            if (!validateBaseForm(createForm) || !validateThresholdData(data)) {\r\n                event.preventDefault();\r\n                return;\r\n            }\r\n\r\n            document.getElementById('createMainMinValue').value = data.young.min;\r\n            document.getElementById('createMainMaxValue').value = data.young.max;\r\n\r\n            localStorage.setItem('pending_create_threshold', JSON.stringify(data));\r\n        });\r\n    }\r\n\r\n    if (editForm) {\r\n        editForm.addEventListener('submit', function (event) {\r\n            const data = buildThresholdData('edit');\r\n            const id = document.getElementById('editLabTestId').value;\r\n\r\n            if (!validateBaseForm(editForm) || !validateThresholdData(data)) {\r\n                event.preventDefault();\r\n                return;\r\n            }\r\n\r\n            document.getElementById('editMainMinValue').value = data.young.min;\r\n            document.getElementById('editMainMaxValue').value = data.young.max;\r\n\r\n            saveThreshold(id, data);\r\n        });\r\n    }\r\n}\r\n\r\nfunction initViewDetailModal() {\r\n    const modal = document.getElementById('viewDetailModal');\r\n    const closeBtn = document.getElementById('btnCloseViewModal');\r\n\r\n    if (!modal) {\r\n        return;\r\n    }\r\n\r\n    document.querySelectorAll('.view-btn').forEach(function (button) {\r\n        button.addEventListener('click', function () {\r\n            const id = button.dataset.id;\r\n            const statusText = button.dataset.status === 'true' ? 'Active' : 'Inactive';\r\n\r\n            let data = getThreshold(id);\r\n\r\n            if (!data) {\r\n                data = {\r\n                    young: {\r\n                        min: button.dataset.min || 0,\r\n                        max: button.dataset.max || 0\r\n                    },\r\n                    middle: {\r\n                        min: button.dataset.min || 0,\r\n                        max: button.dataset.max || 0\r\n                    },\r\n                    elder: {\r\n                        min: button.dataset.min || 0,\r\n                        max: button.dataset.max || 0\r\n                    },\r\n                    pregnant: {\r\n                        min: button.dataset.min || 0,\r\n                        max: button.dataset.max || 0\r\n                    }\r\n                };\r\n            }\r\n\r\n            document.getElementById('detailId').innerText = id || '---';\r\n            document.getElementById('detailName').innerText = button.dataset.name || '---';\r\n            document.getElementById('detailUnit').innerText = button.dataset.unit || '---';\r\n            document.getElementById('detailRoom').innerText = button.dataset.room || '---';\r\n            document.getElementById('detailStatus').innerText = statusText;\r\n            document.getElementById('detailDescription').innerText =\r\n                button.dataset.description || '---';\r\n\r\n            document.getElementById('youngMin').innerText = data.young.min;\r\n            document.getElementById('youngMax').innerText = data.young.max;\r\n\r\n            document.getElementById('middleMin').innerText = data.middle.min;\r\n            document.getElementById('middleMax').innerText = data.middle.max;\r\n\r\n            document.getElementById('elderMin').innerText = data.elder.min;\r\n            document.getElementById('elderMax').innerText = data.elder.max;\r\n\r\n            document.getElementById('pregnantMin').innerText = data.pregnant.min;\r\n            document.getElementById('pregnantMax').innerText = data.pregnant.max;\r\n\r\n            openModal(modal);\r\n        });\r\n    });\r\n\r\n    closeBtn?.addEventListener('click', function () {\r\n        closeModal(modal);\r\n    });\r\n\r\n    modal.addEventListener('click', function (event) {\r\n        if (event.target === modal) {\r\n            closeModal(modal);\r\n        }\r\n    });\r\n}\r\n\r\nfunction initTableSearch() {\r\n    const searchInput = document.getElementById('tableSearch');\r\n    const rows = document.querySelectorAll('#labTestTableBody tr');\r\n\r\n    if (!searchInput) {\r\n        return;\r\n    }\r\n\r\n    searchInput.addEventListener('input', function () {\r\n        const keyword = searchInput.value.toLowerCase().trim();\r\n\r\n        rows.forEach(function (row) {\r\n            const rowText = row.innerText.toLowerCase();\r\n\r\n            row.dataset.filtered = rowText.includes(keyword)\r\n                ? 'visible'\r\n                : 'hidden';\r\n        });\r\n\r\n        currentPage = 1;\r\n        renderPagination();\r\n    });\r\n}\r\n\r\nfunction initPagination() {\r\n    const rows = document.querySelectorAll('#labTestTableBody tr');\r\n\r\n    rows.forEach(function (row) {\r\n        row.dataset.filtered = 'visible';\r\n    });\r\n\r\n    currentPage = 1;\r\n    renderPagination();\r\n}\r\n\r\nfunction renderPagination() {\r\n    const allRows = Array.from(document.querySelectorAll('#labTestTableBody tr'));\r\n    const visibleRows = allRows.filter(function (row) {\r\n        return row.dataset.filtered !== 'hidden';\r\n    });\r\n\r\n    const totalItems = visibleRows.length;\r\n    const totalPages = Math.ceil(totalItems / rowsPerPage);\r\n\r\n    if (currentPage > totalPages) {\r\n        currentPage = totalPages || 1;\r\n    }\r\n\r\n    allRows.forEach(function (row) {\r\n        row.style.display = 'none';\r\n    });\r\n\r\n    visibleRows.forEach(function (row, index) {\r\n        const start = (currentPage - 1) * rowsPerPage;\r\n        const end = currentPage * rowsPerPage;\r\n\r\n        if (index >= start && index < end) {\r\n            row.style.display = '';\r\n        }\r\n    });\r\n\r\n    renderPageButtons(totalPages, totalItems);\r\n}\r\n\r\nfunction renderPageButtons(totalPages, totalItems) {\r\n    const pageNumbers = document.getElementById('pageNumbers');\r\n    const paginationInfo = document.getElementById('paginationInfo');\r\n    const prevBtn = document.getElementById('prevPageBtn');\r\n    const nextBtn = document.getElementById('nextPageBtn');\r\n\r\n    if (!pageNumbers || !paginationInfo || !prevBtn || !nextBtn) {\r\n        return;\r\n    }\r\n\r\n    pageNumbers.innerHTML = '';\r\n\r\n    const startItem = totalItems === 0 ? 0 : (currentPage - 1) * rowsPerPage + 1;\r\n    const endItem = Math.min(currentPage * rowsPerPage, totalItems);\r\n\r\n    paginationInfo.textContent =\r\n        'Hiển thị ' + startItem + ' - ' + endItem + ' / ' + totalItems + ' xét nghiệm';\r\n\r\n    prevBtn.disabled = currentPage <= 1;\r\n    nextBtn.disabled = currentPage >= totalPages || totalPages === 0;\r\n\r\n    for (let i = 1; i <= totalPages; i++) {\r\n        const button = document.createElement('button');\r\n\r\n        button.type = 'button';\r\n        button.className = 'page-number';\r\n        button.textContent = i;\r\n\r\n        if (i === currentPage) {\r\n            button.classList.add('active');\r\n        }\r\n\r\n        button.addEventListener('click', function () {\r\n            currentPage = i;\r\n            renderPagination();\r\n        });\r\n\r\n        pageNumbers.appendChild(button);\r\n    }\r\n\r\n    prevBtn.onclick = function () {\r\n        if (currentPage > 1) {\r\n            currentPage--;\r\n            renderPagination();\r\n        }\r\n    };\r\n\r\n    nextBtn.onclick = function () {\r\n        if (currentPage < totalPages) {\r\n            currentPage++;\r\n            renderPagination();\r\n        }\r\n    };\r\n}
+===================================================================
+diff --git a/diabetes/src/main/resources/static/js/lab-tests.js b/diabetes/src/main/resources/static/js/lab-tests.js
+--- a/diabetes/src/main/resources/static/js/lab-tests.js	(revision c4dd63b06a24f1cb0d87b1e3d81ac0c7751cad25)
++++ b/diabetes/src/main/resources/static/js/lab-tests.js	(date 1782047568927)
+@@ -1,15 +1,29 @@
++'use strict';
++
++/* ─────────────────────────────────────────────
++   State
++───────────────────────────────────────────── */
++let currentPage  = 1;
++const PAGE_SIZE  = 8;
++let activeFilter = 'all'; // 'all' | 'active' | 'inactive'
++let searchKeyword = '';
++
++/* ─────────────────────────────────────────────
++   Bootstrap
++───────────────────────────────────────────── */
+ document.addEventListener('DOMContentLoaded', function () {
++    markAllRowsVisible();
++    initTabs();
++    initSearch();
+     initCreateModal();
+     initEditModal();
+-    initViewDetailModal();
+-    initTableSearch();
+-    initPagination();
+-    initValidation();
++    initViewModal();
++    renderPagination();
+ });
+ 
+-let currentPage = 1;
+-const rowsPerPage = 8;
+-
++/* ─────────────────────────────────────────────
++   Modal helpers
++───────────────────────────────────────────── */
+ function openModal(modal) {
+     modal.classList.add('show');
+     document.body.style.overflow = 'hidden';
+@@ -20,412 +34,402 @@
+     document.body.style.overflow = '';
+ }
+ 
++function addCloseHandlers(modal, ...closeTriggers) {
++    closeTriggers.forEach(function (el) {
++        if (el) el.addEventListener('click', function () { closeModal(modal); });
++    });
++    modal.addEventListener('click', function (e) {
++        if (e.target === modal) closeModal(modal);
++    });
++    document.addEventListener('keydown', function (e) {
++        if (e.key === 'Escape' && modal.classList.contains('show')) closeModal(modal);
++    });
++}
++
++/* ─────────────────────────────────────────────
++   LocalStorage threshold helpers
++───────────────────────────────────────────── */
+ function saveThreshold(testId, data) {
+     localStorage.setItem('threshold_' + testId, JSON.stringify(data));
+ }
+ 
+ function getThreshold(testId) {
+-    const data = localStorage.getItem('threshold_' + testId);
+-    return data ? JSON.parse(data) : null;
++    const raw = localStorage.getItem('threshold_' + testId);
++    return raw ? JSON.parse(raw) : null;
+ }
+ 
+ function buildThresholdData(prefix) {
+     return {
+-        young: {
+-            min: document.getElementById(prefix + 'YoungMin').value,
+-            max: document.getElementById(prefix + 'YoungMax').value
+-        },
+-        middle: {
+-            min: document.getElementById(prefix + 'MiddleMin').value,
+-            max: document.getElementById(prefix + 'MiddleMax').value
+-        },
+-        elder: {
+-            min: document.getElementById(prefix + 'ElderMin').value,
+-            max: document.getElementById(prefix + 'ElderMax').value
+-        },
+-        pregnant: {
+-            min: document.getElementById(prefix + 'PregnantMin').value,
+-            max: document.getElementById(prefix + 'PregnantMax').value
+-        }
++        young:    { min: val(prefix + 'YoungMin'),    max: val(prefix + 'YoungMax') },
++        middle:   { min: val(prefix + 'MiddleMin'),   max: val(prefix + 'MiddleMax') },
++        elder:    { min: val(prefix + 'ElderMin'),    max: val(prefix + 'ElderMax') },
++        pregnant: { min: val(prefix + 'PregnantMin'), max: val(prefix + 'PregnantMax') }
+     };
+ }
+ 
+ function fillThresholdInputs(prefix, data, fallbackMin, fallbackMax) {
+-    document.getElementById(prefix + 'YoungMin').value = data?.young?.min ?? fallbackMin;
+-    document.getElementById(prefix + 'YoungMax').value = data?.young?.max ?? fallbackMax;
++    const fb0 = fallbackMin ?? 0;
++    const fb1 = fallbackMax ?? 0;
++    setVal(prefix + 'YoungMin',    data?.young?.min    ?? fb0);
++    setVal(prefix + 'YoungMax',    data?.young?.max    ?? fb1);
++    setVal(prefix + 'MiddleMin',   data?.middle?.min   ?? fb0);
++    setVal(prefix + 'MiddleMax',   data?.middle?.max   ?? fb1);
++    setVal(prefix + 'ElderMin',    data?.elder?.min    ?? fb0);
++    setVal(prefix + 'ElderMax',    data?.elder?.max    ?? fb1);
++    setVal(prefix + 'PregnantMin', data?.pregnant?.min ?? fb0);
++    setVal(prefix + 'PregnantMax', data?.pregnant?.max ?? fb1);
++}
+ 
+-    document.getElementById(prefix + 'MiddleMin').value = data?.middle?.min ?? fallbackMin;
+-    document.getElementById(prefix + 'MiddleMax').value = data?.middle?.max ?? fallbackMax;
++function val(id)        { const el = document.getElementById(id); return el ? el.value : ''; }
++function setVal(id, v)  { const el = document.getElementById(id); if (el) el.value = v; }
++function setText(id, v) { const el = document.getElementById(id); if (el) el.textContent = v ?? '---'; }
+ 
+-    document.getElementById(prefix + 'ElderMin').value = data?.elder?.min ?? fallbackMin;
+-    document.getElementById(prefix + 'ElderMax').value = data?.elder?.max ?? fallbackMax;
++/* ─────────────────────────────────────────────
++   Validation
++───────────────────────────────────────────── */
++function validateBaseForm(form) {
++    const testName = form.querySelector('[name="testName"]');
++    const unit     = form.querySelector('[name="unit"]');
++    const roomId   = form.querySelector('[name="roomId"]');
+ 
+-    document.getElementById(prefix + 'PregnantMin').value = data?.pregnant?.min ?? fallbackMin;
+-    document.getElementById(prefix + 'PregnantMax').value = data?.pregnant?.max ?? fallbackMax;
++    if (!testName?.value.trim()) return showError('Vui lòng nhập Test Name');
++    if (testName.value.trim().length > 100) return showError('Test Name tối đa 100 ký tự');
++    if (!unit?.value.trim()) return showError('Vui lòng nhập Unit');
++    if (unit.value.trim().length > 20) return showError('Unit tối đa 20 ký tự');
++    if (!roomId?.value) return showError('Vui lòng chọn phòng xét nghiệm');
++    return true;
+ }
+ 
+ function validateThresholdData(data) {
+-    const groups = ['young', 'middle', 'elder', 'pregnant'];
+-
+-    for (const group of groups) {
++    for (const group of ['young', 'middle', 'elder', 'pregnant']) {
+         const min = Number(data[group].min);
+         const max = Number(data[group].max);
+-
+-        if (data[group].min === '' || data[group].max === '') {
+-            alert('Vui lòng nhập đầy đủ Min/Max cho tất cả nhóm bệnh nhân');
+-            return false;
+-        }
+-
+-        if (min < 0 || max < 0) {
+-            alert('Min/Max không được nhỏ hơn 0');
+-            return false;
+-        }
+-
+-        if (min > max) {
+-            alert('Min không được lớn hơn Max trong từng nhóm bệnh nhân');
+-            return false;
+-        }
++        if (data[group].min === '' || data[group].max === '') return showError('Vui lòng nhập đầy đủ Min/Max cho tất cả nhóm bệnh nhân');
++        if (min < 0 || max < 0) return showError('Min/Max không được nhỏ hơn 0');
++        if (min > max) return showError('Min không được lớn hơn Max');
+     }
+-
+     return true;
+ }
+ 
+-function validateBaseForm(form) {
+-    const testName = form.querySelector('[name="testName"]');
+-    const unit = form.querySelector('[name="unit"]');
+-    const roomId = form.querySelector('[name="roomId"]');
+-
+-    if (!testName || testName.value.trim() === '') {
+-        alert('Vui lòng nhập Test Name');
+-        return false;
+-    }
+-
+-    if (testName.value.trim().length > 100) {
+-        alert('Test Name tối đa 100 ký tự');
+-        return false;
+-    }
+-
+-    if (!unit || unit.value.trim() === '') {
+-        alert('Vui lòng nhập Unit');
+-        return false;
+-    }
++function showError(msg) {
++    alert(msg);
++    return false;
++}
+ 
+-    if (unit.value.trim().length > 20) {
+-        alert('Unit tối đa 20 ký tự');
+-        return false;
+-    }
+-
+-    if (!roomId || roomId.value === '') {
+-        alert('Vui lòng chọn phòng xét nghiệm');
+-        return false;
+-    }
+-
+-    return true;
+-}
+-
++/* ─────────────────────────────────────────────
++   CREATE MODAL
++───────────────────────────────────────────── */
+ function initCreateModal() {
+-    const openBtn = document.getElementById('btnDefineTest');
+-    const modal = document.getElementById('defineTestModal');
++    const modal    = document.getElementById('defineTestModal');
++    const openBtn  = document.getElementById('btnDefineTest');
+     const closeBtn = document.getElementById('btnCloseModal');
+-    const cancelBtn = document.getElementById('btnCancelModal');
++    const cancelBtn= document.getElementById('btnCancelModal');
++    const form     = document.getElementById('createTestForm');
+ 
+-    if (!openBtn || !modal) {
+-        return;
+-    }
++    if (!modal || !openBtn) return;
+ 
+     openBtn.addEventListener('click', function () {
+-        document.getElementById('createTestForm').reset();
++        form?.reset();
+         openModal(modal);
+     });
+ 
+-    closeBtn?.addEventListener('click', function () {
+-        closeModal(modal);
+-    });
++    addCloseHandlers(modal, closeBtn, cancelBtn);
+ 
+-    cancelBtn?.addEventListener('click', function () {
+-        closeModal(modal);
+-    });
+-
+-    modal.addEventListener('click', function (event) {
+-        if (event.target === modal) {
+-            closeModal(modal);
++    form?.addEventListener('submit', function (e) {
++        const data = buildThresholdData('create');
++        if (!validateBaseForm(form) || !validateThresholdData(data)) {
++            e.preventDefault();
++            return;
+         }
++        setVal('createMainMinValue', data.young.min);
++        setVal('createMainMaxValue', data.young.max);
++        localStorage.setItem('pending_create_threshold', JSON.stringify(data));
+     });
+ }
+ 
++/* ─────────────────────────────────────────────
++   EDIT MODAL
++   - Điền dữ liệu từ data-* attribute của nút edit
++   - Ưu tiên threshold đã lưu trong localStorage,
++     fallback về min/max của DB
++───────────────────────────────────────────── */
+ function initEditModal() {
+-    const modal = document.getElementById('editTestModal');
+-    const form = document.getElementById('editTestForm');
++    const modal    = document.getElementById('editTestModal');
++    const form     = document.getElementById('editTestForm');
+     const closeBtn = document.getElementById('btnCloseEditModal');
+-    const cancelBtn = document.getElementById('btnCancelEditModal');
++    const cancelBtn= document.getElementById('btnCancelEditModal');
+ 
+-    if (!modal || !form) {
+-        return;
+-    }
++    if (!modal || !form) return;
+ 
+-    document.querySelectorAll('.edit-btn').forEach(function (button) {
+-        button.addEventListener('click', function () {
+-            const id = button.dataset.id;
+-            const oldThreshold = getThreshold(id);
++    addCloseHandlers(modal, closeBtn, cancelBtn);
+ 
+-            document.getElementById('editLabTestId').value = id || '';
+-            document.getElementById('editTestName').value = button.dataset.name || '';
+-            document.getElementById('editUnit').value = button.dataset.unit || '';
+-            document.getElementById('editRoomId').value = button.dataset.room || '';
+-            document.getElementById('editDescription').value = button.dataset.description || '';
++    document.querySelectorAll('.btn-edit').forEach(function (btn) {
++        btn.addEventListener('click', function () {
++            const id        = btn.dataset.id   || '';
++            const savedThr  = getThreshold(id);
++            const dbMin     = btn.dataset.min   ?? 0;
++            const dbMax     = btn.dataset.max   ?? 0;
+ 
+-            fillThresholdInputs(
+-                'edit',
+-                oldThreshold,
+-                button.dataset.min || 0,
+-                button.dataset.max || 0
+-            );
++            /* basic fields */
++            setVal('editLabTestId',    id);
++            setVal('editTestName',     btn.dataset.name        || '');
++            setVal('editUnit',         btn.dataset.unit        || '');
++            setVal('editRoomId',       btn.dataset.room        || '');
++            setVal('editDescription',  btn.dataset.description || '');
++
++            /* threshold – prefer saved, else use DB min/max for ALL groups */
++            fillThresholdInputs('edit', savedThr, dbMin, dbMax);
+ 
+             form.action = '/admin/lab-tests/update/' + id;
+-
+             openModal(modal);
+         });
+     });
+ 
+-    closeBtn?.addEventListener('click', function () {
+-        closeModal(modal);
+-    });
+-
+-    cancelBtn?.addEventListener('click', function () {
+-        closeModal(modal);
+-    });
+-
+-    modal.addEventListener('click', function (event) {
+-        if (event.target === modal) {
+-            closeModal(modal);
+-        }
+-    });
+-}
+-
+-function initValidation() {
+-    const createForm = document.getElementById('createTestForm');
+-    const editForm = document.getElementById('editTestForm');
+-
+-    if (createForm) {
+-        createForm.addEventListener('submit', function (event) {
+-            const data = buildThresholdData('create');
+-
+-            if (!validateBaseForm(createForm) || !validateThresholdData(data)) {
+-                event.preventDefault();
+-                return;
+-            }
+-
+-            document.getElementById('createMainMinValue').value = data.young.min;
+-            document.getElementById('createMainMaxValue').value = data.young.max;
+-
+-            localStorage.setItem('pending_create_threshold', JSON.stringify(data));
+-        });
+-    }
+-
+-    if (editForm) {
+-        editForm.addEventListener('submit', function (event) {
+-            const data = buildThresholdData('edit');
+-            const id = document.getElementById('editLabTestId').value;
++    form.addEventListener('submit', function (e) {
++        const data = buildThresholdData('edit');
++        const id   = val('editLabTestId');
+ 
+-            if (!validateBaseForm(editForm) || !validateThresholdData(data)) {
+-                event.preventDefault();
+-                return;
+-            }
++        if (!validateBaseForm(form) || !validateThresholdData(data)) {
++            e.preventDefault();
++            return;
++        }
+ 
+-            document.getElementById('editMainMinValue').value = data.young.min;
+-            document.getElementById('editMainMaxValue').value = data.young.max;
+-
+-            saveThreshold(id, data);
+-        });
+-    }
++        setVal('editMainMinValue', data.young.min);
++        setVal('editMainMaxValue', data.young.max);
++        saveThreshold(id, data);
++    });
+ }
+ 
+-function initViewDetailModal() {
+-    const modal = document.getElementById('viewDetailModal');
++/* ─────────────────────────────────────────────
++   VIEW DETAIL MODAL
++   - Gọi API /admin/lab-tests/detail/{id} để lấy
++     dữ liệu mới nhất, hiển thị trong modal
++───────────────────────────────────────────── */
++function initViewModal() {
++    const modal    = document.getElementById('viewDetailModal');
+     const closeBtn = document.getElementById('btnCloseViewModal');
+ 
+-    if (!modal) {
+-        return;
+-    }
+-
+-    document.querySelectorAll('.view-btn').forEach(function (button) {
+-        button.addEventListener('click', function () {
+-            const id = button.dataset.id;
+-            const statusText = button.dataset.status === 'true' ? 'Active' : 'Inactive';
++    if (!modal) return;
+ 
+-            let data = getThreshold(id);
++    addCloseHandlers(modal, closeBtn);
+ 
+-            if (!data) {
+-                data = {
+-                    young: {
+-                        min: button.dataset.min || 0,
+-                        max: button.dataset.max || 0
+-                    },
+-                    middle: {
+-                        min: button.dataset.min || 0,
+-                        max: button.dataset.max || 0
+-                    },
+-                    elder: {
+-                        min: button.dataset.min || 0,
+-                        max: button.dataset.max || 0
+-                    },
+-                    pregnant: {
+-                        min: button.dataset.min || 0,
+-                        max: button.dataset.max || 0
+-                    }
+-                };
+-            }
++    document.querySelectorAll('.btn-view').forEach(function (btn) {
++        btn.addEventListener('click', function () {
++            const id = btn.dataset.id;
++            if (!id) return;
+ 
+-            document.getElementById('detailId').innerText = id || '---';
+-            document.getElementById('detailName').innerText = button.dataset.name || '---';
+-            document.getElementById('detailUnit').innerText = button.dataset.unit || '---';
+-            document.getElementById('detailRoom').innerText = button.dataset.room || '---';
+-            document.getElementById('detailStatus').innerText = statusText;
+-            document.getElementById('detailDescription').innerText =
+-                button.dataset.description || '---';
+-
+-            document.getElementById('youngMin').innerText = data.young.min;
+-            document.getElementById('youngMax').innerText = data.young.max;
+-
+-            document.getElementById('middleMin').innerText = data.middle.min;
+-            document.getElementById('middleMax').innerText = data.middle.max;
+-
+-            document.getElementById('elderMin').innerText = data.elder.min;
+-            document.getElementById('elderMax').innerText = data.elder.max;
+-
+-            document.getElementById('pregnantMin').innerText = data.pregnant.min;
+-            document.getElementById('pregnantMax').innerText = data.pregnant.max;
++            /* optimistically fill from data attributes */
++            fillViewModal(btn.dataset, getThreshold(id));
+ 
+             openModal(modal);
+-        });
+-    });
+-
+-    closeBtn?.addEventListener('click', function () {
+-        closeModal(modal);
++
++            /* then refresh from API */
++            fetch('/admin/lab-tests/detail/' + id)
++                .then(function (res) {
++                    if (!res.ok) throw new Error('Network error');
++                    return res.json();
++                })
++                .then(function (data) {
++                    fillViewModalFromApi(data, getThreshold(id));
++                })
++                .catch(function (err) {
++                    console.error('Failed to load test detail:', err);
++                });
++        });
+     });
+-
+-    modal.addEventListener('click', function (event) {
+-        if (event.target === modal) {
+-            closeModal(modal);
+-        }
+-    });
++}
++
++function fillViewModal(ds, threshold) {
++    const statusText = ds.status === 'true' ? 'Active' : 'Inactive';
++    setText('detailId',          ds.id);
++    setText('detailName',        ds.name);
++    setText('detailUnit',        ds.unit);
++    setText('detailRoom',        ds.room);
++    setText('detailStatus',      statusText);
++    setText('detailDescription', ds.description || '---');
++
++    const thr = threshold || {
++        young:    { min: ds.min ?? 0, max: ds.max ?? 0 },
++        middle:   { min: ds.min ?? 0, max: ds.max ?? 0 },
++        elder:    { min: ds.min ?? 0, max: ds.max ?? 0 },
++        pregnant: { min: ds.min ?? 0, max: ds.max ?? 0 }
++    };
++
++    setText('youngMin',    thr.young.min);
++    setText('youngMax',    thr.young.max);
++    setText('middleMin',   thr.middle.min);
++    setText('middleMax',   thr.middle.max);
++    setText('elderMin',    thr.elder.min);
++    setText('elderMax',    thr.elder.max);
++    setText('pregnantMin', thr.pregnant.min);
++    setText('pregnantMax', thr.pregnant.max);
+ }
+ 
+-function initTableSearch() {
+-    const searchInput = document.getElementById('tableSearch');
+-    const rows = document.querySelectorAll('#labTestTableBody tr');
++function fillViewModalFromApi(data, threshold) {
++    const statusText = data.status === true ? 'Active' : 'Inactive';
++    setText('detailId',          data.labTestId);
++    setText('detailName',        data.testName);
++    setText('detailUnit',        data.unit);
++    setText('detailRoom',        data.roomId);
++    setText('detailStatus',      statusText);
++    setText('detailDescription', data.description || '---');
+ 
+-    if (!searchInput) {
+-        return;
+-    }
++    const thr = threshold || {
++        young:    { min: data.minValue ?? 0, max: data.maxValue ?? 0 },
++        middle:   { min: data.minValue ?? 0, max: data.maxValue ?? 0 },
++        elder:    { min: data.minValue ?? 0, max: data.maxValue ?? 0 },
++        pregnant: { min: data.minValue ?? 0, max: data.maxValue ?? 0 }
++    };
++
++    setText('youngMin',    thr.young.min);
++    setText('youngMax',    thr.young.max);
++    setText('middleMin',   thr.middle.min);
++    setText('middleMax',   thr.middle.max);
++    setText('elderMin',    thr.elder.min);
++    setText('elderMax',    thr.elder.max);
++    setText('pregnantMin', thr.pregnant.min);
++    setText('pregnantMax', thr.pregnant.max);
++}
+ 
+-    searchInput.addEventListener('input', function () {
+-        const keyword = searchInput.value.toLowerCase().trim();
++/* ─────────────────────────────────────────────
++   TABS  (All / Active / Inactive)
++───────────────────────────────────────────── */
++function initTabs() {
++    const tabAll      = document.getElementById('tabAll');
++    const tabActive   = document.getElementById('tabActive');
++    const tabInactive = document.getElementById('tabInactive');
+ 
+-        rows.forEach(function (row) {
+-            const rowText = row.innerText.toLowerCase();
++    if (!tabAll) return;
+ 
+-            row.dataset.filtered = rowText.includes(keyword)
+-                ? 'visible'
+-                : 'hidden';
++    function setTab(tab, filter) {
++        [tabAll, tabActive, tabInactive].forEach(function (t) {
++            if (t) t.classList.remove('active');
+         });
++        tab.classList.add('active');
++        activeFilter = filter;
++        currentPage  = 1;
++        applyFilters();
++    }
++
++    tabAll.addEventListener('click',      function () { setTab(tabAll,      'all');      });
++    tabActive.addEventListener('click',   function () { setTab(tabActive,   'active');   });
++    tabInactive.addEventListener('click', function () { setTab(tabInactive, 'inactive'); });
++}
+ 
++/* ─────────────────────────────────────────────
++   SEARCH  (table-search-box + topbar)
++───────────────────────────────────────────── */
++function initSearch() {
++    const tableSearch  = document.getElementById('tableSearch');
++    const topbarSearch = document.getElementById('topbarSearch');
++
++    function onSearch(e) {
++        searchKeyword = e.target.value.toLowerCase().trim();
++        /* keep both inputs in sync */
++        if (tableSearch)  tableSearch.value  = e.target.value;
++        if (topbarSearch) topbarSearch.value = e.target.value;
+         currentPage = 1;
+-        renderPagination();
+-    });
+-}
++        applyFilters();
++    }
+ 
+-function initPagination() {
+-    const rows = document.querySelectorAll('#labTestTableBody tr');
++    tableSearch?.addEventListener('input',  onSearch);
++    topbarSearch?.addEventListener('input', onSearch);
++}
+ 
+-    rows.forEach(function (row) {
++/* ─────────────────────────────────────────────
++   FILTER ENGINE
++   Applies both tab filter and keyword search,
++   updates data-filtered, then re-renders pagination
++───────────────────────────────────────────── */
++function markAllRowsVisible() {
++    document.querySelectorAll('#labTestTableBody tr').forEach(function (row) {
+         row.dataset.filtered = 'visible';
+     });
++}
++
++function applyFilters() {
++    const allRows = document.querySelectorAll('#labTestTableBody tr');
+ 
+-    currentPage = 1;
++    allRows.forEach(function (row) {
++        if (!row.classList.contains('data-row')) {
++            row.dataset.filtered = 'hidden'; // empty-state row always hidden when there is data
++            return;
++        }
++
++        /* keyword match */
++        const text    = row.innerText.toLowerCase();
++        const kwMatch = searchKeyword === '' || text.includes(searchKeyword);
++
++        /* tab match */
++        let tabMatch = true;
++        if (activeFilter === 'active') {
++            tabMatch = !!row.querySelector('.badge--active');
++        } else if (activeFilter === 'inactive') {
++            tabMatch = !!row.querySelector('.badge--inactive');
++        }
++
++        row.dataset.filtered = (kwMatch && tabMatch) ? 'visible' : 'hidden';
++    });
++
+     renderPagination();
+ }
+ 
++/* ─────────────────────────────────────────────
++   PAGINATION
++───────────────────────────────────────────── */
+ function renderPagination() {
+     const allRows = Array.from(document.querySelectorAll('#labTestTableBody tr'));
+-    const visibleRows = allRows.filter(function (row) {
+-        return row.dataset.filtered !== 'hidden';
+-    });
+ 
+-    const totalItems = visibleRows.length;
+-    const totalPages = Math.ceil(totalItems / rowsPerPage);
++    const visible = allRows.filter(function (r) {
++        return r.dataset.filtered !== 'hidden';
++    });
+ 
+-    if (currentPage > totalPages) {
+-        currentPage = totalPages || 1;
+-    }
++    const total      = visible.length;
++    const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+ 
+-    allRows.forEach(function (row) {
+-        row.style.display = 'none';
+-    });
++    if (currentPage > totalPages) currentPage = totalPages;
+ 
+-    visibleRows.forEach(function (row, index) {
+-        const start = (currentPage - 1) * rowsPerPage;
+-        const end = currentPage * rowsPerPage;
++    /* hide all rows first */
++    allRows.forEach(function (r) { r.style.display = 'none'; });
+ 
+-        if (index >= start && index < end) {
+-            row.style.display = '';
+-        }
++    /* show current page's visible rows */
++    const start = (currentPage - 1) * PAGE_SIZE;
++    visible.slice(start, start + PAGE_SIZE).forEach(function (r) {
++        r.style.display = '';
+     });
+ 
+-    renderPageButtons(totalPages, totalItems);
++    updatePaginationUI(total, totalPages);
+ }
+ 
+-function renderPageButtons(totalPages, totalItems) {
+-    const pageNumbers = document.getElementById('pageNumbers');
+-    const paginationInfo = document.getElementById('paginationInfo');
+-    const prevBtn = document.getElementById('prevPageBtn');
+-    const nextBtn = document.getElementById('nextPageBtn');
++function updatePaginationUI(total, totalPages) {
++    const info    = document.getElementById('paginationInfo');
++    const prev    = document.getElementById('prevPageBtn');
++    const next    = document.getElementById('nextPageBtn');
++    const numbers = document.getElementById('pageNumbers');
+ 
+-    if (!pageNumbers || !paginationInfo || !prevBtn || !nextBtn) {
+-        return;
+-    }
++    if (!info || !prev || !next || !numbers) return;
+ 
+-    pageNumbers.innerHTML = '';
++    const startItem = total === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1;
++    const endItem   = Math.min(currentPage * PAGE_SIZE, total);
+ 
+-    const startItem = totalItems === 0 ? 0 : (currentPage - 1) * rowsPerPage + 1;
+-    const endItem = Math.min(currentPage * rowsPerPage, totalItems);
++    info.textContent = 'Hiển thị ' + startItem + ' – ' + endItem + ' / ' + total + ' xét nghiệm';
+ 
+-    paginationInfo.textContent =
+-        'Hiển thị ' + startItem + ' - ' + endItem + ' / ' + totalItems + ' xét nghiệm';
++    prev.disabled = currentPage <= 1;
++    next.disabled = currentPage >= totalPages;
+ 
+-    prevBtn.disabled = currentPage <= 1;
+-    nextBtn.disabled = currentPage >= totalPages || totalPages === 0;
++    prev.onclick = function () { if (currentPage > 1)           { currentPage--; renderPagination(); } };
++    next.onclick = function () { if (currentPage < totalPages)  { currentPage++; renderPagination(); } };
+ 
++    /* page number buttons */
++    numbers.innerHTML = '';
+     for (let i = 1; i <= totalPages; i++) {
+-        const button = document.createElement('button');
+-
+-        button.type = 'button';
+-        button.className = 'page-number';
+-        button.textContent = i;
+-
+-        if (i === currentPage) {
+-            button.classList.add('active');
+-        }
+-
+-        button.addEventListener('click', function () {
+-            currentPage = i;
+-            renderPagination();
+-        });
+-
+-        pageNumbers.appendChild(button);
++        const btn = document.createElement('button');
++        btn.type      = 'button';
++        btn.className = 'page-number' + (i === currentPage ? ' active' : '');
++        btn.textContent = i;
++        btn.addEventListener('click', (function (p) {
++            return function () { currentPage = p; renderPagination(); };
++        })(i));
++        numbers.appendChild(btn);
+     }
+-
+-    prevBtn.onclick = function () {
+-        if (currentPage > 1) {
+-            currentPage--;
+-            renderPagination();
+-        }
+-    };
+-
+-    nextBtn.onclick = function () {
+-        if (currentPage < totalPages) {
+-            currentPage++;
+-            renderPagination();
+-        }
+-    };
+ }
+\ No newline at end of file

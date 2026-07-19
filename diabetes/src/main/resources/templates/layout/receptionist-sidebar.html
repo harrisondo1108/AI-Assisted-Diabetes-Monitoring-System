@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<aside class="admin-sidebar" th:fragment="receptionistSidebar(activeMenu)">
+    <div class="sidebar-brand">
+        <div class="brand-logo-mark">
+            <i class="fas fa-hospital-user"></i>
+        </div>
+        <div>
+            <div class="brand-name">Tiểu đường</div>
+            <div class="brand-sub">Quầy Lễ Tân</div>
+        </div>
+    </div>
+    <nav class="sidebar-nav">
+        <a th:href="@{/receptionist/dashboard}" 
+           class="nav-item" 
+           th:classappend="${activeMenu == 'dashboard'} ? 'active' : ''">
+            <i class="fas fa-calendar-alt"></i> Quản lý lịch hẹn
+        </a>
+        <a th:href="@{/receptionist/booking}" 
+           class="nav-item" 
+           th:classappend="${activeMenu == 'booking'} ? 'active' : ''">
+            <i class="fas fa-file-signature"></i> Đăng ký tại quầy
+        </a>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="sidebar-footer-links">
+            <a th:href="@{/logout}"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+        </div>
+    </div>
+</aside>
+</body>
+</html>

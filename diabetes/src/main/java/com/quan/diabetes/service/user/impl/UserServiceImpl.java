@@ -124,6 +124,13 @@ public class UserServiceImpl implements UserService {
                 }while(this.existsById(userId));
                 break;
             }
+            case "REC":{
+                do{
+                    String number = "00000" + new Random().nextInt(1000000);
+                    userId = "R" + number.substring(number.length() - 6);
+                }while(this.existsById(userId));
+                break;
+            }
         }
         return userId;
     }

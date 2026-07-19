@@ -207,53 +207,53 @@ function loadSessionPatient() {
             document.getElementById('planExercise').value = thLastExam.treatmentPlan.exercisePlan || '';
             document.getElementById('planGlucose').value = thLastExam.treatmentPlan.glucoseMonitoringPlan || '';
         }
+    }
 
-        selectedSymptoms = {};
-        if (typeof thChosenSymptomNotes !== 'undefined' && thChosenSymptomNotes) {
-            Object.keys(thChosenSymptomNotes).forEach(id => {
-                selectedSymptoms[id] = thChosenSymptomNotes[id];
-            });
-        }
+    selectedSymptoms = {};
+    if (typeof thChosenSymptomNotes !== 'undefined' && thChosenSymptomNotes) {
+        Object.keys(thChosenSymptomNotes).forEach(id => {
+            selectedSymptoms[id] = thChosenSymptomNotes[id];
+        });
+    }
 
-        orderedLabs = {};
-        simulatedResults = {};
-        if (typeof thLastExamLabResults !== 'undefined' && thLastExamLabResults) {
-            thLastExamLabResults.forEach(res => {
-                const test = labTestsCatalog.find(l => l.name === res.labTest.testName);
-                if (test) {
-                    orderedLabs[test.id] = true;
-                    simulatedResults[test.id] = {
-                        val: res.resultValue,
-                        flag: res.flag
-                    };
-                }
-            });
-        }
-
-        prescriptionLines = [];
-        if (typeof thLastExamPrescriptionDetails !== 'undefined' && thLastExamPrescriptionDetails) {
-            prescriptionLines = thLastExamPrescriptionDetails.map(p => {
-                const tNames = p.prescriptionTimings && p.prescriptionTimings.length > 0
-                    ? p.prescriptionTimings.map(pt => pt.timing.timingName)
-                    : ['Breakfast Time (07:30 AM)'];
-                const tText = tNames.join(', ');
-                return {
-                    medId: p.medication.medicationId,
-                    name: p.medication.medicationName,
-                    concentration: p.medication.concentration,
-                    form: p.medication.form,
-                    dosage: p.dosage,
-                    dosagePerDose: parseDosagePerDose(p.dosage),
-                    duration: p.durationDays,
-                    quantity: p.totalQuantity,
-                    timing: tNames, // standard timing mapped to options
-                    timingText: tText,
-                    medicationPlan: p.medicationPlan || '',
-                    startDate: p.startDate || '',
-                    endDate: p.endDate || ''
+    orderedLabs = {};
+    simulatedResults = {};
+    if (typeof thLastExamLabResults !== 'undefined' && thLastExamLabResults) {
+        thLastExamLabResults.forEach(res => {
+            const test = labTestsCatalog.find(l => l.name === res.labTest.testName);
+            if (test) {
+                orderedLabs[test.id] = true;
+                simulatedResults[test.id] = {
+                    val: res.resultValue,
+                    flag: res.flag
                 };
-            });
-        }
+            }
+        });
+    }
+
+    prescriptionLines = [];
+    if (typeof thLastExamPrescriptionDetails !== 'undefined' && thLastExamPrescriptionDetails) {
+        prescriptionLines = thLastExamPrescriptionDetails.map(p => {
+            const tNames = p.prescriptionTimings && p.prescriptionTimings.length > 0
+                ? p.prescriptionTimings.map(pt => pt.timing.timingName)
+                : ['Breakfast Time (07:30 AM)'];
+            const tText = tNames.join(', ');
+            return {
+                medId: p.medication.medicationId,
+                name: p.medication.medicationName,
+                concentration: p.medication.concentration,
+                form: p.medication.form,
+                dosage: p.dosage,
+                dosagePerDose: parseDosagePerDose(p.dosage),
+                duration: p.durationDays,
+                quantity: p.totalQuantity,
+                timing: tNames, // standard timing mapped to options
+                timingText: tText,
+                medicationPlan: p.medicationPlan || '',
+                startDate: p.startDate || '',
+                endDate: p.endDate || ''
+            };
+        });
     }
 }
 

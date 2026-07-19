@@ -1,0 +1,29 @@
+Index: diabetes/src/main/java/com/quan/diabetes/repository/MedicationTimingRepository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.quan.diabetes.repository;\r\n\r\nimport com.quan.diabetes.entity.MedicationTiming;\r\nimport org.springframework.data.jpa.repository.JpaRepository;\r\n\r\npublic interface MedicationTimingRepository extends JpaRepository<MedicationTiming, Integer> {\r\n    boolean existsByTimingName(String timingName);\r\n    boolean existsByTimingNameAndTimingIdNot(String timingName, Integer timingId);\r\n}\r\n
+===================================================================
+diff --git a/diabetes/src/main/java/com/quan/diabetes/repository/MedicationTimingRepository.java b/diabetes/src/main/java/com/quan/diabetes/repository/MedicationTimingRepository.java
+--- a/diabetes/src/main/java/com/quan/diabetes/repository/MedicationTimingRepository.java	(revision 077012c7b7a16b51403ed48667cef2d19ec97a1d)
++++ b/diabetes/src/main/java/com/quan/diabetes/repository/MedicationTimingRepository.java	(date 1782178504612)
+@@ -3,7 +3,20 @@
+ import com.quan.diabetes.entity.MedicationTiming;
+ import org.springframework.data.jpa.repository.JpaRepository;
+ 
++import org.springframework.data.jpa.repository.Query;
++import org.springframework.data.repository.query.Param;
++import java.util.List;
++
+ public interface MedicationTimingRepository extends JpaRepository<MedicationTiming, Integer> {
+     boolean existsByTimingName(String timingName);
+     boolean existsByTimingNameAndTimingIdNot(String timingName, Integer timingId);
++
++    @Query("SELECT DISTINCT mt FROM PrescriptionTiming pt "
++            + "JOIN pt.timing mt "
++            + "JOIN pt.prescriptionDetail pd "
++            + "JOIN pd.prescription p "
++            + "WHERE p.clinicalExamination.clinicalExamId = :clinicalExamId")
++    List<MedicationTiming> findMedicationTimingsByClinicalExamId(
++            @Param("clinicalExamId") String clinicalExamId
++    );
+ }

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng ký khám tại quầy | Lễ tân</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/receptionist/receptionist.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .form-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 32px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-card h2 {
+            color: var(--green-900);
+            font-weight: 700;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.4rem;
+            border-bottom: 2px solid var(--mint-200);
+            padding-bottom: 12px;
+        }
+
+        .btn-flex {
+            display: flex;
+            gap: 16px;
+            margin-top: 28px;
+        }
+
+        .btn-flex button,
+        .btn-flex a {
+            flex: 1;
+            text-align: center;
+            justify-content: center;
+            text-decoration: none;
+        }
+
+        /* Search input for patient dropdown */
+        .search-select-container {
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+            border: 1px solid var(--border);
+            border-bottom: none;
+            background: #fff;
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+        }
+    </style>
+</head>
+
+<body>
+<div class="admin-layout">
+    <div th:replace="~{layout/receptionist-sidebar :: receptionistSidebar('booking')}"></div>
+
+    <div class="admin-main">
+        <div th:replace="~{layout/receptionist-header :: receptionistHeader('Đăng Ký Khám Tại Quầy')}"></div>
+
+        <main class="admin-content">
+            <!-- Toast Errors -->
+            <div th:if="${errorMessage != null}" class="alert-toast toast-danger" style="max-width: 600px; margin: 0 auto 20px auto;">
+                <i class="fas fa-exclamation-circle"></i>
+                <span th:text="${errorMessage}">Đã xảy ra lỗi!</span>
+            </div>
+
+            <div class="form-card">
+                <h2><i class="fas fa-file-signature"></i> Phiếu hẹn khám tại quầy</h2>
+                
+                <form th:action="@{/receptionist/booking}" method="post" onsubmit="return validateBookingForm(this)">
+                    
+                    <!-- Chọn Bệnh nhân -->
+                    <div class="form-group">
+                        <label for="patientId">Bệnh nhân <span style="color: var(--danger);">*</span></label>
+                        <div class="search-select-container">
+                            <input type="text" id="patientSearch" class="search-input" placeholder="Tìm nhanh bệnh nhân (gõ tên hoặc SĐT và ấn Enter)..." onkeydown="handlePatientSearchKeyDown(event)">
+                            <select id="patientId" name="patientId" class="form-control" size="6" style="border-radius: 0 0 var(--radius-sm) var(--radius-sm);" required>
+                                <option th:each="pat : ${patients}" 
+                                        th:value="${pat.userId}" 
+                                        th:text="${pat.fullName + ' - SĐT: ' + (pat.phoneNumber != null ? pat.phoneNumber : 'N/A') + ' (Mã BN: ' + pat.userId + ')'}">
+                                    Bệnh nhân A - SĐT: 0912345678
+                                </option>
+                                <option th:if="${patients == null || patients.isEmpty()}" value="" disabled>Không có bệnh nhân nào trong hệ thống</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Chọn Bác sĩ -->
+                    <div class="form-group">
+                        <label for="doctorId">Bác sĩ khám <span style="color: var(--danger);">*</span></label>
+                        <select id="doctorId" name="doctorId" class="form-control" required>
+                            <option value="">-- Chọn bác sĩ phụ trách --</option>
+                            <option th:each="doc : ${doctors}" th:value="${doc.userId}"
+                                    th:text="${doc.fullName + ' - ' + doc.specialty + ' (' + (doc.room != null ? doc.room.roomName : 'Phòng khám') + ')'}">
+                                BS Nguyễn Văn A
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Ngày giờ khám -->
+                    <div class="form-group">
+                        <label for="examDate">Ngày & Giờ hẹn <span style="color: var(--danger);">*</span></label>
+                        <input type="datetime-local" id="examDate" name="examDate" class="form-control" required>
+                    </div>
+
+                    <!-- Ghi chú / Triệu chứng -->
+                    <div class="form-group">
+                        <label for="medicalHistory">Mô tả triệu chứng / Lý do khám</label>
+                        <textarea id="medicalHistory" name="medicalHistory" class="form-control" rows="4" 
+                                  placeholder="Nhập triệu chứng lâm sàng hiện tại của bệnh nhân (nếu có)..."></textarea>
+                    </div>
+
+                    <!-- Hành động -->
+                    <div class="btn-flex">
+                        <a th:href="@{/receptionist/dashboard}" class="secondary-btn">Hủy bỏ</a>
+                        <button type="submit" class="primary-btn">
+                            <i class="fas fa-check-circle"></i> Xác nhận đặt lịch
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    // Thiết lập giới hạn tối thiểu cho ngày hẹn là thời điểm hiện tại
+    (function() {
+        const examDateInput = document.getElementById('examDate');
+        if (examDateInput) {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            
+            examDateInput.min = `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+    })();
+
+    // Loại bỏ dấu tiếng Việt để tìm kiếm không dấu
+    function removeDiacritics(str) {
+        if (!str) return '';
+        return str.normalize("NFD")
+                  .replace(/[\u0300-\u036f]/g, "")
+                  .replace(/đ/g, "d")
+                  .replace(/Đ/g, "D");
+    }
+
+    // Xử lý khi gõ phím trong ô tìm kiếm
+    function handlePatientSearchKeyDown(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault(); // Ngăn submit form khi nhấn Enter
+            filterPatients();
+        }
+    }
+
+    // Lọc tìm kiếm bệnh nhân nhanh
+    function filterPatients() {
+        const input = document.getElementById('patientSearch');
+        const filter = removeDiacritics(input.value.toLowerCase().trim());
+        const select = document.getElementById('patientId');
+        const options = select.options;
+
+        for (let i = 0; i < options.length; i++) {
+            const txtValue = options[i].textContent || options[i].innerText;
+            const normalizedText = removeDiacritics(txtValue.toLowerCase());
+            if (normalizedText.indexOf(filter) > -1) {
+                options[i].style.display = "";
+            } else {
+                options[i].style.display = "none";
+            }
+        }
+    }
+
+    function validateBookingForm(form) {
+        const patientId = document.getElementById('patientId').value;
+        if (!patientId) {
+            alert('Vui lòng chọn bệnh nhân.');
+            return false;
+        }
+
+        const examDateInput = document.getElementById('examDate');
+        if (examDateInput) {
+            const selectedDate = new Date(examDateInput.value);
+            const now = new Date();
+            if (selectedDate <= now) {
+                alert('Ngày giờ hẹn không thể ở thời điểm quá khứ.');
+                return false;
+            }
+        }
+        return true;
+    }
+</script>
+</body>
+</html>

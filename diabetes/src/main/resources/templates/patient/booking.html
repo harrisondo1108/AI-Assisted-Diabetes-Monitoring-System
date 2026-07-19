@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Đặt Lịch Khám | Hệ thống Chăm sóc Tiểu đường</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/patient/patient.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Custom layout for booking split screen */
+        .booking-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        @media (min-width: 992px) {
+            .booking-container {
+                grid-template-columns: 380px 1fr;
+            }
+        }
+
+        .booking-form-card {
+            position: sticky;
+            top: 24px;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+            height: fit-content;
+        }
+
+        .booking-form-card h3 {
+            margin-bottom: 20px;
+            color: var(--green-900);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.25rem;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--mint-50);
+            font-family: inherit;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--green-600);
+            box-shadow: 0 0 0 3px rgba(26, 107, 86, 0.15);
+            background: #fff;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, var(--green-600) 0%, var(--green-800) 100%);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(26, 107, 86, 0.2);
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(26, 107, 86, 0.3);
+        }
+
+        .badge-status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background-color: #fef3c7;
+            color: #d97706;
+            border: 1px solid #fde68a;
+        }
+
+        .status-inprogress {
+            background-color: #dbeafe;
+            color: #2563eb;
+            border: 1px solid #bfdbfe;
+        }
+
+        .status-completed {
+            background-color: #dcfce7;
+            color: #16a34a;
+            border: 1px solid #bbf7d0;
+        }
+
+        .status-cancelled {
+            background-color: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        /* Modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: auto;
+            padding: 24px;
+            border: 1px solid var(--border);
+            width: 90%;
+            max-width: 450px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--green-900);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .alert-toast {
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 20px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toast-success {
+            background-color: #dcfce7;
+            color: #16a34a;
+            border: 1px solid #bbf7d0;
+        }
+
+        .toast-danger {
+            background-color: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+    </style>
+</head>
+
+<body>
+<div class="admin-layout">
+    <div th:replace="~{layout/patient-sidebar :: patientSidebar('booking')}"></div>
+
+    <div class="admin-main">
+        <div th:replace="~{layout/patient-header :: patientHeader('Đặt Lịch Khám Bệnh')}"></div>
+
+        <main class="admin-content">
+            <div class="page-header">
+                <div>
+                    <h1><i class="fas fa-calendar-check"></i> Đăng ký Lịch khám</h1>
+                    <p class="subtitle">Chủ động hẹn lịch khám với bác sĩ chuyên khoa phù hợp với bạn.</p>
+                </div>
+            </div>
+
+            <!-- Toast Messages -->
+            <div th:if="${successMessage != null}" class="alert-toast toast-success">
+                <i class="fas fa-check-circle"></i>
+                <span th:text="${successMessage}">Đặt lịch thành công!</span>
+            </div>
+            <div th:if="${errorMessage != null}" class="alert-toast toast-danger">
+                <i class="fas fa-exclamation-circle"></i>
+                <span th:text="${errorMessage}">Đã xảy ra lỗi!</span>
+            </div>
+
+            <div class="booking-container">
+                <!-- Left: Booking Form -->
+                <div class="booking-form-card">
+                    <h3><i class="fas fa-edit"></i> Đặt lịch hẹn mới</h3>
+                    <form th:action="@{/patient/booking}" method="post" onsubmit="return validateBookingForm(this)">
+                        <div class="form-group">
+                            <label for="doctorId">Bác sĩ khám</label>
+                            <select id="doctorId" name="doctorId" class="form-control" required>
+                                <option value="">-- Chọn bác sĩ --</option>
+                                <option th:each="doc : ${doctors}" th:value="${doc.userId}"
+                                        th:text="${doc.fullName + ' - ' + doc.specialty + ' (' + (doc.room != null ? doc.room.roomName : 'Phòng khám') + ')'}">
+                                    BS Nguyễn Văn A
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="examDate">Ngày & Giờ hẹn</label>
+                            <input type="datetime-local" id="examDate" name="examDate" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="medicalHistory">Mô tả triệu chứng / Ghi chú</label>
+                            <textarea id="medicalHistory" name="medicalHistory" class="form-control" rows="4" 
+                                      placeholder="Mô tả ngắn gọn về triệu chứng của bạn để bác sĩ tiện chuẩn bị..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-submit">
+                            <i class="fas fa-paper-plane"></i> Đăng ký Lịch khám
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Right: Booking History -->
+                <div class="patient-card table-wrapper" style="padding: 24px; background: white; border-radius: var(--radius); box-shadow: var(--shadow-md); border: 1px solid var(--border);">
+                    <h3 style="margin-bottom: 20px; color: var(--green-900); font-weight: 700; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-history"></i> Lịch sử hẹn khám của bạn
+                    </h3>
+                    <table class="patient-table">
+                        <thead>
+                        <tr>
+                            <th>Ngày & Giờ hẹn</th>
+                            <th>Bác sĩ</th>
+                            <th>Phòng khám</th>
+                            <th>Triệu chứng</th>
+                            <th>Trạng thái</th>
+                            <th>Hành động</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="exam : ${examinations}">
+                            <td th:text="${exam.examDate != null ? #temporals.format(exam.examDate, 'dd/MM/yyyy HH:mm') : ''}">
+                                15/07/2026 14:00
+                            </td>
+                            <td th:text="${exam.doctor.profile != null ? exam.doctor.profile.fullName : 'Bác sĩ'}">
+                                BS Nguyễn Văn A
+                            </td>
+                            <td th:text="${exam.doctor.profile != null && exam.doctor.profile.room != null ? exam.doctor.profile.room.roomName : 'Phòng khám'}">
+                                Phòng khám Nội tiết
+                            </td>
+                            <td th:text="${exam.medicalHistory != null && !#strings.isEmpty(exam.medicalHistory) ? exam.medicalHistory : 'Không có ghi chú'}">
+                                Mỏi mệt, khát nước
+                            </td>
+                            <td>
+                                <span class="badge-status" 
+                                      th:classappend="${'Pending'.equalsIgnoreCase(exam.status) ? 'status-pending' : 
+                                                       ('InProgress'.equalsIgnoreCase(exam.status) ? 'status-inprogress' : 
+                                                       ('Completed'.equalsIgnoreCase(exam.status) ? 'status-completed' : 'status-cancelled'))}"
+                                      th:text="${'Pending'.equalsIgnoreCase(exam.status) ? 'Chờ khám' : 
+                                                ('InProgress'.equalsIgnoreCase(exam.status) ? 'Đang khám' : 
+                                                ('Completed'.equalsIgnoreCase(exam.status) ? 'Hoàn thành' : 'Đã hủy'))}">
+                                    Chờ khám
+                                </span>
+                            </td>
+                            <td>
+                                <!-- Nút hủy nếu trạng thái là Pending -->
+                                <button th:if="${'Pending'.equalsIgnoreCase(exam.status)}" 
+                                        type="button" 
+                                        class="secondary-btn" 
+                                        style="background: #fee2e2; color: #dc2626; border-color: #fecaca; padding: 6px 12px; font-size: 0.85rem;"
+                                        th:onclick="openCancelModal([[${exam.clinicalExamId}]])">
+                                    <i class="fas fa-times-circle"></i> Hủy lịch
+                                </button>
+                                <!-- Xem lý do hủy nếu đã bị hủy -->
+                                <span th:if="${'Cancelled'.equalsIgnoreCase(exam.status) && exam.cancelReason != null}" 
+                                      th:title="'Lý do: ' + ${exam.cancelReason}"
+                                      style="color: var(--text-secondary); font-size: 0.85rem; cursor: help; border-bottom: 1px dotted #888;">
+                                    Xem lý do
+                                </span>
+                            </td>
+                        </tr>
+                        <tr th:if="${examinations == null || examinations.isEmpty()}">
+                            <td colspan="6" class="empty-message">Bạn chưa đăng ký lịch khám nào.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Cancel Appointment Modal -->
+<div id="cancelModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <i class="fas fa-exclamation-triangle" style="color: var(--danger);"></i> Xác nhận hủy lịch khám
+        </div>
+        <form id="cancelForm" method="post" th:action="@{/patient/booking/cancel/}">
+            <p style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 16px;">
+                Bạn có chắc chắn muốn hủy lịch hẹn khám này không? Vui lòng cho biết lý do hủy lịch.
+            </p>
+            <div class="form-group">
+                <label for="cancelReason">Lý do hủy lịch <span style="color: var(--danger);">*</span></label>
+                <textarea id="cancelReason" name="cancelReason" class="form-control" rows="3" required
+                          placeholder="Ví dụ: Bận đột xuất, Thay đổi kế hoạch..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="secondary-btn" onclick="closeCancelModal()">Quay lại</button>
+                <button type="submit" class="primary-btn" style="background: var(--danger); border-color: var(--danger);">Xác nhận hủy</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Thiết lập giới hạn tối thiểu cho ngày hẹn là thời điểm hiện tại
+    (function() {
+        const examDateInput = document.getElementById('examDate');
+        if (examDateInput) {
+            const now = new Date();
+            // Định dạng sang dạng YYYY-MM-DDThh:mm
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            
+            const minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+            examDateInput.min = minDateTime;
+        }
+    })();
+
+    function validateBookingForm(form) {
+        const examDateInput = document.getElementById('examDate');
+        if (examDateInput) {
+            const selectedDate = new Date(examDateInput.value);
+            const now = new Date();
+            if (selectedDate <= now) {
+                alert('Ngày giờ khám không thể ở thời điểm quá khứ.');
+                return false;
+            }
+        }
+        return true;
+    }
+
+    const cancelModal = document.getElementById('cancelModal');
+    const cancelForm = document.getElementById('cancelForm');
+
+    function openCancelModal(examId) {
+        // Đặt action URL cho form hủy
+        cancelForm.action = '/patient/booking/cancel/' + examId;
+        cancelModal.style.display = 'flex';
+    }
+
+    function closeCancelModal() {
+        cancelModal.style.display = 'none';
+        document.getElementById('cancelReason').value = '';
+    }
+
+    // Đóng modal khi bấm ra ngoài
+    window.onclick = function(event) {
+        if (event.target == cancelModal) {
+            closeCancelModal();
+        }
+    }
+</script>
+</body>
+</html>

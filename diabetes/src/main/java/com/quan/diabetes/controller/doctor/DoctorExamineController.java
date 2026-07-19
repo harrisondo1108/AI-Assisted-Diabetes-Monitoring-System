@@ -459,6 +459,7 @@ public class DoctorExamineController {
 
         if (bindingResult.hasErrors()) {
             populateExamineModel(patientId, false, session, model, loggedInUser);
+            populateSubmittedFormData(form, model);
             return "doctor/examine";
         }
 
@@ -698,75 +699,7 @@ public class DoctorExamineController {
             model.addAttribute("isEditMode", true);
             model.addAttribute("lastExam", exam);
 
-            // Re-populate all required lists to prevent UI crashing on validation failure
-            List<ExamSymptom> symptoms = examSymptomRepository.findAll().stream()
-                    .filter(s -> s.getId().getClinicalExamId().equals(examId))
-                    .collect(Collectors.toList());
-            Map<String, String> symptomNotes = new HashMap<>();
-            for (ExamSymptom s : symptoms) {
-                symptomNotes.put(s.getSymptom().getSymptomId(), s.getNote() != null ? s.getNote() : "");
-            }
-            model.addAttribute("chosenSymptomNotes", symptomNotes);
-
-            List<LabResult> results = labResultRepository.findByLabOrder_ClinicalExamination_ClinicalExamId(examId);
-            if (!results.isEmpty()) {
-                model.addAttribute("lastExamLabResults", results);
-                List<Map<String, Object>> resultsList = new ArrayList<>();
-                for (LabResult r : results) {
-                    Map<String, Object> rMap = new HashMap<>();
-                    Map<String, Object> testMap = new HashMap<>();
-                    testMap.put("testId", r.getLabTest().getLabTestId());
-                    testMap.put("testName", r.getLabTest().getTestName());
-                    testMap.put("unit", r.getLabTest().getUnit());
-                    rMap.put("labTest", testMap);
-                    rMap.put("testId", r.getLabTest().getLabTestId());
-                    rMap.put("referenceRange", r.getReferenceRange());
-                    rMap.put("resultValue", r.getResultValue());
-                    rMap.put("val", r.getResultValue());
-                    rMap.put("flag", r.getFlag());
-                    resultsList.add(rMap);
-                }
-                model.addAttribute("lastExamLabResultsData", resultsList);
-            }
-
-            Prescription prescription = prescriptionRepository.findByClinicalExamination_ClinicalExamId(examId).orElse(null);
-            List<PrescriptionDetail> details = Collections.emptyList();
-            if (prescription != null) {
-                details = prescriptionDetailRepository.findByPrescription_PrescriptionId(prescription.getPrescriptionId());
-                model.addAttribute("lastExamPrescriptionDetails", details);
-                List<Map<String, Object>> prescList = new ArrayList<>();
-                for (PrescriptionDetail p : details) {
-                    Map<String, Object> pMap = new HashMap<>();
-                    Map<String, Object> medMap = new HashMap<>();
-                    medMap.put("medicationId", p.getMedication().getMedicationId());
-                    medMap.put("medicationName", p.getMedication().getMedicationName());
-                    medMap.put("concentration", p.getMedication().getConcentration());
-                    medMap.put("form", p.getMedication().getForm());
-                    pMap.put("medication", medMap);
-                    pMap.put("dosage", p.getDosage());
-                    pMap.put("durationDays", p.getDurationDays());
-                    pMap.put("totalQuantity", p.getTotalQuantity());
-                    pMap.put("medicationPlan", p.getMedicationPlan());
-                    pMap.put("startDate", p.getStartDate() != null ? p.getStartDate().toString() : "");
-                    pMap.put("endDate", p.getEndDate() != null ? p.getEndDate().toString() : "");
-                    List<Map<String, Object>> timingsList = new ArrayList<>();
-                    if (p.getPrescriptionTimings() != null) {
-                        for (PrescriptionTiming t : p.getPrescriptionTimings()) {
-                            Map<String, Object> tMap = new HashMap<>();
-                            Map<String, Object> timingNameMap = new HashMap<>();
-                            timingNameMap.put("timingName", t.getTiming().getTimingName());
-                            tMap.put("timing", timingNameMap);
-                            timingsList.add(tMap);
-                        }
-                    }
-                    pMap.put("prescriptionTimings", timingsList);
-                    prescList.add(pMap);
-                }
-                model.addAttribute("lastExamPrescriptionDetailsData", prescList);
-            } else {
-                model.addAttribute("lastExamPrescriptionDetails", Collections.emptyList());
-                model.addAttribute("lastExamPrescriptionDetailsData", Collections.emptyList());
-            }
+            populateSubmittedFormData(form, model);
 
             Map<String, Object> examMap = new HashMap<>();
             examMap.put("clinicalExamId", examId);
@@ -790,5 +723,93 @@ public class DoctorExamineController {
         clinicalExaminationService.updateExamination(examId, form);
 
         return "redirect:/doctor/dashboard?toast=updated";
+    }
+
+    private void populateSubmittedFormData(ClinicalExamForm form, Model model) {
+        // 1. Populate chosen symptoms
+        Map<String, String> symptomNotes = new HashMap<>();
+        if (form.getSymptomCommentsJson() != null && !form.getSymptomCommentsJson().trim().isEmpty()) {
+            try {
+                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                symptomNotes = mapper.readValue(form.getSymptomCommentsJson(),
+                        new com.fasterxml.jackson.core.type.TypeReference<Map<String, String>>() {});
+            } catch (Exception e) {}
+        }
+        if (form.getSymptomIds() != null) {
+            for (String symId : form.getSymptomIds()) {
+                if (!symptomNotes.containsKey(symId)) {
+                    symptomNotes.put(symId, "");
+                }
+            }
+        }
+        model.addAttribute("chosenSymptomNotes", symptomNotes);
+
+        // 2. Populate ordered lab tests
+        List<Map<String, Object>> labResultsList = new ArrayList<>();
+        if (form.getLabTestIds() != null) {
+            for (String testId : form.getLabTestIds()) {
+                LabTestCatalog test = labTestCatalogRepository.findById(testId).orElse(null);
+                if (test != null) {
+                    Map<String, Object> rMap = new HashMap<>();
+                    Map<String, Object> testMap = new HashMap<>();
+                    testMap.put("testId", test.getLabTestId());
+                    testMap.put("testName", test.getTestName());
+                    testMap.put("unit", test.getUnit());
+                    rMap.put("labTest", testMap);
+                    rMap.put("testId", test.getLabTestId());
+                    rMap.put("referenceRange", "N/A");
+                    rMap.put("resultValue", null);
+                    rMap.put("val", null);
+                    rMap.put("flag", "NORMAL");
+                    labResultsList.add(rMap);
+                }
+            }
+        }
+        model.addAttribute("lastExamLabResultsData", labResultsList);
+
+        // 3. Populate prescribed medications
+        List<Map<String, Object>> prescList = new ArrayList<>();
+        if (form.getPrescriptionJson() != null && !form.getPrescriptionJson().trim().isEmpty()) {
+            try {
+                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                List<Map<String, Object>> submittedPresc = mapper.readValue(form.getPrescriptionJson(),
+                        new com.fasterxml.jackson.core.type.TypeReference<List<Map<String, Object>>>() {});
+                for (Map<String, Object> p : submittedPresc) {
+                    Map<String, Object> pMap = new HashMap<>();
+                    String medId = (String) p.get("medId");
+                    Medication med = medicationRepository.findById(medId).orElse(null);
+                    if (med != null) {
+                        Map<String, Object> medMap = new HashMap<>();
+                        medMap.put("medicationId", med.getMedicationId());
+                        medMap.put("medicationName", med.getMedicationName());
+                        medMap.put("concentration", med.getConcentration());
+                        medMap.put("form", med.getForm());
+                        pMap.put("medication", medMap);
+                    }
+                    pMap.put("dosage", p.get("dosage"));
+                    pMap.put("durationDays", p.get("duration"));
+                    pMap.put("totalQuantity", p.get("quantity"));
+                    pMap.put("medicationPlan", p.get("medicationPlan"));
+                    pMap.put("startDate", p.get("startDate"));
+                    pMap.put("endDate", p.get("endDate"));
+                    
+                    String timingText = (String) p.get("timingText");
+                    List<Map<String, Object>> timingsList = new ArrayList<>();
+                    if (timingText != null && !timingText.trim().isEmpty()) {
+                        String[] parts = timingText.split(",\\s*");
+                        for (String part : parts) {
+                            Map<String, Object> tMap = new HashMap<>();
+                            Map<String, Object> timingNameMap = new HashMap<>();
+                            timingNameMap.put("timingName", part.trim());
+                            tMap.put("timing", timingNameMap);
+                            timingsList.add(tMap);
+                        }
+                    }
+                    pMap.put("prescriptionTimings", timingsList);
+                    prescList.add(pMap);
+                }
+            } catch (Exception e) {}
+        }
+        model.addAttribute("lastExamPrescriptionDetailsData", prescList);
     }
 }

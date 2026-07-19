@@ -347,3 +347,18 @@ VALUES
 ('MED002', 'Gliclazide', N'Viên nén', '30mg', N'Đường uống', N'Uống trước bữa ăn sáng', 'Active'),
 ('MED003', 'Insulin Glargine', N'Bút tiêm', '100IU/ml', N'Tiêm dưới da', N'Tiêm vào cùng một thời điểm mỗi ngày', 'Active'),
 ('MED004', 'Sitagliptin', N'Viên nén', '100mg', N'Đường uống', N'Uống một lần mỗi ngày', 'Active');
+
+-- Khởi tạo tài khoản bác sĩ (RoleID = 'DOC')
+INSERT INTO [Account] (UserID, PhoneNumber, PasswordHash, RoleID, Status)
+VALUES 
+('DOC00001', '0328938601', '$2a$10$gA07W4vdzJFNa1G2cOOvye.H0D0LGM8vFubBXANGzPBKEgXOJNcxO', 'DOC', 'Active'),
+('DOC00002', '0328938602', '$2a$10$gA07W4vdzJFNa1G2cOOvye.H0D0LGM8vFubBXANGzPBKEgXOJNcxO', 'DOC', 'Active'),
+('DOC00003', '0328938603', '$2a$10$gA07W4vdzJFNa1G2cOOvye.H0D0LGM8vFubBXANGzPBKEgXOJNcxO', 'DOC', 'Active');
+
+-- Khởi tạo thông tin cá nhân bác sĩ (Profile)
+INSERT INTO [Profile] (UserID, FullName, PhoneNumber, Address, Dob, Gender, RoomID, Specialty, ImageURL)
+VALUES
+('DOC00001', N'BS. Nguyễn Văn A', '0328938601', N'123 Đường Giải Phóng, Hà Nội', '1980-05-15', 0, 1, N'Nội tiết - Tiểu đường', NULL),
+('DOC00002', N'BS. Trần Thị B', '0328938602', N'456 Đường Nguyễn Huệ, Quận 1, TP. HCM', '1985-08-20', 1, 1, N'Nội tiết - Tiểu đường', NULL),
+('DOC00003', N'BS. Phạm Minh C', '0328938603', N'789 Đường Lê Duẩn, Hải Châu, Đà Nẵng', '1990-12-10', 0, 1, N'Nội tiết - Tiểu đường', NULL);
+

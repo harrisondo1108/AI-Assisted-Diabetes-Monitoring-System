@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<header class="admin-header" th:fragment="receptionistHeader(pageTitle)">
+    <div class="header-title">
+        <h2 th:text="${pageTitle}">Bảng Quản Lý</h2>
+    </div>
+    <div class="header-right">
+        <div class="user-profile-block">
+            <div class="avatar-circle">
+                <i class="fas fa-user-tie"></i>
+            </div>
+            <div class="user-info-text">
+                <span class="user-name-lbl" th:text="${session.userProfile != null ? session.userProfile.fullName : 'Lễ tân'}">Lễ tân</span>
+                <span class="user-role-lbl">Quầy Tiếp Nhận</span>
+            </div>
+        </div>
+    </div>
+</header>
+</body>
+</html>

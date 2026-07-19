@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý lịch hẹn | Lễ tân</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/receptionist/receptionist.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+<div class="admin-layout">
+    <div th:replace="~{layout/receptionist-sidebar :: receptionistSidebar('dashboard')}"></div>
+
+    <div class="admin-main">
+        <div th:replace="~{layout/receptionist-header :: receptionistHeader('Tổng quan Quản lý Lịch hẹn')}"></div>
+
+        <main class="admin-content">
+            <div class="page-header">
+                <div>
+                    <h1><i class="fas fa-tasks"></i> Tiếp nhận & Điều phối</h1>
+                    <p class="subtitle">Xem danh sách đăng ký lịch khám, tiếp nhận bệnh nhân vào phòng khám hoặc hủy/đổi lịch khám.</p>
+                </div>
+            </div>
+
+            <!-- Toast Messages -->
+            <div th:if="${successMessage != null}" class="alert-toast toast-success">
+                <i class="fas fa-check-circle"></i>
+                <span th:text="${successMessage}">Thành công!</span>
+            </div>
+            <div th:if="${errorMessage != null}" class="alert-toast toast-danger">
+                <i class="fas fa-exclamation-circle"></i>
+                <span th:text="${errorMessage}">Đã xảy ra lỗi!</span>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon primary"><i class="fas fa-folder-open"></i></div>
+                    <div class="stat-info">
+                        <h4>Tổng số đặt lịch</h4>
+                        <div class="stat-number" th:text="${totalCount}">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon warning"><i class="fas fa-clock"></i></div>
+                    <div class="stat-info">
+                        <h4>Chờ khám</h4>
+                        <div class="stat-number" th:text="${pendingCount}">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon info"><i class="fas fa-spinner"></i></div>
+                    <div class="stat-info">
+                        <h4>Đang khám</h4>
+                        <div class="stat-number" th:text="${inProgressCount}">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon success"><i class="fas fa-check-double"></i></div>
+                    <div class="stat-info">
+                        <h4>Hoàn thành</h4>
+                        <div class="stat-number" th:text="${completedCount}">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon danger"><i class="fas fa-ban"></i></div>
+                    <div class="stat-info">
+                        <h4>Đã hủy</h4>
+                        <div class="stat-number" th:text="${cancelledCount}">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search and Filter Form -->
+            <div class="patient-card search-filter-card">
+                <form method="get" th:action="@{/receptionist/dashboard}" class="search-filter-form">
+                    <div class="search-filter-field">
+                        <label for="search">Tìm bệnh nhân</label>
+                        <input type="text" id="search" name="search" th:value="${currentSearch}" placeholder="Tên hoặc SĐT...">
+                    </div>
+                    <div class="search-filter-field">
+                        <label for="status">Trạng thái</label>
+                        <select id="status" name="status">
+                            <option value="all" th:selected="${currentStatus == 'all' || currentStatus == null}">Tất cả trạng thái</option>
+                            <option value="Pending" th:selected="${currentStatus == 'Pending'}">Chờ khám</option>
+                            <option value="InProgress" th:selected="${currentStatus == 'InProgress'}">Đang khám</option>
+                            <option value="Completed" th:selected="${currentStatus == 'Completed'}">Hoàn thành</option>
+                            <option value="Cancelled" th:selected="${currentStatus == 'Cancelled'}">Đã hủy</option>
+                        </select>
+                    </div>
+                    <div class="search-filter-field">
+                        <label for="doctorFilterId">Bác sĩ khám</label>
+                        <select id="doctorFilterId" name="doctorId">
+                            <option value="all" th:selected="${currentDoctorId == 'all' || currentDoctorId == null}">Tất cả bác sĩ</option>
+                            <option th:each="doc : ${doctors}" th:value="${doc.userId}"
+                                    th:selected="${currentDoctorId == doc.userId}"
+                                    th:text="${doc.fullName}">
+                                BS Nguyễn Văn A
+                            </option>
+                        </select>
+                    </div>
+                    <div class="search-filter-actions">
+                        <button type="submit" class="primary-btn">
+                            <i class="fas fa-search"></i> Lọc danh sách
+                        </button>
+                        <a th:href="@{/receptionist/dashboard}" class="secondary-btn">
+                            <i class="fas fa-undo"></i> Reset
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Appointments List Table -->
+            <div class="patient-card">
+                <div class="card-header-flex">
+                    <h3><i class="fas fa-list-ul"></i> Danh sách hẹn khám lâm sàng</h3>
+                    <a th:href="@{/receptionist/booking}" class="primary-btn" style="text-decoration: none;">
+                        <i class="fas fa-plus"></i> Đăng ký tại quầy
+                    </a>
+                </div>
+                <table class="patient-table">
+                    <thead>
+                    <tr>
+                        <th>Bệnh nhân</th>
+                        <th>Số điện thoại</th>
+                        <th>Ngày & Giờ hẹn</th>
+                        <th>Bác sĩ chỉ định</th>
+                        <th>Phòng khám</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="exam : ${examinations}">
+                        <td>
+                            <strong th:text="${exam.patient.fullName}">Nguyễn Văn B</strong>
+                        </td>
+                        <td th:text="${exam.patient.phoneNumber != null ? exam.patient.phoneNumber : 'N/A'}">
+                            0912345678
+                        </td>
+                        <td th:text="${exam.examDate != null ? #temporals.format(exam.examDate, 'dd/MM/yyyy HH:mm') : 'Chưa xếp lịch'}">
+                            15/07/2026 14:00
+                        </td>
+                        <td th:text="${exam.doctor.profile != null ? exam.doctor.profile.fullName : 'Bác sĩ'}">
+                            BS Nguyễn Văn A
+                        </td>
+                        <td th:text="${exam.doctor.profile != null && exam.doctor.profile.room != null ? exam.doctor.profile.room.roomName : 'Chưa xếp phòng'}">
+                            Phòng khám Nội tiết
+                        </td>
+                        <td>
+                            <span class="badge-status" 
+                                  th:classappend="${'Pending'.equalsIgnoreCase(exam.status) ? 'status-pending' : 
+                                                   ('InProgress'.equalsIgnoreCase(exam.status) ? 'status-inprogress' : 
+                                                   ('Completed'.equalsIgnoreCase(exam.status) ? 'status-completed' : 'status-cancelled'))}"
+                                  th:text="${'Pending'.equalsIgnoreCase(exam.status) ? 'Chờ khám' : 
+                                            ('InProgress'.equalsIgnoreCase(exam.status) ? 'Đang khám' : 
+                                            ('Completed'.equalsIgnoreCase(exam.status) ? 'Hoàn thành' : 'Đã hủy'))}">
+                                Chờ khám
+                            </span>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 8px;">
+                                <!-- Check-in button -->
+                                <form th:if="${'Pending'.equalsIgnoreCase(exam.status)}" 
+                                      method="post" 
+                                      th:action="@{/receptionist/booking/checkin/{examId}(examId=${exam.clinicalExamId})}">
+                                    <button type="submit" class="primary-btn" style="padding: 6px 12px; font-size: 0.85rem;">
+                                        <i class="fas fa-check"></i> Nhận bệnh
+                                    </button>
+                                </form>
+
+                                <!-- Change appointment details button -->
+                                <button th:if="${'Pending'.equalsIgnoreCase(exam.status)}" 
+                                        type="button" 
+                                        class="secondary-btn" 
+                                        style="padding: 6px 12px; font-size: 0.85rem;"
+                                        th:onclick="openUpdateModal([[${exam.clinicalExamId}]], [[${exam.doctor.userId}]], [[${exam.examDate}]])">
+                                    <i class="fas fa-edit"></i> Đổi lịch
+                                </button>
+
+                                <!-- Cancel button -->
+                                <button th:if="${'Pending'.equalsIgnoreCase(exam.status) || 'InProgress'.equalsIgnoreCase(exam.status)}" 
+                                        type="button" 
+                                        class="secondary-btn" 
+                                        style="background: #fee2e2; color: #dc2626; border-color: #fecaca; padding: 6px 12px; font-size: 0.85rem;"
+                                        th:onclick="openCancelModal([[${exam.clinicalExamId}]])">
+                                    <i class="fas fa-times-circle"></i> Hủy lịch
+                                </button>
+
+                                <!-- View cancel reason if cancelled -->
+                                <span th:if="${'Cancelled'.equalsIgnoreCase(exam.status) && exam.cancelReason != null}" 
+                                      th:title="'Lý do: ' + ${exam.cancelReason}"
+                                      style="color: var(--text-secondary); font-size: 0.85rem; cursor: help; border-bottom: 1px dotted #888; align-self: center;">
+                                    Xem lý do hủy
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${examinations == null || examinations.isEmpty()}">
+                        <td colspan="7" class="empty-message">Không tìm thấy lịch hẹn nào phù hợp.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Cancel Appointment Modal -->
+<div id="cancelModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <i class="fas fa-exclamation-triangle" style="color: var(--danger);"></i> Xác nhận hủy lịch khám
+        </div>
+        <form id="cancelForm" method="post" action="">
+            <p style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 16px;">
+                Bạn có chắc chắn muốn hủy lịch hẹn khám này? Hãy ghi rõ lý do hủy.
+            </p>
+            <div class="form-group">
+                <label for="cancelReason">Lý do hủy lịch <span style="color: var(--danger);">*</span></label>
+                <textarea id="cancelReason" name="cancelReason" class="form-control" rows="3" required
+                          placeholder="Ví dụ: Bệnh nhân yêu cầu hủy, Bác sĩ bận đột xuất..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="secondary-btn" onclick="closeCancelModal()">Quay lại</button>
+                <button type="submit" class="primary-btn" style="background: var(--danger); border-color: var(--danger);">Xác nhận hủy</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Update Appointment Modal -->
+<div id="updateModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <i class="fas fa-edit" style="color: var(--green-600);"></i> Thay đổi thông tin lịch hẹn
+        </div>
+        <form id="updateForm" method="post" action="">
+            <div class="form-group">
+                <label for="modalDoctorId">Bác sĩ phụ trách</label>
+                <select id="modalDoctorId" name="doctorId" class="form-control" required>
+                    <option th:each="doc : ${doctors}" th:value="${doc.userId}" th:text="${doc.fullName}">
+                        BS Nguyễn Văn A
+                    </option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="modalExamDate">Ngày giờ hẹn khám</label>
+                <input type="datetime-local" id="modalExamDate" name="examDate" class="form-control" required>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="secondary-btn" onclick="closeUpdateModal()">Quay lại</button>
+                <button type="submit" class="primary-btn">Cập nhật</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const cancelModal = document.getElementById('cancelModal');
+    const cancelForm = document.getElementById('cancelForm');
+
+    function openCancelModal(examId) {
+        cancelForm.action = '/receptionist/booking/cancel/' + examId;
+        cancelModal.style.display = 'flex';
+    }
+
+    function closeCancelModal() {
+        cancelModal.style.display = 'none';
+        document.getElementById('cancelReason').value = '';
+    }
+
+    const updateModal = document.getElementById('updateModal');
+    const updateForm = document.getElementById('updateForm');
+
+    function openUpdateModal(examId, doctorId, examDateStr) {
+        updateForm.action = '/receptionist/booking/update/' + examId;
+        document.getElementById('modalDoctorId').value = doctorId;
+        
+        // Parse date to datetime-local string format: YYYY-MM-DDThh:mm
+        if (examDateStr) {
+            const date = new Date(examDateStr);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            document.getElementById('modalExamDate').value = `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+        
+        // Cài đặt ngày tối thiểu cho input của modal
+        const now = new Date();
+        const minYear = now.getFullYear();
+        const minMonth = String(now.getMonth() + 1).padStart(2, '0');
+        const minDay = String(now.getDate()).padStart(2, '0');
+        const minHours = String(now.getHours()).padStart(2, '0');
+        const minMinutes = String(now.getMinutes()).padStart(2, '0');
+        document.getElementById('modalExamDate').min = `${minYear}-${minMonth}-${minDay}T${minHours}:${minMinutes}`;
+
+        updateModal.style.display = 'flex';
+    }
+
+    function closeUpdateModal() {
+        updateModal.style.display = 'none';
+    }
+
+    // Đóng modal khi click ra ngoài
+    window.onclick = function(event) {
+        if (event.target == cancelModal) {
+            closeCancelModal();
+        }
+        if (event.target == updateModal) {
+            closeUpdateModal();
+        }
+    }
+</script>
+</body>
+</html>

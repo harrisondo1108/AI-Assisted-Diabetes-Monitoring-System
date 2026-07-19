@@ -121,6 +121,16 @@
                         </div>
                     </div>
 
+                    <!-- Validation Summary Alert -->
+                    <div th:if="${#fields.hasAnyErrors()}" class="validation-summary-alert" style="margin: 15px 20px; padding: 15px 20px; background-color: #fef2f2; border-left: 4px solid #ef4444; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                        <h4 style="margin: 0 0 8px 0; color: #991b1b; font-size: 0.95rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-circle-exclamation" style="font-size: 1.1rem;"></i> Không thể lưu ca khám do thiếu thông tin:
+                        </h4>
+                        <ul style="margin: 0; padding-left: 20px; color: #7f1d1d; font-size: 0.85rem; line-height: 1.5;">
+                            <li th:each="err : ${#fields.allErrors()}" th:text="${err}"></li>
+                        </ul>
+                    </div>
+
                     <!-- Examination Start Overlay -->
                     <div id="examStartOverlay" class="exam-start-overlay" th:style="${activeExam != null && activeExam.status == 'Pending' ? 'display: flex;' : 'display: none;'}">
                         <i class="fas fa-stethoscope"></i>

@@ -30,6 +30,13 @@
             <span>Bảng điều khiển</span>
         </a>
 
+        <a th:href="@{/patient/booking}"
+           class="nav-item"
+           th:classappend="${activeMenu == 'booking'} ? 'active' : ''">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Đặt lịch khám</span>
+        </a>
+
         <a th:href="@{/patient/profile}"
            class="nav-item"
            th:classappend="${activeMenu == 'profile'} ? 'active' : ''">
