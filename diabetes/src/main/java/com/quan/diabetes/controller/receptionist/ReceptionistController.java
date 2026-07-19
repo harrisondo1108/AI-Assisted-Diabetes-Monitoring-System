@@ -122,6 +122,7 @@ public class ReceptionistController {
             ClinicalExamination exam = examOpt.get();
             if ("Pending".equalsIgnoreCase(exam.getStatus())) {
                 exam.setStatus("InProgress");
+                exam.setExamDate(LocalDateTime.now());
                 clinicalExaminationService.update(examId, exam);
                 redirectAttributes.addFlashAttribute("successMessage", "Đã tiếp nhận bệnh nhân vào phòng khám!");
             } else {
