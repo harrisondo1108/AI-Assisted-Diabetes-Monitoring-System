@@ -8,7 +8,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9bb59677-1f3e-4836-a0e9-f9699cb435c3" name="Changes" comment="thêm chức năng đổi mật khẩu cho tài khoản Admin">
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/exam/impl/ClinicalExaminationServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/exam/impl/ClinicalExaminationServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/doctor/header.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/doctor/header.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logs/application.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/application.log" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -370,7 +370,7 @@
       <workItem from="1784085190415" duration="4971000" />
       <workItem from="1784120797666" duration="6493000" />
       <workItem from="1784427197284" duration="636000" />
-      <workItem from="1784427893166" duration="2780000" />
+      <workItem from="1784427893166" duration="3212000" />
     </task>
     <task id="LOCAL-00001" summary="add ResetPasswordController, modify UserRepository, UserService, UserServiceImpl">
       <option name="closed" value="true" />
