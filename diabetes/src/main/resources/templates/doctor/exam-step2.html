@@ -137,7 +137,7 @@
                     <div class="tab-content-area">
 
                         <!-- Pregnancy flag (female patients only) -->
-                        <div class="form-section" th:if="${patient.gender}">
+                        <div class="form-section" th:if="${patient.gender != null && patient.gender}">
                             <h3 class="section-header-title">
                                 <i class="fas fa-person-pregnant" style="color:var(--doctor-danger)"></i>
                                 Phân loại đặc biệt
@@ -193,16 +193,16 @@
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        <tr th:each="l : ${labResults}">
-                                            <td><strong th:text="${l.labTest.testName}"></strong></td>
-                                            <td><span style="font-weight:500;color:var(--doctor-text-muted);"
-                                                      th:text="${l.referenceRange + ' ' + l.labTest.unit}"></span></td>
-                                            <td><strong th:text="${l.resultValue + ' ' + l.labTest.unit}"></strong></td>
-                                            <td>
-                                                <span th:class="'flag-badge ' + (${l.flag == 'HIGH'} ? 'flag-high' : (${l.flag == 'LOW'} ? 'flag-low' : 'flag-normal'))"
-                                                      th:text="${l.flag == 'HIGH' ? 'CAO' : (l.flag == 'LOW' ? 'THẤP' : 'BÌNH THƯỜNG')}"></span>
-                                            </td>
-                                        </tr>
+                                         <tr th:each="l : ${labResults}">
+                                             <td><strong th:text="${l.labTest != null ? l.labTest.testName : 'N/A'}"></strong></td>
+                                             <td><span style="font-weight:500;color:var(--doctor-text-muted);"
+                                                       th:text="${(l.referenceRange != null ? l.referenceRange : '') + ' ' + (l.labTest != null && l.labTest.unit != null ? l.labTest.unit : '')}"></span></td>
+                                             <td><strong th:text="${l.resultValue != null ? l.resultValue + ' ' + (l.labTest != null && l.labTest.unit != null ? l.labTest.unit : '') : 'Chưa có kết quả'}"></strong></td>
+                                             <td>
+                                                 <span th:class="'flag-badge ' + (${l.flag != null && l.flag == 'HIGH'} ? 'flag-high' : (${l.flag != null && l.flag == 'LOW'} ? 'flag-low' : 'flag-normal'))"
+                                                       th:text="${l.flag != null && l.flag == 'HIGH' ? 'CAO' : (l.flag != null && l.flag == 'LOW' ? 'THẤP' : 'BÌNH THƯỜNG')}"></span>
+                                             </td>
+                                         </tr>
                                         <tr th:if="${#lists.isEmpty(labResults)}">
                                             <td colspan="4"
                                                 style="text-align:center;color:var(--doctor-text-muted);padding:30px;">
@@ -223,7 +223,7 @@
                             </h3>
                             <p class="section-description">Nhập chẩn đoán lâm sàng và ghi chú chi tiết cho ca khám này</p>
                             <div class="form-group" style="margin-top:12px;">
-                                <textarea id="diagnosisNote" th:field="*{diagnosisNote}" rows="3"
+                                <textarea id="diagnosisNote" th:field="*{diagnosisNote}" rows="8"
                                           placeholder="Nhập chẩn đoán lâm sàng và ghi chú..."
                                           th:classappend="${#fields.hasErrors('diagnosisNote')} ? 'is-invalid' : ''"></textarea>
                                 <div class="error-feedback" th:if="${#fields.hasErrors('diagnosisNote')}" th:errors="*{diagnosisNote}"></div>
