@@ -278,6 +278,24 @@
     }
 }
 
+/* ===== TYPING CURSOR FOR AI RESPONSE ===== */
+.typing-cursor {
+    display: inline-block;
+    width: 6px;
+    height: 16px;
+    background-color: var(--green-600);
+    margin-left: 3px;
+    vertical-align: -2px;
+    border-radius: 2px;
+    animation: blinkCursor 0.8s infinite;
+}
+
+@keyframes blinkCursor {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+
 .loading-indicator span {
     font-size: 13px;
     color: var(--text-secondary);
@@ -751,4 +769,21 @@
 
 .btn-confirm:hover {
     background: #B91C1C;
+}
+
+/* ===== TYPING CURSOR ===== */
+.typing-cursor {
+    display: inline-block;
+    width: 7px;
+    height: 16px;
+    background-color: var(--green-600, #145C4A);
+    margin-left: 3px;
+    vertical-align: middle;
+    animation: blinkCursor 0.8s infinite;
+    border-radius: 1px;
+}
+
+@keyframes blinkCursor {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
 }

@@ -67,6 +67,24 @@ public class AiProviderManager {
     }
 
     /**
+     * Sinh văn bản theo luồng (streaming) bằng strategy tương ứng với model.
+     */
+    public void generateStreamWithModel(String modelName, String prompt, String systemPrompt, AiGenerateOptions options,
+                                        java.util.function.Consumer<String> onChunk,
+                                        Runnable onComplete,
+                                        java.util.function.Consumer<Throwable> onError) {
+        AiClientStrategy strategy = getClientForModel(modelName);
+        logger.info("Routing stream request for model '{}' to strategy: {}", modelName, strategy.getDisplayName());
+
+        AiGenerateOptions effectiveOptions = (options != null) ? options : new AiGenerateOptions();
+        if (modelName != null && !modelName.isBlank()) {
+            effectiveOptions.setModelName(modelName);
+        }
+
+        strategy.generateStream(prompt, systemPrompt, effectiveOptions, onChunk, onComplete, onError);
+    }
+
+    /**
      * Trả về danh sách tất cả các chiến lược AI đang có trong hệ thống.
      */
     public List<AiClientStrategy> getAllStrategies() {

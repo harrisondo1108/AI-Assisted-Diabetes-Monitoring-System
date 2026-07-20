@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -63,6 +64,20 @@ public class PatientChatController extends BasePatientController {
             @RequestBody AiChatRequestDto request,
             @PathVariable Integer assistantId) {
         return aiChatService.sendMessageWithAssistant(request, assistantId);
+    }
+
+    @PostMapping("/patient/chat/api/stream")
+    @ResponseBody
+    public SseEmitter sendMessageStream(@RequestBody AiChatRequestDto request) {
+        return aiChatService.sendMessageStream(request, null);
+    }
+
+    @PostMapping("/patient/chat/api/stream/assistant/{assistantId}")
+    @ResponseBody
+    public SseEmitter sendMessageStreamWithAssistant(
+            @RequestBody AiChatRequestDto request,
+            @PathVariable Integer assistantId) {
+        return aiChatService.sendMessageStream(request, assistantId);
     }
 
     @GetMapping("/patient/chat/api/history/{conversationId}")

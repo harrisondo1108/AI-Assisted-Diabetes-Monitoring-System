@@ -18,7 +18,7 @@ public  class AIAssistantServiceImpl implements AIAssistantService {
     private static final Logger logger = LoggerFactory.getLogger(AIAssistantServiceImpl.class);
     private final AIAssistantRepository aIAssistantRepository;
 
-    @Value("${ollama.model:diabetes-ai}")
+    @Value("${ollama.model:diabetes}")
     private String defaultModel;
 
     public AIAssistantServiceImpl(AIAssistantRepository aIAssistantRepository) {
