@@ -23,10 +23,12 @@
 
             <main class="doctor-content">
                 <!-- Status/Alert Messages -->
-                <div th:if="${successMessage != null}" class="alert-msg success" style="margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 8px; font-size: 0.88rem; font-weight: 500; background: rgba(16, 185, 129, 0.08); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);">
+                <div th:if="${successMessage != null}" class="alert-msg success"
+                    style="margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 8px; font-size: 0.88rem; font-weight: 500; background: rgba(16, 185, 129, 0.08); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);">
                     <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
                 </div>
-                <div th:if="${errorMessage != null}" class="alert-msg error" style="margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 8px; font-size: 0.88rem; font-weight: 500; background: rgba(239, 68, 68, 0.08); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2);">
+                <div th:if="${errorMessage != null}" class="alert-msg error"
+                    style="margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 8px; font-size: 0.88rem; font-weight: 500; background: rgba(239, 68, 68, 0.08); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2);">
                     <i class="fas fa-exclamation-circle"></i> <span th:text="${errorMessage}"></span>
                 </div>
 
@@ -42,19 +44,36 @@
                             </div>
                             <form th:action="@{/doctor/queue}" method="get" class="header-actions">
                                 <input type="hidden" name="page" value="1">
-                                <input type="hidden" name="status" th:value="${currentStatus != null ? currentStatus : 'all'}">
-                                
+                                <input type="hidden" name="status"
+                                    th:value="${currentStatus != null ? currentStatus : 'all'}">
+
                                 <div class="card-search-box">
                                     <i class="fas fa-search"></i>
                                     <input type="text" name="search" id="queueSearchInput" placeholder="Tìm theo tên..."
                                         th:value="${currentSearch}">
                                 </div>
                                 <div class="filter-pills">
-                                    <a th:href="@{/doctor/queue(page=1, status='all', search=${currentSearch})}" class="pill" th:classappend="${currentStatus == 'all' || currentStatus == null} ? 'active' : ''" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Tất cả</a>
-                                    <a th:href="@{/doctor/queue(page=1, status='Pending', search=${currentSearch})}" class="pill" th:classappend="${currentStatus == 'Pending'} ? 'active' : ''" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Đang chờ</a>
-                                    <a th:href="@{/doctor/queue(page=1, status='InProgress', search=${currentSearch})}" class="pill" th:classappend="${currentStatus == 'InProgress'} ? 'active' : ''" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Đang khám</a>
-                                    <a th:href="@{/doctor/queue(page=1, status='Completed', search=${currentSearch})}" class="pill" th:classappend="${currentStatus == 'Completed'} ? 'active' : ''" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Hoàn thành</a>
-                                    <a th:href="@{/doctor/queue(page=1, status='Cancelled', search=${currentSearch})}" class="pill" th:classappend="${currentStatus == 'Cancelled'} ? 'active' : ''" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Đã hủy</a>
+                                    <a th:href="@{/doctor/queue(page=1, status='all', search=${currentSearch})}"
+                                        class="pill"
+                                        th:classappend="${currentStatus == 'all' || currentStatus == null} ? 'active' : ''"
+                                        style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Tất
+                                        cả</a>
+                                    <a th:href="@{/doctor/queue(page=1, status='Pending', search=${currentSearch})}"
+                                        class="pill" th:classappend="${currentStatus == 'Pending'} ? 'active' : ''"
+                                        style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Đang
+                                        chờ</a>
+                                    <a th:href="@{/doctor/queue(page=1, status='InProgress', search=${currentSearch})}"
+                                        class="pill" th:classappend="${currentStatus == 'InProgress'} ? 'active' : ''"
+                                        style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Đang
+                                        khám</a>
+                                    <a th:href="@{/doctor/queue(page=1, status='Completed', search=${currentSearch})}"
+                                        class="pill" th:classappend="${currentStatus == 'Completed'} ? 'active' : ''"
+                                        style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Hoàn
+                                        thành</a>
+                                    <a th:href="@{/doctor/queue(page=1, status='Cancelled', search=${currentSearch})}"
+                                        class="pill" th:classappend="${currentStatus == 'Cancelled'} ? 'active' : ''"
+                                        style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Đã
+                                        hủy</a>
                                 </div>
                             </form>
                         </div>
@@ -96,37 +115,39 @@
                                                     class="fa-solid fa-ban"></i> Đã hủy</span>
                                         </td>
                                         <td>
-                                            <div th:if="${p.status == 'Pending' || p.status == 'InProgress'}" style="display: inline-flex; gap: 6px; align-items: center;">
+                                            <div th:if="${p.status == 'Pending' || p.status == 'InProgress'}"
+                                                style="display: inline-flex; gap: 6px; align-items: center;">
                                                 <a th:href="@{/doctor/examine(patientId=${p.patient.userId})}"
                                                     class="btn btn-primary btn-sm">
                                                     <i class="fas fa-stethoscope"></i> <span
                                                         th:text="${p.status == 'Pending' ? 'Bắt đầu' : 'Khám tiếp'}">Bắt
                                                         đầu</span>
                                                 </a>
-                                                <a th:href="@{/doctor/examine/{id}/cancel(id=${p.patient.userId})}"
+                                                <button type="button"
                                                     class="btn btn-sm"
                                                     title="Hủy khám"
-                                                    style="background-color:#fee2e2;color:#dc2626;border:1px solid #fecaca;display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;text-decoration:none;">
-                                                    <i class="fas fa-times"></i>
-                                                </a>
+                                                    th:attr="onclick='openCancelModal(' + '&quot;' + ${p.patient.userId} + '&quot;' + ',&quot;' + ${p.patient.fullName} + '&quot;)'"
+                                                    style="background-color:#fee2e2;color:#dc2626;border:1px solid #fecaca;display:inline-flex;align-items:center;gap:5px;padding:6px 12px;cursor:pointer;">
+                                                    <i class="fas fa-times"></i> Hủy
+                                                </button>
                                                 <a th:href="@{/doctor/history(patientId=${p.patient.userId}, from='dashboard')}"
-                                                   class="btn btn-secondary btn-sm"
-                                                   title="Lịch sử bệnh án"
-                                                   style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0;">
-                                                    <i class="fas fa-history"></i>
+                                                    class="btn btn-secondary btn-sm" title="Lịch sử bệnh án"
+                                                    style="display: inline-flex; align-items: center; gap: 5px; text-decoration: none;">
+                                                    <i class="fas fa-history"></i> Lịch sử
                                                 </a>
                                             </div>
-                                            <div th:if="${p.status == 'Completed' || p.status == 'Cancelled'}" style="display: inline-flex; gap: 6px; align-items: center;">
+                                            <div th:if="${p.status == 'Completed' || p.status == 'Cancelled'}"
+                                                style="display: inline-flex; gap: 6px; align-items: center;">
                                                 <a th:if="${p.status == 'Completed'}"
-                                                   th:href="@{/doctor/examine/edit/{id}(id=${p.clinicalExamId})}"
-                                                   class="btn btn-primary btn-sm" style="color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                                                    th:href="@{/doctor/examine/edit/{id}(id=${p.clinicalExamId})}"
+                                                    class="btn btn-primary btn-sm"
+                                                    style="color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
                                                     <i class="fas fa-edit"></i> Sửa
                                                 </a>
                                                 <a th:href="@{/doctor/history(patientId=${p.patient.userId}, from='dashboard')}"
-                                                   class="btn btn-secondary btn-sm"
-                                                   title="Lịch sử bệnh án"
-                                                   style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0;">
-                                                    <i class="fas fa-history"></i>
+                                                    class="btn btn-secondary btn-sm" title="Lịch sử bệnh án"
+                                                    style="display: inline-flex; align-items: center; gap: 5px; text-decoration: none;">
+                                                    <i class="fas fa-history"></i> Lịch sử
                                                 </a>
                                             </div>
                                         </td>
@@ -138,23 +159,22 @@
                             <div class="pagination" id="queuePagination" th:if="${totalPages > 1}">
                                 <!-- Prev Button -->
                                 <a th:if="${currentPage > 1}"
-                                   th:href="@{/doctor/queue(page=${currentPage - 1}, status=${currentStatus}, search=${currentSearch})}">
+                                    th:href="@{/doctor/queue(page=${currentPage - 1}, status=${currentStatus}, search=${currentSearch})}">
                                     <i class="fas fa-chevron-left"></i>
                                 </a>
                                 <span th:if="${currentPage == 1}" class="disabled">
                                     <i class="fas fa-chevron-left"></i>
                                 </span>
-                                
+
                                 <!-- Page Numbers -->
-                                <a th:each="i : ${#numbers.sequence(1, totalPages)}"
-                                   th:text="${i}"
-                                   th:href="@{/doctor/queue(page=${i}, status=${currentStatus}, search=${currentSearch})}"
-                                   th:classappend="${i == currentPage} ? 'active' : ''">
+                                <a th:each="i : ${#numbers.sequence(1, totalPages)}" th:text="${i}"
+                                    th:href="@{/doctor/queue(page=${i}, status=${currentStatus}, search=${currentSearch})}"
+                                    th:classappend="${i == currentPage} ? 'active' : ''">
                                 </a>
-                                
+
                                 <!-- Next Button -->
                                 <a th:if="${currentPage < totalPages}"
-                                   th:href="@{/doctor/queue(page=${currentPage + 1}, status=${currentStatus}, search=${currentSearch})}">
+                                    th:href="@{/doctor/queue(page=${currentPage + 1}, status=${currentStatus}, search=${currentSearch})}">
                                     <i class="fas fa-chevron-right"></i>
                                 </a>
                                 <span th:if="${currentPage == totalPages}" class="disabled">
@@ -169,14 +189,84 @@
             </main>
         </div>
     </div>
+    <!-- ===== CANCEL EXAM MODAL ===== -->
+    <div id="cancelModal" data-base-url="/doctor/examine" th:attr="data-base-url=@{/doctor/examine}" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.45); backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+        <div style="background:#fff; border-radius:16px; padding:32px; width:100%; max-width:480px; margin:0 16px; box-shadow:0 20px 60px rgba(0,0,0,0.2); animation: modalIn 0.25s ease;">
+            <!-- Header -->
+            <div style="display:flex; align-items:center; gap:14px; margin-bottom:24px;">
+                <div style="width:44px; height:44px; border-radius:12px; background:#fee2e2; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <i class="fas fa-ban" style="color:#dc2626; font-size:1.1rem;"></i>
+                </div>
+                <div>
+                    <h3 style="margin:0; font-size:1.05rem; font-weight:700; color:#111827;">Xác nhận hủy khám</h3>
+                    <p id="cancelPatientName" style="margin:2px 0 0; font-size:0.85rem; color:#6b7280;"></p>
+                </div>
+            </div>
+            <!-- Warning banner -->
+            <div style="background:#fff7ed; border:1px solid #fed7aa; border-radius:10px; padding:12px 14px; display:flex; gap:10px; align-items:flex-start; margin-bottom:20px;">
+                <i class="fas fa-exclamation-triangle" style="color:#f97316; margin-top:2px; flex-shrink:0;"></i>
+                <p style="margin:0; font-size:0.83rem; color:#92400e; line-height:1.5;">Hành động này sẽ <strong>hủy vĩnh viễn</strong> ca khám của bệnh nhân. Vui lòng ghi rõ lý do bên dưửi.</p>
+            </div>
+            <!-- Form -->
+            <form id="cancelForm" method="POST">
+                <input type="hidden" th:name="${_csrf != null ? _csrf.parameterName : '_csrf'}" th:value="${_csrf != null ? _csrf.token : ''}" />
+                <div style="margin-bottom:20px;">
+                    <label style="display:block; font-size:0.85rem; font-weight:600; color:#374151; margin-bottom:8px;">
+                        Lý do hủy <span style="color:#dc2626;">*</span>
+                    </label>
+                    <textarea id="cancelReason" name="cancelReason" rows="4" placeholder="Nhập lý do hủy ca khám..."
+                        style="width:100%; padding:10px 14px; border:1.5px solid #e5e7eb; border-radius:10px; font-family:inherit; font-size:0.88rem; color:#111827; resize:vertical; outline:none; transition:border-color 0.2s; box-sizing:border-box;"
+                        onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e5e7eb'"></textarea>
+                    <p id="cancelReasonError" style="display:none; color:#dc2626; font-size:0.8rem; margin:6px 0 0; display:flex; align-items:center; gap:4px;">
+                        <i class="fas fa-exclamation-circle"></i> Vui lòng nhập lý do hủy.
+                    </p>
+                </div>
+                <!-- Actions -->
+                <div style="display:flex; gap:10px; justify-content:flex-end;">
+                    <button type="button" onclick="closeCancelModal()"
+                        style="padding:9px 20px; border:1.5px solid #e5e7eb; border-radius:9px; background:#fff; color:#374151; font-size:0.88rem; font-weight:600; cursor:pointer; transition:all 0.2s;"
+                        onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='#fff'">
+                        Thoát
+                    </button>
+                    <button type="submit"
+                        style="padding:9px 20px; border:none; border-radius:9px; background:#dc2626; color:#fff; font-size:0.88rem; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:all 0.2s;"
+                        onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'">
+                        <i class="fas fa-times-circle"></i> Xác nhận hủy
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
     <!-- CSS Toast Animation for pure CSS notification -->
     <style>
-        @keyframes toastAnimation {
-            0% { transform: translateY(-50px); opacity: 0; }
-            10% { transform: translateY(0); opacity: 1; }
-            90% { transform: translateY(0); opacity: 1; }
-            100% { transform: translateY(-50px); opacity: 0; pointer-events: none; visibility: hidden; }
+        @keyframes modalIn {
+            from { transform: scale(0.93) translateY(-12px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
         }
+        @keyframes toastAnimation {
+            0% {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+
+            10% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+
+            90% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-50px);
+                opacity: 0;
+                pointer-events: none;
+                visibility: hidden;
+            }
+        }
+
         .toast-container .toast {
             animation: toastAnimation 4s forwards;
         }
@@ -184,9 +274,14 @@
     <!-- Native Toast Container -->
     <div id="toast-container" class="toast-container" th:if="${param.toast}">
         <div class="toast show" th:classappend="${param.toast[0] == 'not_today' ? 'error' : 'success'}">
-            <i class="fas" th:classappend="${param.toast[0] == 'not_today' ? 'fa-times-circle' : 'fa-check-circle'}"></i>
-            <span th:text="${param.toast[0] == 'completed' ? 'Hoàn thành ca khám thành công!' : (param.toast[0] == 'updated' ? 'Cập nhật ca khám thành công!' : (param.toast[0] == 'cancelled' ? 'Hủy ca khám thành công!' : (param.toast[0] == 'not_today' ? 'Chỉ được phép chỉnh sửa ca khám được thực hiện trong ngày hôm nay.' : 'Thao tác thành công!')))}"></span>
+            <i class="fas"
+                th:classappend="${param.toast[0] == 'not_today' ? 'fa-times-circle' : 'fa-check-circle'}"></i>
+            <span
+                th:text="${param.toast[0] == 'completed' ? 'Hoàn thành ca khám thành công!' : (param.toast[0] == 'updated' ? 'Cập nhật ca khám thành công!' : (param.toast[0] == 'cancelled' ? 'Hủy ca khám thành công!' : (param.toast[0] == 'not_today' ? 'Chỉ được phép chỉnh sửa ca khám được thực hiện trong ngày hôm nay.' : 'Thao tác thành công!')))}"></span>
         </div>
     </div>
+    <!-- Cancel Modal Script -->
+    <script th:src="@{/js/doctor/queue-cancel-modal.js}" defer></script>
 </body>
+
 </html>

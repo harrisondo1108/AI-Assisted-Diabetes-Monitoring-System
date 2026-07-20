@@ -10,6 +10,7 @@
     <link rel="stylesheet" th:href="@{/css/doctor/doctor-common.css}">
     <link rel="stylesheet" th:href="@{/css/doctor/doctor-examine.css}">
     <link rel="stylesheet" th:href="@{/css/doctor/exam-steps.css}">
+    <link rel="stylesheet" th:href="@{/css/doctor/exam-step4.css}">
 </head>
 
 <body>
@@ -95,7 +96,7 @@
 
                 <!-- Tab navigation form (does NOT submit prescription data) -->
                 <form th:action="@{/doctor/examine/{id}/step4/navigate(id=${exam.clinicalExamId})}"
-                      method="POST" id="tabNavForm">
+                      method="POST" id="tabNavForm" class="exam-tab-nav-form">
                     <div class="exam-tab-bar">
                         <button type="submit" name="targetTab" value="1" class="exam-tab">
                             <i class="fas fa-stethoscope"></i><span>Triệu chứng & Lý do khám</span>
@@ -117,7 +118,7 @@
                 </form>
 
                 <!-- Header actions -->
-                <div class="workspace-header">
+                <div class="workspace-header align-left">
                     <div class="workspace-actions">
                         <a th:if="${session.examineEditMode}" th:href="@{/doctor/queue}" class="btn btn-secondary"
                            style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
@@ -127,7 +128,7 @@
                 </div>
 
                 <!-- TAB 4 CONTENT -->
-                <div class="tab-content-area" style="display: flex; flex-direction: column; flex: 1;">
+                <div class="tab-content-area">
 
                     <!-- ===== CURRENT PRESCRIPTION LIST ===== -->
                     <div class="form-section">

@@ -38,6 +38,18 @@
                 <i class="fas fa-exclamation-circle"></i> <span th:text="${requestErrorMessage}"></span>
             </div>
 
+            <!-- Profile Incomplete Warning -->
+            <div th:if="${profileIncomplete}" style="margin-bottom: 18px; width: 100%; border-radius: 10px; border: 1.5px solid #fed7aa; background: #fff7ed; padding: 14px 18px; display: flex; align-items: flex-start; gap: 14px;">
+                <i class="fas fa-exclamation-triangle" style="color: #f97316; font-size: 1.2rem; margin-top: 2px; flex-shrink: 0;"></i>
+                <div>
+                    <p style="margin: 0 0 4px; font-weight: 700; color: #9a3412; font-size: 0.92rem;">Hồ sơ chưa đầy đủ — Không thể gửi yêu cầu khám</p>
+                    <p style="margin: 0; font-size: 0.83rem; color: #c2410c; line-height: 1.5;">
+                        Vui lòng cập nhật đầy đủ các thông tin sau trong hồ sơ của bạn:
+                        <strong>Họ và tên, Ngày sinh, Giới tính, Chiều cao, Cân nặng, Số điện thoại.</strong>
+                    </p>
+                </div>
+            </div>
+
             <div class="dashboard-stats progress-stats">
 
                 <div class="stat-card">

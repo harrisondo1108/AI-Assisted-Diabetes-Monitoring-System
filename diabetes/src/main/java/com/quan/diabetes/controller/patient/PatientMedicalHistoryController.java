@@ -14,6 +14,7 @@ import com.quan.diabetes.service.exam.DoctorRatingService;
 import com.quan.diabetes.service.systemlog.SystemLogService;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -232,8 +233,16 @@ public class PatientMedicalHistoryController extends BasePatientController {
             clinicalExaminationService.requestExamination(patient.getUserId(), medicalHistory.trim());
             redirectAttributes.addFlashAttribute("requestSuccessMessage", "Gửi yêu cầu khám thành công! Vui lòng chờ bác sĩ duyệt.");
         } catch (Exception e) {
-            systemLogService.saveLog(patient.getUserId(), "CREATE_MEDICAL_REQUEST", "MedicalRecord", patient.getUserId(), "Gửi yêu cầu khám thất bại: " + e.getMessage(), null, null, "FAILED");
-            redirectAttributes.addFlashAttribute("requestErrorMessage", e.getMessage());
+            String msg = e.getMessage();
+            if ("PROFILE_INCOMPLETE".equals(msg)) {
+                redirectAttributes.addFlashAttribute("profileIncomplete", true);
+                systemLogService.saveLog(patient.getUserId(), "CREATE_MEDICAL_REQUEST", "MedicalRecord",
+                        patient.getUserId(), "Gửi yêu cầu khám thất bại (Hồ sơ chưa đầy đủ)", null, null, "FAILED");
+            } else {
+                systemLogService.saveLog(patient.getUserId(), "CREATE_MEDICAL_REQUEST", "MedicalRecord",
+                        patient.getUserId(), "Gửi yêu cầu khám thất bại: " + msg, null, null, "FAILED");
+                redirectAttributes.addFlashAttribute("requestErrorMessage", msg);
+            }
         }
 
         return "redirect:/patient/progress";

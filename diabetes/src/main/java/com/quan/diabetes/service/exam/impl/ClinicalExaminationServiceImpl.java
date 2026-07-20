@@ -841,11 +841,38 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
             throw new RuntimeException("Bạn đã có một yêu cầu khám đang chờ duyệt hoặc một ca khám đang diễn ra.");
         }
 
+        // ── Check profile completeness before allowing exam request ──
+        Patient patientForCheck = patientRepository.findById(patientId)
+                .orElseThrow(() -> new EntityNotFoundException("Patient not found: " + patientId));
+
+        List<String> missingMandatory = new ArrayList<>();
+        if (patientForCheck.getFullName() == null || patientForCheck.getFullName().trim().isEmpty()) {
+            missingMandatory.add("Họ và tên");
+        }
+        if (patientForCheck.getDob() == null) {
+            missingMandatory.add("Ngày sinh");
+        }
+        if (patientForCheck.getGender() == null) {
+            missingMandatory.add("Giới tính");
+        }
+        if (patientForCheck.getHeight() == null) {
+            missingMandatory.add("Chiều cao");
+        }
+        if (patientForCheck.getWeight() == null) {
+            missingMandatory.add("Cân nặng");
+        }
+        if (patientForCheck.getPhoneNumber() == null || patientForCheck.getPhoneNumber().trim().isEmpty()) {
+            missingMandatory.add("Số điện thoại");
+        }
+
+        if (!missingMandatory.isEmpty()) {
+            throw new RuntimeException("PROFILE_INCOMPLETE");
+        }
+
         ClinicalExamination exam = new ClinicalExamination();
         String clinicalExamId = generateClinicalExamId();
         exam.setClinicalExamId(clinicalExamId);
-        exam.setPatient(patientRepository.findById(patientId)
-                .orElseThrow(() -> new EntityNotFoundException("Patient not found: " + patientId)));
+        exam.setPatient(patientForCheck);
         exam.setDoctor(doctor);
         exam.setExamDate(LocalDateTime.now());
         exam.setStatus("Requested");

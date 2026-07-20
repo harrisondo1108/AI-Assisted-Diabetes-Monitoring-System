@@ -248,6 +248,10 @@
     background-color: #fafcfb;
 }
 
+.workspace-header.align-left {
+    justify-content: flex-start;
+}
+
 .session-info {
     display: flex;
     gap: 6px;
