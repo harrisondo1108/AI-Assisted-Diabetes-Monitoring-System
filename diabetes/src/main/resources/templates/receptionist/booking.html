@@ -43,22 +43,7 @@
             text-decoration: none;
         }
 
-        /* Search input for patient dropdown */
-        .search-select-container {
-            position: relative;
-        }
 
-        .search-input {
-            width: 100%;
-            padding: 10px 12px;
-            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-            border: 1px solid var(--border);
-            border-bottom: none;
-            background: #fff;
-            font-family: inherit;
-            font-size: 0.9rem;
-            outline: none;
-        }
     </style>
 </head>
 
@@ -84,17 +69,15 @@
                     <!-- Chọn Bệnh nhân -->
                     <div class="form-group">
                         <label for="patientId">Bệnh nhân <span style="color: var(--danger);">*</span></label>
-                        <div class="search-select-container">
-                            <input type="text" id="patientSearch" class="search-input" placeholder="Tìm nhanh bệnh nhân (gõ tên hoặc SĐT và ấn Enter)..." onkeydown="handlePatientSearchKeyDown(event)">
-                            <select id="patientId" name="patientId" class="form-control" size="6" style="border-radius: 0 0 var(--radius-sm) var(--radius-sm);" required>
-                                <option th:each="pat : ${patients}" 
-                                        th:value="${pat.userId}" 
-                                        th:text="${pat.fullName + ' - SĐT: ' + (pat.phoneNumber != null ? pat.phoneNumber : 'N/A') + ' (Mã BN: ' + pat.userId + ')'}">
-                                    Bệnh nhân A - SĐT: 0912345678
-                                </option>
-                                <option th:if="${patients == null || patients.isEmpty()}" value="" disabled>Không có bệnh nhân nào trong hệ thống</option>
-                            </select>
-                        </div>
+                        <select id="patientId" name="patientId" class="form-control" required>
+                            <option value="">-- Chọn bệnh nhân --</option>
+                            <option th:each="pat : ${patients}" 
+                                    th:value="${pat.userId}" 
+                                    th:text="${pat.fullName + ' - SĐT: ' + (pat.phoneNumber != null ? pat.phoneNumber : 'N/A') + ' (Mã BN: ' + pat.userId + ')'}">
+                                Bệnh nhân A - SĐT: 0912345678
+                            </option>
+                            <option th:if="${patients == null || patients.isEmpty()}" value="" disabled>Không có bệnh nhân nào trong hệ thống</option>
+                        </select>
                     </div>
 
                     <!-- Chọn Bác sĩ -->
@@ -151,40 +134,7 @@
         }
     })();
 
-    // Loại bỏ dấu tiếng Việt để tìm kiếm không dấu
-    function removeDiacritics(str) {
-        if (!str) return '';
-        return str.normalize("NFD")
-                  .replace(/[\u0300-\u036f]/g, "")
-                  .replace(/đ/g, "d")
-                  .replace(/Đ/g, "D");
-    }
 
-    // Xử lý khi gõ phím trong ô tìm kiếm
-    function handlePatientSearchKeyDown(event) {
-        if (event.key === 'Enter') {
-            event.preventDefault(); // Ngăn submit form khi nhấn Enter
-            filterPatients();
-        }
-    }
-
-    // Lọc tìm kiếm bệnh nhân nhanh
-    function filterPatients() {
-        const input = document.getElementById('patientSearch');
-        const filter = removeDiacritics(input.value.toLowerCase().trim());
-        const select = document.getElementById('patientId');
-        const options = select.options;
-
-        for (let i = 0; i < options.length; i++) {
-            const txtValue = options[i].textContent || options[i].innerText;
-            const normalizedText = removeDiacritics(txtValue.toLowerCase());
-            if (normalizedText.indexOf(filter) > -1) {
-                options[i].style.display = "";
-            } else {
-                options[i].style.display = "none";
-            }
-        }
-    }
 
     function validateBookingForm(form) {
         const patientId = document.getElementById('patientId').value;
