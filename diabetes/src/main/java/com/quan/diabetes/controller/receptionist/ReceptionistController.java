@@ -142,7 +142,7 @@ public class ReceptionistController {
         Optional<ClinicalExamination> examOpt = clinicalExaminationService.findById(examId);
         if (examOpt.isPresent()) {
             ClinicalExamination exam = examOpt.get();
-            if ("Pending".equalsIgnoreCase(exam.getStatus()) || "InProgress".equalsIgnoreCase(exam.getStatus())) {
+            if ("Pending".equalsIgnoreCase(exam.getStatus()) || "InProgress".equalsIgnoreCase(exam.getStatus()) || "Requested".equalsIgnoreCase(exam.getStatus())) {
                 exam.setStatus("Cancelled");
                 exam.setCancelReason(reason);
                 clinicalExaminationService.update(examId, exam);

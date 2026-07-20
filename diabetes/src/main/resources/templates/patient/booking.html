@@ -110,6 +110,12 @@
             border: 1px solid #fde68a;
         }
 
+        .status-requested {
+            background-color: #f3e8ff;
+            color: #7e22ce;
+            border: 1px solid #e9d5ff;
+        }
+
         .status-inprogress {
             background-color: #dbeafe;
             color: #2563eb;
@@ -293,17 +299,19 @@
                             <td>
                                 <span class="badge-status" 
                                       th:classappend="${'Pending'.equalsIgnoreCase(exam.status) ? 'status-pending' : 
+                                                       ('Requested'.equalsIgnoreCase(exam.status) ? 'status-requested' : 
                                                        ('InProgress'.equalsIgnoreCase(exam.status) ? 'status-inprogress' : 
-                                                       ('Completed'.equalsIgnoreCase(exam.status) ? 'status-completed' : 'status-cancelled'))}"
+                                                       ('Completed'.equalsIgnoreCase(exam.status) ? 'status-completed' : 'status-cancelled')))}"
                                       th:text="${'Pending'.equalsIgnoreCase(exam.status) ? 'Chờ khám' : 
+                                                ('Requested'.equalsIgnoreCase(exam.status) ? 'Chờ duyệt' : 
                                                 ('InProgress'.equalsIgnoreCase(exam.status) ? 'Đang khám' : 
                                                 ('Completed'.equalsIgnoreCase(exam.status) ? 'Hoàn thành' : 'Đã hủy'))}">
                                     Chờ khám
                                 </span>
                             </td>
                             <td>
-                                <!-- Nút hủy nếu trạng thái là Pending -->
-                                <button th:if="${'Pending'.equalsIgnoreCase(exam.status)}" 
+                                <!-- Nút hủy nếu trạng thái là Pending hoặc Requested -->
+                                <button th:if="${'Pending'.equalsIgnoreCase(exam.status) || 'Requested'.equalsIgnoreCase(exam.status)}" 
                                         type="button" 
                                         class="secondary-btn" 
                                         style="background: #fee2e2; color: #dc2626; border-color: #fecaca; padding: 6px 12px; font-size: 0.85rem;"

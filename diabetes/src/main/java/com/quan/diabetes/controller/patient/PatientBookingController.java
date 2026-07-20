@@ -94,7 +94,7 @@ public class PatientBookingController extends BasePatientController {
             exam.setDoctor(doctorOpt.get());
             exam.setExamDate(examDate);
             exam.setMedicalHistory(medicalHistory);
-            exam.setStatus("Pending");
+            exam.setStatus("Requested");
 
             clinicalExaminationService.create(exam);
             redirectAttributes.addFlashAttribute("successMessage", "Đặt lịch khám thành công!");
