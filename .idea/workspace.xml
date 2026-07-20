@@ -368,7 +368,7 @@
       <workItem from="1784120797666" duration="6493000" />
       <workItem from="1784427197284" duration="636000" />
       <workItem from="1784427893166" duration="4435000" />
-      <workItem from="1784508506900" duration="1087000" />
+      <workItem from="1784508506900" duration="1774000" />
     </task>
     <task id="LOCAL-00001" summary="add ResetPasswordController, modify UserRepository, UserService, UserServiceImpl">
       <option name="closed" value="true" />

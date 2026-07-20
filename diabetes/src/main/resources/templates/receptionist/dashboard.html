@@ -291,14 +291,12 @@
             document.getElementById('modalExamDate').value = `${year}-${month}-${day}T${hours}:${minutes}`;
         }
         
-        // Cài đặt ngày tối thiểu cho input của modal
+        // Cài đặt ngày tối thiểu cho input của modal (cho phép đổi lịch trong cùng ngày hôm nay)
         const now = new Date();
         const minYear = now.getFullYear();
         const minMonth = String(now.getMonth() + 1).padStart(2, '0');
         const minDay = String(now.getDate()).padStart(2, '0');
-        const minHours = String(now.getHours()).padStart(2, '0');
-        const minMinutes = String(now.getMinutes()).padStart(2, '0');
-        document.getElementById('modalExamDate').min = `${minYear}-${minMonth}-${minDay}T${minHours}:${minMinutes}`;
+        document.getElementById('modalExamDate').min = `${minYear}-${minMonth}-${minDay}T00:00`;
 
         updateModal.style.display = 'flex';
     }

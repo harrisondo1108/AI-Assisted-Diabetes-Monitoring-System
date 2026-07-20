@@ -169,7 +169,7 @@ public class ReceptionistController {
             if ("Pending".equalsIgnoreCase(exam.getStatus())) {
                 try {
                     LocalDateTime examDate = LocalDateTime.parse(examDateStr);
-                    if (examDate.isBefore(LocalDateTime.now())) {
+                    if (examDate.toLocalDate().isBefore(java.time.LocalDate.now())) {
                         redirectAttributes.addFlashAttribute("errorMessage", "Ngày giờ hẹn mới không thể ở quá khứ.");
                         return "redirect:/receptionist/dashboard";
                     }
@@ -225,7 +225,7 @@ public class ReceptionistController {
 
         try {
             LocalDateTime examDate = LocalDateTime.parse(examDateStr);
-            if (examDate.isBefore(LocalDateTime.now())) {
+            if (examDate.toLocalDate().isBefore(java.time.LocalDate.now())) {
                 redirectAttributes.addFlashAttribute("errorMessage", "Ngày giờ hẹn không thể ở quá khứ.");
                 return "redirect:/receptionist/booking";
             }
