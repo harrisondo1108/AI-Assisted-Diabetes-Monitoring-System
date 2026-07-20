@@ -2,8 +2,9 @@
 
 .profile-layout {
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
     padding: 30px 40px;
     height: calc(100vh - var(--header-height));
     overflow-y: auto;
@@ -248,10 +249,12 @@
     margin-top: 4px;
     display: none;
 }
+
 .validation-feedback.invalid {
     color: var(--doctor-danger);
     display: block;
 }
+
 .validation-feedback.valid {
     color: var(--doctor-success);
     display: block;
@@ -260,6 +263,7 @@
 .input-invalid {
     border-color: var(--doctor-danger) !important;
 }
+
 .input-invalid:focus {
     box-shadow: 0 0 0 3px rgba(197, 48, 48, 0.15) !important;
 }
@@ -279,7 +283,7 @@
     background: white;
     padding: 16px 24px;
     border-radius: var(--radius-sm);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
     gap: 12px;
@@ -304,6 +308,7 @@
     padding: 0 0 0 10px;
     transition: opacity 0.2s;
 }
+
 .toast-close-btn:hover {
     opacity: 1;
 }
@@ -312,29 +317,41 @@
     transform: translateX(0);
 }
 
-.toast.success { 
-    background-color: #f0fdf4; 
-    border-color: #bbf7d0; 
-    border-left-color: #22c55e; 
-    color: #166534; 
+.toast.success {
+    background-color: #f0fdf4;
+    border-color: #bbf7d0;
+    border-left-color: #22c55e;
+    color: #166534;
 }
-.toast.success i { color: #22c55e; font-size: 1.1rem; }
 
-.toast.error { 
-    background-color: #fef2f2; 
-    border-color: #fecaca; 
-    border-left-color: #ef4444; 
-    color: #991b1b; 
+.toast.success i {
+    color: #22c55e;
+    font-size: 1.1rem;
 }
-.toast.error i { color: #ef4444; font-size: 1.1rem; }
 
-.toast.warning { 
-    background-color: #fffbeb; 
-    border-color: #fde68a; 
-    border-left-color: #f59e0b; 
-    color: #92400e; 
+.toast.error {
+    background-color: #fef2f2;
+    border-color: #fecaca;
+    border-left-color: #ef4444;
+    color: #991b1b;
 }
-.toast.warning i { color: #f59e0b; font-size: 1.1rem; }
+
+.toast.error i {
+    color: #ef4444;
+    font-size: 1.1rem;
+}
+
+.toast.warning {
+    background-color: #fffbeb;
+    border-color: #fde68a;
+    border-left-color: #f59e0b;
+    color: #92400e;
+}
+
+.toast.warning i {
+    color: #f59e0b;
+    font-size: 1.1rem;
+}
 
 .input-with-icon input[type="password"] {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;

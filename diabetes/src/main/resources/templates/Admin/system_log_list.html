@@ -147,31 +147,44 @@
                     <!-- Phân trang -->
                     <div class="pagination-container" th:if="${logPage.totalPages > 0}">
                         <span class="pagination-info"
-                              th:with="start=${logPage.totalElements == 0 ? 0 : logPage.number * logPage.size + 1}, end=${(logPage.number + 1) * logPage.size > logPage.totalElements ? logPage.totalElements : (logPage.number + 1) * logPage.size}"
-                              th:text="|Hiển thị ${start} - ${end} / ${logPage.totalElements} nhật ký|">
+                            th:with="start=${logPage.totalElements == 0 ? 0 : logPage.number * logPage.size + 1}, end=${(logPage.number + 1) * logPage.size > logPage.totalElements ? logPage.totalElements : (logPage.number + 1) * logPage.size}"
+                            th:text="|Hiển thị ${start} - ${end} / ${logPage.totalElements} nhật ký|">
                         </span>
-                        
+
                         <div class="pagination-controls">
                             <!-- Nút Trước -->
-                            <a th:if="${!logPage.first}" 
-                               th:href="@{/admin/system-log(page=${logPage.number}, keyword=${keyword}, role=${role}, action=${action}, fromDate=${fromDate}, toDate=${toDate})}" 
-                               class="pagination-btn">Trước</a>
+                            <a th:if="${!logPage.first}"
+                                th:href="@{/admin/system-log(page=${logPage.number}, keyword=${keyword}, role=${role}, action=${action}, fromDate=${fromDate}, toDate=${toDate})}"
+                                class="pagination-btn">Trước</a>
                             <span th:if="${logPage.first}" class="pagination-btn disabled">Trước</span>
-                            
-                            <!-- Các số trang -->
-                            <div class="pagination-pages">
-                                <th:block th:each="pageNum : ${#numbers.sequence(1, logPage.totalPages)}">
-                                    <a th:href="@{/admin/system-log(page=${pageNum}, keyword=${keyword}, role=${role}, action=${action}, fromDate=${fromDate}, toDate=${toDate})}" 
-                                       class="page-number" 
-                                       th:classappend="${pageNum == logPage.number + 1} ? 'active' : ''" 
-                                       th:text="${pageNum}"></a>
+
+                            <!-- Các số trang (Hiển thị tối đa 5 trang) -->
+                            <div class="pagination-pages"
+                                th:with="maxPages=5, halfPages=2,
+                                          currentPage=${logPage.number + 1},
+                                          totalPages=${logPage.totalPages},
+                                          startPage=${currentPage - halfPages > 0 ? (currentPage + halfPages <= totalPages ? currentPage - halfPages : (totalPages - maxPages + 1 > 0 ? totalPages - maxPages + 1 : 1)) : 1},
+                                          endPage=${startPage + maxPages - 1 <= totalPages ? startPage + maxPages - 1 : totalPages}">
+
+                                <th:block th:if="${startPage > 1}">
+                                    <span class="page-ellipsis">...</span>
+                                </th:block>
+
+                                <th:block th:each="pageNum : ${#numbers.sequence(startPage, endPage)}">
+                                    <a th:href="@{/admin/system-log(page=${pageNum}, keyword=${keyword}, role=${role}, action=${action}, fromDate=${fromDate}, toDate=${toDate})}"
+                                        class="page-number" th:classappend="${pageNum == currentPage} ? 'active' : ''"
+                                        th:text="${pageNum}"></a>
+                                </th:block>
+
+                                <th:block th:if="${endPage < totalPages}">
+                                    <span class="page-ellipsis">...</span>
                                 </th:block>
                             </div>
-                            
+
                             <!-- Nút Sau -->
-                            <a th:if="${!logPage.last}" 
-                               th:href="@{/admin/system-log(page=${logPage.number + 2}, keyword=${keyword}, role=${role}, action=${action}, fromDate=${fromDate}, toDate=${toDate})}" 
-                               class="pagination-btn">Sau</a>
+                            <a th:if="${!logPage.last}"
+                                th:href="@{/admin/system-log(page=${logPage.number + 2}, keyword=${keyword}, role=${role}, action=${action}, fromDate=${fromDate}, toDate=${toDate})}"
+                                class="pagination-btn">Sau</a>
                             <span th:if="${logPage.last}" class="pagination-btn disabled">Sau</span>
                         </div>
                     </div>

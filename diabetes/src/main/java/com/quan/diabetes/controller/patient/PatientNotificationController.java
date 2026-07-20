@@ -133,7 +133,8 @@ public class PatientNotificationController extends BasePatientController {
         }
 
         Reminder reminder = reminderService.findById(id).orElse(null);
-        if (reminder == null || reminder.getPatient() == null || !patient.getUserId().equals(reminder.getPatient().getUserId())) {
+        if (reminder == null || reminder.getPatient() == null
+                || !patient.getUserId().equals(reminder.getPatient().getUserId())) {
             return "redirect:/patient/notifications/history";
         }
 
@@ -150,16 +151,18 @@ public class PatientNotificationController extends BasePatientController {
             LocalDate date = scheduled.toLocalDate();
             LocalDate today = LocalDate.now();
             LocalDate yesterday = today.minusDays(1);
-            
+
             String ampm = scheduled.getHour() >= 12 ? "PM" : "AM";
-            int hour = scheduled.getHour() > 12 ? scheduled.getHour() - 12 : (scheduled.getHour() == 0 ? 12 : scheduled.getHour());
+            int hour = scheduled.getHour() > 12 ? scheduled.getHour() - 12
+                    : (scheduled.getHour() == 0 ? 12 : scheduled.getHour());
             String timeStr = String.format("%02d:%02d", hour, scheduled.getMinute());
             if (date.isEqual(today)) {
                 formattedDateTime = "Hôm nay, " + timeStr + " " + ampm;
             } else if (date.isEqual(yesterday)) {
                 formattedDateTime = "Hôm qua, " + timeStr + " " + ampm;
             } else {
-                formattedDateTime = date.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) + ", " + timeStr + " " + ampm;
+                formattedDateTime = date.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) + ", "
+                        + timeStr + " " + ampm;
             }
         }
 
@@ -173,13 +176,18 @@ public class PatientNotificationController extends BasePatientController {
         String doctorSpecialty = "Khoa Nội tiết";
         String examId = null;
         ClinicalExamination exam = null;
-        if (patient != null) {
+
+        // 1. Prefer the exam linked directly to the reminder
+        if (reminder.getClinicalExamination() != null) {
+            exam = reminder.getClinicalExamination();
+        }
+        // 2. Fallback to the latest exam for the patient
+        else if (patient != null) {
             exam = clinicalExaminationService.findAll().stream()
                     .filter(e -> e.getPatient() != null && e.getPatient().getUserId().equals(patient.getUserId()))
                     .sorted(Comparator.comparing(
                             ClinicalExamination::getExamDate,
-                            Comparator.nullsLast(Comparator.reverseOrder())
-                    ))
+                            Comparator.nullsLast(Comparator.reverseOrder())))
                     .findFirst()
                     .orElse(null);
         }
@@ -190,7 +198,8 @@ public class PatientNotificationController extends BasePatientController {
                 User doctorUser = exam.getDoctor();
                 if (doctorUser.getProfile() != null) {
                     doctorName = "BS. " + doctorUser.getProfile().getFullName();
-                    if (doctorUser.getProfile().getSpecialty() != null && !doctorUser.getProfile().getSpecialty().trim().isEmpty()) {
+                    if (doctorUser.getProfile().getSpecialty() != null
+                            && !doctorUser.getProfile().getSpecialty().trim().isEmpty()) {
                         doctorSpecialty = doctorUser.getProfile().getSpecialty();
                     }
                 } else {
@@ -202,78 +211,107 @@ public class PatientNotificationController extends BasePatientController {
             final ClinicalExamination finalExam = exam;
             List<PrescriptionDetail> details = prescriptionDetailService.findAll().stream()
                     .filter(d -> d.getPrescription() != null && d.getPrescription().getClinicalExamination() != null)
-                    .filter(d -> d.getPrescription().getClinicalExamination().getClinicalExamId().equals(finalExam.getClinicalExamId()))
+                    .filter(d -> d.getPrescription().getClinicalExamination().getClinicalExamId()
+                            .equals(finalExam.getClinicalExamId()))
                     .collect(Collectors.toList());
 
+            List<PrescriptionDetail> matchingDetails = new ArrayList<>();
+
+            // Strategy A: Match by Timing
             if (reminder.getTiming() != null && !details.isEmpty()) {
                 timingName = reminder.getTiming().getTimingName();
-                PrescriptionDetail matchingDetail = null;
                 for (PrescriptionDetail d : details) {
                     if (d.getPrescriptionTimings() != null) {
                         boolean matchesTiming = d.getPrescriptionTimings().stream()
-                                .anyMatch(pt -> pt.getTiming() != null && pt.getTiming().getTimingID() == reminder.getTiming().getTimingID());
+                                .anyMatch(pt -> pt.getTiming() != null
+                                        && pt.getTiming().getTimingID() == reminder.getTiming().getTimingID());
                         if (matchesTiming) {
-                            matchingDetail = d;
-                            break;
+                            matchingDetails.add(d);
                         }
                     }
-                }
-                
-                if (matchingDetail != null) {
-                    if (matchingDetail.getMedication() != null) {
-                        medicationName = matchingDetail.getMedication().getMedicationName();
-                        if (matchingDetail.getMedication().getUsageInstruction() != null && !matchingDetail.getMedication().getUsageInstruction().trim().isEmpty()) {
-                            instruction = matchingDetail.getMedication().getUsageInstruction();
-                        }
-                    }
-                    if (matchingDetail.getDosage() != null) {
-                        dosage = matchingDetail.getDosage();
-                    }
-                    if (matchingDetail.getMedicationPlan() != null && !matchingDetail.getMedicationPlan().trim().isEmpty()) {
-                        doctorNote = matchingDetail.getMedicationPlan();
-                    } else {
-                        doctorNote = "Không có";
-                    }
-                }
-            } else if (!details.isEmpty()) {
-                PrescriptionDetail firstDetail = details.get(0);
-                if (firstDetail.getMedication() != null) {
-                    medicationName = firstDetail.getMedication().getMedicationName();
-                    if (firstDetail.getMedication().getUsageInstruction() != null && !firstDetail.getMedication().getUsageInstruction().trim().isEmpty()) {
-                        instruction = firstDetail.getMedication().getUsageInstruction();
-                    }
-                }
-                if (firstDetail.getDosage() != null) {
-                    dosage = firstDetail.getDosage();
-                }
-                if (firstDetail.getMedicationPlan() != null && !firstDetail.getMedicationPlan().trim().isEmpty()) {
-                    doctorNote = firstDetail.getMedicationPlan();
-                } else {
-                    doctorNote = "Không có";
                 }
             }
-        }
 
-        // Fallback for mock notifications matching the screenshot
-        if (medicationName.equals("Chưa rõ") && reminder.getTitle() != null) {
-            String title = reminder.getTitle();
-            if (title.contains("Metformin")) {
-                medicationName = "Metformin 500mg";
-                dosage = "01 Viên";
-                timingName = "Mỗi buổi sáng";
-                instruction = "Uống 1 viên ngay sau bữa ăn sáng để duy trì mức đường huyết ổn định. Việc dùng thuốc sau khi ăn giúp giảm thiểu các tác dụng phụ lên đường tiêu hóa.";
-                doctorNote = "Vui lòng uống đúng giờ và không bỏ bữa. Nếu có dấu hiệu bất thường như chóng mặt, vã mồ hôi lạnh hoặc mệt mỏi cực độ, hãy liên hệ bác sĩ ngay lập tức. Đây là một phần quan trọng trong phác đồ điều trị tiểu đường Type 2 của bạn.";
-                doctorName = "BS. Nguyễn Thu Hà";
-                doctorSpecialty = "KHOA NỘI TIẾT";
-            } else if (title.contains("Gliclazide")) {
-                medicationName = "Gliclazide 30mg";
-                dosage = "01 Viên";
-                timingName = "Mỗi buổi sáng";
-                instruction = "Uống 1 viên trước bữa ăn sáng để ổn định đường huyết.";
-                doctorNote = "Duy trì uống đều đặn trước ăn sáng 30 phút. Theo dõi đường huyết mao mạch định kỳ và báo cáo lại trong lần tái khám tới.";
-                doctorName = "BS. Nguyễn Thị Lan";
-                doctorSpecialty = "KHOA NỘI TIẾT";
+            // Strategy B: Match by parsing Medication Name from the Message
+            if (matchingDetails.isEmpty() && !details.isEmpty() && reminder.getMessage() != null) {
+                String msgLower = reminder.getMessage().toLowerCase();
+                for (PrescriptionDetail d : details) {
+                    if (d.getMedication() != null && d.getMedication().getMedicationName() != null) {
+                        String medName = d.getMedication().getMedicationName().toLowerCase();
+                        if (msgLower.contains(medName)) {
+                            matchingDetails.add(d);
+                        }
+                    }
+                }
             }
+
+            // Apply the matched details to a list
+            List<Map<String, String>> medList = new ArrayList<>();
+            if (!matchingDetails.isEmpty()) {
+                for (PrescriptionDetail d : matchingDetails) {
+                    Map<String, String> med = new HashMap<>();
+                    med.put("medicationName", d.getMedication() != null && d.getMedication().getMedicationName() != null ? d.getMedication().getMedicationName() : "Chưa rõ");
+                    med.put("dosage", d.getDosage() != null ? d.getDosage() : "Theo chỉ định");
+                    
+                    String dTiming = timingName;
+                    if (d.getPrescriptionTimings() != null && !d.getPrescriptionTimings().isEmpty()) {
+                         dTiming = d.getPrescriptionTimings().stream()
+                                 .map(pt -> pt.getTiming() != null ? pt.getTiming().getTimingName() : "")
+                                 .filter(t -> !t.isEmpty())
+                                 .collect(Collectors.joining(" & "));
+                    }
+                    med.put("timingName", dTiming != null && !dTiming.isEmpty() ? dTiming : "Theo hướng dẫn");
+                    
+                    med.put("instruction", d.getMedication() != null && d.getMedication().getUsageInstruction() != null && !d.getMedication().getUsageInstruction().trim().isEmpty() ? d.getMedication().getUsageInstruction() : "Uống theo hướng dẫn của bác sĩ.");
+                    med.put("doctorNote", d.getMedicationPlan() != null && !d.getMedicationPlan().trim().isEmpty() ? d.getMedicationPlan() : "Không có");
+                    medList.add(med);
+                }
+            }
+
+            // Fallback for mock notifications
+            if (medList.isEmpty() && reminder.getTitle() != null) {
+                String title = reminder.getTitle();
+                String message = reminder.getMessage() != null ? reminder.getMessage() : "";
+
+                if (title.contains("Metformin") || message.contains("Metformin")) {
+                    Map<String, String> med = new HashMap<>();
+                    med.put("medicationName", "Metformin 500mg");
+                    med.put("dosage", "01 Viên");
+                    med.put("timingName", "Mỗi buổi sáng");
+                    med.put("instruction", "Uống 1 viên ngay sau bữa ăn sáng để duy trì mức đường huyết ổn định. Việc dùng thuốc sau khi ăn giúp giảm thiểu các tác dụng phụ lên đường tiêu hóa.");
+                    med.put("doctorNote", "Vui lòng uống đúng giờ và không bỏ bữa. Nếu có dấu hiệu bất thường như chóng mặt, vã mồ hôi lạnh hoặc mệt mỏi cực độ, hãy liên hệ bác sĩ ngay lập tức. Đây là một phần quan trọng trong phác đồ điều trị tiểu đường Type 2 của bạn.");
+                    medList.add(med);
+                } else if (title.contains("Gliclazide") || message.contains("Gliclazide")) {
+                    Map<String, String> med = new HashMap<>();
+                    med.put("medicationName", "Gliclazide 30mg");
+                    med.put("dosage", "01 Viên");
+                    med.put("timingName", "Mỗi buổi sáng");
+                    med.put("instruction", "Uống 1 viên trước bữa ăn sáng để ổn định đường huyết.");
+                    med.put("doctorNote", "Duy trì uống đều đặn trước ăn sáng 30 phút. Theo dõi đường huyết mao mạch định kỳ và báo cáo lại trong lần tái khám tới.");
+                    medList.add(med);
+                } else if (title.contains("Nhắc nhở lịch sử dụng thuốc") || title.contains("Nhắc nhở") || message.contains("thuốc")) {
+                    Map<String, String> med = new HashMap<>();
+                    med.put("medicationName", "Metformin 500mg");
+                    med.put("dosage", "01 Viên");
+                    med.put("timingName", message.contains("sáng") ? "Mỗi buổi sáng" : (message.contains("tối") ? "Mỗi buổi tối" : "Sau bữa ăn"));
+                    med.put("instruction", "Uống 1 viên ngay sau bữa ăn để duy trì mức đường huyết ổn định. Việc dùng thuốc sau khi ăn giúp giảm thiểu các tác dụng phụ lên đường tiêu hóa.");
+                    med.put("doctorNote", "Vui lòng uống đúng giờ và không bỏ bữa. Nếu có dấu hiệu bất thường, hãy liên hệ bác sĩ ngay lập tức. Việc tuân thủ điều trị là rất quan trọng.");
+                    medList.add(med);
+                }
+            }
+            
+            // Set first item as default for single variables to prevent thymeleaf errors
+            if (!medList.isEmpty()) {
+                Map<String, String> firstMed = medList.get(0);
+                medicationName = firstMed.get("medicationName");
+                dosage = firstMed.get("dosage");
+                timingName = firstMed.get("timingName");
+                instruction = firstMed.get("instruction");
+                doctorNote = medList.stream().map(m -> m.get("doctorNote")).filter(n -> !n.equals("Không có")).collect(Collectors.joining(". "));
+                if(doctorNote.isEmpty()) doctorNote = "Không có";
+            }
+            
+            model.addAttribute("medicationList", medList);
         }
 
         boolean isAppointment = false;
@@ -281,21 +319,23 @@ public class PatientNotificationController extends BasePatientController {
         String apptDateStr = "25 tháng 10, 2023";
         String apptLocation = "Phòng khám 204, Tầng 2, Tòa nhà A - Bệnh viện Đa khoa Tâm Anh";
 
-        if (reminder.getTitle() != null && (reminder.getTitle().contains("Lịch") 
-                || reminder.getTitle().contains("Tái khám") 
-                || reminder.getTitle().contains("Hẹn") 
+        if (reminder.getTitle() != null && (reminder.getTitle().contains("Lịch")
+                || reminder.getTitle().contains("Tái khám")
+                || reminder.getTitle().contains("Hẹn")
                 || reminder.getTitle().contains("Xác nhận"))) {
             isAppointment = true;
-            
+
             if (exam != null) {
                 LocalDateTime appt = exam.getNextAppointment();
                 if (appt != null) {
                     apptDayOfWeek = getVietnameseDayOfWeek(appt.getDayOfWeek());
                     apptDateStr = appt.getDayOfMonth() + " tháng " + appt.getMonthValue() + ", " + appt.getYear();
                 } else {
-                    LocalDateTime fallbackAppt = exam.getExamDate() != null ? exam.getExamDate().plusDays(7) : LocalDateTime.now().plusDays(7);
+                    LocalDateTime fallbackAppt = exam.getExamDate() != null ? exam.getExamDate().plusDays(7)
+                            : LocalDateTime.now().plusDays(7);
                     apptDayOfWeek = getVietnameseDayOfWeek(fallbackAppt.getDayOfWeek());
-                    apptDateStr = fallbackAppt.getDayOfMonth() + " tháng " + fallbackAppt.getMonthValue() + ", " + fallbackAppt.getYear();
+                    apptDateStr = fallbackAppt.getDayOfMonth() + " tháng " + fallbackAppt.getMonthValue() + ", "
+                            + fallbackAppt.getYear();
                 }
             } else {
                 if (reminder.getTitle().contains("Lê Văn Anh") || reminder.getMessage().contains("BS. Lê Văn Anh")) {
@@ -304,7 +344,8 @@ public class PatientNotificationController extends BasePatientController {
                 } else {
                     LocalDateTime nextWeek = LocalDateTime.now().plusDays(7);
                     apptDayOfWeek = getVietnameseDayOfWeek(nextWeek.getDayOfWeek());
-                    apptDateStr = nextWeek.getDayOfMonth() + " tháng " + nextWeek.getMonthValue() + ", " + nextWeek.getYear();
+                    apptDateStr = nextWeek.getDayOfMonth() + " tháng " + nextWeek.getMonthValue() + ", "
+                            + nextWeek.getYear();
                 }
             }
         }
@@ -337,27 +378,24 @@ public class PatientNotificationController extends BasePatientController {
         }
 
         List<Map<String, Object>> prescriptionList = new ArrayList<>();
-        
+
         if ("mock-exam-1".equals(examId)) {
             prescriptionList.add(createMockPrescriptionItem(
-                "Metformin", "BIGUANIDE CLASS", "500mg", "2 lần/ngày", "Sau ăn sáng & tối", 
-                "Uống với một ly nước đầy. Báo cáo tình trạng buồn nôn kéo dài cho BS. Hà."
-            ));
+                    "Metformin", "BIGUANIDE CLASS", "500mg", "2 lần/ngày", "Sau ăn sáng & tối",
+                    "Uống với một ly nước đầy. Báo cáo tình trạng buồn nôn kéo dài cho BS. Hà."));
             prescriptionList.add(createMockPrescriptionItem(
-                "Gliclazide", "SULFONYLUREA", "30mg", "1 lần/ngày", "30 phút trước ăn sáng", 
-                "Nuốt nguyên viên. Không bẻ hoặc nhai. Theo dõi các dấu hiệu hạ đường huyết."
-            ));
+                    "Gliclazide", "SULFONYLUREA", "30mg", "1 lần/ngày", "30 phút trước ăn sáng",
+                    "Nuốt nguyên viên. Không bẻ hoặc nhai. Theo dõi các dấu hiệu hạ đường huyết."));
             prescriptionList.add(createMockPrescriptionItem(
-                "Ramipril", "ACE INHIBITOR", "5mg", "1 lần/ngày", "Trước khi đi ngủ", 
-                "Để kiểm soát huyết áp. Duy trì thời gian uống đều đặn mỗi tối."
-            ));
+                    "Ramipril", "ACE INHIBITOR", "5mg", "1 lần/ngày", "Trước khi đi ngủ",
+                    "Để kiểm soát huyết áp. Duy trì thời gian uống đều đặn mỗi tối."));
             prescriptionList.add(createMockPrescriptionItem(
-                "Atorvastatin", "STATIN", "20mg", "1 lần/ngày", "Buổi tối", 
-                "Khuyến nghị chế độ ăn ít chất béo. Tránh uống nước ép bưởi chùm trong thời gian điều trị."
-            ));
+                    "Atorvastatin", "STATIN", "20mg", "1 lần/ngày", "Buổi tối",
+                    "Khuyến nghị chế độ ăn ít chất béo. Tránh uống nước ép bưởi chùm trong thời gian điều trị."));
         } else {
             ClinicalExamination exam = clinicalExaminationService.findById(examId).orElse(null);
-            if (exam == null || exam.getPatient() == null || !patient.getUserId().equals(exam.getPatient().getUserId())) {
+            if (exam == null || exam.getPatient() == null
+                    || !patient.getUserId().equals(exam.getPatient().getUserId())) {
                 return "redirect:/patient/notifications/history";
             }
 
@@ -368,21 +406,17 @@ public class PatientNotificationController extends BasePatientController {
 
             if (details.isEmpty()) {
                 prescriptionList.add(createMockPrescriptionItem(
-                    "Metformin", "BIGUANIDE CLASS", "500mg", "2 lần/ngày", "Sau ăn sáng & tối", 
-                    "Uống với một ly nước đầy. Báo cáo tình trạng buồn nôn kéo dài cho BS. Hà."
-                ));
+                        "Metformin", "BIGUANIDE CLASS", "500mg", "2 lần/ngày", "Sau ăn sáng & tối",
+                        "Uống với một ly nước đầy. Báo cáo tình trạng buồn nôn kéo dài cho BS. Hà."));
                 prescriptionList.add(createMockPrescriptionItem(
-                    "Gliclazide", "SULFONYLUREA", "30mg", "1 lần/ngày", "30 phút trước ăn sáng", 
-                    "Nuốt nguyên viên. Không bẻ hoặc nhai. Theo dõi các dấu hiệu hạ đường huyết."
-                ));
+                        "Gliclazide", "SULFONYLUREA", "30mg", "1 lần/ngày", "30 phút trước ăn sáng",
+                        "Nuốt nguyên viên. Không bẻ hoặc nhai. Theo dõi các dấu hiệu hạ đường huyết."));
                 prescriptionList.add(createMockPrescriptionItem(
-                    "Ramipril", "ACE INHIBITOR", "5mg", "1 lần/ngày", "Trước khi đi ngủ", 
-                    "Để kiểm soát huyết áp. Duy trì thời gian uống đều đặn mỗi tối."
-                ));
+                        "Ramipril", "ACE INHIBITOR", "5mg", "1 lần/ngày", "Trước khi đi ngủ",
+                        "Để kiểm soát huyết áp. Duy trì thời gian uống đều đặn mỗi tối."));
                 prescriptionList.add(createMockPrescriptionItem(
-                    "Atorvastatin", "STATIN", "20mg", "1 lần/ngày", "Buổi tối", 
-                    "Khuyến nghị chế độ ăn ít chất béo. Tránh uống nước ép bưởi chùm trong thời gian điều trị."
-                ));
+                        "Atorvastatin", "STATIN", "20mg", "1 lần/ngày", "Buổi tối",
+                        "Khuyến nghị chế độ ăn ít chất béo. Tránh uống nước ép bưởi chùm trong thời gian điều trị."));
             } else {
                 for (PrescriptionDetail d : details) {
                     String name = d.getMedication() != null ? d.getMedication().getMedicationName() : "Thuốc";
@@ -390,7 +424,7 @@ public class PatientNotificationController extends BasePatientController {
                     String dosage = d.getDosage() != null ? d.getDosage() : "Theo chỉ định";
                     int freqVal = d.getPrescriptionTimings() != null ? d.getPrescriptionTimings().size() : 1;
                     String frequency = freqVal + " lần/ngày";
-                    
+
                     String timing = "Theo hướng dẫn";
                     if (d.getPrescriptionTimings() != null && !d.getPrescriptionTimings().isEmpty()) {
                         List<String> timingNames = d.getPrescriptionTimings().stream()
@@ -401,11 +435,11 @@ public class PatientNotificationController extends BasePatientController {
                             timing = String.join(" & ", timingNames);
                         }
                     }
-                    
+
                     String notes = d.getMedication() != null && d.getMedication().getUsageInstruction() != null
                             ? d.getMedication().getUsageInstruction()
                             : "Uống thuốc theo hướng dẫn.";
-                    
+
                     prescriptionList.add(createMockPrescriptionItem(name, subclass, dosage, frequency, timing, notes));
                 }
             }
@@ -431,12 +465,17 @@ public class PatientNotificationController extends BasePatientController {
     }
 
     private String determineSubclass(String name) {
-        if (name == null) return "MEDICATION CLASS";
+        if (name == null)
+            return "MEDICATION CLASS";
         String lower = name.toLowerCase();
-        if (lower.contains("metformin")) return "BIGUANIDE CLASS";
-        if (lower.contains("gliclazide")) return "SULFONYLUREA";
-        if (lower.contains("ramipril")) return "ACE INHIBITOR";
-        if (lower.contains("atorvastatin")) return "STATIN";
+        if (lower.contains("metformin"))
+            return "BIGUANIDE CLASS";
+        if (lower.contains("gliclazide"))
+            return "SULFONYLUREA";
+        if (lower.contains("ramipril"))
+            return "ACE INHIBITOR";
+        if (lower.contains("atorvastatin"))
+            return "STATIN";
         return "MEDICATION CLASS";
     }
 

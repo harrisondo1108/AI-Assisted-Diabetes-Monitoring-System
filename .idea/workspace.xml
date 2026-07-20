@@ -5,33 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cd82aed5-747b-44b9-892e-efbe52d1dbd5" name="Changes" comment="thêm chức năng doctor rating">
-      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/admin/AdminRatingController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/admin/ratings.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/Admin/ratings.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Merge_at_7_8_2026_11_50_PM_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Merge_at_7_8_2026_11_52_PM_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Merge_at_7_8_2026_11_53_PM_[Changes]/shelved.patch" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorDashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorDashboardController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorExamineController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorExamineController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorHeaderAdvice.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorHeaderAdvice.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorRatingController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientProfileController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientProfileController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/dto/doctor/ClinicalExamForm.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/dto/doctor/ClinicalExamForm.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/DoctorRatingRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/DoctorRatingRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/exam/ClinicalExaminationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/exam/ClinicalExaminationService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/exam/DoctorRatingService.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/exam/DoctorRatingService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/exam/impl/ClinicalExaminationServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/exam/impl/ClinicalExaminationServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/exam/impl/DoctorRatingServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/exam/impl/DoctorRatingServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/admin/system_log.css" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/admin/system_log.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/dashboard.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/exam-step4.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/exam-step4.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/ratings.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/admin/sidebar.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/admin/sidebar.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/doctor/header.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/doctor/header.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/history-detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/history-detail.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/history.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/history.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/progress.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/progress.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/doctor/doctor-common.css" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/doctor/doctor-common.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/exam-step1.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/exam-step1.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logs/application.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/application.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/application.log.2026-07-08.0.gz" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -87,7 +67,7 @@
     </selectedModels>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="329" />
+    <option name="cachedIndexableFilesCount" value="334" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -214,7 +194,7 @@
     &quot;Spring Boot.DiabetesApplication.executor&quot;: &quot;Run&quot;,
     &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
     &quot;copilot.chat.legacySessionMetadata.migrated&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Merging quan__le&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;quan__le&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
@@ -311,6 +291,7 @@
       <workItem from="1783989536715" duration="6564000" />
       <workItem from="1784025836933" duration="1168000" />
       <workItem from="1784108626483" duration="293000" />
+      <workItem from="1784163976303" duration="41000" />
     </task>
     <task id="LOCAL-00001" summary="thêm chức năng doctor rating">
       <option name="closed" value="true" />

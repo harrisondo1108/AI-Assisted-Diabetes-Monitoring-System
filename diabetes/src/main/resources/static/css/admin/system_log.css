@@ -282,6 +282,16 @@
     gap: 4px;
 }
 
+.page-ellipsis {
+    display: inline-flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0 4px;
+    color: var(--text-muted, #8a9a94);
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
 /* Empty State */
 .empty-state {
     text-align: center;

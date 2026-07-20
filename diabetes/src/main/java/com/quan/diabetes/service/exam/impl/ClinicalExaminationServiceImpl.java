@@ -163,7 +163,8 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         exam.setStatus("InProgress");
         clinicalExaminationRepository.save(exam);
 
-        systemLogService.saveLogWithObject(null, "APPROVE_MEDICAL_RECORD", "MedicalRecord", exam.getClinicalExamId(), "Bác sĩ tiếp nhận bệnh án", oldExam, createLogExam(exam.getClinicalExamId()), "SUCCESS");
+        systemLogService.saveLogWithObject(null, "APPROVE_MEDICAL_RECORD", "MedicalRecord", exam.getClinicalExamId(),
+                "Bác sĩ tiếp nhận bệnh án", oldExam, createLogExam(exam.getClinicalExamId()), "SUCCESS");
     }
 
     @Override
@@ -191,7 +192,8 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         exam.setDiagnosisNote(null);
         clinicalExaminationRepository.save(exam);
 
-        systemLogService.saveLogWithObject(null, "REJECT_MEDICAL_RECORD", "MedicalRecord", exam.getClinicalExamId(), "Bác sĩ từ chối/hủy bệnh án", oldExam, createLogExam(exam.getClinicalExamId()), "SUCCESS");
+        systemLogService.saveLogWithObject(null, "REJECT_MEDICAL_RECORD", "MedicalRecord", exam.getClinicalExamId(),
+                "Bác sĩ từ chối/hủy bệnh án", oldExam, createLogExam(exam.getClinicalExamId()), "SUCCESS");
     }
 
     @Override
@@ -475,7 +477,8 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
             }
         }
 
-        systemLogService.saveLogWithObject(null, "COMPLETE_MEDICAL_RECORD", "MedicalRecord", examId, "Bác sĩ hoàn thành bệnh án", oldExam, createLogExam(exam.getClinicalExamId()), "SUCCESS");
+        systemLogService.saveLogWithObject(null, "COMPLETE_MEDICAL_RECORD", "MedicalRecord", examId,
+                "Bác sĩ hoàn thành bệnh án", oldExam, createLogExam(exam.getClinicalExamId()), "SUCCESS");
     }
 
     @Override
@@ -714,7 +717,11 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
 
         // 5. Lưu đơn thuốc (Clear cũ trước)
         prescriptionRepository.findByClinicalExamination_ClinicalExamId(examId)
-                .ifPresent(prescriptionRepository::delete);
+                .ifPresent(old -> {
+                    prescriptionDetailRepository.deleteAll(
+                            prescriptionDetailRepository.findByPrescription_PrescriptionId(old.getPrescriptionId()));
+                    prescriptionRepository.delete(old);
+                });
 
         if (form.getPrescriptionJson() != null && !form.getPrescriptionJson().trim().isEmpty()) {
             try {
@@ -728,7 +735,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                     presc.setPrescriptionId("PRC-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000));
                     presc.setClinicalExamination(exam);
                     presc.setCreatedAt(LocalDateTime.now());
-                    presc = prescriptionRepository.save(presc);
+                    presc = prescriptionRepository.saveAndFlush(presc);
 
                     for (Map<String, Object> line : lines) {
                         String medId = (String) line.get("medId");
@@ -769,7 +776,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                             }
 
                             detail.setPrescriptionTimings(new ArrayList<>());
-                            detail = prescriptionDetailRepository.save(detail);
+                            detail = prescriptionDetailRepository.saveAndFlush(detail);
 
                             // Lưu Timing cho đơn thuốc
                             String timingText = (String) line.get("timingText");
@@ -845,7 +852,9 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         exam.setMedicalHistory(medicalHistory);
         clinicalExaminationRepository.save(exam);
 
-        systemLogService.saveLogWithObject(patientId, "CREATE_MEDICAL_REQUEST", "MedicalRequest", exam.getClinicalExamId(), "Bệnh nhân tạo yêu cầu khám", null, createLogExam(exam.getClinicalExamId()), "SUCCESS");
+        systemLogService.saveLogWithObject(patientId, "CREATE_MEDICAL_REQUEST", "MedicalRequest",
+                exam.getClinicalExamId(), "Bệnh nhân tạo yêu cầu khám", null, createLogExam(exam.getClinicalExamId()),
+                "SUCCESS");
     }
 
     @Override
@@ -1128,7 +1137,8 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
 
     private Map<String, Object> createLogExam(String examId) {
         ClinicalExamination exam = clinicalExaminationRepository.findById(examId).orElse(null);
-        if (exam == null) return null;
+        if (exam == null)
+            return null;
 
         Map<String, Object> logExam = new HashMap<>();
         logExam.put("clinicalExamId", exam.getClinicalExamId());
@@ -1163,9 +1173,11 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
             logExam.put("treatmentPlan", planMap);
         }
 
-        Prescription prescription = prescriptionRepository.findByClinicalExamination_ClinicalExamId(examId).orElse(null);
+        Prescription prescription = prescriptionRepository.findByClinicalExamination_ClinicalExamId(examId)
+                .orElse(null);
         if (prescription != null) {
-            List<PrescriptionDetail> details = prescriptionDetailRepository.findByPrescription_PrescriptionId(prescription.getPrescriptionId());
+            List<PrescriptionDetail> details = prescriptionDetailRepository
+                    .findByPrescription_PrescriptionId(prescription.getPrescriptionId());
             List<Map<String, Object>> prescList = new ArrayList<>();
             for (PrescriptionDetail d : details) {
                 Map<String, Object> dMap = new HashMap<>();
@@ -1190,7 +1202,6 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
 
         return logExam;
     }
-
 
     @Override
     @Transactional(readOnly = true)
@@ -1228,7 +1239,8 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
     }
 
     private Double parseDosagePerDose(String dosageStr) {
-        if (dosageStr == null || dosageStr.equalsIgnoreCase("Auto")) return 1.0;
+        if (dosageStr == null || dosageStr.equalsIgnoreCase("Auto"))
+            return 1.0;
         java.util.regex.Matcher m = java.util.regex.Pattern.compile("^([\\d.]+)").matcher(dosageStr);
         return m.find() ? Double.parseDouble(m.group(1)) : 1.0;
     }
@@ -1263,18 +1275,21 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                     es.setId(new ExamSymptomId(examId, symId));
                     es.setClinicalExamination(exam);
                     es.setSymptom(symptom);
-                    if (comments != null) es.setNote(comments.getOrDefault(symId, ""));
+                    if (comments != null)
+                        es.setNote(comments.getOrDefault(symId, ""));
                     examSymptomRepository.save(es);
                 }
             }
         }
-        
-        systemLogService.saveLogWithObject(doctorId, "UPDATE_MEDICAL_RECORD", "MedicalRecord", examId, "Bác sĩ cập nhật tiền sử bệnh và triệu chứng", oldExamMap, createLogExam(examId), "SUCCESS");
+
+        systemLogService.saveLogWithObject(doctorId, "UPDATE_MEDICAL_RECORD", "MedicalRecord", examId,
+                "Bác sĩ cập nhật tiền sử bệnh và triệu chứng", oldExamMap, createLogExam(examId), "SUCCESS");
     }
 
     @Override
     @Transactional
-    public void saveStep2(String examId, ExamStep2Form form, PatientType matchedType, List<LabTestCatalog> testCatalog, String doctorId) {
+    public void saveStep2(String examId, ExamStep2Form form, PatientType matchedType, List<LabTestCatalog> testCatalog,
+            String doctorId) {
         Map<String, Object> oldExamMap = createLogExam(examId);
         ClinicalExamination exam = clinicalExaminationRepository.findById(examId)
                 .orElseThrow(() -> new EntityNotFoundException("Ca kham khong ton tai: " + examId));
@@ -1284,13 +1299,15 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
             clinicalExaminationRepository.save(exam);
         }
 
-        // Pregnancy flag is stored in session; nothing specific to persist for isPregnant alone
+        // Pregnancy flag is stored in session; nothing specific to persist for
+        // isPregnant alone
         // If orderLabs is requested, create lab order + results
         if (Boolean.TRUE.equals(form.getOrderLabs()) && testCatalog != null && !testCatalog.isEmpty()) {
 
             // Delete existing lab order and results
             labOrderRepository.findByClinicalExamination_ClinicalExamId(examId).ifPresent(existing -> {
-                labResultRepository.deleteAll(labResultRepository.findByLabOrder_ClinicalExamination_ClinicalExamId(examId));
+                labResultRepository
+                        .deleteAll(labResultRepository.findByLabOrder_ClinicalExamination_ClinicalExamId(examId));
                 labOrderRepository.delete(existing);
             });
 
@@ -1329,8 +1346,10 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                     double mid = dbMin.add(dbMax).doubleValue() / 2;
                     double v = mid + (random.nextDouble() * span * 0.6 - span * 0.3);
                     value = BigDecimal.valueOf(Math.round(v * 100.0) / 100.0);
-                    if (value.compareTo(dbMin) < 0) flag = "LOW";
-                    else if (value.compareTo(dbMax) > 0) flag = "HIGH";
+                    if (value.compareTo(dbMin) < 0)
+                        flag = "LOW";
+                    else if (value.compareTo(dbMax) > 0)
+                        flag = "HIGH";
                 } else {
                     value = BigDecimal.ZERO;
                 }
@@ -1339,8 +1358,9 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                 labResultRepository.save(result);
             }
         }
-        
-        systemLogService.saveLogWithObject(doctorId, "UPDATE_MEDICAL_RECORD", "MedicalRecord", examId, "Bác sĩ cập nhật chỉ định cận lâm sàng", oldExamMap, createLogExam(examId), "SUCCESS");
+
+        systemLogService.saveLogWithObject(doctorId, "UPDATE_MEDICAL_RECORD", "MedicalRecord", examId,
+                "Bác sĩ cập nhật chỉ định cận lâm sàng", oldExamMap, createLogExam(examId), "SUCCESS");
     }
 
     @Override
@@ -1372,8 +1392,9 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         plan.setExercisePlan(form.getExercisePlan());
         plan.setGlucoseMonitoringPlan(form.getGlucoseMonitoringPlan());
         treatmentPlanRepository.save(plan);
-        
-        systemLogService.saveLogWithObject(doctorId, "UPDATE_MEDICAL_RECORD", "MedicalRecord", examId, "Bác sĩ cập nhật chẩn đoán và hướng điều trị", oldExamMap, createLogExam(examId), "SUCCESS");
+
+        systemLogService.saveLogWithObject(doctorId, "UPDATE_MEDICAL_RECORD", "MedicalRecord", examId,
+                "Bác sĩ cập nhật chẩn đoán và hướng điều trị", oldExamMap, createLogExam(examId), "SUCCESS");
     }
 
     @Override
@@ -1381,31 +1402,38 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
     public void completeExamination(String examId, List<PrescriptionLineDTO> prescriptionLines, String doctorId) {
         ClinicalExamination exam = clinicalExaminationRepository.findById(examId)
                 .orElseThrow(() -> new EntityNotFoundException("Ca kham khong ton tai: " + examId));
-        exam.setStatus("Completed");
         Map<String, Object> oldExamMap = createLogExam(exam.getClinicalExamId());
+        exam.setStatus("Completed");
 
         clinicalExaminationRepository.save(exam);
 
         // Clear old prescription
         prescriptionRepository.findByClinicalExamination_ClinicalExamId(examId)
-                .ifPresent(prescriptionRepository::delete);
+                .ifPresent(old -> {
+                    prescriptionDetailRepository.deleteAll(
+                            prescriptionDetailRepository.findByPrescription_PrescriptionId(old.getPrescriptionId()));
+                    prescriptionRepository.delete(old);
+                });
 
         if (prescriptionLines != null && !prescriptionLines.isEmpty()) {
             Prescription presc = new Prescription();
             presc.setPrescriptionId("PRC-" + System.currentTimeMillis() + "-" + new Random().nextInt(1000));
             presc.setClinicalExamination(exam);
             presc.setCreatedAt(LocalDateTime.now());
-            presc = prescriptionRepository.save(presc);
+            presc = prescriptionRepository.saveAndFlush(presc);
 
             for (PrescriptionLineDTO line : prescriptionLines) {
                 Medication med = medicationRepository.findById(line.getMedId()).orElse(null);
-                if (med == null) continue;
+                if (med == null)
+                    continue;
 
                 int duration = line.getDuration() != null ? line.getDuration() : 0;
                 int quantity = line.getQuantity() != null ? line.getQuantity() : 0;
                 if (quantity == 0 && duration > 0 && line.getDosagePerDose() != null) {
                     // timing count as doses per day
-                    int timingCount = (line.getTiming() != null && !line.getTiming().isEmpty()) ? line.getTiming().size() : 1;
+                    int timingCount = (line.getTiming() != null && !line.getTiming().isEmpty())
+                            ? line.getTiming().size()
+                            : 1;
                     quantity = (int) Math.ceil(line.getDosagePerDose() * timingCount * duration);
                 }
 
@@ -1424,11 +1452,12 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                     detail.setEndDate(LocalDate.parse(line.getEndDate()));
                 }
                 detail.setPrescriptionTimings(new ArrayList<>());
-                detail = prescriptionDetailRepository.save(detail);
+                detail = prescriptionDetailRepository.saveAndFlush(detail);
 
                 if (line.getTiming() != null) {
                     for (String timingName : line.getTiming()) {
-                        if (timingName == null || timingName.trim().isEmpty()) continue;
+                        if (timingName == null || timingName.trim().isEmpty())
+                            continue;
                         final String tName = timingName.trim();
                         MedicationTiming mt = medicationTimingRepository.findByTimingName(tName)
                                 .orElseGet(() -> {
@@ -1439,7 +1468,7 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                         PrescriptionTiming pt = new PrescriptionTiming();
                         pt.setPrescriptionDetail(detail);
                         pt.setTiming(mt);
-                        prescriptionTimingRepository.save(pt);
+                        prescriptionTimingRepository.saveAndFlush(pt);
                     }
                 }
             }
@@ -1453,5 +1482,8 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
         }
         medicationSchedualeService.generateReminder(examId);
         appointmentSchedule.generateAppointmentReminder(examId);
+
+        systemLogService.saveLogWithObject(doctorId, "COMPLETE_MEDICAL_RECORD", "MedicalRecord", examId,
+                "Bác sĩ hoàn thành bệnh án", oldExamMap, createLogExam(examId), "SUCCESS");
     }
 }

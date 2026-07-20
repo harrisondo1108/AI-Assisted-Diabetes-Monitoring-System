@@ -52,12 +52,7 @@ public class DoctorProfileController {
 
         String doctorId = loggedInUser.getUserId();
 
-        // Check active examination lock
-        Optional<ClinicalExamination> activeExam = clinicalExaminationRepository
-                .findFirstByDoctor_UserIdAndStatus(doctorId, "InProgress");
-        if (activeExam.isPresent()) {
-            return "redirect:/doctor/examine?patientId=" + activeExam.get().getPatient().getUserId() + "&warning=in-progress";
-        }
+        // Removed active examination lock based on user request
 
         Profile profile = profileRepository.findById(doctorId).orElse(null);
         if (profile == null) {
@@ -84,12 +79,7 @@ public class DoctorProfileController {
 
         String doctorId = loggedInUser.getUserId();
 
-        // Check active examination lock
-        Optional<ClinicalExamination> activeExam = clinicalExaminationRepository
-                .findFirstByDoctor_UserIdAndStatus(doctorId, "InProgress");
-        if (activeExam.isPresent()) {
-            return "redirect:/doctor/examine?patientId=" + activeExam.get().getPatient().getUserId() + "&warning=in-progress";
-        }
+        // Removed active examination lock based on user request
 
         if (bindingResult.hasErrors()) {
             String errorMsg = bindingResult.getFieldError().getDefaultMessage();
@@ -158,12 +148,7 @@ public class DoctorProfileController {
 
         String doctorId = loggedInUser.getUserId();
 
-        // Check active examination lock
-        Optional<ClinicalExamination> activeExam = clinicalExaminationRepository
-                .findFirstByDoctor_UserIdAndStatus(doctorId, "InProgress");
-        if (activeExam.isPresent()) {
-            return "redirect:/doctor/examine?patientId=" + activeExam.get().getPatient().getUserId() + "&warning=in-progress";
-        }
+        // Removed active examination lock based on user request
 
         // 1. Kiểm tra không được để trống
         if (currentPassword == null || currentPassword.trim().isEmpty() ||

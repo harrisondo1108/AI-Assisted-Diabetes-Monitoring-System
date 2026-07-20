@@ -32,7 +32,8 @@ public class AppointmentSchedule {
         }
 
         // Lock any existing appointment reminders for this examination
-        List<Reminder> existingReminders = reminderRepo.findByPatient_UserIdAndTitle(clinicalExamination.getPatient().getUserId(), APPOINTMENT_REMINDER_TITLE);
+        List<Reminder> existingReminders = reminderRepo
+                .findByPatient_UserIdAndTitle(clinicalExamination.getPatient().getUserId(), APPOINTMENT_REMINDER_TITLE);
         if (existingReminders != null && !existingReminders.isEmpty()) {
             for (Reminder r : existingReminders) {
                 r.setLockStatus(true);
@@ -51,15 +52,16 @@ public class AppointmentSchedule {
                     doctorName = doctorUser.getUserId();
                 }
             }
-
-            String formattedTime = nextAppointment.format(DateTimeFormatter.ofPattern("HH:mm"));
             String formattedDate = nextAppointment.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
             // Reminder 1: 1 day before next appointment at 7:00 AM
-            LocalDateTime timeDayBefore = nextAppointment.minusDays(1).withHour(7).withMinute(0).withSecond(0).withNano(0);
+            LocalDateTime timeDayBefore = nextAppointment.minusDays(1).withHour(7).withMinute(0).withSecond(0)
+                    .withNano(0);
             Reminder reminderDayBefore = new Reminder();
             reminderDayBefore.setTitle(APPOINTMENT_REMINDER_TITLE);
-            reminderDayBefore.setMessage("Xin chào quý bệnh nhân, vào ngày mai (ngày " + formattedDate + "), bạn có lịch hẹn tái khám với BS. " + doctorName + " vào lúc " + formattedTime + ". Việc tái khám đúng lịch là rất quan trọng để bác sĩ có thể theo dõi sát sao tiến trình điều trị và kiểm soát chỉ số đường huyết tốt nhất cho bạn. Kính chúc bạn luôn nhiều sức khỏe và bình an!");
+            reminderDayBefore.setMessage("Xin chào quý bệnh nhân, vào ngày mai (ngày " + formattedDate
+                    + "), bạn có lịch hẹn tái khám với BS. " + doctorName
+                    + ". Việc tái khám đúng lịch là rất quan trọng để bác sĩ có thể theo dõi sát sao tiến trình điều trị và kiểm soát chỉ số đường huyết tốt nhất cho bạn. Kính chúc bạn luôn nhiều sức khỏe và bình an!");
             reminderDayBefore.setScheduledTime(timeDayBefore);
             reminderDayBefore.setPatient(clinicalExamination.getPatient());
             reminderDayBefore.setIsRead(false);
@@ -71,7 +73,9 @@ public class AppointmentSchedule {
             LocalDateTime timeOnDay = nextAppointment.withHour(7).withMinute(0).withSecond(0).withNano(0);
             Reminder reminderOnDay = new Reminder();
             reminderOnDay.setTitle(APPOINTMENT_REMINDER_TITLE);
-            reminderOnDay.setMessage("Xin chào quý bệnh nhân, hôm nay (ngày " + formattedDate + "), bạn có lịch hẹn tái khám với BS. " + doctorName + " vào lúc " + formattedTime + ". Việc tái khám đúng lịch là rất quan trọng để bác sĩ có thể theo dõi sát sao tiến trình điều trị và kiểm soát chỉ số đường huyết tốt nhất cho bạn. Kính chúc bạn luôn nhiều sức khỏe và bình an!");
+            reminderOnDay.setMessage("Xin chào quý bệnh nhân, hôm nay (ngày " + formattedDate
+                    + "), bạn có lịch hẹn tái khám với BS. " + doctorName
+                    + ". Việc tái khám đúng lịch là rất quan trọng để bác sĩ có thể theo dõi sát sao tiến trình điều trị và kiểm soát chỉ số đường huyết tốt nhất cho bạn. Kính chúc bạn luôn nhiều sức khỏe và bình an!");
             reminderOnDay.setScheduledTime(timeOnDay);
             reminderOnDay.setPatient(clinicalExamination.getPatient());
             reminderOnDay.setIsRead(false);
