@@ -6,6 +6,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
 
+import com.quan.diabetes.entity.AIAssistant;
+import java.util.List;
+
 public interface AiMonitoringService {
     AiPatientAccessLog logPatientAccess(AiPatientAccessLog log);
     Page<AiPatientAccessLogDto> getPatientAccessLogs(String patientId, String dataType, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable);
@@ -13,4 +16,7 @@ public interface AiMonitoringService {
     Long countDistinctPatientsToday();
     boolean isAiEnabled();
     void setAiEnabled(boolean enabled);
+    List<AIAssistant> getAllAssistants();
+    AIAssistant getActiveAssistant();
+    AIAssistant switchActiveAssistant(Integer assistantId);
 }

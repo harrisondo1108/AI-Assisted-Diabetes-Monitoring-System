@@ -10,7 +10,9 @@ BEGIN
         queryLogId BIGINT NULL,
         patientId NVARCHAR(50) NOT NULL,
         dataType VARCHAR(100) NOT NULL,
-        accessedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()
+        accessedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        question NVARCHAR(1000) NULL,
+        latencyMs BIGINT NULL
     );
 
     CREATE INDEX IX_ai_patient_access_log_queryLogId ON ai_patient_access_log(queryLogId);
@@ -22,6 +24,23 @@ BEGIN
 END
 ELSE
 BEGIN
-    PRINT 'Table ai_patient_access_log already exists.';
+    PRINT 'Table ai_patient_access_log already exists. Checking new columns...';
+
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('ai_patient_access_log') AND name = 'question')
+    BEGIN
+        ALTER TABLE ai_patient_access_log ADD question NVARCHAR(1000) NULL;
+        PRINT 'Added column question to ai_patient_access_log.';
+    END
+    ELSE
+    BEGIN
+        ALTER TABLE ai_patient_access_log ALTER COLUMN question NVARCHAR(1000) NULL;
+        PRINT 'Altered column question to NVARCHAR(1000).';
+    END
+
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('ai_patient_access_log') AND name = 'latencyMs')
+    BEGIN
+        ALTER TABLE ai_patient_access_log ADD latencyMs BIGINT NULL;
+        PRINT 'Added column latencyMs to ai_patient_access_log.';
+    END
 END
 GO

@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.*;
 
@@ -30,8 +31,8 @@ public class MedicationController {
             @RequestParam(name = "status", required = false) String status,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "7") int size,
-            @RequestParam(name = "sortField", defaultValue = "medicationName") String sortField,
-            @RequestParam(name = "sortDirection", defaultValue = "asc") String sortDirection,
+            @RequestParam(name = "sortField", defaultValue = "medicationId") String sortField,
+            @RequestParam(name = "sortDirection", defaultValue = "desc") String sortDirection,
             Model model) {
 
         // Create sort object
@@ -39,33 +40,12 @@ public class MedicationController {
         Sort sort = Sort.by(direction, sortField);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<Medication> medicationsPage;
+        Page<Medication> medicationsPage = medicationService.filterMedications(keyword, status, form, route, pageable);
 
-        if ("active".equalsIgnoreCase(status)) {
-            medicationsPage = medicationService.findAllActive(pageable);
-            model.addAttribute("selectedStatus", "active");
-        } else if ("clocked".equalsIgnoreCase(status)) {
-            medicationsPage = medicationService.findAllClocked(pageable);
-            model.addAttribute("selectedStatus", "clocked");
-        } else {
-            medicationsPage = medicationService.findAll(pageable);
-            model.addAttribute("selectedStatus", "all");
-        }
-
-        if (form != null && !form.isEmpty()) {
-            medicationsPage = medicationService.findByForm(form, pageable);
-            model.addAttribute("selectedForm", form);
-        }
-
-        if (route != null && !route.isEmpty()) {
-            medicationsPage = medicationService.findByAdministrationRoute(route, pageable);
-            model.addAttribute("selectedRoute", route);
-        }
-
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            medicationsPage = medicationService.searchByKeyword(keyword, pageable);
-            model.addAttribute("searchKeyword", keyword);
-        }
+        model.addAttribute("selectedStatus", (status == null || "all".equalsIgnoreCase(status)) ? "" : status);
+        model.addAttribute("selectedForm", (form == null || "all".equalsIgnoreCase(form)) ? "" : form);
+        model.addAttribute("selectedRoute", (route == null || "all".equalsIgnoreCase(route)) ? "" : route);
+        model.addAttribute("searchKeyword", keyword == null ? "" : keyword);
 
         Map<String, Object> stats = medicationService.getSummary();
 
@@ -87,56 +67,67 @@ public class MedicationController {
         return "admin/medicine_management";
     }
 
+    @GetMapping("/add")
+    public String redirectAddGet() {
+        return "redirect:/admin/medicines";
+    }
+
     @PostMapping("/add")
-    public String addMedication(@ModelAttribute Medication medication) {
+    public String addMedication(@ModelAttribute Medication medication, RedirectAttributes redirectAttributes) {
         try {
             medicationService.create(medication);
-            return "redirect:/admin/medicines?success=Medicine \"" + medication.getMedicationName() + "\" added successfully!";
+            redirectAttributes.addAttribute("success", "Thêm mới thuốc \"" + medication.getMedicationName() + "\" thành công!");
         } catch (IllegalArgumentException e) {
-            return "redirect:/admin/medicines?error=" + e.getMessage();
+            redirectAttributes.addAttribute("error", e.getMessage());
         } catch (Exception e) {
-            return "redirect:/admin/medicines?error=Error: " + e.getMessage();
+            redirectAttributes.addAttribute("error", "Lỗi hệ thống: " + e.getMessage());
         }
+        return "redirect:/admin/medicines";
     }
 
     @PostMapping("/edit/{id}")
-    public String editMedication(@PathVariable("id") String id, @ModelAttribute Medication medication) {
+    public String editMedication(@PathVariable("id") String id, @ModelAttribute Medication medication, RedirectAttributes redirectAttributes) {
         try {
             medicationService.update(id, medication);
-            return "redirect:/admin/medicines?success=Medicine \"" + medication.getMedicationName() + "\" updated successfully!";
+            redirectAttributes.addAttribute("success", "Cập nhật thuốc \"" + medication.getMedicationName() + "\" thành công!");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addAttribute("error", e.getMessage());
         } catch (Exception e) {
-            return "redirect:/admin/medicines?error=Error: " + e.getMessage();
+            redirectAttributes.addAttribute("error", "Lỗi hệ thống: " + e.getMessage());
         }
+        return "redirect:/admin/medicines";
     }
 
     @PostMapping("/soft-delete/{id}")
-    public String softDeleteMedication(@PathVariable("id") String id) {
+    public String softDeleteMedication(@PathVariable("id") String id, RedirectAttributes redirectAttributes) {
         try {
             Optional<Medication> med = medicationService.findById(id);
             if (med.isPresent()) {
                 medicationService.softDelete(id);
-                return "redirect:/admin/medicines?success=Medicine \"" + med.get().getMedicationName() + "\" has been clocked!";
+                redirectAttributes.addAttribute("success", "Đã tạm khóa thuốc \"" + med.get().getMedicationName() + "\"!");
             } else {
-                return "redirect:/admin/medicines?error=Medicine not found!";
+                redirectAttributes.addAttribute("error", "Không tìm thấy thuốc!");
             }
         } catch (Exception e) {
-            return "redirect:/admin/medicines?error=Error: " + e.getMessage();
+            redirectAttributes.addAttribute("error", "Lỗi hệ thống: " + e.getMessage());
         }
+        return "redirect:/admin/medicines";
     }
 
     @PostMapping("/restore/{id}")
-    public String restoreMedication(@PathVariable("id") String id) {
+    public String restoreMedication(@PathVariable("id") String id, RedirectAttributes redirectAttributes) {
         try {
             Optional<Medication> med = medicationService.findById(id);
             if (med.isPresent()) {
                 medicationService.restore(id);
-                return "redirect:/admin/medicines?success=Medicine \"" + med.get().getMedicationName() + "\" has been restored!";
+                redirectAttributes.addAttribute("success", "Đã khôi phục thuốc \"" + med.get().getMedicationName() + "\"!");
             } else {
-                return "redirect:/admin/medicines?error=Medicine not found!";
+                redirectAttributes.addAttribute("error", "Không tìm thấy thuốc!");
             }
         } catch (Exception e) {
-            return "redirect:/admin/medicines?error=Error: " + e.getMessage();
+            redirectAttributes.addAttribute("error", "Lỗi hệ thống: " + e.getMessage());
         }
+        return "redirect:/admin/medicines";
     }
 
     @GetMapping("/list")
@@ -148,34 +139,14 @@ public class MedicationController {
             @RequestParam(name = "status", required = false) String status,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "7") int size,
-            @RequestParam(name = "sortField", defaultValue = "medicationName") String sortField,
-            @RequestParam(name = "sortDirection", defaultValue = "asc") String sortDirection) {
+            @RequestParam(name = "sortField", defaultValue = "medicationId") String sortField,
+            @RequestParam(name = "sortDirection", defaultValue = "desc") String sortDirection) {
 
         Sort.Direction direction = sortDirection.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
         Sort sort = Sort.by(direction, sortField);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<Medication> medicationsPage;
-
-        if ("active".equalsIgnoreCase(status)) {
-            medicationsPage = medicationService.findAllActive(pageable);
-        } else if ("clocked".equalsIgnoreCase(status)) {
-            medicationsPage = medicationService.findAllClocked(pageable);
-        } else {
-            medicationsPage = medicationService.findAll(pageable);
-        }
-
-        if (form != null && !form.isEmpty()) {
-            medicationsPage = medicationService.findByForm(form, pageable);
-        }
-
-        if (route != null && !route.isEmpty()) {
-            medicationsPage = medicationService.findByAdministrationRoute(route, pageable);
-        }
-
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            medicationsPage = medicationService.searchByKeyword(keyword, pageable);
-        }
+        Page<Medication> medicationsPage = medicationService.filterMedications(keyword, status, form, route, pageable);
 
         java.util.Map<String, Object> response = new java.util.HashMap<>();
         response.put("content", medicationsPage.getContent());

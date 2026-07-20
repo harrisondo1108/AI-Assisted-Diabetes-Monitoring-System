@@ -26,4 +26,10 @@ public interface AIAssistantService {
     AIAssistant getDefaultAssistant();
 
     AIAssistant getOrCreateDefaultAssistant();
+
+    void initDefaultAssistants();
+
+    AIAssistant switchActiveAssistant(Integer aiAssistantId);
+
+    AIAssistant getActiveAssistant();
 }

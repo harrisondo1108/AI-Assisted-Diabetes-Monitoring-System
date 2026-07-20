@@ -1,5 +1,6 @@
 package com.quan.diabetes.monitoring.aop;
 
+import com.quan.diabetes.monitoring.context.AiRequestContextHolder;
 import com.quan.diabetes.monitoring.entity.AiPatientAccessLog;
 import com.quan.diabetes.monitoring.service.AiMonitoringService;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -23,20 +24,35 @@ public class AiToolAspect {
 
     @Around("execution(* com.quan.diabetes.service.ai.AiTool.*(..))")
     public Object logPatientAccess(ProceedingJoinPoint joinPoint) throws Throwable {
+        long start = System.currentTimeMillis();
+        Object result = null;
         try {
-            Object[] args = joinPoint.getArgs();
-            if (args != null && args.length > 0 && args[0] instanceof String) {
-                String patientId = (String) args[0];
-                String methodName = joinPoint.getSignature().getName();
-                String dataType = mapMethodNameToDataType(methodName);
+            result = joinPoint.proceed();
+        } finally {
+            try {
+                Object[] args = joinPoint.getArgs();
+                if (args != null && args.length > 0 && args[0] instanceof String) {
+                    String patientId = (String) args[0];
+                    String methodName = joinPoint.getSignature().getName();
+                    String dataType = mapMethodNameToDataType(methodName);
+                    String question = AiRequestContextHolder.getCurrentQuestion();
+                    long latency = System.currentTimeMillis() - start;
 
-                AiPatientAccessLog accessLog = new AiPatientAccessLog(null, patientId, dataType, LocalDateTime.now());
-                aiMonitoringService.logPatientAccess(accessLog);
+                    AiPatientAccessLog accessLog = new AiPatientAccessLog(
+                            null,
+                            patientId,
+                            dataType,
+                            LocalDateTime.now(),
+                            question,
+                            latency
+                    );
+                    aiMonitoringService.logPatientAccess(accessLog);
+                }
+            } catch (Exception e) {
+                logger.error("Error logging AI Patient Access in AOP: {}", e.getMessage(), e);
             }
-        } catch (Exception e) {
-            logger.error("Error logging AI Patient Access in AOP: {}", e.getMessage(), e);
         }
-        return joinPoint.proceed();
+        return result;
     }
 
     private String mapMethodNameToDataType(String methodName) {

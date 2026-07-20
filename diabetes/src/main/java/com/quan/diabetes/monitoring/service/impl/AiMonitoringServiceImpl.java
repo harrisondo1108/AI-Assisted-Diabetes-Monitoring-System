@@ -19,11 +19,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.quan.diabetes.entity.AIAssistant;
+import com.quan.diabetes.service.ai.AIAssistantService;
+import java.util.List;
+
 @Service
 public class AiMonitoringServiceImpl implements AiMonitoringService {
 
     @Autowired
     private AiPatientAccessLogRepository aiPatientAccessLogRepository;
+
+    @Autowired
+    private AIAssistantService aiAssistantService;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -59,14 +66,15 @@ public class AiMonitoringServiceImpl implements AiMonitoringService {
                 log.getPatientId(),
                 log.getDataType(),
                 log.getAccessedAt(),
-                null
+                log.getQuestion()
         ));
     }
 
     @Override
     @Transactional(readOnly = true)
     public Double getAverageLatencyMs() {
-        return 0.0;
+        Double avg = aiPatientAccessLogRepository.getAverageLatencyMs();
+        return avg != null ? avg : 0.0;
     }
 
     @Override
@@ -86,5 +94,21 @@ public class AiMonitoringServiceImpl implements AiMonitoringService {
     @Override
     public void setAiEnabled(boolean enabled) {
         this.aiEnabled.set(enabled);
+    }
+
+    @Override
+    public List<AIAssistant> getAllAssistants() {
+        aiAssistantService.initDefaultAssistants();
+        return aiAssistantService.findAll();
+    }
+
+    @Override
+    public AIAssistant getActiveAssistant() {
+        return aiAssistantService.getActiveAssistant();
+    }
+
+    @Override
+    public AIAssistant switchActiveAssistant(Integer assistantId) {
+        return aiAssistantService.switchActiveAssistant(assistantId);
     }
 }

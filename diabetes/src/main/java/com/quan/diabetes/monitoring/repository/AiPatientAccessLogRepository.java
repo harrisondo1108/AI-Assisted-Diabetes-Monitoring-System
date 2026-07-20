@@ -10,4 +10,7 @@ public interface AiPatientAccessLogRepository extends JpaRepository<AiPatientAcc
 
     @org.springframework.data.jpa.repository.Query("SELECT COUNT(DISTINCT a.patientId) FROM AiPatientAccessLog a WHERE a.accessedAt >= :startOfDay AND a.patientId != 'UNKNOWN'")
     Long countDistinctPatientsToday(@org.springframework.data.repository.query.Param("startOfDay") java.time.LocalDateTime startOfDay);
+
+    @org.springframework.data.jpa.repository.Query("SELECT AVG(a.latencyMs) FROM AiPatientAccessLog a WHERE a.latencyMs IS NOT NULL")
+    Double getAverageLatencyMs();
 }

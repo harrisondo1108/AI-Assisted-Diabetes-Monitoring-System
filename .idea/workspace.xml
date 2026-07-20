@@ -5,13 +5,51 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cd82aed5-747b-44b9-892e-efbe52d1dbd5" name="Changes" comment="thêm chức năng doctor rating">
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Merge_at_7_8_2026_11_50_PM_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Merge_at_7_8_2026_11_52_PM_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Merge_at_7_8_2026_11_53_PM_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/doctor/doctor-common.css" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/doctor/doctor-common.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/exam-step1.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/exam-step1.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/application.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/application.log" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/data/vector-store.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/logs/application.log.2026-07-18.0.gz" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/logs/application.log.2026-07-19.0.gz" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/aiAPI/AiClientStrategy.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/aiAPI/client/GeminiAiClient.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/aiAPI/client/OllamaAiClient.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/aiAPI/dto/AiGenerateOptions.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/aiAPI/dto/GeminiGenerateRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/aiAPI/dto/GeminiGenerateResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/aiAPI/manager/AiProviderManager.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/context/AiRequestContextHolder.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/logs/application.log.2026-07-17.0.gz" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/logs/application.log.2026-07-19.0.gz" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/CreateMonitoringTables.sql" beforeDir="false" afterPath="$PROJECT_DIR$/database/CreateMonitoringTables.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/admin/MedicationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/admin/MedicationController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/admin/MonitoringController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/admin/MonitoringController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientChatController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientChatController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/dto/AIChat/OllamaGenerateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/dto/AIChat/OllamaGenerateRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/dto/aitool/PatientProfileDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/dto/aitool/PatientProfileDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/entity/Medication.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/entity/Medication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/aop/AiToolAspect.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/aop/AiToolAspect.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/entity/AiPatientAccessLog.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/entity/AiPatientAccessLog.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/repository/AiPatientAccessLogRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/repository/AiPatientAccessLogRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/service/AiMonitoringService.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/service/AiMonitoringService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/service/impl/AiMonitoringServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/service/impl/AiMonitoringServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/LabResultRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/LabResultRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/MedicationRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/MedicationRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/PrescriptionDetailRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/PrescriptionDetailRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/AIAssistantService.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/AIAssistantService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/AIChatService.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/AIChatService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AIAssistantServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AIAssistantServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AIChatServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AIChatServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AIMessageServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AIMessageServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AiToolImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AiToolImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/medication/MedicationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/medication/MedicationService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/medication/impl/MedicationServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/medication/impl/MedicationServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/admin/medicine_management.css" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/admin/medicine_management.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/admin/monitoring.css" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/admin/monitoring.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/patient/chat.css" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/patient/chat.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/admin/medicine_management.js" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/admin/medicine_management.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/patient/chat.js" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/patient/chat.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/Admin/monitoring.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/Admin/monitoring.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/admin/medicine_Management.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/admin/medicine_Management.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/chat.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/chat.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -177,37 +215,37 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;JUnit.UpdateProfileTest (1).executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.UpdateProfileTest.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
-    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
-    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
-    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;SONARLINT_PRECOMMIT_ANALYSIS&quot;: &quot;true&quot;,
-    &quot;Spring Boot.DiabetesApplication.executor&quot;: &quot;Run&quot;,
-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;copilot.chat.legacySessionMetadata.migrated&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;quan__le&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;SDKs&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "JUnit.UpdateProfileTest (1).executor": "Run",
+    "JUnit.UpdateProfileTest.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "SONARLINT_PRECOMMIT_ANALYSIS": "true",
+    "Spring Boot.DiabetesApplication.executor": "Run",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "copilot.chat.legacySessionMetadata.migrated": "true",
+    "git-widget-placeholder": "Merging quan__le",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "SDKs",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="com.quan.diabetes" />

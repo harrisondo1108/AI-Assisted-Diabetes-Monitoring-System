@@ -18,7 +18,7 @@ public  class AIAssistantServiceImpl implements AIAssistantService {
     private static final Logger logger = LoggerFactory.getLogger(AIAssistantServiceImpl.class);
     private final AIAssistantRepository aIAssistantRepository;
 
-    @Value("${ollama.model:diabetes-ai}")
+    @Value("${ollama.model:diabetes}")
     private String defaultModel;
 
     public AIAssistantServiceImpl(AIAssistantRepository aIAssistantRepository) {
@@ -88,55 +88,109 @@ public  class AIAssistantServiceImpl implements AIAssistantService {
         return aIAssistantRepository.existsById(id);
     }
 
+    @Value("${gemini.model:gemini-2.5-flash}")
+    private String geminiDefaultModel;
+
     @Override
     public AIAssistant getDefaultAssistant() {
-        return findById(1)
-                .orElseThrow(() -> new EntityNotFoundException("Default AI Assistant not found with id: 1"));
+        return getActiveAssistant();
+    }
+
+    @Override
+    public synchronized void initDefaultAssistants() {
+        List<AIAssistant> all = aIAssistantRepository.findAll();
+        boolean hasLocal = false;
+        boolean hasGemini = false;
+
+        for (AIAssistant a : all) {
+            String name = (a.getAiName() != null) ? a.getAiName().toLowerCase() : "";
+            String model = (a.getModelName() != null) ? a.getModelName().toLowerCase() : "";
+            if (name.contains("local") || name.contains("ollama") || model.contains("diabetes") || model.contains("ollama")) {
+                hasLocal = true;
+            }
+            if (name.contains("gemini") || model.contains("gemini")) {
+                hasGemini = true;
+                if (!"gemini-2.5-flash".equalsIgnoreCase(a.getModelName())) {
+                    a.setModelName("gemini-2.5-flash");
+                    aIAssistantRepository.save(a);
+                    logger.info("Auto-migrated existing Gemini Assistant model to gemini-2.5-flash");
+                }
+            }
+        }
+
+        if (!hasLocal && all.isEmpty()) {
+            logger.info("Initializing default Local Ollama AI Assistant...");
+            AIAssistant local = new AIAssistant();
+            local.setAiName("Diabetes AI Specialist (Local Ollama)");
+            local.setStatus("Active");
+            local.setModelName(defaultModel);
+            try {
+                create(local);
+                hasLocal = true;
+            } catch (Exception e) {
+                logger.warn("Could not create local assistant: {}", e.getMessage());
+            }
+        }
+
+        if (!hasGemini) {
+            logger.info("Initializing default Gemini Cloud AI Assistant...");
+            AIAssistant gemini = new AIAssistant();
+            gemini.setAiName("Diabetes AI Specialist (Gemini Cloud)");
+            gemini.setStatus("Inactive");
+            gemini.setModelName(geminiDefaultModel);
+            try {
+                create(gemini);
+            } catch (Exception e) {
+                logger.warn("Could not create gemini assistant: {}", e.getMessage());
+            }
+        }
+    }
+
+    @Override
+    public AIAssistant switchActiveAssistant(Integer aiAssistantId) {
+        initDefaultAssistants();
+        List<AIAssistant> all = aIAssistantRepository.findAll();
+        AIAssistant newActive = null;
+        for (AIAssistant a : all) {
+            if (a.getAiAssistantId() == aiAssistantId) {
+                a.setStatus("Active");
+                newActive = aIAssistantRepository.save(a);
+                logger.info("Switched active AI Assistant to: {} (ID: {})", a.getAiName(), a.getAiAssistantId());
+            } else if ("Active".equalsIgnoreCase(a.getStatus())) {
+                a.setStatus("Inactive");
+                aIAssistantRepository.save(a);
+            }
+        }
+        if (newActive == null) {
+            throw new EntityNotFoundException("AIAssistant not found with id: " + aiAssistantId);
+        }
+        return newActive;
+    }
+
+    @Override
+    public AIAssistant getActiveAssistant() {
+        List<AIAssistant> activeList = findByStatus("Active");
+        if (!activeList.isEmpty()) {
+            return activeList.get(0);
+        }
+        // Nếu chưa có trợ lý nào Active, khởi tạo và tìm lại
+        initDefaultAssistants();
+        activeList = findByStatus("Active");
+        if (!activeList.isEmpty()) {
+            return activeList.get(0);
+        }
+        // Fallback chọn trợ lý đầu tiên và bật Active
+        List<AIAssistant> all = findAll();
+        if (!all.isEmpty()) {
+            AIAssistant first = all.get(0);
+            first.setStatus("Active");
+            return aIAssistantRepository.save(first);
+        }
+        throw new RuntimeException("Could not find or initialize any AI Assistant");
     }
 
     @Override
     public AIAssistant getOrCreateDefaultAssistant() {
-        // Try to find assistant with ID 1
-        Optional<AIAssistant> existing = findById(1);
-        if (existing.isPresent()) {
-            logger.info("Found AI Assistant with ID 1: {}", existing.get().getAiName());
-            return existing.get();
-        }
-
-        // Try to find by name
-        Optional<AIAssistant> byName = aIAssistantRepository.findAll().stream()
-                .filter(a -> "Diabetes AI Specialist".equalsIgnoreCase(a.getAiName()))
-                .findFirst();
-        if (byName.isPresent()) {
-            logger.info("Found AI Assistant by name: {}", byName.get().getAiName());
-            return byName.get();
-        }
-
-        // Try to find any active assistant
-        List<AIAssistant> activeAssistants = findByStatus("Active");
-        if (!activeAssistants.isEmpty()) {
-            logger.info("Found existing active assistant with id: {}", activeAssistants.get(0).getAiAssistantId());
-            return activeAssistants.get(0);
-        }
-
-        // Create new default assistant
-        logger.info("No AI Assistant found, creating default assistant with model: {}", defaultModel);
-        AIAssistant defaultAssistant = new AIAssistant();
-        defaultAssistant.setAiName("Diabetes AI Specialist");
-        defaultAssistant.setStatus("Active");
-        defaultAssistant.setModelName(defaultModel);
-
-        try {
-            AIAssistant saved = create(defaultAssistant);
-            logger.info("Created default AI Assistant with id: {}", saved.getAiAssistantId());
-            return saved;
-        } catch (DataIntegrityViolationException e) {
-            // If still duplicate, try to find and return existing
-            logger.warn("Duplicate key error, trying to find existing assistant");
-            return aIAssistantRepository.findAll().stream()
-                    .filter(a -> "Diabetes AI Specialist".equalsIgnoreCase(a.getAiName()))
-                    .findFirst()
-                    .orElseThrow(() -> new RuntimeException("Could not create or find default assistant"));
-        }
+        return getActiveAssistant();
     }
 }

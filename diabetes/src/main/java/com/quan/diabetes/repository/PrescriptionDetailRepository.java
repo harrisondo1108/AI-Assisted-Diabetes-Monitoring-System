@@ -19,5 +19,16 @@ public interface PrescriptionDetailRepository extends JpaRepository<Prescription
            "LEFT JOIN FETCH pt.timing " +
            "WHERE ce.clinicalExamId = :clinicalExamId")
     List<PrescriptionDetail> findByClinicalExamIdWithDetails(@org.springframework.data.repository.query.Param("clinicalExamId") String clinicalExamId);
+
+    @org.springframework.data.jpa.repository.Query("SELECT DISTINCT pd FROM PrescriptionDetail pd " +
+           "JOIN FETCH pd.prescription p " +
+           "LEFT JOIN FETCH p.clinicalExamination ce " +
+           "LEFT JOIN FETCH ce.patient pat " +
+           "LEFT JOIN FETCH pd.medication m " +
+           "LEFT JOIN FETCH ce.treatmentPlan tp " +
+           "LEFT JOIN FETCH pd.prescriptionTimings pt " +
+           "LEFT JOIN FETCH pt.timing " +
+           "WHERE pat.userId = :patientId ORDER BY pd.startDate DESC")
+    List<PrescriptionDetail> findByPatientIdWithDetails(@org.springframework.data.repository.query.Param("patientId") String patientId);
 }
 
