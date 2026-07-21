@@ -1,16 +1,19 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hồ sơ bác sĩ | Hệ thống chăm sóc tiểu đường</title>
     <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS files -->
     <link rel="stylesheet" th:href="@{/css/doctor/doctor-common.css}">
     <link rel="stylesheet" th:href="@{/css/doctor/doctor-profile.css}">
 </head>
+
 <body>
     <div class="doctor-layout">
         <div class="doctor-main">
@@ -18,15 +21,15 @@
             <div th:replace="~{layout/doctor/header :: header('Hồ sơ lâm sàng của tôi', 'profile')}"></div>
 
             <main class="doctor-content profile-layout">
-                <div class="profile-container" style="width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 24px;">
+                <div class="profile-container"
+                    style="width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 24px;">
                     <div class="profile-card">
                         <div class="profile-header-banner">
                             <div class="avatar-container">
                                 <div class="avatar-large">
-                                    <img th:if="${doctorProfile.imageUrl != null}" 
-                                         th:src="${doctorProfile.imageUrl}" 
-                                         alt="Avatar" 
-                                         style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />
+                                    <img th:if="${doctorProfile.imageUrl != null}" th:src="${doctorProfile.imageUrl}"
+                                        alt="Avatar"
+                                        style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />
                                     <i th:unless="${doctorProfile.imageUrl != null}" class="fas fa-user-md"></i>
                                 </div>
                             </div>
@@ -37,26 +40,31 @@
                         </div>
 
                         <!-- Static Flash messages (No JS) -->
-                        <div th:if="${successMsg != null}" class="alert alert-success" style="padding: 12px 16px; margin-bottom: 20px; border-radius: 8px; background-color: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); display: flex; align-items: center; gap: 8px; font-size: 0.9rem;">
+                        <div th:if="${successMsg != null}" class="alert alert-success"
+                            style="padding: 12px 16px; margin-bottom: 20px; border-radius: 8px; background-color: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); display: flex; align-items: center; gap: 8px; font-size: 0.9rem;">
                             <i class="fas fa-circle-check"></i>
                             <span th:text="${successMsg}"></span>
                         </div>
-                        <div th:if="${errorMsg != null}" class="alert alert-danger" style="padding: 12px 16px; margin-bottom: 20px; border-radius: 8px; background-color: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); display: flex; align-items: center; gap: 8px; font-size: 0.9rem;">
+                        <div th:if="${errorMsg != null}" class="alert alert-danger"
+                            style="padding: 12px 16px; margin-bottom: 20px; border-radius: 8px; background-color: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); display: flex; align-items: center; gap: 8px; font-size: 0.9rem;">
                             <i class="fas fa-circle-xmark"></i>
                             <span th:text="${errorMsg}"></span>
                         </div>
 
-                        <form th:action="@{/doctor/profile/update}" method="POST" enctype="multipart/form-data" class="profile-form">
+                        <form th:action="@{/doctor/profile/update}" method="POST" enctype="multipart/form-data"
+                            class="profile-form">
                             <div class="form-section-title">
                                 <i class="fas fa-user-gear"></i> Chi tiết Cá nhân & Chuyên môn
                             </div>
-                            
+
                             <div class="form-grid">
                                 <div class="form-group">
                                     <label for="fullName">Họ và tên <span class="required">*</span></label>
                                     <div class="input-with-icon">
                                         <i class="fas fa-user"></i>
-                                        <input type="text" id="fullName" name="fullName" th:value="${doctorProfile.fullName}" required placeholder="VD: Bác sĩ Nguyễn Văn A">
+                                        <input type="text" id="fullName" name="fullName"
+                                            th:value="${doctorProfile.fullName}" required
+                                            placeholder="VD: Bác sĩ Nguyễn Văn A">
                                     </div>
                                 </div>
 
@@ -73,16 +81,19 @@
                                     <label for="phoneNumber">Số điện thoại (Tên tài khoản)</label>
                                     <div class="input-with-icon disabled-field">
                                         <i class="fas fa-phone"></i>
-                                        <input type="text" id="phoneNumber" name="phoneNumber" th:value="${doctorProfile.phoneNumber}" disabled>
+                                        <input type="text" id="phoneNumber" name="phoneNumber"
+                                            th:value="${doctorProfile.phoneNumber}" disabled>
                                     </div>
-                                    <span class="field-hint">Số điện thoại được sử dụng để đăng nhập và chỉ được thay đổi trực tiếp qua quản trị viên.</span>
+                                    <span class="field-hint">Số điện thoại được sử dụng để đăng nhập và chỉ được thay
+                                        đổi trực tiếp qua quản trị viên.</span>
                                 </div>
 
                                 <div class="form-group">
                                     <label for="email">Email</label>
                                     <div class="input-with-icon">
                                         <i class="fas fa-envelope"></i>
-                                        <input type="email" id="email" name="email" th:value="${doctorProfile.email}" placeholder="VD: bacsi@gmail.com">
+                                        <input type="email" id="email" name="email" th:value="${doctorProfile.email}"
+                                            placeholder="VD: bacsi@gmail.com">
                                     </div>
                                 </div>
 
@@ -90,7 +101,9 @@
                                     <label for="specialty">Chuyên khoa <span class="required">*</span></label>
                                     <div class="input-with-icon">
                                         <i class="fas fa-stethoscope"></i>
-                                        <input type="text" id="specialty" name="specialty" th:value="${doctorProfile.specialty}" required placeholder="VD: Bác sĩ Nội tiết">
+                                        <input type="text" id="specialty" name="specialty"
+                                            th:value="${doctorProfile.specialty}" required
+                                            placeholder="VD: Bác sĩ Nội tiết">
                                     </div>
                                 </div>
 
@@ -99,7 +112,10 @@
                                     <div class="input-with-icon">
                                         <i class="fas fa-door-open"></i>
                                         <select id="roomId" name="roomId" required>
-                                            <option th:each="r : ${rooms}" th:value="${r.roomId}" th:text="${r.roomName}" th:selected="${doctorProfile.room != null && doctorProfile.room.roomId == r.roomId}">Phòng 204: Phòng khám Nội tiết</option>
+                                            <option th:each="r : ${rooms}" th:value="${r.roomId}"
+                                                th:text="${r.roomName}"
+                                                th:selected="${doctorProfile.room != null && doctorProfile.room.roomId == r.roomId}">
+                                                Phòng 204: Phòng khám Nội tiết</option>
                                         </select>
                                     </div>
                                 </div>
@@ -116,11 +132,13 @@
                                     <label>Giới tính</label>
                                     <div class="gender-radio-group">
                                         <label class="radio-label">
-                                            <input type="radio" name="gender" value="false" th:checked="${doctorProfile.gender == null || !doctorProfile.gender}">
+                                            <input type="radio" name="gender" value="true"
+                                                th:checked="${doctorProfile.gender == null || doctorProfile.gender}">
                                             <span>Nam</span>
                                         </label>
                                         <label class="radio-label">
-                                            <input type="radio" name="gender" value="true" th:checked="${doctorProfile.gender != null && doctorProfile.gender}">
+                                            <input type="radio" name="gender" value="false"
+                                                th:checked="${doctorProfile.gender != null && !doctorProfile.gender}">
                                             <span>Nữ</span>
                                         </label>
                                     </div>
@@ -130,7 +148,9 @@
                                     <label for="address">Địa chỉ phòng khám / Văn phòng làm việc</label>
                                     <div class="input-with-icon">
                                         <i class="fas fa-location-dot" style="margin-top: 10px;"></i>
-                                        <textarea id="address" name="address" rows="3" placeholder="VD: Khoa Nội tiết, Tầng 3, Tòa nhà B..." th:text="${doctorProfile.address}"></textarea>
+                                        <textarea id="address" name="address" rows="3"
+                                            placeholder="VD: Khoa Nội tiết, Tầng 3, Tòa nhà B..."
+                                            th:text="${doctorProfile.address}"></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -152,53 +172,66 @@
                             <div class="form-section-title">
                                 <i class="fas fa-shield-halved"></i> Bảo mật tài khoản
                             </div>
-                            
+
                             <!-- Hàng trạng thái mật khẩu -->
-                            <div class="security-row" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--doctor-border);">
+                            <div class="security-row"
+                                style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--doctor-border);">
                                 <div class="security-info" style="display: flex; align-items: center; gap: 15px;">
-                                    <div class="security-icon" style="font-size: 1.2rem; color: var(--doctor-text-muted); width: 20px; text-align: center;">
+                                    <div class="security-icon"
+                                        style="font-size: 1.2rem; color: var(--doctor-text-muted); width: 20px; text-align: center;">
                                         <i class="fas fa-ellipsis-h"></i>
                                     </div>
                                     <div class="security-text">
-                                        <div style="font-weight: 700; font-size: 0.9rem; color: var(--doctor-text-main);">Mật khẩu</div>
-                                        <div style="font-size: 0.8rem; color: var(--doctor-text-muted);">Đã được cấu hình bảo mật</div>
+                                        <div
+                                            style="font-weight: 700; font-size: 0.9rem; color: var(--doctor-text-main);">
+                                            Mật khẩu</div>
+                                        <div style="font-size: 0.8rem; color: var(--doctor-text-muted);">Đã được cấu
+                                            hình bảo mật</div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Khung nhập đổi mật khẩu (Hiển thị trực tiếp) -->
-                            <form th:action="@{/doctor/profile/change-password}" method="POST" id="passwordForm" style="padding-top: 20px;">
-                                <div class="form-grid" style="grid-template-columns: 1fr; gap: 16px; margin-bottom: 20px;">
+                            <form th:action="@{/doctor/profile/change-password}" method="POST" id="passwordForm"
+                                style="padding-top: 20px;">
+                                <div class="form-grid"
+                                    style="grid-template-columns: 1fr; gap: 16px; margin-bottom: 20px;">
                                     <div class="form-group">
-                                        <label for="currentPassword">Mật khẩu hiện tại <span class="required">*</span></label>
+                                        <label for="currentPassword">Mật khẩu hiện tại <span
+                                                class="required">*</span></label>
                                         <div class="input-with-icon">
                                             <i class="fas fa-lock"></i>
-                                            <input type="password" id="currentPassword" name="currentPassword" required placeholder="Nhập mật khẩu hiện tại">
+                                            <input type="password" id="currentPassword" name="currentPassword" required
+                                                placeholder="Nhập mật khẩu hiện tại">
                                         </div>
-                                        
+
                                     </div>
 
                                     <div class="form-group">
                                         <label for="newPassword">Mật khẩu mới <span class="required">*</span></label>
                                         <div class="input-with-icon">
                                             <i class="fas fa-key"></i>
-                                            <input type="password" id="newPassword" name="newPassword" required placeholder="Tối thiểu 8 ký tự, có chữ hoa, thường, số và ký tự đặc biệt">
+                                            <input type="password" id="newPassword" name="newPassword" required
+                                                placeholder="Tối thiểu 8 ký tự, có chữ hoa, thường, số và ký tự đặc biệt">
                                         </div>
-                                        
+
                                     </div>
 
                                     <div class="form-group">
-                                        <label for="confirmPassword">Xác nhận mật khẩu mới <span class="required">*</span></label>
+                                        <label for="confirmPassword">Xác nhận mật khẩu mới <span
+                                                class="required">*</span></label>
                                         <div class="input-with-icon">
                                             <i class="fas fa-shield-halved"></i>
-                                            <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Nhập lại mật khẩu mới">
+                                            <input type="password" id="confirmPassword" name="confirmPassword" required
+                                                placeholder="Nhập lại mật khẩu mới">
                                         </div>
-                                        
+
                                     </div>
                                 </div>
 
                                 <div class="form-actions" style="margin-top: 0; padding-top: 15px;">
-                                    <button type="submit" id="submitPasswordBtn" class="btn btn-primary" style="padding: 8px 20px;">
+                                    <button type="submit" id="submitPasswordBtn" class="btn btn-primary"
+                                        style="padding: 8px 20px;">
                                         Cập nhật mật khẩu
                                     </button>
                                 </div>
@@ -212,4 +245,5 @@
 
 
 </body>
+
 </html>

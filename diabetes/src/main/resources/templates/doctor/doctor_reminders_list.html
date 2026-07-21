@@ -63,7 +63,7 @@
                             <td>
                                 <span class="patient-name" th:text="${pView.patient.fullName}">Tên bệnh nhân</span>
                             </td>
-                            <td th:text="${(pView.patient.dob != null ? (T(java.time.Period).between(pView.patient.dob, T(java.time.LocalDate).now()).getYears()) + ' tuổi' : 'N/A') + ' / ' + (pView.patient.gender != null ? (pView.patient.gender ? 'Nữ' : 'Nam') : 'N/A')}">
+                            <td th:text="${(pView.patient.dob != null ? (T(java.time.Period).between(pView.patient.dob, T(java.time.LocalDate).now()).getYears()) + ' tuổi' : 'N/A') + ' / ' + (pView.patient.gender != null ? (pView.patient.gender ? 'Nam' : 'Nữ') : 'N/A')}">
                                 Tuổi/Giới tính
                             </td>
                             <td>

@@ -50,7 +50,7 @@
                                         <h4 style="margin: 0 0 4px 0; font-size: 1.15rem; color: #1e293b; font-weight: 700;" th:text="${req.patient.fullName}">Patient Name</h4>
                                         <p style="margin: 0 0 12px 0; font-size: 0.9rem; color: #64748b; display: flex; align-items: center; gap: 16px;">
                                             <span><i class="far fa-calendar-alt" style="color: #94a3b8;"></i> <span th:text="${#temporals.format(req.examDate, 'dd/MM/yyyy HH:mm')}">Date</span></span>
-                                            <span><i class="fas fa-venus-mars" style="color: #94a3b8;"></i> <span th:text="${(req.patient.dob != null ? (T(java.time.Period).between(req.patient.dob, T(java.time.LocalDate).now()).getYears()) + ' tuổi' : 'N/A') + ' - ' + (req.patient.gender != null ? (req.patient.gender ? 'Nữ' : 'Nam') : 'N/A')}">Age/Gender</span></span>
+                                            <span><i class="fas fa-venus-mars" style="color: #94a3b8;"></i> <span th:text="${(req.patient.dob != null ? (T(java.time.Period).between(req.patient.dob, T(java.time.LocalDate).now()).getYears()) + ' tuổi' : 'N/A') + ' - ' + (req.patient.gender != null ? (req.patient.gender ? 'Nam' : 'Nữ') : 'N/A')}">Age/Gender</span></span>
                                         </p>
                                         <div style="padding: 12px 16px; background: #ecfdf5; border-radius: 10px; font-size: 0.95rem; color: #334155; border-left: 4px solid #10b981;">
                                             <strong style="color: #1e293b; margin-right: 6px;"><i class="fas fa-notes-medical" style="color: #10b981;"></i> Lý do khám:</strong> <span th:text="${req.medicalHistory}">Triệu chứng</span>

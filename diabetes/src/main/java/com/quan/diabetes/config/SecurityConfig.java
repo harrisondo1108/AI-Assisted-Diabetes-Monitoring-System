@@ -22,15 +22,18 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable()) // Tắt CSRF nếu bạn làm API hoặc tùy theo nhu cầu
                 .authorizeHttpRequests(auth -> auth
-                        // 1. Cho phép TẤT CẢ mọi người truy cập vào các file giao diện (CSS, JS, Images)
+                        // 1. Cho phép TẤT CẢ mọi người truy cập vào các file giao diện (CSS, JS,
+                        // Images)
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
 
-                        // 2. Cho phép vào các trang public như Đăng ký, Đăng nhập mà không cần tài khoản
+                        // 2. Cho phép vào các trang public như Đăng ký, Đăng nhập mà không cần tài
+                        // khoản
                         .requestMatchers("/login", "/register", "/api/auth/**", "/logout", "/error", "/register/otp",
                                 "/register/verify-otp", "/register/resend-otp", "/forgot-password",
                                 "/forgot-password/send-otp", "/forgot-password/otp", "/forgot-password/verify-otp",
                                 "/forgot-password/reset",
-                                "/test-sms", "/").permitAll()
+                                "/test-sms", "/")
+                        .permitAll()
 
                         .requestMatchers("/admin/**").hasRole("AD")
                         .requestMatchers("/patient/**").hasRole("PAT")
@@ -40,10 +43,13 @@ public class SecurityConfig {
                         .requestMatchers("/api/patient/**").hasRole("PAT")
                         .requestMatchers("/api/doctor/**").hasRole("DOC")
 
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.sendRedirect("/login");
+                        }))
                 // KHÔNG dùng formLogin nữa
-                .formLogin(form -> form.disable())   // hoặc .formLogin().disable()
+                .formLogin(form -> form.disable()) // hoặc .formLogin().disable()
                 // Tùy chọn: tắt luôn httpBasic
                 .httpBasic(httpBasic -> httpBasic.disable());
 

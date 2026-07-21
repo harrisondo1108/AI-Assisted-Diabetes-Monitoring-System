@@ -41,7 +41,7 @@
                 </div>
                 <div class="patient-details-banner">
                     <h2 th:text="${patient.fullName}">Tên bệnh nhân</h2>
-                    <p th:text="${(patient.dob != null ? (T(java.time.Period).between(patient.dob, T(java.time.LocalDate).now()).getYears()) + ' tuổi' : 'N/A') + ' | ' + (patient.gender != null ? (patient.gender ? 'Nữ' : 'Nam') : 'N/A') + ' | SĐT: ' + (patient.phoneNumber != null ? patient.phoneNumber : 'N/A')}">
+                    <p th:text="${(patient.dob != null ? (T(java.time.Period).between(patient.dob, T(java.time.LocalDate).now()).getYears()) + ' tuổi' : 'N/A') + ' | ' + (patient.gender != null ? (patient.gender ? 'Nam' : 'Nữ') : 'N/A') + ' | SĐT: ' + (patient.phoneNumber != null ? patient.phoneNumber : 'N/A')}">
                         Thông tin
                     </p>
                 </div>

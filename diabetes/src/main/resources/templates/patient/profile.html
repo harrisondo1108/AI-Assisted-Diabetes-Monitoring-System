@@ -106,7 +106,7 @@
 
                     <div class="profile-field">
                         <label>Giới tính</label>
-                        <div th:text="${patient != null && patient.gender != null ? (patient.gender ? 'Nữ' : 'Nam') : 'Chưa cập nhật'}">
+                        <div th:text="${patient != null && patient.gender != null ? (patient.gender ? 'Nam' : 'Nữ') : 'Chưa cập nhật'}">
                             Nam
                         </div>
                     </div>
@@ -323,12 +323,12 @@
                         <label>Giới tính</label>
                         <select name="gender">
                             <option value="">-- Chọn giới tính --</option>
-                            <option value="false"
-                                    th:selected="${patient != null && patient.gender != null && !patient.gender}">
-                                Nam
-                            </option>
                             <option value="true"
                                     th:selected="${patient != null && patient.gender != null && patient.gender}">
+                                Nam
+                            </option>
+                            <option value="false"
+                                    th:selected="${patient != null && patient.gender != null && !patient.gender}">
                                 Nữ
                             </option>
                         </select>

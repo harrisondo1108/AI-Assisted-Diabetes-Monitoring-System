@@ -96,7 +96,7 @@
                                         <td><span class="patient-name" th:text="${p.patient.fullName}">Patient
                                                 Name</span></td>
                                         <td
-                                            th:text="${(p.patient.dob != null ? (T(java.time.Period).between(p.patient.dob, T(java.time.LocalDate).now()).getYears()) + ' tuổi' : 'N/A') + ' / ' + (p.patient.gender != null ? (p.patient.gender ? 'Nữ' : 'Nam') : 'N/A')}">
+                                            th:text="${(p.patient.dob != null ? (T(java.time.Period).between(p.patient.dob, T(java.time.LocalDate).now()).getYears()) + ' tuổi' : 'N/A') + ' / ' + (p.patient.gender != null ? (p.patient.gender ? 'Nam' : 'Nữ') : 'N/A')}">
                                             Tuổi/Giới tính</td>
                                         <td><span style="font-weight: 500;"
                                                 th:text="${#temporals.format(p.examDate, 'hh:mm a')}">08:30 AM</span>
