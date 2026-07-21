@@ -5,50 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cd82aed5-747b-44b9-892e-efbe52d1dbd5" name="Changes" comment="thêm chức năng doctor rating">
-      <change afterPath="$PROJECT_DIR$/diabetes/data/vector-store.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/logs/application.log.2026-07-18.0.gz" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/logs/application.log.2026-07-19.0.gz" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/aiAPI/AiClientStrategy.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/aiAPI/client/GeminiAiClient.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/aiAPI/client/OllamaAiClient.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/aiAPI/dto/AiGenerateOptions.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/aiAPI/dto/GeminiGenerateRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/aiAPI/dto/GeminiGenerateResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/aiAPI/manager/AiProviderManager.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/context/AiRequestContextHolder.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/logs/application.log.2026-07-17.0.gz" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/logs/application.log.2026-07-19.0.gz" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/CreateMonitoringTables.sql" beforeDir="false" afterPath="$PROJECT_DIR$/database/CreateMonitoringTables.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/admin/MedicationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/admin/MedicationController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/admin/MonitoringController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/admin/MonitoringController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientChatController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/patient/PatientChatController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/dto/AIChat/OllamaGenerateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/dto/AIChat/OllamaGenerateRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/dto/aitool/PatientProfileDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/dto/aitool/PatientProfileDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/entity/Medication.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/entity/Medication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/aop/AiToolAspect.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/aop/AiToolAspect.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/entity/AiPatientAccessLog.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/entity/AiPatientAccessLog.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/repository/AiPatientAccessLogRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/repository/AiPatientAccessLogRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/service/AiMonitoringService.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/service/AiMonitoringService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/service/impl/AiMonitoringServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/monitoring/service/impl/AiMonitoringServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/LabResultRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/LabResultRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/MedicationRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/MedicationRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/PrescriptionDetailRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/PrescriptionDetailRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/AIAssistantService.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/AIAssistantService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/AIChatService.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/AIChatService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AIAssistantServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AIAssistantServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AIChatServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AIChatServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AIMessageServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AIMessageServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AiToolImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AiToolImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/medication/MedicationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/medication/MedicationService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/medication/impl/MedicationServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/medication/impl/MedicationServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/admin/medicine_management.css" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/admin/medicine_management.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/admin/monitoring.css" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/admin/monitoring.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/patient/chat.css" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/patient/chat.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/admin/medicine_management.js" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/admin/medicine_management.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/patient/chat.js" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/js/patient/chat.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/Admin/monitoring.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/Admin/monitoring.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/admin/medicine_Management.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/admin/medicine_Management.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/doctor/doctor-examined-patients.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/doctor/doctor-patient-profile.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/examined_patients.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/patient_profile.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/logs/application.log" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/logs/application.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorPatientController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorPatientController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/history_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/history_detail.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/patients.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/history.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/doctor/header.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/doctor/header.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/chat.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/chat.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -59,7 +25,7 @@
   <component name="CopilotChats">
     <option name="panelChat">
       <chat>
-        <option name="activeSessionId" value="69cb5179-fcf8-4ce9-9943-7f5392ef59fb" />
+        <option name="activeSessionId" value="56d923f9-001f-4822-884a-4b3366317c1e" />
         <option name="sessions">
           <session>
             <option name="chatType" value="PANEL" />
@@ -86,6 +52,14 @@
             <option name="modelValue" value="auto" />
             <option name="targetType" value="LOCAL" />
           </session>
+          <session>
+            <option name="chatType" value="PANEL" />
+            <option name="id" value="56d923f9-001f-4822-884a-4b3366317c1e" />
+            <option name="modeId" value="Ask" />
+            <option name="modelType" value="builtin_family" />
+            <option name="modelValue" value="auto" />
+            <option name="targetType" value="LOCAL" />
+          </session>
         </option>
         <option name="type" value="PANEL" />
       </chat>
@@ -93,9 +67,11 @@
   </component>
   <component name="CopilotPersistence">
     <persistenceIdMap>
+      <entry key="_C:/Users/Acer/Downloads/AI-Assisted-Diabetes-Monitoring-System-final-20" value="3GlYCNf7jp5wNmOuWm4yIZzezZ3" />
       <entry key="_C:/Users/LuHan/OneDrive/Documents/Part 5/1_SWP391/AI-Assisted-Diabetes-Monitoring-System" value="3GTA149RvNFZU2OfTCP0QhFC8z7" />
       <entry key="_C:/Users/LuHan/OneDrive/Documents/Part 5/1_SWP391/AI-Assisted-Diabetes-Monitoring-System/diabetes" value="3GQjfmdKoXYGwp1gzNmwrevUI4u" />
       <entry key="_D:/Git_clone_quan_le/AI-Assisted-Diabetes-Monitoring-System" value="3G7hAT6xfOXo1mw7N4R46xWPCp1" />
+      <entry key="_D:/git_clone_CSon/AI-Assisted-Diabetes-Monitoring-System" value="3Go4LVOLjSU9Oc36vulsTpHm1WW" />
     </persistenceIdMap>
   </component>
   <component name="CopilotUserSelectedModel">
@@ -105,7 +81,7 @@
     </selectedModels>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="334" />
+    <option name="cachedIndexableFilesCount" value="330" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -119,7 +95,7 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/harrisondo1108/AI-Assisted-Diabetes-Monitoring-System.git&quot;,
-    &quot;accountId&quot;: &quot;4ea497d5-775c-4b70-959b-bfb8ecdd7ee3&quot;
+    &quot;accountId&quot;: &quot;11efc543-4507-4df6-bce4-65b8e51c1555&quot;
   }
 }</component>
   <component name="MavenImportPreferences">
@@ -135,61 +111,61 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.000049655503248" />
-      <entry key="MS500" value="1.2329816481316924" />
-      <entry key="S2" value="3.2178262999616045" />
-      <entry key="S5" value="5.9913270296919805" />
-      <entry key="S10" value="7.944436101904147" />
-      <entry key="S30" value="9.86488648333433" />
-      <entry key="S60" value="10.68443957743776" />
-      <entry key="M2" value="11.45857447704038" />
-      <entry key="M5" value="12.239515792037702" />
-      <entry key="M10" value="12.58938152523813" />
-      <entry key="M15" value="12.718928183844088" />
-      <entry key="M30" value="12.85564536043836" />
-      <entry key="H1" value="12.926837639920851" />
-      <entry key="H2" value="12.963168658909744" />
-      <entry key="H4" value="12.981521294767225" />
-      <entry key="D1" value="12.996911418691575" />
-      <entry key="W1" value="12.999558558105976" />
+      <entry key="MS100" value="2.6553857233503545E-15" />
+      <entry key="MS500" value="0.0012558584010808923" />
+      <entry key="S2" value="0.4298207259651807" />
+      <entry key="S5" value="2.643173253222217" />
+      <entry key="S10" value="5.4540975680850625" />
+      <entry key="S30" value="9.198517699820917" />
+      <entry key="S60" value="10.748594261493393" />
+      <entry key="M2" value="11.948166840438713" />
+      <entry key="M5" value="13.019429551120163" />
+      <entry key="M10" value="13.47587363087963" />
+      <entry key="M15" value="13.642408113125796" />
+      <entry key="M30" value="13.816939539569473" />
+      <entry key="H1" value="13.90736898966022" />
+      <entry key="H2" value="13.95340484184333" />
+      <entry key="H4" value="13.976631942319871" />
+      <entry key="D1" value="13.996095486657994" />
+      <entry key="W1" value="13.999441970838783" />
     </decayedCancelled>
     <decayedSelected>
-      <entry key="MS100" value="7.360332503047939E-31" />
-      <entry key="MS500" value="9.405448002840475E-7" />
-      <entry key="S2" value="0.031196435530409385" />
-      <entry key="S5" value="0.26936627089343534" />
-      <entry key="S10" value="0.6416382956112028" />
-      <entry key="S30" value="1.5554835268552787" />
-      <entry key="S60" value="2.464019556934322" />
-      <entry key="M2" value="3.391845825299371" />
-      <entry key="M5" value="4.246183698308781" />
-      <entry key="M10" value="4.6015243202123415" />
-      <entry key="M15" value="4.729291430509534" />
-      <entry key="M30" value="4.862046809738442" />
-      <entry key="H1" value="4.930360237237256" />
-      <entry key="H2" value="4.965012615676525" />
-      <entry key="H4" value="4.982464216263142" />
-      <entry key="D1" value="4.997071504913505" />
-      <entry key="W1" value="4.999581499698849" />
+      <entry key="MS100" value="1.0" />
+      <entry key="MS500" value="1.0000000000306355" />
+      <entry key="S2" value="1.0023567672581144" />
+      <entry key="S5" value="1.0958578982180438" />
+      <entry key="S10" value="1.3827653540315041" />
+      <entry key="S30" value="2.3094216909936938" />
+      <entry key="S60" value="3.2607430680769776" />
+      <entry key="M2" value="4.248924596859107" />
+      <entry key="M5" value="5.173690013059658" />
+      <entry key="M10" value="5.562075070480823" />
+      <entry key="M15" value="5.702222922735245" />
+      <entry key="M30" value="5.848112670490689" />
+      <entry key="H1" value="5.923290208759482" />
+      <entry key="H2" value="5.961451478956195" />
+      <entry key="H4" value="5.980677068841685" />
+      <entry key="D1" value="5.996772729111971" />
+      <entry key="W1" value="5.999538794908187" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.9461002307330746" />
-      <entry key="MS500" value="1.1615312372343252" />
-      <entry key="S2" value="3.099601841850655" />
-      <entry key="S5" value="6.134876711859365" />
-      <entry key="S10" value="8.488902881834749" />
-      <entry key="S30" value="11.369171548673839" />
-      <entry key="S60" value="13.117904620791961" />
-      <entry key="M2" value="14.833216753845733" />
-      <entry key="M5" value="16.478180855292152" />
-      <entry key="M10" value="17.187018800874604" />
-      <entry key="M15" value="17.445597922801685" />
-      <entry key="M30" value="17.716365633614124" />
-      <entry key="H1" value="17.8565305833832" />
-      <entry key="H2" value="17.927846608106137" />
-      <entry key="H4" value="17.963817921216027" />
-      <entry key="D1" value="17.993954956190652" />
-      <entry key="W1" value="17.99913606158182" />
+      <entry key="MS100" value="0.8408964152537145" />
+      <entry key="MS500" value="0.9660067347188661" />
+      <entry key="S2" value="1.3010817842386346" />
+      <entry key="S5" value="3.5355897265013616" />
+      <entry key="S10" value="6.658814918221282" />
+      <entry key="S30" value="11.411915666585415" />
+      <entry key="S60" value="13.952918081923698" />
+      <entry key="M2" value="16.165912674716086" />
+      <entry key="M5" value="18.179723912823963" />
+      <entry key="M10" value="19.03107109921625" />
+      <entry key="M15" value="19.340003696810122" />
+      <entry key="M30" value="19.662716777058016" />
+      <entry key="H1" value="19.829485918461916" />
+      <entry key="H2" value="19.914268274193226" />
+      <entry key="H4" value="19.957014634202945" />
+      <entry key="D1" value="19.99281910365374" />
+      <entry key="W1" value="19.99897374852103" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
@@ -207,7 +183,8 @@
             <option name="modelValue" value="auto" />
           </model>
         </option>
-        <option name="targetType" value="LOCAL" />
+        <option name="targetType" value="BACKGROUND" />
+        <option name="worktreeMode" value="WORKSPACE" />
       </template>
     </option>
   </component>
@@ -231,10 +208,13 @@
     "SONARLINT_PRECOMMIT_ANALYSIS": "true",
     "Spring Boot.DiabetesApplication.executor": "Run",
     "codeWithMe.voiceChat.enabledByDefault": "false",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "copilot.chat.legacySessionMetadata.migrated": "true",
-    "git-widget-placeholder": "Merging quan__le",
+    "git-widget-placeholder": "Merging main",
     "ignore.virus.scanning.warn.message": "true",
+    "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/git_clone_CSon/AI-Assisted-Diabetes-Monitoring-System",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -243,6 +223,7 @@
     "project.structure.last.edited": "SDKs",
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.0",
+    "to.speed.mode.migration.done": "true",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -330,6 +311,9 @@
       <workItem from="1784025836933" duration="1168000" />
       <workItem from="1784108626483" duration="293000" />
       <workItem from="1784163976303" duration="41000" />
+      <workItem from="1784547495670" duration="1169000" />
+      <workItem from="1784609393333" duration="3270000" />
+      <workItem from="1784624533751" duration="479000" />
     </task>
     <task id="LOCAL-00001" summary="thêm chức năng doctor rating">
       <option name="closed" value="true" />
@@ -344,6 +328,17 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="thêm chức năng doctor rating" />

@@ -18,7 +18,7 @@
     <div class="doctor-layout">
         <div class="doctor-main">
             <!-- Header layout replacement -->
-            <div th:replace="~{layout/doctor/header :: header('Chi tiết ca khám', 'patients')}"></div>
+            <div th:replace="~{layout/doctor/header :: header('Chi tiết ca khám', 'history')}"></div>
 
             <main class="doctor-content history-layout">
 
@@ -36,7 +36,11 @@
                                     <h2 class="profile-name" th:text="${patient.fullName}">Nguyen Van A</h2>
                                 </div>
                             </div>
-                            <div class="profile-header-actions">
+                            <div class="profile-header-actions" style="display: flex; gap: 8px; align-items: center;">
+                                <a th:href="@{/doctor/patients/profile(patientId=${patient.userId}, from='history')}"
+                                    class="btn btn-secondary btn-sm" style="color: var(--doctor-primary); border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.08);">
+                                    <i class="fas fa-id-card"></i> Hồ Sơ Bệnh Nhân
+                                </a>
                                 <a th:href="@{/doctor/history(patientId=${patient.userId}, from=${from})}"
                                    class="btn btn-secondary btn-sm">
                                     <i class="fas fa-arrow-left"></i> Quay lại lịch sử

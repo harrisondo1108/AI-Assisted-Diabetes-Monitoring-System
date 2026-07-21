@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách Bệnh nhân | Hệ thống chăm sóc tiểu đường</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Page CSS -->
+    <link rel="stylesheet" th:href="@{/css/doctor/doctor-common.css}">
+    <link rel="stylesheet" th:href="@{/css/doctor/doctor-examined-patients.css}">
+</head>
+
+<body>
+    <div class="doctor-layout">
+        <div class="doctor-main">
+            <!-- Header layout replacement -->
+            <div th:replace="~{layout/doctor/header :: header('Danh sách Bệnh nhân & Quản lý Hồ sơ', 'patients')}"></div>
+
+            <main class="doctor-content examined-patients-layout">
+
+                <!-- 1. Stats Cards Grid -->
+                <section class="examined-stats-grid">
+                    <!-- Card 1: Total Distinct Patients -->
+                    <div class="examined-stat-card stat-gradient-1">
+                        <div class="examined-stat-info">
+                            <span class="examined-stat-label">Tổng Bệnh Nhân Quản Lý</span>
+                            <div class="examined-stat-val" th:text="${totalDistinctPatients != null ? totalDistinctPatients : 0}">0</div>
+                            <span class="examined-stat-sub">Số lượng bệnh nhân duy nhất từng tiếp nhận</span>
+                        </div>
+                        <i class="fas fa-users examined-stat-icon"></i>
+                    </div>
+
+                    <!-- Card 2: Total Completed Exams -->
+                    <div class="examined-stat-card stat-gradient-2">
+                        <div class="examined-stat-info">
+                            <span class="examined-stat-label">Tổng Lượt Khám Hoàn Tất</span>
+                            <div class="examined-stat-val" th:text="${totalCompletedExams != null ? totalCompletedExams : 0}">0</div>
+                            <span class="examined-stat-sub">Các ca khám đã kết thúc thành công</span>
+                        </div>
+                        <i class="fas fa-clipboard-check examined-stat-icon"></i>
+                    </div>
+
+                    <!-- Card 3: Most Recent Exam -->
+                    <div class="examined-stat-card stat-gradient-3">
+                        <div class="examined-stat-info">
+                            <span class="examined-stat-label">Lần Khám Gần Nhất</span>
+                            <div class="examined-stat-val" style="font-size: 1.4rem;" th:text="${mostRecentExamDateFormatted != null ? mostRecentExamDateFormatted : 'Chưa có dữ liệu'}">Chưa có</div>
+                            <span class="examined-stat-sub">Thời điểm cập nhật hồ sơ mới nhất</span>
+                        </div>
+                        <i class="fas fa-user-clock examined-stat-icon"></i>
+                    </div>
+                </section>
+
+                <!-- 2. Search & Filter Card -->
+                <section class="examined-search-card">
+                    <form th:action="@{/doctor/patients}" method="get" class="search-form">
+                        <div class="search-input-wrapper">
+                            <i class="fas fa-search"></i>
+                            <input type="text" name="search" class="search-input" placeholder="Tìm kiếm theo Tên, Mã Bệnh nhân (ID), hoặc Số điện thoại..." th:value="${currentSearch}">
+                        </div>
+                        <button type="submit" class="btn-search">
+                            <i class="fas fa-filter"></i> Tìm kiếm
+                        </button>
+                        <a th:if="${currentSearch != null && !currentSearch.trim().isEmpty()}" th:href="@{/doctor/patients}" class="btn-reset-search">
+                            <i class="fas fa-times"></i> Đặt lại
+                        </a>
+                    </form>
+                    <div class="search-summary-text" th:if="${totalElements != null}">
+                        <span th:text="'Hiển thị ' + ${patientsList != null ? patientsList.size() : 0} + ' trên tổng số ' + ${totalElements} + ' hồ sơ bệnh nhân.'">Hiển thị 0 hồ sơ.</span>
+                    </div>
+                </section>
+
+                <!-- 3. Patients Table Card -->
+                <section class="examined-table-card">
+                    <div class="table-header-title">
+                        <h3><i class="fas fa-folder-open"></i> Danh Sách Hồ Sơ Bệnh Nhân <span style="font-size: 0.85rem; font-weight: 600; color: var(--doctor-text-muted); margin-left: 6px;" th:text="'(' + (${totalElements != null ? totalElements : 0}) + ')'">(0)</span></h3>
+                    </div>
+
+                    <!-- Table with Data -->
+                    <div class="table-container" th:if="${patientsList != null && !patientsList.isEmpty()}">
+                        <table class="examined-table">
+                            <thead>
+                                <tr>
+                                    <th>Bệnh Nhân</th>
+                                    <th>Số Điện Thoại</th>
+                                    <th>Ngày Khám Gần Nhất</th>
+                                    <th>Chẩn Đoán Gần Nhất</th>
+                                    <th>Số Lượt Khám</th>
+                                    <th style="text-align: right;">Thao Tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="pView : ${patientsList}">
+                                    <!-- Patient Info -->
+                                    <td>
+                                        <div class="patient-info-cell">
+                                            <div class="patient-avatar-circle">
+                                                <img th:if="${pView.patient.imageUrl != null}" th:src="${pView.patient.imageUrl}" alt="Avatar">
+                                                <i th:unless="${pView.patient.imageUrl != null}" class="fas fa-hospital-user"></i>
+                                            </div>
+                                            <div class="patient-name-block">
+                                                <a th:href="@{/doctor/history(patientId=${pView.patient.userId}, from='patients')}" class="patient-name-link" th:text="${pView.patient.fullName}">Nguyễn Văn A</a>
+                                                <span class="patient-id-badge" th:text="${pView.patient.userId}">PAT001</span>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <!-- Phone -->
+                                    <td>
+                                        <div class="phone-cell">
+                                            <i class="fas fa-phone-alt"></i>
+                                            <span th:text="${pView.patient.phoneNumber != null ? pView.patient.phoneNumber : 'Chưa cập nhật'}">0901234567</span>
+                                        </div>
+                                    </td>
+
+                                    <!-- Last Exam Date -->
+                                    <td>
+                                        <div class="date-cell" th:text="${pView.lastExamDateFormatted != null ? pView.lastExamDateFormatted : 'N/A'}">20/07/2026</div>
+                                        <div class="date-cell-sub">Lần khám gần nhất</div>
+                                    </td>
+
+                                    <!-- Last Diagnosis -->
+                                    <td>
+                                        <span th:if="${pView.lastDiagnosis != null}" class="diagnosis-badge" th:text="${pView.lastDiagnosis.name}">Tiểu đường tuýp 2</span>
+                                        <span th:unless="${pView.lastDiagnosis != null}" class="diagnosis-badge empty">Chưa có chẩn đoán</span>
+                                    </td>
+
+                                    <!-- Total Completed Exams -->
+                                    <td>
+                                        <div class="exam-count-badge">
+                                            <i class="fas fa-stethoscope"></i>
+                                            <span th:text="${pView.totalCompletedExams + ' ca'}">1 ca</span>
+                                        </div>
+                                    </td>
+
+                                    <!-- Action -->
+                                    <td style="text-align: right;">
+                                        <div style="display: inline-flex; align-items: center; justify-content: flex-end; gap: 8px;">
+                                            <a th:href="@{/doctor/patients/profile(patientId=${pView.patient.userId}, from='patients')}" class="btn-view-profile" title="Xem hồ sơ và thông tin y tế chi tiết của bệnh nhân">
+                                                <i class="fas fa-id-card"></i> Hồ Sơ
+                                            </a>
+                                            <a th:href="@{/doctor/history(patientId=${pView.patient.userId}, from='patients')}" class="btn-view-history" title="Xem lịch sử khám và hồ sơ bệnh án chi tiết">
+                                                <i class="fas fa-book-medical"></i> Xem Lịch Sử Khám
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div class="empty-patients-state" th:if="${patientsList == null || patientsList.isEmpty()}">
+                        <i class="fas fa-folder-minus"></i>
+                        <h4>Không tìm thấy hồ sơ bệnh nhân nào</h4>
+                        <p th:if="${currentSearch != null && !currentSearch.trim().isEmpty()}" th:text="'Không có kết quả nào phù hợp với từ khóa &quot;' + ${currentSearch} + '&quot;. Vui lòng thử từ khóa khác hoặc đặt lại bộ lọc.'">Không có kết quả phù hợp.</p>
+                        <p th:unless="${currentSearch != null && !currentSearch.trim().isEmpty()}">Bạn chưa có hồ sơ khám bệnh hoặc tiếp nhận bệnh nhân nào trong hệ thống.</p>
+                        <a th:if="${currentSearch != null && !currentSearch.trim().isEmpty()}" th:href="@{/doctor/patients}" class="btn-reset-search" style="margin-top: 8px;">
+                            <i class="fas fa-sync-alt"></i> Đặt lại tìm kiếm
+                        </a>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="examined-pagination" th:if="${totalPages != null && totalPages > 1}">
+                        <div class="pagination-info" th:text="'Trang ' + ${currentPage} + ' trên ' + ${totalPages}">
+                            Trang 1 trên 1
+                        </div>
+                        <div class="pagination-controls">
+                            <!-- Previous -->
+                            <a th:href="@{/doctor/patients(page=${currentPage - 1}, search=${currentSearch})}"
+                               class="page-btn" th:classappend="${currentPage <= 1} ? 'disabled' : ''">
+                                <i class="fas fa-chevron-left"></i> Trước
+                            </a>
+
+                            <!-- Pages -->
+                            <a th:each="i : ${#numbers.sequence(1, totalPages)}"
+                               th:href="@{/doctor/patients(page=${i}, search=${currentSearch})}"
+                               class="page-btn"
+                               th:classappend="${i == currentPage} ? 'active' : ''"
+                               th:text="${i}">1</a>
+
+                            <!-- Next -->
+                            <a th:href="@{/doctor/patients(page=${currentPage + 1}, search=${currentSearch})}"
+                               class="page-btn" th:classappend="${currentPage >= totalPages} ? 'disabled' : ''">
+                                Sau <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+</body>
+
+</html>
