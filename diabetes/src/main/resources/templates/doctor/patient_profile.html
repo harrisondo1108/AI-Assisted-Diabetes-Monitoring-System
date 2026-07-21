@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ Sơ Y Tế Bệnh Nhân - Diabetes Care</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Common Doctor CSS -->
+    <link rel="stylesheet" th:href="@{/css/doctor/doctor-common.css}">
+    <!-- Patient Profile specific styles -->
+    <link rel="stylesheet" th:href="@{/css/doctor/doctor-patient-profile.css}">
+</head>
+
+<body>
+    <div class="doctor-wrapper">
+        <div th:replace="~{layout/doctor/header :: header('Hồ sơ bệnh nhân', 'patients')}"></div>
+
+        <main class="doctor-content profile-layout">
+            <div class="profile-container" style="width: 100%; display: flex; flex-direction: column; gap: 24px;">
+                
+                <!-- Navigation Banner & Header -->
+                <div class="profile-nav-banner">
+                    <div class="banner-left">
+                        <a th:href="${'history'.equals(from) ? '/doctor/history?patientId=' + patient.userId + '&from=patients' : ('examine'.equals(from) ? '/doctor/examine' : '/doctor/patients')}" class="btn-back-link">
+                            <i class="fas fa-arrow-left"></i> Quay lại Danh sách
+                        </a>
+                        <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+                        <span class="breadcrumb-current">Hồ sơ y tế</span>
+                    </div>
+                    <div class="banner-right">
+                        <a th:href="@{/doctor/history(patientId=${patient.userId}, from='patients')}" class="btn-goto-history">
+                            <i class="fas fa-book-medical"></i> Xem Lịch Sử Khám Chi Tiết
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Main Profile Grid -->
+                <div class="profile-main-grid">
+                    <!-- Left Sidebar / Banner Summary -->
+                    <div class="profile-summary-card">
+                        <div class="patient-avatar-box">
+                            <img th:if="${patient.imageUrl != null && !#strings.isEmpty(patient.imageUrl)}"
+                                 th:src="${patient.imageUrl}" alt="Avatar">
+                            <i th:unless="${patient.imageUrl != null && !#strings.isEmpty(patient.imageUrl)}"
+                               class="fas fa-hospital-user"></i>
+                        </div>
+                        <h2 class="patient-name" th:text="${patient.fullName}">Nguyen Van A</h2>
+                        <span class="patient-id-badge" th:text="${patient.userId}">P012932</span>
+
+                        <div class="quick-stats-grid">
+                            <div class="stat-box">
+                                <span class="stat-lbl"><i class="fas fa-birthday-cake"></i> Tuổi</span>
+                                <span class="stat-val" th:text="${patient.dob != null ? (T(java.time.Period).between(patient.dob, T(java.time.LocalDate).now()).getYears() + ' tuổi') : 'N/A'}"></span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-lbl"><i class="fas fa-venus-mars"></i> Giới tính</span>
+                                <span class="stat-val" th:text="${patient.gender != null ? (patient.gender ? 'Nữ' : 'Nam') : 'N/A'}"></span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-lbl"><i class="fas fa-tint"></i> Nhóm máu</span>
+                                <span class="stat-val blood-tag" th:text="${patient.bloodgroup != null && !patient.bloodgroup.empty ? patient.bloodgroup : 'N/A'}"></span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-lbl"><i class="fas fa-chart-pie"></i> BMI</span>
+                                <span class="stat-val" th:with="h_m=${patient.height != null ? patient.height / 100.0 : 0.0}, bmi=${(patient.weight != null && h_m > 0) ? (patient.weight.doubleValue() / (h_m * h_m)) : 0.0}"
+                                      th:text="${bmi > 0 ? #numbers.formatDecimal(bmi, 1, 1) : 'N/A'}"></span>
+                            </div>
+                        </div>
+
+                        <!-- Supervisor Info Box if available -->
+                        <div class="supervisor-info-box" th:if="${patient.supervisorName != null && !patient.supervisorName.empty}">
+                            <div class="sup-title"><i class="fas fa-user-shield"></i> Người giám hộ / Liên hệ khẩn cấp</div>
+                            <div class="sup-row">
+                                <span>Họ & Tên:</span>
+                                <strong th:text="${patient.supervisorName}"></strong>
+                            </div>
+                            <div class="sup-row" th:if="${patient.supervisorPhone != null && !patient.supervisorPhone.empty}">
+                                <span>Điện thoại:</span>
+                                <strong th:text="${patient.supervisorPhone}"></strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Detailed Cards -->
+                    <div class="profile-details-column">
+                        
+                        <!-- Demographics & Contact Card -->
+                        <div class="detail-card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-address-card"></i> Thông tin cá nhân & Liên lạc</h3>
+                            </div>
+                            <div class="card-body grid-2">
+                                <div class="info-group">
+                                    <label>Ngày sinh:</label>
+                                    <div class="info-val" th:text="${patient.dob != null ? #temporals.format(patient.dob, 'dd/MM/yyyy') : 'Chưa cập nhật'}"></div>
+                                </div>
+                                <div class="info-group">
+                                    <label>Số điện thoại:</label>
+                                    <div class="info-val" th:text="${patient.phoneNumber != null && !patient.phoneNumber.empty ? patient.phoneNumber : 'Chưa cập nhật'}"></div>
+                                </div>
+                                <div class="info-group">
+                                    <label>Email:</label>
+                                    <div class="info-val" th:text="${patient.email != null && !patient.email.empty ? patient.email : 'Chưa cập nhật'}"></div>
+                                </div>
+                                <div class="info-group">
+                                    <label>Địa chỉ thường trú:</label>
+                                    <div class="info-val" th:text="${patient.address != null && !patient.address.empty ? patient.address : 'Chưa cập nhật'}"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Physical & Biometric Card -->
+                        <div class="detail-card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-heart-pulse"></i> Chỉ số thể chất & Sinh trắc học</h3>
+                            </div>
+                            <div class="card-body grid-3">
+                                <div class="bio-metric-item">
+                                    <div class="icon-wrap height-bg"><i class="fas fa-ruler-vertical"></i></div>
+                                    <div class="bio-text">
+                                        <span class="lbl">Chiều cao</span>
+                                        <span class="val" th:text="${patient.height != null ? patient.height + ' cm' : 'Chưa đo'}"></span>
+                                    </div>
+                                </div>
+                                <div class="bio-metric-item">
+                                    <div class="icon-wrap weight-bg"><i class="fas fa-weight-scale"></i></div>
+                                    <div class="bio-text">
+                                        <span class="lbl">Cân nặng</span>
+                                        <span class="val" th:text="${patient.weight != null ? patient.weight + ' kg' : 'Chưa đo'}"></span>
+                                    </div>
+                                </div>
+                                <div class="bio-metric-item">
+                                    <div class="icon-wrap bmi-bg"><i class="fas fa-gauge-high"></i></div>
+                                    <div class="bio-text">
+                                        <span class="lbl">Chỉ số BMI</span>
+                                        <span class="val" th:with="h_m=${patient.height != null ? patient.height / 100.0 : 0.0}, bmi=${(patient.weight != null && h_m > 0) ? (patient.weight.doubleValue() / (h_m * h_m)) : 0.0}"
+                                              th:text="${bmi > 0 ? #numbers.formatDecimal(bmi, 1, 1) + (bmi < 18.5 ? ' (Thiếu cân)' : (bmi < 25.0 ? ' (Chuẩn)' : (bmi < 30.0 ? ' (Thừa cân)' : ' (Béo phì)'))) : 'Chưa đủ dữ liệu'}"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Medical Alerts & Permanent History -->
+                        <div class="detail-card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-circle-exclamation"></i> Cảnh báo Y tế & Tiền sử Bệnh án</h3>
+                            </div>
+                            <div class="card-body alert-stack">
+                                <div class="medical-alert-box allergy">
+                                    <div class="alert-title"><i class="fas fa-notes-medical"></i> Dị ứng thuốc & Thực phẩm</div>
+                                    <p class="alert-content" th:text="${patient.allergyNotes != null && !patient.allergyNotes.trim().empty ? patient.allergyNotes : 'Không có dị ứng thuốc hay dị ứng đặc biệt nào được ghi nhận.'}"></p>
+                                </div>
+                                <div class="medical-alert-box history">
+                                    <div class="alert-title"><i class="fas fa-file-medical"></i> Tiền sử Bệnh nền & Phẫu thuật</div>
+                                    <p class="alert-content" th:text="${patient.permanentMedicalHistory != null && !patient.permanentMedicalHistory.trim().empty ? patient.permanentMedicalHistory : 'Không có tiền sử bệnh nền mạn tính hoặc bệnh lý phức tạp được ghi nhận.'}"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Daily Routine Card -->
+                        <div class="detail-card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-clock"></i> Sinh hoạt Hàng ngày (Routine)</h3>
+                            </div>
+                            <div class="card-body routine-grid" th:if="${routine != null}">
+                                <div class="routine-pill">
+                                    <i class="fas fa-mug-saucer"></i>
+                                    <div>
+                                        <span class="r-lbl">Bữa sáng</span>
+                                        <strong class="r-val" th:text="${routine.breakfastTime != null ? #temporals.format(routine.breakfastTime, 'hh:mm a') : 'Chưa rõ'}"></strong>
+                                    </div>
+                                </div>
+                                <div class="routine-pill">
+                                    <i class="fas fa-utensils"></i>
+                                    <div>
+                                        <span class="r-lbl">Bữa trưa</span>
+                                        <strong class="r-val" th:text="${routine.lunchTime != null ? #temporals.format(routine.lunchTime, 'hh:mm a') : 'Chưa rõ'}"></strong>
+                                    </div>
+                                </div>
+                                <div class="routine-pill">
+                                    <i class="fas fa-bowl-food"></i>
+                                    <div>
+                                        <span class="r-lbl">Bữa tối</span>
+                                        <strong class="r-val" th:text="${routine.dinnerTime != null ? #temporals.format(routine.dinnerTime, 'hh:mm a') : 'Chưa rõ'}"></strong>
+                                    </div>
+                                </div>
+                                <div class="routine-pill">
+                                    <i class="fas fa-bed"></i>
+                                    <div>
+                                        <span class="r-lbl">Giờ ngủ / Dậy</span>
+                                        <strong class="r-val" th:text="${(routine.sleepTime != null ? #temporals.format(routine.sleepTime, 'hh:mm a') : 'N/A') + ' / ' + (routine.wakeUpTime != null ? #temporals.format(routine.wakeUpTime, 'hh:mm a') : 'N/A')}"></strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body empty-routine" th:if="${routine == null}">
+                                <i class="far fa-clock"></i>
+                                <span>Bệnh nhân chưa cập nhật thông tin thời gian biểu sinh hoạt hàng ngày.</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

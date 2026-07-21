@@ -23,6 +23,10 @@
                 th:classappend="${activeMenu == 'queue'} ? 'active' : ''">
                 <i class="fas fa-list"></i> Hàng đợi
             </a>
+            <a th:href="@{/doctor/patients}" class="header-nav-item"
+                th:classappend="${activeMenu == 'patients' || activeMenu == 'examined-patients'} ? 'active' : ''">
+                <i class="fas fa-hospital-user"></i> Bệnh nhân
+            </a>
             <a th:href="@{/doctor/reminders}" class="header-nav-item"
                 th:classappend="${activeMenu == 'reminders'} ? 'active' : ''">
                 <i class="fas fa-bell"></i> Nhắc nhở
