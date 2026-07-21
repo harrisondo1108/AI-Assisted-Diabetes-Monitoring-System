@@ -25,5 +25,8 @@ public interface ClinicalExaminationRepository extends JpaRepository<ClinicalExa
     Patient findPatientByClinicalExamId(@Param("clinicalExamId") String clinicalExamId);
 
     List<ClinicalExamination> findTop2ByPatient_UserIdAndDoctor_UserIdAndStatusInOrderByExamDateDesc(String patientUserId, String doctorUserId, List<String> statuses);
+
+    List<ClinicalExamination> findByDoctor_UserIdAndNextAppointmentBetweenOrderByNextAppointmentAsc(
+            String doctorId, java.time.LocalDateTime from, java.time.LocalDateTime to);
 }
 

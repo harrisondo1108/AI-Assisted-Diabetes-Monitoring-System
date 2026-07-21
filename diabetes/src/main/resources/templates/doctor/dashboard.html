@@ -65,15 +65,15 @@
                         </div>
                     </div>
                     
-                    <!-- Cảnh báo thuốc/nhắc nhở -->
+                    <!-- Lịch tái khám sắp đến -->
                     <div class="metric-card bg-gradient-teal">
                         <div class="metric-card-inner">
                             <div class="metric-info">
-                                <span class="metric-label">Cảnh báo dùng thuốc</span>
-                                <h3 class="metric-val" th:text="${unreadRemindersCount}">0</h3>
-                                <p class="metric-sub">Vấn đề tuân thủ</p>
+                                <span class="metric-label">Lịch tái khám sắp đến</span>
+                                <h3 class="metric-val" th:text="${upcomingFollowUpsCount}">0</h3>
+                                <p class="metric-sub">Trong 7 ngày tới</p>
                             </div>
-                            <div class="metric-icon"><i class="fas fa-pills"></i></div>
+                            <div class="metric-icon"><i class="fas fa-calendar-check"></i></div>
                         </div>
                     </div>
 
@@ -117,28 +117,31 @@
                         </div>
                     </div>
 
-                    <!-- Widget Phải: Cảnh báo Tuân thủ Điều trị (AIReminders) -->
+                    <!-- Widget Phải: Lịch Tái Khám Sắp Đến -->
                     <div class="hub-widget">
                         <div class="hub-widget-header">
-                            <h3 class="hub-widget-title"><i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i> Cảnh báo Tuân thủ Điều trị</h3>
-                            <a th:href="@{/doctor/reminders}" style="font-size: 0.85rem; color: #3b82f6; text-decoration: none;">Chi tiết</a>
+                            <h3 class="hub-widget-title"><i class="fas fa-calendar-check" style="color: #0ea5e9;"></i> Lịch Tái Khám Sắp Đến</h3>
+                            <span style="font-size: 0.82rem; color: #94a3b8;">7 ngày tới</span>
                         </div>
                         <div class="hub-widget-body">
-                            <div th:if="${recentReminders == null || recentReminders.isEmpty()}" class="empty-state">
-                                <i class="fas fa-shield-check" style="color: #10b981;"></i>
-                                <p>Tất cả bệnh nhân đều tuân thủ tốt.</p>
+                            <div th:if="${upcomingFollowUps == null || upcomingFollowUps.isEmpty()}" class="empty-state">
+                                <i class="fas fa-calendar-xmark" style="color: #94a3b8;"></i>
+                                <p>Không có lịch tái khám nào trong 7 ngày tới.</p>
                             </div>
-                            
-                            <div th:each="rem, stat : ${recentReminders}" th:if="${stat.index < 6}" class="hub-list-item">
+
+                            <div th:each="fu, stat : ${upcomingFollowUps}" th:if="${stat.index < 6}" class="hub-list-item">
                                 <div class="hub-item-content">
-                                    <h4>
-                                        <i th:if="${rem.isRead == null || !rem.isRead}" class="fas fa-circle" style="color: #ef4444; font-size: 0.5rem; margin-right: 4px; vertical-align: middle;"></i>
-                                        <span th:text="${rem.patient.fullName}">Patient Name</span>
-                                    </h4>
-                                    <p style="font-size: 0.85rem; margin-top: 4px;"><i class="far fa-clock"></i> Nhắc nhở lúc: <span th:text="${#temporals.format(rem.scheduledTime, 'HH:mm - dd/MM/yyyy')}"></span></p>
+                                    <h4 th:text="${fu.patient.fullName}">Patient Name</h4>
+                                    <p>
+                                        <i class="fas fa-clock" style="color: #0ea5e9;"></i>
+                                        <span th:text="${#temporals.format(fu.nextAppointment, 'HH:mm - dd/MM/yyyy')}"></span>
+                                    </p>
+                                    <p style="margin-top:4px; font-style:italic; color:#94a3b8; font-size:0.82rem;"
+                                       th:text="${fu.diagnosisNote != null ? fu.diagnosisNote : 'Chưa có chẩn đoán'}"></p>
                                 </div>
                                 <div class="hub-item-actions">
-                                    <a th:href="@{/doctor/history(patientId=${rem.patient.userId})}" class="btn-hub-primary" style="background: #3b82f6; text-decoration: none;" title="Mở hồ sơ">Hồ sơ</a>
+                                    <a th:href="@{/doctor/history(patientId=${fu.patient.userId})}" class="btn-hub-primary"
+                                       style="background:#0ea5e9; text-decoration:none;" title="Xem hồ sơ">Hồ sơ</a>
                                 </div>
                             </div>
                         </div>

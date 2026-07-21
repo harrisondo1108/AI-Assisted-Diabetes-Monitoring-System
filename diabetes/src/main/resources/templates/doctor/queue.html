@@ -282,6 +282,21 @@
     </div>
     <!-- Cancel Modal Script -->
     <script th:src="@{/js/doctor/queue-cancel-modal.js}" defer></script>
+    <!-- Remove toast from DOM after animation so it doesn't block clicks -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var toastContainer = document.getElementById('toast-container');
+            if (toastContainer) {
+                var toast = toastContainer.querySelector('.toast');
+                if (toast) {
+                    toast.addEventListener('animationend', function () {
+                        toastContainer.style.pointerEvents = 'none';
+                        toastContainer.style.visibility = 'hidden';
+                    });
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>

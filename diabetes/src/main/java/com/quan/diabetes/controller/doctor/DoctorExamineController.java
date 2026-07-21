@@ -388,7 +388,10 @@ public class DoctorExamineController {
         if (loggedInUser == null || !"DOC".equalsIgnoreCase(loggedInUser.getRole().getRoleId()))
             return "redirect:/login";
 
-        if (result.hasErrors()) {
+        // If this is a "order labs" action, skip validation entirely and proceed
+        boolean isOrderLabsAction = "true".equalsIgnoreCase(orderLabsParam);
+
+        if (!isOrderLabsAction && result.hasErrors()) {
             populateStepCommonModel(examId, session, model, loggedInUser);
             List<LabResult> labResults = labResultRepository.findByLabOrder_ClinicalExamination_ClinicalExamId(examId);
             model.addAttribute("labResults", labResults);

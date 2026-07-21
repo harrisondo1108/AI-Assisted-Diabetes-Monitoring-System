@@ -21,17 +21,14 @@ public class DoctorDashboardController {
 
     private final ClinicalExaminationService clinicalExaminationService;
     private final ProfileService profileService;
-    private final ReminderRepository reminderRepository;
     private final ClinicalExaminationRepository clinicalExaminationRepository;
 
     public DoctorDashboardController(
             ClinicalExaminationService clinicalExaminationService,
             ProfileService profileService,
-            ReminderRepository reminderRepository,
             ClinicalExaminationRepository clinicalExaminationRepository) {
         this.clinicalExaminationService = clinicalExaminationService;
         this.profileService = profileService;
-        this.reminderRepository = reminderRepository;
         this.clinicalExaminationRepository = clinicalExaminationRepository;
     }
 
@@ -64,18 +61,18 @@ public class DoctorDashboardController {
                         && e.getExamDate() != null && e.getExamDate().toLocalDate().isEqual(today))
                 .count();
 
-        // 3. Medication Reminders/Alerts (Cảnh báo tuân thủ)
-        List<Reminder> recentReminders = reminderRepository
-                .findTop10ByClinicalExamination_Doctor_UserIdOrderByScheduledTimeDesc(doctorId);
-        long unreadRemindersCount = recentReminders.stream()
-                .filter(r -> r.getIsRead() == null || !r.getIsRead())
-                .count();
+        // 3. Upcoming Follow-ups in next 7 days (Lịch tái khám sắp đến)
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime sevenDaysLater = now.plusDays(7);
+        List<ClinicalExamination> upcomingFollowUps = clinicalExaminationRepository
+                .findByDoctor_UserIdAndNextAppointmentBetweenOrderByNextAppointmentAsc(
+                        doctorId, now, sevenDaysLater);
 
         model.addAttribute("requestedExams", requestedExams);
         model.addAttribute("pendingRequestsCount", requestedExams.size());
         model.addAttribute("todayQueueCount", todayQueueCount);
-        model.addAttribute("recentReminders", recentReminders);
-        model.addAttribute("unreadRemindersCount", unreadRemindersCount);
+        model.addAttribute("upcomingFollowUps", upcomingFollowUps);
+        model.addAttribute("upcomingFollowUpsCount", upcomingFollowUps.size());
 
         return "doctor/dashboard";
     }
