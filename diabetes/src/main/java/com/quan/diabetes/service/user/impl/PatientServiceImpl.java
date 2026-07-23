@@ -42,14 +42,6 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public void deleteById(String id) {
-        if (!patientRepository.existsById(id)) {
-            throw new EntityNotFoundException("Patient not found with id: " + id);
-        }
-        patientRepository.deleteById(id);
-    }
-
-    @Override
     public boolean existsById(String id) {
         return patientRepository.existsById(id);
     }

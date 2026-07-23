@@ -13,10 +13,4 @@ public interface ProfileService {
     public Optional<Profile> findById(String id);
 
     public Profile create(Profile entity);
-
-    public Profile update(String id, Profile entity);
-
-    public void deleteById(String id);
-
-    public boolean existsById(String id);
 }

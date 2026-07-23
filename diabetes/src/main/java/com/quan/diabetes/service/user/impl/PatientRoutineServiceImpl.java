@@ -10,12 +10,10 @@ import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
 public class PatientRoutineServiceImpl implements PatientRoutineService {
-
 
     private final PatientRoutineRepository patientRoutineRepository;
 
@@ -31,11 +29,6 @@ public class PatientRoutineServiceImpl implements PatientRoutineService {
         this.patientRoutineRepository = patientRoutineRepository;
         this.patientRepository = patientRepository;
         this.medicationRescheduleService = medicationRescheduleService;
-    }
-
-    @Override
-    public List<PatientRoutine> findAll() {
-        return patientRoutineRepository.findAll();
     }
 
     @Override

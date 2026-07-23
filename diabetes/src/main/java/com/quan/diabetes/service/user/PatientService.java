@@ -14,7 +14,5 @@ public interface PatientService {
 
     public Patient update(String id, Patient entity);
 
-    public void deleteById(String id);
-
     public boolean existsById(String id);
 }

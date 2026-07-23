@@ -3,7 +3,6 @@ package com.quan.diabetes.service.user.impl;
 import com.quan.diabetes.entity.Profile;
 import com.quan.diabetes.repository.ProfileRepository;
 import com.quan.diabetes.service.user.ProfileService;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -29,12 +28,11 @@ public class ProfileServiceImpl implements ProfileService {
         List<Profile> profiles = this.findAll();
         List<Profile> doctors = new ArrayList<>();
         for (Profile profile : profiles) {
-            if ("DOC".equals(profile.getUser().getRole().getRoleId())) {
+            if (profile != null && profile.getUser() != null && profile.getUser().getRole() != null && "DOC".equals(profile.getUser().getRole().getRoleId())) {
                 doctors.add(profile);
             }
         }
         return doctors;
-
     }
 
     @Override
@@ -45,26 +43,5 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public Profile create(Profile entity) {
         return profileRepository.save(entity);
-    }
-
-    @Override
-    public Profile update(String id, Profile entity) {
-        if (!profileRepository.existsById(id)) {
-            throw new EntityNotFoundException("Profile not found with id: " + id);
-        }
-        return profileRepository.save(entity);
-    }
-
-    @Override
-    public void deleteById(String id) {
-        if (!profileRepository.existsById(id)) {
-            throw new EntityNotFoundException("Profile not found with id: " + id);
-        }
-        profileRepository.deleteById(id);
-    }
-
-    @Override
-    public boolean existsById(String id) {
-        return profileRepository.existsById(id);
     }
 }
