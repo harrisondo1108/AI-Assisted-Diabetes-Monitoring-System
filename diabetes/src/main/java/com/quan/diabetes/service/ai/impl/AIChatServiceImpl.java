@@ -156,7 +156,7 @@ public class AIChatServiceImpl implements AIChatService {
             }
 
             String modelToUse = assistant.getModelName();
-            if (modelToUse == null || modelToUse.isEmpty()) {
+            if (!hasText(modelToUse)) {
                 modelToUse = ollamaDefaultModel;
                 assistant.setModelName(modelToUse);
                 aiAssistantService.update(assistant.getAiAssistantId(), assistant);
@@ -189,7 +189,7 @@ public class AIChatServiceImpl implements AIChatService {
             String aiResponse = "";
             String sqlData = null;
 
-            if (toolJson != null && !toolJson.isEmpty() && !toolJson.equalsIgnoreCase("NONE")) {
+            if (!"NONE".equalsIgnoreCase(toolJson)) {
                 logger.info("[Chặng 1] Phát hiện yêu cầu truy xuất dữ liệu cá nhân (RAG Tool): {}", toolJson);
                 try {
                     com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
@@ -207,33 +207,33 @@ public class AIChatServiceImpl implements AIChatService {
                 }
             } else {
                 logger.info("[Chặng 1] Câu hỏi kiến thức chung hoặc nối tiếp -> Phân tích ngữ cảnh liên kết tất cả chủ đề");
-                if (!isGeneralMedicalQuestion(request.question()) && formattedHistory != null && !formattedHistory.isBlank()) {
+                if (!isGeneralMedicalQuestion(request.question()) && hasText(formattedHistory)) {
                     String qLower = request.question().toLowerCase();
                     String histLower = formattedHistory.toLowerCase();
                     // 1. Kiểm tra nối tiếp về Đơn thuốc / Dùng thuốc
-                    if (qLower.contains("thuốc") || qLower.contains("uống") || qLower.contains("dùng") || qLower.contains("liều") || qLower.contains("nó") || qLower.contains("đó") || qLower.contains("này")) {
-                        if (histLower.contains("thuốc") || histLower.contains("tablet") || histLower.contains("đơn") || histLower.contains("mg")) {
+                    if (containsAny(qLower, "thuốc", "uống", "dùng", "liều", "nó", "đó", "này")) {
+                        if (containsAny(histLower, "thuốc", "tablet", "đơn", "mg")) {
                             logger.info("[Chặng 1 Follow-up] Tự động tải Đơn thuốc cho câu hỏi nối tiếp về thuốc");
                             sqlData = fetchDataFromRepository("get_prescriptions", request.patientId());
                         }
                     }
                     // 2. Kiểm tra nối tiếp về Xét nghiệm / Chỉ số đường huyết / HbA1c
-                    if (sqlData == null && (qLower.contains("chỉ số") || qLower.contains("xét nghiệm") || qLower.contains("kết quả") || qLower.contains("cao") || qLower.contains("thấp") || qLower.contains("đó") || qLower.contains("này") || qLower.contains("tại sao"))) {
-                        if (histLower.contains("xét nghiệm") || histLower.contains("hba1c") || histLower.contains("glucose") || histLower.contains("mmol") || histLower.contains("mg/dl")) {
+                    if (sqlData == null && containsAny(qLower, "chỉ số", "xét nghiệm", "kết quả", "cao", "thấp", "đó", "này", "tại sao")) {
+                        if (containsAny(histLower, "xét nghiệm", "hba1c", "glucose", "mmol", "mg/dl")) {
                             logger.info("[Chặng 1 Follow-up] Tự động tải Kết quả xét nghiệm cho câu hỏi nối tiếp");
                             sqlData = fetchDataFromRepository("get_lab_results", request.patientId());
                         }
                     }
                     // 3. Kiểm tra nối tiếp về Phác đồ / Kế hoạch điều trị / Chế độ ăn uống / Tập luyện
-                    if (sqlData == null && (qLower.contains("phác đồ") || qLower.contains("kế hoạch") || qLower.contains("ăn") || qLower.contains("kiêng") || qLower.contains("tập") || qLower.contains("đó") || qLower.contains("này") || qLower.contains("lời dặn"))) {
-                        if (histLower.contains("phác đồ") || histLower.contains("kế hoạch") || histLower.contains("dinh dưỡng") || histLower.contains("tập luyện") || histLower.contains("mục tiêu")) {
+                    if (sqlData == null && containsAny(qLower, "phác đồ", "kế hoạch", "ăn", "kiêng", "tập", "đó", "này", "lời dặn")) {
+                        if (containsAny(histLower, "phác đồ", "kế hoạch", "dinh dưỡng", "tập luyện", "mục tiêu")) {
                             logger.info("[Chặng 1 Follow-up] Tự động tải Phác đồ điều trị cho câu hỏi nối tiếp");
                             sqlData = fetchDataFromRepository("get_treatment_plan", request.patientId());
                         }
                     }
                     // 4. Kiểm tra nối tiếp về Lịch khám / Bác sĩ / Lần khám lâm sàng
-                    if (sqlData == null && (qLower.contains("khám") || qLower.contains("bác sĩ") || qLower.contains("tái khám") || qLower.contains("lịch") || qLower.contains("chẩn đoán") || qLower.contains("đó") || qLower.contains("này"))) {
-                        if (histLower.contains("khám") || histLower.contains("bác sĩ") || histLower.contains("lượt khám") || histLower.contains("chẩn đoán")) {
+                    if (sqlData == null && containsAny(qLower, "khám", "bác sĩ", "tái khám", "lịch", "chẩn đoán", "đó", "này")) {
+                        if (containsAny(histLower, "khám", "bác sĩ", "lượt khám", "chẩn đoán")) {
                             logger.info("[Chặng 1 Follow-up] Tự động tải Hồ sơ khám lâm sàng cho câu hỏi nối tiếp");
                             sqlData = fetchDataFromRepository("get_clinical_examination", request.patientId());
                         }
@@ -337,7 +337,7 @@ public class AIChatServiceImpl implements AIChatService {
                 }
 
                 String modelToUse = assistant.getModelName();
-                if (modelToUse == null || modelToUse.isEmpty()) {
+                if (!hasText(modelToUse)) {
                     modelToUse = ollamaDefaultModel;
                     assistant.setModelName(modelToUse);
                     aiAssistantService.update(assistant.getAiAssistantId(), assistant);
@@ -366,7 +366,7 @@ public class AIChatServiceImpl implements AIChatService {
                 String toolJson = classifyAndGetToolJson(request.question(), request.patientId(), modelToUse);
 
                 String sqlData = null;
-                if (toolJson != null && !toolJson.isEmpty() && !toolJson.equalsIgnoreCase("NONE")) {
+                if (!"NONE".equalsIgnoreCase(toolJson)) {
                     logger.info("[Stream Chặng 1] RAG Tool: {}", toolJson);
                     try {
                         com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
@@ -378,26 +378,26 @@ public class AIChatServiceImpl implements AIChatService {
                         sqlData = "Không thể truy xuất dữ liệu bệnh án do lỗi: " + e.getMessage();
                     }
                 } else {
-                    if (!isGeneralMedicalQuestion(request.question()) && formattedHistory != null && !formattedHistory.isBlank()) {
+                    if (!isGeneralMedicalQuestion(request.question()) && hasText(formattedHistory)) {
                         String qLower = request.question().toLowerCase();
                         String histLower = formattedHistory.toLowerCase();
-                        if (qLower.contains("thuốc") || qLower.contains("uống") || qLower.contains("dùng") || qLower.contains("liều") || qLower.contains("nó") || qLower.contains("đó") || qLower.contains("này")) {
-                            if (histLower.contains("thuốc") || histLower.contains("tablet") || histLower.contains("đơn") || histLower.contains("mg")) {
+                        if (containsAny(qLower, "thuốc", "uống", "dùng", "liều", "nó", "đó", "này")) {
+                            if (containsAny(histLower, "thuốc", "tablet", "đơn", "mg")) {
                                 sqlData = fetchDataFromRepository("get_prescriptions", request.patientId());
                             }
                         }
-                        if (sqlData == null && (qLower.contains("chỉ số") || qLower.contains("xét nghiệm") || qLower.contains("kết quả") || qLower.contains("cao") || qLower.contains("thấp") || qLower.contains("đó") || qLower.contains("này") || qLower.contains("tại sao"))) {
-                            if (histLower.contains("xét nghiệm") || histLower.contains("hba1c") || histLower.contains("glucose") || histLower.contains("mmol") || histLower.contains("mg/dl")) {
+                        if (sqlData == null && containsAny(qLower, "chỉ số", "xét nghiệm", "kết quả", "cao", "thấp", "đó", "này", "tại sao")) {
+                            if (containsAny(histLower, "xét nghiệm", "hba1c", "glucose", "mmol", "mg/dl")) {
                                 sqlData = fetchDataFromRepository("get_lab_results", request.patientId());
                             }
                         }
-                        if (sqlData == null && (qLower.contains("phác đồ") || qLower.contains("kế hoạch") || qLower.contains("ăn") || qLower.contains("kiêng") || qLower.contains("tập") || qLower.contains("đó") || qLower.contains("này") || qLower.contains("lời dặn"))) {
-                            if (histLower.contains("phác đồ") || histLower.contains("kế hoạch") || histLower.contains("dinh dưỡng") || histLower.contains("tập luyện") || histLower.contains("mục tiêu")) {
+                        if (sqlData == null && containsAny(qLower, "phác đồ", "kế hoạch", "ăn", "kiêng", "tập", "đó", "này", "lời dặn")) {
+                            if (containsAny(histLower, "phác đồ", "kế hoạch", "dinh dưỡng", "tập luyện", "mục tiêu")) {
                                 sqlData = fetchDataFromRepository("get_treatment_plan", request.patientId());
                             }
                         }
-                        if (sqlData == null && (qLower.contains("khám") || qLower.contains("bác sĩ") || qLower.contains("tái khám") || qLower.contains("lịch") || qLower.contains("chẩn đoán") || qLower.contains("đó") || qLower.contains("này"))) {
-                            if (histLower.contains("khám") || histLower.contains("bác sĩ") || histLower.contains("lượt khám") || histLower.contains("chẩn đoán")) {
+                        if (sqlData == null && containsAny(qLower, "khám", "bác sĩ", "tái khám", "lịch", "chẩn đoán", "đó", "này")) {
+                            if (containsAny(histLower, "khám", "bác sĩ", "lượt khám", "chẩn đoán")) {
                                 sqlData = fetchDataFromRepository("get_clinical_examination", request.patientId());
                             }
                         }
@@ -502,72 +502,20 @@ public class AIChatServiceImpl implements AIChatService {
         String unaccented = removeVietnameseAccents(qLower);
 
         // 0. ƯU TIÊN HÀNG ĐẦU (UNIVERSAL ESCAPE): Nếu câu hỏi hỏi về giải thích, tác dụng, tác dụng phụ, cơ chế, ý nghĩa, lời khuyên, nguyên nhân, triệu chứng, hướng dẫn áp dụng (dù có nhắc tới thuốc đó, chỉ số đó, phác đồ đó hay bất kỳ từ nào) -> BẮT BUỘC là câu hỏi kiến thức/giải thích chung (true)
-        if (qLower.contains("tác dụng phụ") || unaccented.contains("tac dung phu")
-                || qLower.contains("tác dụng gì") || unaccented.contains("tac dung gi")
-                || qLower.contains("tác dụng như thế nào") || unaccented.contains("tac dung nhu the nao")
-                || qLower.contains("công dụng") || unaccented.contains("cong dung")
-                || qLower.contains("cơ chế") || unaccented.contains("co che")
-                || qLower.contains("tại sao") || unaccented.contains("tai sao")
-                || qLower.contains("như thế nào") || unaccented.contains("nhu the nao")
-                || qLower.contains("ra sao")
-                || qLower.contains("có sao không") || unaccented.contains("co sao khong")
-                || qLower.contains("có tốt không") || unaccented.contains("co tot khong")
-                || qLower.contains("nguy hiểm không") || unaccented.contains("nguy hiem khong")
-                || qLower.contains("nghĩa là gì") || unaccented.contains("nghia la gi")
-                || qLower.contains("ý nghĩa gì") || unaccented.contains("y nghia gi")
-                || qLower.contains("ảnh hưởng") || unaccented.contains("anh huong")
-                || qLower.contains("kiêng gì") || unaccented.contains("kieng gi")
-                || qLower.contains("nên làm gì") || unaccented.contains("nen lam gi")
-                || qLower.contains("cách dùng") || unaccented.contains("cach dung")
-                || qLower.contains("sử dụng thế nào") || unaccented.contains("su dung the nao")
-                || qLower.contains("uống thế nào") || unaccented.contains("uong the nao")
-                || qLower.contains("ăn thế nào") || unaccented.contains("an the nao")
-                || qLower.contains("tập thế nào") || unaccented.contains("tap the nao")
-                || qLower.contains("nguyên nhân") || unaccented.contains("nguyen nhan")
-                || qLower.contains("triệu chứng") || unaccented.contains("trieu chung")
-                || qLower.contains("hướng dẫn") || unaccented.contains("huong dan")
-                || qLower.contains("lời khuyên") || unaccented.contains("loi khuyen")) {
+        if (containsAny(qLower, "tác dụng phụ", "tác dụng gì", "tác dụng như thế nào", "công dụng", "cơ chế", "tại sao", "như thế nào", "ra sao", "có sao không", "có tốt không", "nguy hiểm không", "nghĩa là gì", "ý nghĩa gì", "ảnh hưởng", "kiêng gì", "nên làm gì", "cách dùng", "sử dụng thế nào", "uống thế nào", "ăn thế nào", "tập thế nào", "nguyên nhân", "triệu chứng", "hướng dẫn", "lời khuyên")
+                || containsAny(unaccented, "tac dung phu", "tac dung gi", "tac dung nhu the nao", "cong dung", "co che", "tai sao", "nhu the nao", "co sao khong", "co tot khong", "nguy hiem khong", "nghia la gi", "y nghia gi", "anh huong", "kieng gi", "nen lam gi", "cach dung", "su dung the nao", "uong the nao", "an the nao", "tap the nao", "nguyen nhan", "trieu chung", "huong dan", "loi khuyen")) {
             return true;
         }
 
         // 1. Nếu câu hỏi có chứa từ sở hữu cá nhân hay trỏ đến đối tượng cụ thể vừa hỏi trước đó thì KHÔNG phải câu hỏi chung
-        if (qLower.contains("của tôi") || unaccented.contains("cua toi")
-                || qLower.contains("của mình") || unaccented.contains("cua minh")
-                || qLower.contains("cho tôi xem") || unaccented.contains("cho toi xem")
-                || qLower.contains("tôi đang") || unaccented.contains("toi dang")
-                || qLower.contains("đơn thuốc của") || unaccented.contains("don thuoc cua")
-                || qLower.contains("phác đồ của") || unaccented.contains("phac do cua")
-                || qLower.contains("thuốc đó") || unaccented.contains("thuoc do")
-                || qLower.contains("thuốc này") || unaccented.contains("thuoc nay")
-                || qLower.contains("chỉ số đó") || unaccented.contains("chi so do")
-                || qLower.contains("phác đồ đó") || unaccented.contains("phac do do")) {
+        if (containsAny(qLower, "của tôi", "của mình", "cho tôi xem", "tôi đang", "đơn thuốc của", "phác đồ của", "thuốc đó", "thuốc này", "chỉ số đó", "phác đồ đó")
+                || containsAny(unaccented, "cua toi", "cua minh", "cho toi xem", "toi dang", "don thuoc cua", "phac do cua", "thuoc do", "thuoc nay", "chi so do", "phac do do")) {
             return false;
         }
 
         // 2. Các mẫu câu hỏi kiến thức y khoa chung về Thuốc, Tập thể dục, Dinh dưỡng, Xét nghiệm, Khái niệm bệnh
-        if (qLower.contains("các loại thuốc") || unaccented.contains("cac loai thuoc")
-                || qLower.contains("nhóm thuốc") || unaccented.contains("nhom thuoc")
-                || qLower.contains("thuốc điều trị") || unaccented.contains("thuoc dieu tri")
-                || qLower.contains("thuốc chữa") || unaccented.contains("thuoc chua")
-                || qLower.contains("là thuốc") || unaccented.contains("la thuoc")
-                || qLower.contains("thuốc gì") || unaccented.contains("thuoc gi")
-                || qLower.contains("thuốc j") || unaccented.contains("thuoc j")
-                || qLower.contains("metformin") || qLower.contains("insulin")
-                || qLower.contains("có tác dụng gì") || unaccented.contains("co tac dung gi")
-                || qLower.contains("tập thể dục") || unaccented.contains("tap the duc")
-                || qLower.contains("lịch tập") || unaccented.contains("lich tap")
-                || qLower.contains("bài tập") || unaccented.contains("bai tap")
-                || qLower.contains("chế độ ăn") || unaccented.contains("che do an")
-                || qLower.contains("nên ăn gì") || unaccented.contains("nen an gi")
-                || qLower.contains("kiêng ăn gì") || unaccented.contains("kieng an gi")
-                || qLower.contains("thực đơn") || unaccented.contains("thuc don")
-                || qLower.contains("bao nhiêu là bình thường") || unaccented.contains("bao nhieu la binh thuong")
-                || qLower.contains("tiểu đường là gì") || unaccented.contains("tieu duong la gi")
-                || qLower.contains("chữa thế nào") || unaccented.contains("chua the nao")
-                || qLower.contains("điều trị thế nào") || unaccented.contains("dieu tri the nao")
-                || qLower.contains("nên uống thuốc gì") || unaccented.contains("nen uong thuoc gi")
-                || qLower.contains("nguyên nhân") || unaccented.contains("nguyen nhan")
-                || qLower.contains("triệu chứng") || unaccented.contains("trieu chung")) {
+        if (containsAny(qLower, "các loại thuốc", "nhóm thuốc", "thuốc điều trị", "thuốc chữa", "là thuốc", "thuốc gì", "thuốc j", "metformin", "insulin", "có tác dụng gì", "tập thể dục", "lịch tập", "bài tập", "chế độ ăn", "nên ăn gì", "kiêng ăn gì", "thực đơn", "bao nhiêu là bình thường", "tiểu đường là gì", "chữa thế nào", "điều trị thế nào", "nên uống thuốc gì", "nguyên nhân", "triệu chứng")
+                || containsAny(unaccented, "cac loai thuoc", "nhom thuoc", "thuoc dieu tri", "thuoc chua", "la thuoc", "thuoc gi", "thuoc j", "co tac dung gi", "tap the duc", "lich tap", "bai tap", "che do an", "nen an gi", "kieng an gi", "thuc don", "bao nhieu la binh thuong", "tieu duong la gi", "chua the nao", "dieu tri the nao", "nen uong thuoc gi", "nguyen nhan", "trieu chung")) {
             return true;
         }
         return false;
@@ -582,20 +530,18 @@ public class AIChatServiceImpl implements AIChatService {
     private String classifyAndGetToolJson(String question, String patientId, String modelToUse) {
         // Lọc ý định tuyệt đối: chỉ kích hoạt RAG khi câu hỏi yêu cầu đích danh dữ liệu cá nhân
         Map<String, String> keywordTool = checkKeywordToolFallback(question, patientId);
-        if (keywordTool != null) {
-            String action = keywordTool.get("action");
-            if ("NONE".equalsIgnoreCase(action)) {
-                logger.info("[Intent Router] Phân loại câu hỏi kiến thức chung/chào hỏi -> NONE (0ms, Không dùng RAG)");
-                return "NONE";
-            }
-            try {
-                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
-                String jsonResult = mapper.writeValueAsString(keywordTool);
-                logger.info("[Intent Router] Phân loại câu hỏi tra cứu dữ liệu cá nhân -> {}", jsonResult);
-                return jsonResult;
-            } catch (Exception e) {
-                logger.error("Lỗi chuyển đổi JSON tool: {}", e.getMessage());
-            }
+        String action = keywordTool.get("action");
+        if ("NONE".equalsIgnoreCase(action)) {
+            logger.info("[Intent Router] Phân loại câu hỏi kiến thức chung/chào hỏi -> NONE (0ms, Không dùng RAG)");
+            return "NONE";
+        }
+        try {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            String jsonResult = mapper.writeValueAsString(keywordTool);
+            logger.info("[Intent Router] Phân loại câu hỏi tra cứu dữ liệu cá nhân -> {}", jsonResult);
+            return jsonResult;
+        } catch (Exception e) {
+            logger.error("Lỗi chuyển đổi JSON tool: {}", e.getMessage());
         }
         return "NONE";
     }
@@ -627,56 +573,29 @@ public class AIChatServiceImpl implements AIChatService {
         String unaccented = removeVietnameseAccents(msgLower);
 
         // TẦNG 1: Nhóm câu hỏi RAG cá nhân (chỉ kích hoạt khi hỏi tra cứu dữ liệu/hồ sơ của chính bệnh nhân)
-        if (msgLower.contains("đơn thuốc") || unaccented.contains("don thuoc")
-                || msgLower.contains("toa thuốc") || unaccented.contains("toa thuoc")
-                || msgLower.contains("thuốc bác sĩ kê") || unaccented.contains("thuoc bac si ke")
-                || msgLower.contains("thuốc đã kê") || unaccented.contains("thuoc da ke")
-                || msgLower.contains("thuốc tôi đang") || unaccented.contains("thuoc toi dang")
-                || msgLower.contains("thuốc của tôi") || unaccented.contains("thuoc cua toi")
-                || msgLower.contains("thuốc đang uống") || unaccented.contains("thuoc dang uong")
-                || msgLower.contains("lịch sử dùng thuốc") || unaccented.contains("lich su dung thuoc")
-                || (msgLower.contains("thuốc") && (msgLower.contains("của tôi") || msgLower.contains("của mình") || msgLower.contains("cho tôi xem") || msgLower.contains("tôi uống")))) {
+        if (containsAny(msgLower, "đơn thuốc", "toa thuốc", "thuốc bác sĩ kê", "thuốc đã kê", "thuốc tôi đang", "thuốc của tôi", "thuốc đang uống", "lịch sử dùng thuốc")
+                || containsAny(unaccented, "don thuoc", "toa thuoc", "thuoc bac si ke", "thuoc da ke", "thuoc toi dang", "thuoc cua toi", "thuoc dang uong", "lich su dung thuoc")
+                || (msgLower.contains("thuốc") && containsAny(msgLower, "của tôi", "của mình", "cho tôi xem", "tôi uống"))) {
             return Map.of("action", "get_prescriptions", "patient_id", patientId);
         }
-        if (msgLower.contains("lịch tái khám") || unaccented.contains("lich tai kham")
-                || msgLower.contains("tái khám của tôi") || unaccented.contains("tai kham cua toi")
-                || msgLower.contains("khi nào tôi tái khám") || unaccented.contains("khi nao toi tai kham")
-                || msgLower.contains("ngày tái khám") || unaccented.contains("ngay tai kham")
-                || msgLower.contains("lịch hẹn") || unaccented.contains("lich hen")
-                || msgLower.contains("hẹn khám") || unaccented.contains("hen kham")
-                || msgLower.contains("bệnh án của tôi") || unaccented.contains("benh an cua toi")
-                || msgLower.contains("lịch sử khám của tôi") || unaccented.contains("lich su kham cua toi")
-                || (msgLower.contains("chẩn đoán") && (msgLower.contains("của tôi") || msgLower.contains("bác sĩ")))) {
+        if (containsAny(msgLower, "lịch tái khám", "tái khám của tôi", "khi nào tôi tái khám", "ngày tái khám", "lịch hẹn", "hẹn khám", "bệnh án của tôi", "lịch sử khám của tôi")
+                || containsAny(unaccented, "lich tai kham", "tai kham cua toi", "khi nao toi tai kham", "ngay tai kham", "lich hen", "hen kham", "benh an cua toi", "lich su kham cua toi")
+                || (msgLower.contains("chẩn đoán") && containsAny(msgLower, "của tôi", "bác sĩ"))) {
             return Map.of("action", "get_clinical_examination", "patient_id", patientId);
         }
-        if (msgLower.contains("kết quả xét nghiệm") || unaccented.contains("ket qua xet nghiem")
-                || msgLower.contains("xét nghiệm của tôi") || unaccented.contains("xet nghiem cua toi")
-                || msgLower.contains("kết quả của tôi") || unaccented.contains("ket qua cua toi")
-                || msgLower.contains("chỉ số của tôi") || unaccented.contains("chi so cua toi")
-                || ((msgLower.contains("hba1c") || msgLower.contains("đường huyết")) && (msgLower.contains("của tôi") || msgLower.contains("của mình") || msgLower.contains("xem")))) {
+        if (containsAny(msgLower, "kết quả xét nghiệm", "xét nghiệm của tôi", "kết quả của tôi", "chỉ số của tôi")
+                || containsAny(unaccented, "ket qua xet nghiem", "xet nghiem cua toi", "ket qua cua toi", "chi so cua toi")
+                || ((containsAny(msgLower, "hba1c", "đường huyết")) && containsAny(msgLower, "của tôi", "của mình", "xem"))) {
             return Map.of("action", "get_lab_results", "patient_id", patientId);
         }
-        if (msgLower.contains("kế hoạch điều trị") || unaccented.contains("ke hoach dieu tri")
-                || msgLower.contains("phác đồ điều trị") || unaccented.contains("phac do dieu tri")
-                || msgLower.contains("phác đồ và kế hoạch") || unaccented.contains("phac do va ke hoach")
-                || msgLower.contains("phác đồ của tôi") || unaccented.contains("phac do cua toi")
-                || (msgLower.contains("phác đồ") && msgLower.contains("của tôi"))
-                || msgLower.contains("chế độ ăn của tôi") || unaccented.contains("che do an cua toi")
-                || msgLower.contains("thực đơn điều trị") || unaccented.contains("thuc don dieu tri")
-                || msgLower.contains("chế độ tập luyện của tôi") || unaccented.contains("che do tap luyen cua toi")
-                || msgLower.contains("mục tiêu điều trị của tôi") || unaccented.contains("muc tieu dieu tri cua toi")
-                || msgLower.contains("bác sĩ dặn") || unaccented.contains("bac si dan")
-                || msgLower.contains("lời dặn") || unaccented.contains("loi dan")) {
+        if (containsAny(msgLower, "kế hoạch điều trị", "phác đồ điều trị", "phác đồ và kế hoạch", "chế độ ăn của tôi", "thực đơn điều trị", "chế độ tập luyện của tôi", "mục tiêu điều trị của tôi", "bác sĩ dặn", "lời dặn")
+                || containsAny(unaccented, "ke hoach dieu tri", "phac do dieu tri", "phac do va ke hoach", "che do an cua toi", "thuc don dieu tri", "che do tap luyen cua toi", "muc tieu dieu tri cua toi", "bac si dan", "loi dan")
+                || (containsAny(msgLower, "phác đồ", "phac do") && containsAny(msgLower, "của tôi", "cua toi"))) {
             return Map.of("action", "get_treatment_plan", "patient_id", patientId);
         }
-        if (msgLower.contains("hồ sơ của tôi") || unaccented.contains("ho so cua toi")
-                || msgLower.contains("hồ sơ y tế") || unaccented.contains("ho so y te")
-                || msgLower.contains("thông tin cá nhân") || unaccented.contains("thong tin ca nhan")
-                || msgLower.contains("thông tin của tôi") || unaccented.contains("thong tin cua toi")
-                || msgLower.contains("tôi bị bệnh gì") || unaccented.contains("toi bi benh gi")
-                || msgLower.contains("bệnh của tôi") || unaccented.contains("benh cua toi")
-                || msgLower.contains("tiền sử bệnh") || unaccented.contains("tien su benh")
-                || ((msgLower.contains("nhóm máu") || msgLower.contains("bmi") || msgLower.contains("chiều cao") || msgLower.contains("cân nặng")) && msgLower.contains("của tôi"))) {
+        if (containsAny(msgLower, "hồ sơ của tôi", "hồ sơ y tế", "thông tin cá nhân", "thông tin của tôi", "tôi bị bệnh gì", "bệnh của tôi", "tiền sử bệnh")
+                || containsAny(unaccented, "ho so cua toi", "ho so y te", "thong tin ca nhan", "thong tin cua toi", "toi bi benh gi", "benh cua toi", "tien su benh")
+                || (containsAny(msgLower, "nhóm máu", "bmi", "chiều cao", "cân nặng") && msgLower.contains("của tôi"))) {
             return Map.of("action", "get_general_record", "patient_id", patientId);
         }
 
@@ -772,13 +691,20 @@ public class AIChatServiceImpl implements AIChatService {
     /**
      * Xây dựng chuỗi prompt cho Chặng 2 (Tư vấn bởi bác sĩ AI)
      */
+    private boolean isFollowUpQuestion(String question) {
+        if (question == null) return false;
+        String q = question.toLowerCase();
+        return containsAny(q, "nó", "đó", "này", "trên", "vừa rồi", "như vậy", "tiếp theo");
+    }
+
     private String buildStage2Prompt(String question, String sqlData, String formattedHistory) {
         StringBuilder promptBuilder = new StringBuilder();
-        if (formattedHistory != null && !formattedHistory.trim().isEmpty()) {
+        boolean isFollowUp = isFollowUpQuestion(question);
+        if (isFollowUp && !hasText(sqlData) && hasText(formattedHistory)) {
             promptBuilder.append("[LỊCH SỬ TRÒ CHUYỆN GẦN ĐÂY - CHỈ DÙNG ĐỂ THAM KHẢO TỪ KHÓA NỐI TIẾP]:\n")
                          .append(formattedHistory).append("\n\n");
         }
-        if (sqlData != null && !sqlData.trim().isEmpty()) {
+        if (hasText(sqlData)) {
             promptBuilder.append("[DỮ LIỆU HỒ SƠ CÁ NHÂN CỦA BỆNH NHÂN TỪ CƠ SỞ DỮ LIỆU SQL - DỮ LIỆU THẬT]:\n")
                          .append(sqlData).append("\n\n");
         }
@@ -928,7 +854,7 @@ public class AIChatServiceImpl implements AIChatService {
     }
 
     private AIConversation getOrCreateConversation(AiChatRequestDto request, Patient patient, AIAssistant assistant) {
-        if (request.conversationId() != null && !request.conversationId().isEmpty()) {
+        if (hasText(request.conversationId())) {
             AIConversation existing = aiConversationService.findById(request.conversationId())
                     .orElseThrow(() -> new EntityNotFoundException("Conversation not found: " + request.conversationId()));
             if (!existing.getPatient().getUserId().equals(patient.getUserId())) {
@@ -1036,5 +962,17 @@ public class AIChatServiceImpl implements AIChatService {
                 a.getModelName()
         ))
                 .collect(Collectors.toList());
+    }
+
+    private boolean containsAny(String text, String... keywords) {
+        if (text == null) return false;
+        for (String kw : keywords) {
+            if (text.contains(kw)) return true;
+        }
+        return false;
+    }
+
+    private boolean hasText(String str) {
+        return str != null && !str.trim().isEmpty();
     }
 }
