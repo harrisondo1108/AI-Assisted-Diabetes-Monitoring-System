@@ -138,10 +138,4 @@ public class DoctorRatingServiceImpl implements DoctorRatingService {
         Double avg = doctorRatingRepository.findAverageRatingForAll();
         return avg != null ? avg : 0.0;
     }
-
-    @Override
-    @Transactional(readOnly = true)
-    public long countAllRatings() {
-        return doctorRatingRepository.count();
-    }
 }

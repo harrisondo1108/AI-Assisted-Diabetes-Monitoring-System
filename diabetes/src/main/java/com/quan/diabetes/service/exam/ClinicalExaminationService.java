@@ -36,16 +36,9 @@ public interface ClinicalExaminationService {
 
     void startExamination(String patientId, String doctorId);
 
-    void createAutoPendingExamination(String patientId);
-
     void requestExamination(String patientId, String medicalHistory);
 
     List<PrescriptionLineDTO> getPrescriptionLines(String examId);
-
-    // ---- Legacy methods (kept for compatibility) ----
-    void submitExamination(String patientId, ClinicalExamForm form, String doctorId);
-    void updateExamination(String examId, ClinicalExamForm form);
-    void saveDraft(String patientId, ClinicalExamForm form, String doctorId);
 
     // ---- Tab-based step methods ----
 

@@ -38,18 +38,6 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public List<Profile> findTotalAdmin() {
-        List<Profile> profiles = this.findAll();
-        List<Profile> admins = new ArrayList<>();
-        for (Profile profile : profiles) {
-            if ("AD".equals(profile.getUser().getRole().getRoleId())) {
-                admins.add(profile);
-            }
-        }
-        return admins;
-    }
-
-    @Override
     public Optional<Profile> findById(String id) {
         return profileRepository.findById(id);
     }

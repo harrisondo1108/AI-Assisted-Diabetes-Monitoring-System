@@ -22,8 +22,6 @@ public interface ReminderService {
 
     List<Reminder> getListByIdAndScheduledTimeLessThanEqual(String id, LocalDateTime scheduledTimeIsLessThan);
 
-    boolean existsActiveReminder(String userId, LocalDateTime scheduledTime, String title, Integer timingId);
-
     List<com.quan.diabetes.entity.Patient> getPatientsWithRemindersToday();
 
     List<Reminder> getPatientRemindersToday(String patientId);

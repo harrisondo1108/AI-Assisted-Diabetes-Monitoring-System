@@ -47,26 +47,4 @@ public class PrescriptionTimingServiceImpl
     public List<PrescriptionTiming> findAll() {
         return repository.findAll();
     }
-
-    @Override
-    public List<PrescriptionTiming>
-    findByPrescriptionDetailId(
-            String prescriptionDetailId) {
-
-        return repository
-                .findByPrescriptionDetail_PrescriptionDetailId(
-                        prescriptionDetailId);
-    }
-
-    @Override
-    public boolean exists(
-            String prescriptionDetailId,
-            Integer timingId) {
-
-        return repository
-                .existsByPrescriptionDetail_PrescriptionDetailIdAndTiming_TimingID(
-                        prescriptionDetailId,
-                        timingId
-                );
-    }
 }

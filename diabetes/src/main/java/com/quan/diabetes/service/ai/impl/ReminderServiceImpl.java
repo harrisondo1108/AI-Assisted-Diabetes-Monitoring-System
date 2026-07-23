@@ -61,13 +61,6 @@ public class ReminderServiceImpl implements ReminderService {
     }
 
     @Override
-    public boolean existsActiveReminder(String userId, LocalDateTime scheduledTime, String title, Integer timingId) {
-        return reminderRepository.existsByPatient_UserIdAndScheduledTimeAndTitleAndTiming_TimingIDAndLockStatus(
-                userId, scheduledTime, title, timingId, false
-        );
-    }
-
-    @Override
     public List<com.quan.diabetes.entity.Patient> getPatientsWithRemindersToday() {
         LocalDateTime startOfDay = java.time.LocalDate.now().atStartOfDay();
         LocalDateTime endOfDay = java.time.LocalDate.now().atTime(java.time.LocalTime.MAX);

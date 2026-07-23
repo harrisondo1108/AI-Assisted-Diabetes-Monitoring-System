@@ -5,17 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cd82aed5-747b-44b9-892e-efbe52d1dbd5" name="Changes" comment="thêm chức năng doctor rating">
-      <change afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/doctor/doctor-examined-patients.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/doctor/doctor-patient-profile.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/examined_patients.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/patient_profile.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/logs/application.log" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/logs/application.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorPatientController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorPatientController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/history_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/history_detail.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/patients.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/history.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/doctor/header.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/doctor/header.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/chat.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/chat.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/util/ReminderTimeCalculatorTest.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -80,8 +72,15 @@
       <entry key="chat-panel" value="Auto" />
     </selectedModels>
   </component>
+  <component name="CoverageOptionsProvider">
+    <option name="myAddOrReplace" value="0" />
+  </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="330" />
+    <option name="cachedIndexableFilesCount" value="331" />
+  </component>
+  <component name="ExportTestResults" outputFolder="$USER_HOME$/Downloads" userTempatePath="" />
+  <component name="ExportToHTMLSettings">
+    <option name="OUTPUT_DIRECTORY" value="C:\Users\gdtt_\Downloads" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -98,6 +97,11 @@
     &quot;accountId&quot;: &quot;11efc543-4507-4df6-bce4-65b8e51c1555&quot;
   }
 }</component>
+  <component name="JavaAutoRunManager">
+    <enabled-run-configurations>
+      <run-configuration type="JUnit" name="AdminUserServiceTest" />
+    </enabled-run-configurations>
+  </component>
   <component name="MavenImportPreferences">
     <option name="generalSettings">
       <MavenGeneralSettings>
@@ -111,61 +115,61 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="2.6553857233503545E-15" />
-      <entry key="MS500" value="0.0012558584010808923" />
-      <entry key="S2" value="0.4298207259651807" />
-      <entry key="S5" value="2.643173253222217" />
-      <entry key="S10" value="5.4540975680850625" />
-      <entry key="S30" value="9.198517699820917" />
-      <entry key="S60" value="10.748594261493393" />
-      <entry key="M2" value="11.948166840438713" />
-      <entry key="M5" value="13.019429551120163" />
-      <entry key="M10" value="13.47587363087963" />
-      <entry key="M15" value="13.642408113125796" />
-      <entry key="M30" value="13.816939539569473" />
-      <entry key="H1" value="13.90736898966022" />
-      <entry key="H2" value="13.95340484184333" />
-      <entry key="H4" value="13.976631942319871" />
-      <entry key="D1" value="13.996095486657994" />
-      <entry key="W1" value="13.999441970838783" />
+      <entry key="MS100" value="1.0" />
+      <entry key="MS500" value="1.0000246319355608" />
+      <entry key="S2" value="1.1608521312243003" />
+      <entry key="S5" value="2.783944822147653" />
+      <entry key="S10" value="5.480750851334534" />
+      <entry key="S30" value="9.61510310528443" />
+      <entry key="S60" value="11.402146955968664" />
+      <entry key="M2" value="12.754033823108902" />
+      <entry key="M5" value="13.934397961649552" />
+      <entry key="M10" value="14.431795199897996" />
+      <entry key="M15" value="14.61264310453137" />
+      <entry key="M30" value="14.801858408427224" />
+      <entry key="H1" value="14.899777000185983" />
+      <entry key="H2" value="14.949595761779749" />
+      <entry key="H4" value="14.974724101742687" />
+      <entry key="D1" value="14.995777052314072" />
+      <entry key="W1" value="14.999396468897679" />
     </decayedCancelled>
     <decayedSelected>
-      <entry key="MS100" value="1.0" />
-      <entry key="MS500" value="1.0000000000306355" />
-      <entry key="S2" value="1.0023567672581144" />
-      <entry key="S5" value="1.0958578982180438" />
-      <entry key="S10" value="1.3827653540315041" />
-      <entry key="S30" value="2.3094216909936938" />
-      <entry key="S60" value="3.2607430680769776" />
-      <entry key="M2" value="4.248924596859107" />
-      <entry key="M5" value="5.173690013059658" />
-      <entry key="M10" value="5.562075070480823" />
-      <entry key="M15" value="5.702222922735245" />
-      <entry key="M30" value="5.848112670490689" />
-      <entry key="H1" value="5.923290208759482" />
-      <entry key="H2" value="5.961451478956195" />
-      <entry key="H4" value="5.980677068841685" />
-      <entry key="D1" value="5.996772729111971" />
-      <entry key="W1" value="5.999538794908187" />
+      <entry key="MS100" value="2.9026142495144114E-9" />
+      <entry key="MS500" value="0.01961362486439217" />
+      <entry key="S2" value="0.37511272146897073" />
+      <entry key="S5" value="0.7396223539083051" />
+      <entry key="S10" value="1.1359949029015848" />
+      <entry key="S30" value="2.1629469693664163" />
+      <entry key="S60" value="3.1556432175792484" />
+      <entry key="M2" value="4.179888353608521" />
+      <entry key="M5" value="5.139899969992768" />
+      <entry key="M10" value="5.543881998267155" />
+      <entry key="M15" value="5.689781811686877" />
+      <entry key="M30" value="5.841729480214308" />
+      <entry key="H1" value="5.9200567030582105" />
+      <entry key="H2" value="5.959824087918962" />
+      <entry key="H4" value="5.979860693448955" />
+      <entry key="D1" value="5.99663629260427" />
+      <entry key="W1" value="5.999519294798006" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.8408964152537145" />
-      <entry key="MS500" value="0.9660067347188661" />
-      <entry key="S2" value="1.3010817842386346" />
-      <entry key="S5" value="3.5355897265013616" />
-      <entry key="S10" value="6.658814918221282" />
-      <entry key="S30" value="11.411915666585415" />
-      <entry key="S60" value="13.952918081923698" />
-      <entry key="M2" value="16.165912674716086" />
-      <entry key="M5" value="18.179723912823963" />
-      <entry key="M10" value="19.03107109921625" />
-      <entry key="M15" value="19.340003696810122" />
-      <entry key="M30" value="19.662716777058016" />
-      <entry key="H1" value="19.829485918461916" />
-      <entry key="H2" value="19.914268274193226" />
-      <entry key="H4" value="19.957014634202945" />
-      <entry key="D1" value="19.99281910365374" />
-      <entry key="W1" value="19.99897374852103" />
+      <entry key="MS100" value="5.34341216679543E-9" />
+      <entry key="MS500" value="0.03856051857446309" />
+      <entry key="S2" value="0.8611355543291881" />
+      <entry key="S5" value="3.0611848081144104" />
+      <entry key="S10" value="6.292010921447899" />
+      <entry key="S30" value="11.624691791788395" />
+      <entry key="S60" value="14.47095755265029" />
+      <entry key="M2" value="16.887002071335164" />
+      <entry key="M5" value="19.054458638833935" />
+      <entry key="M10" value="19.96555117753104" />
+      <entry key="M15" value="20.295625872907923" />
+      <entry key="M30" value="20.64016350897882" />
+      <entry key="H1" value="20.81811516688667" />
+      <entry key="H2" value="20.908558977915323" />
+      <entry key="H4" value="20.954153956247" />
+      <entry key="D1" value="20.992341482263924" />
+      <entry key="W1" value="20.99890549622435" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
@@ -192,47 +196,98 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "JUnit.UpdateProfileTest (1).executor": "Run",
-    "JUnit.UpdateProfileTest.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RequestMappingsPanelOrder0": "0",
-    "RequestMappingsPanelOrder1": "1",
-    "RequestMappingsPanelWidth0": "75",
-    "RequestMappingsPanelWidth1": "75",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "SONARLINT_PRECOMMIT_ANALYSIS": "true",
-    "Spring Boot.DiabetesApplication.executor": "Run",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "copilot.chat.legacySessionMetadata.migrated": "true",
-    "git-widget-placeholder": "Merging main",
-    "ignore.virus.scanning.warn.message": "true",
-    "junie.onboarding.icon.badge.shown": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/git_clone_CSon/AI-Assisted-Diabetes-Monitoring-System",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "SDKs",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0",
-    "to.speed.mode.migration.done": "true",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;JUnit.AdminUserServiceTest$GetAllUserManagementDTOsTests.ut_usr_019_getAllUserManagementDTOs_FilterByRole.executor&quot;: &quot;Coverage&quot;,
+    &quot;JUnit.AdminUserServiceTest.executor&quot;: &quot;Coverage&quot;,
+    &quot;JUnit.ProfileServiceImplTest.executor&quot;: &quot;Coverage&quot;,
+    &quot;JUnit.UpdateProfileTest (1).executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UpdateProfileTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserServiceImplTest.executor&quot;: &quot;Coverage&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;SONARLINT_PRECOMMIT_ANALYSIS&quot;: &quot;true&quot;,
+    &quot;Spring Boot.DiabetesApplication.executor&quot;: &quot;Run&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;copilot.chat.legacySessionMetadata.migrated&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/Document/4_SEMESTER/AI-Assisted-Diabetes-Monitoring-System&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;SDKs&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="com.quan.diabetes" />
     </key>
   </component>
-  <component name="RunManager" selected="Spring Boot.DiabetesApplication">
+  <component name="RunManager" selected="JUnit.UserServiceImplTest">
+    <configuration name="AdminUserServiceTest$GetAllUserManagementDTOsTests.ut_usr_019_getAllUserManagementDTOs_FilterByRole" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="diabetes" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.quan.diabetes.service.user.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.quan.diabetes.service.user.AdminUserServiceTest" />
+      <option name="MAIN_CLASS_NAME" value="com.quan.diabetes.service.user.AdminUserServiceTest$GetAllUserManagementDTOsTests" />
+      <option name="METHOD_NAME" value="ut_usr_019_getAllUserManagementDTOs_FilterByRole" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="AdminUserServiceTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="diabetes" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.quan.diabetes.service.user.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.quan.diabetes.service.user" />
+      <option name="MAIN_CLASS_NAME" value="com.quan.diabetes.service.user.AdminUserServiceTest" />
+      <option name="METHOD_NAME" value="" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ProfileServiceImplTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="diabetes" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.quan.diabetes.service.user.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.quan.diabetes.service.user" />
+      <option name="MAIN_CLASS_NAME" value="com.quan.diabetes.service.user.ProfileServiceImplTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="UpdateProfileTest (1)" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="diabetes" />
       <extension name="coverage">
@@ -248,16 +303,16 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="UpdateProfileTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="UserServiceImplTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="diabetes" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="fu.hsf302.*" />
+          <option name="PATTERN" value="com.quan.diabetes.service.user.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <option name="PACKAGE_NAME" value="fu.hsf302" />
-      <option name="MAIN_CLASS_NAME" value="fu.hsf302.UpdateProfileTest" />
+      <option name="PACKAGE_NAME" value="com.quan.diabetes.service.user" />
+      <option name="MAIN_CLASS_NAME" value="com.quan.diabetes.service.user.UserServiceImplTest" />
       <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -273,16 +328,19 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.UserServiceImplTest" />
+        <item itemvalue="JUnit.ProfileServiceImplTest" />
+        <item itemvalue="JUnit.AdminUserServiceTest" />
+        <item itemvalue="JUnit.AdminUserServiceTest$GetAllUserManagementDTOsTests.ut_usr_019_getAllUserManagementDTOs_FilterByRole" />
         <item itemvalue="JUnit.UpdateProfileTest (1)" />
-        <item itemvalue="JUnit.UpdateProfileTest" />
       </list>
     </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.31033.145" />
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.31033.145" />
+        <option value="bundled-jdk-30f59d01ecdd-37e91769500f-intellij.indexing.shared.core-IU-261.26222.65" />
+        <option value="bundled-js-predefined-d6986cc7102b-31caf2ab9e3c-JavaScript-IU-261.26222.65" />
       </set>
     </attachedChunks>
   </component>
@@ -314,6 +372,14 @@
       <workItem from="1784547495670" duration="1169000" />
       <workItem from="1784609393333" duration="3270000" />
       <workItem from="1784624533751" duration="479000" />
+      <workItem from="1784697019110" duration="95000" />
+      <workItem from="1784704870264" duration="433000" />
+      <workItem from="1784705371043" duration="122000" />
+      <workItem from="1784706103439" duration="378000" />
+      <workItem from="1784706538333" duration="1281000" />
+      <workItem from="1784709208182" duration="194000" />
+      <workItem from="1784709869236" duration="308000" />
+      <workItem from="1784710274434" duration="885000" />
     </task>
     <task id="LOCAL-00001" summary="thêm chức năng doctor rating">
       <option name="closed" value="true" />
@@ -343,6 +409,20 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="thêm chức năng doctor rating" />
     <option name="LAST_COMMIT_MESSAGE" value="thêm chức năng doctor rating" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/AI_Assisted_Diabetes_Monitoring_System$ProfileServiceImplTest.ic" NAME="ProfileServiceImplTest Coverage Results" MODIFIED="1784709906700" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
+      <FILTER>com.quan.diabetes.service.user.*</FILTER>
+    </SUITE>
+    <SUITE FILE_PATH="coverage/AI_Assisted_Diabetes_Monitoring_System$UserServiceImplTest.ic" NAME="UserServiceImplTest Coverage Results" MODIFIED="1784710391710" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
+      <FILTER>com.quan.diabetes.service.user.*</FILTER>
+    </SUITE>
+    <SUITE FILE_PATH="coverage/AI_Assisted_Diabetes_Monitoring_System$AdminUserServiceTest_GetAllUserManagementDTOsTests_ut_usr_019_getAllUserManagementDTOs_FilterByRole.ic" NAME="AdminUserServiceTest$GetAllUserManagementDTOsTests.ut_usr_019_getAllUserManagementDTOs_FilterByRole Coverage Results" MODIFIED="1784706417037" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
+      <FILTER>com.quan.diabetes.service.user.*</FILTER>
+    </SUITE>
+    <SUITE FILE_PATH="coverage/AI_Assisted_Diabetes_Monitoring_System$AdminUserServiceTest.ic" NAME="AdminUserServiceTest Coverage Results" MODIFIED="1784709386148" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
+      <FILTER>com.quan.diabetes.service.user.*</FILTER>
+    </SUITE>
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

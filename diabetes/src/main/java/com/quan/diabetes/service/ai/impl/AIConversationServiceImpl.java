@@ -37,11 +37,6 @@ public class AIConversationServiceImpl implements AIConversationService {
     }
 
     @Override
-    public List<AIConversation> findByAssistantId(Integer assistantId) {
-        return aIConversationRepository.findByAiAssistantIdOrderByCreatedAtDesc(assistantId);
-    }
-
-    @Override
     public List<AIConversation> findByPatientIdAndAssistantId(String patientId, Integer assistantId) {
         return aIConversationRepository.findByPatientUserIdAndAiAssistantId(patientId, assistantId);
     }
@@ -72,10 +67,5 @@ public class AIConversationServiceImpl implements AIConversationService {
     @Override
     public boolean existsById(String id) {
         return aIConversationRepository.existsById(id);
-    }
-
-    @Override
-    public long countByPatientId(String patientId) {
-        return aIConversationRepository.findByPatientUserIdOrderByCreatedAtDesc(patientId).size();
     }
 }

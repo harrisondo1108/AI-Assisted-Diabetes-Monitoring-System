@@ -23,8 +23,6 @@ public interface AIAssistantService {
 
     Optional<AIAssistant> findByModelName(String modelName);
 
-    AIAssistant getDefaultAssistant();
-
     AIAssistant getOrCreateDefaultAssistant();
 
     void initDefaultAssistants();

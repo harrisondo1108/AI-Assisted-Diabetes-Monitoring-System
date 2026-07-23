@@ -15,10 +15,4 @@ public interface PrescriptionTimingService {
     PrescriptionTiming findById(Long id);
 
     List<PrescriptionTiming> findAll();
-
-    List<PrescriptionTiming>
-    findByPrescriptionDetailId(String prescriptionDetailId);
-
-    boolean exists(String prescriptionDetailId,
-                   Integer timingId);
 }

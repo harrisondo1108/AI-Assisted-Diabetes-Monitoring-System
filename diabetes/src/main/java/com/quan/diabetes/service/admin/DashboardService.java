@@ -8,10 +8,4 @@ public interface DashboardService {
      * @return DashboardStatsDTO containing all necessary counts and metrics.
      */
     DashboardStatsDTO getDashboardStats();
-
-    // Returns a list of 7 integers representing counts for the last 7 days
-    // (index 0 = startDate (today - 6), index 6 = today)
-    java.util.List<Integer> getConversationCountsLast7Days();
-
-    java.util.List<Integer> getReminderCountsLast7Days();
 }

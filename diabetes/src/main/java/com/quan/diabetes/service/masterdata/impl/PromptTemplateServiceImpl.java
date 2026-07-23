@@ -50,16 +50,6 @@ public class PromptTemplateServiceImpl implements PromptTemplateService {
     }
 
     @Override
-    public Optional<PromptTemplate> findActiveTemplate() {
-        return promptTemplateRepository.findFirstActiveTemplate();
-    }
-    @Override
-    public Optional<String> getActiveSystemPrompt() {
-        return promptTemplateRepository.findFirstActiveTemplate()
-                .map(PromptTemplate::getSystemPrompt);
-    }
-
-    @Override
     public List<PromptTemplate> findAllActive() {
         return promptTemplateRepository.findAllActive();
     }

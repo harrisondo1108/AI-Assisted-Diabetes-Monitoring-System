@@ -6,17 +6,5 @@ import java.util.Optional;
 
 public interface TreatmentPlanService {
 
-    List<TreatmentPlan> findAll();
-
-    Optional<TreatmentPlan> findById(Integer id);
-
     Optional<TreatmentPlan> findByClinicalExamId(String clinicalExamId);
-
-    TreatmentPlan create(TreatmentPlan entity);
-
-    TreatmentPlan update(Integer id, TreatmentPlan entity);
-
-    void deleteById(Integer id);
-
-    boolean existsById(Integer id);
 }

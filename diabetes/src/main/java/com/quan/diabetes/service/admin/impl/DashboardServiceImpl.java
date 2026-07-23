@@ -68,48 +68,4 @@ public class DashboardServiceImpl implements DashboardService {
         
         return dto;
     }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Integer> getConversationCountsLast7Days() {
-        LocalDate today = LocalDate.now();
-        LocalDate startDate = today.minusDays(6);
-        LocalDateTime start = startDate.atStartOfDay();
-        LocalDateTime end = today.plusDays(1).atStartOfDay();
-
-        List<com.quan.diabetes.entity.AIConversation> list = aiConversationRepository.findByCreatedAtBetween(start, end);
-
-        Map<LocalDate, Long> counts = list.stream()
-                .filter(c -> c.getCreatedAt() != null)
-                .collect(Collectors.groupingBy(c -> c.getCreatedAt().toLocalDate(), Collectors.counting()));
-
-        List<Integer> result = new ArrayList<>();
-        for (int i = 0; i < 7; i++) {
-            LocalDate d = startDate.plusDays(i);
-            result.add(counts.getOrDefault(d, 0L).intValue());
-        }
-        return result;
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Integer> getReminderCountsLast7Days() {
-        LocalDate today = LocalDate.now();
-        LocalDate startDate = today.minusDays(6);
-        LocalDateTime start = startDate.atStartOfDay();
-        LocalDateTime end = today.plusDays(1).atStartOfDay();
-
-        List<com.quan.diabetes.entity.Reminder> list = reminderRepository.findByScheduledTimeBetween(start, end);
-
-        Map<LocalDate, Long> counts = list.stream()
-                .filter(r -> r.getScheduledTime() != null)
-                .collect(Collectors.groupingBy(r -> r.getScheduledTime().toLocalDate(), Collectors.counting()));
-
-        List<Integer> result = new ArrayList<>();
-        for (int i = 0; i < 7; i++) {
-            LocalDate d = startDate.plusDays(i);
-            result.add(counts.getOrDefault(d, 0L).intValue());
-        }
-        return result;
-    }
 }

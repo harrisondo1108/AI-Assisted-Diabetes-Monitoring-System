@@ -22,5 +22,4 @@ public interface DoctorRatingService {
     List<DoctorRating> getAllRatings();
     Page<DoctorRating> getRatingsByStar(int ratingValue, Pageable pageable);
     Double getAverageRatingForAll();
-    long countAllRatings();
 }

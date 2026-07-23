@@ -92,11 +92,6 @@ public  class AIAssistantServiceImpl implements AIAssistantService {
     private String geminiDefaultModel;
 
     @Override
-    public AIAssistant getDefaultAssistant() {
-        return getActiveAssistant();
-    }
-
-    @Override
     public synchronized void initDefaultAssistants() {
         List<AIAssistant> all = aIAssistantRepository.findAll();
         boolean hasLocal = false;
