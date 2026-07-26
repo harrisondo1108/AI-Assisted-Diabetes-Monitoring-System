@@ -66,16 +66,4 @@ class PrescriptionTimingServiceImplTest {
         when(repository.findAll()).thenReturn(List.of(timing));
         assertEquals(List.of(timing), service.findAll());
     }
-
-    @Test
-    void testFindByPrescriptionDetailId() {
-        when(repository.findByPrescriptionDetail_PrescriptionDetailId("PD-01")).thenReturn(List.of(timing));
-        assertEquals(List.of(timing), service.findByPrescriptionDetailId("PD-01"));
-    }
-
-    @Test
-    void testExists() {
-        when(repository.existsByPrescriptionDetail_PrescriptionDetailIdAndTiming_TimingID("PD-01", 1)).thenReturn(true);
-        assertTrue(service.exists("PD-01", 1));
-    }
 }

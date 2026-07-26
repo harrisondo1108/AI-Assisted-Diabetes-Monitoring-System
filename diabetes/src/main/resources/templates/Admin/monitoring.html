@@ -20,6 +20,11 @@
 
         <main class="admin-content">
 
+            <div th:if="${error != null}" class="alert-error" style="margin-bottom: 20px; padding: 14px 18px; border-radius: 12px; background: #fee2e2; color: #991b1b; font-weight: 600; font-size: 0.875rem; border-left: 4px solid #ef4444; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-exclamation-circle"></i>
+                <span th:text="${error}"></span>
+            </div>
+
             <!-- Stats Overview Cards (Synchronized with Admin Features) -->
             <div class="stats-grid">
                 <div class="stat-card">

@@ -176,26 +176,4 @@ public class SymptomController {
             return "redirect:/admin/symptoms?error=" + encoded;
         }
     }
-
-    @PostMapping("/delete/{id}")
-    public String deleteSymptom(@PathVariable("id") String id) {
-        try {
-            var opt = symptomService.findById(id);
-            if (opt.isPresent()) {
-                symptomService.delete(id);
-                String message = "Triệu chứng \"" + opt.get().getSymptomName() + "\" đã được xóa thành công!";
-                String encoded = URLEncoder.encode(message, StandardCharsets.UTF_8);
-                return "redirect:/admin/symptoms?success=" + encoded;
-            }
-            String encoded = URLEncoder.encode("Không tìm thấy triệu chứng!", StandardCharsets.UTF_8);
-            return "redirect:/admin/symptoms?error=" + encoded;
-        } catch (org.springframework.dao.DataIntegrityViolationException e) {
-            String message = "Không thể xóa triệu chứng này vì nó đang được liên kết với hồ sơ bệnh án!";
-            String encoded = URLEncoder.encode(message, StandardCharsets.UTF_8);
-            return "redirect:/admin/symptoms?error=" + encoded;
-        } catch (Exception e) {
-            String encoded = URLEncoder.encode("Lỗi: " + e.getMessage(), StandardCharsets.UTF_8);
-            return "redirect:/admin/symptoms?error=" + encoded;
-        }
-    }
 }

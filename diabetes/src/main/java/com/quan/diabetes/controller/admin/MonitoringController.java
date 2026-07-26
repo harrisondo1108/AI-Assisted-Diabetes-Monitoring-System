@@ -46,6 +46,12 @@ public class MonitoringController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate accessToDate,
             Model model
     ) {
+        if (accessFromDate != null && accessToDate != null && accessFromDate.isAfter(accessToDate)) {
+            model.addAttribute("error", "Ngày bắt đầu (Từ ngày) không được sau ngày kết thúc (Đến ngày)!");
+            accessFromDate = null;
+            accessToDate = null;
+        }
+
         LocalDateTime accessFromDateTime = accessFromDate != null ? accessFromDate.atStartOfDay() : null;
         LocalDateTime accessToDateTime = accessToDate != null ? accessToDate.atTime(23, 59, 59) : null;
 

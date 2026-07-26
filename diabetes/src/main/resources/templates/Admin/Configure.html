@@ -44,10 +44,16 @@
                 <!-- ROOM PANEL -->
                 <div id="panelRoom" th:class="${activeTab == 'room'} ? 'tab-panel active' : 'tab-panel'">
                     <div class="panel-toolbar-timing">
-                        <div class="table-search-box">
-                            <i class="fa-solid fa-magnifying-glass room-search-icon" style="cursor: pointer;"></i>
-                            <input type="search" id="roomSearch" th:value="${search != null ? search : ''}" placeholder="Tìm kiếm phòng khám... (Enter)">
-                        </div>
+                        <form th:action="@{/admin/configure}" method="get" class="admin-search-form">
+                            <input type="hidden" name="tab" value="room">
+                            <div class="admin-search-wrap">
+                                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                                <input type="search" name="search" th:value="${search != null ? search : ''}" placeholder="Tìm kiếm phòng khám..." class="admin-search-input">
+                            </div>
+                            <button type="submit" class="btn-search-submit">
+                                <i class="fas fa-search"></i> Tìm kiếm
+                            </button>
+                        </form>
                         <button type="button" class="btn btn-primary" id="btnAddRoom" style="margin:0">
                             <i class="fa-solid fa-plus"></i> Thêm Phòng khám
                         </button>
@@ -57,8 +63,7 @@
                         <tr>
                             <th style="width: 100px;">MÃ PHÒNG</th>
                             <th>TÊN PHÒNG KHÁM</th>
-                            <th>MÔ TẢ</th>
-                            <th class="col-center">HÀNH ĐỘNG</th>
+                            <th class="col-center" style="width: 120px;">HÀNH ĐỘNG</th>
                         </tr>
                         </thead>
                         <tbody id="roomTableBody">
@@ -73,7 +78,6 @@
                                     <strong th:text="${room.roomName}">Room 1</strong>
                                 </div>
                             </td>
-                            <td th:text="${room.description != null and !room.description.isEmpty()} ? ${room.description} : '—'">—</td>
                             <td class="col-center">
                                 <div class="row-actions">
                                     <button type="button" class="action-btn btn-edit edit-room-btn"
@@ -94,7 +98,7 @@
                         </tr>
 
                         <tr th:if="${roomList == null or roomList.isEmpty()}">
-                            <td colspan="4" class="empty-row">Chưa có phòng nào hoặc không tìm thấy kết quả.</td>
+                            <td colspan="3" class="empty-row">Chưa có phòng nào hoặc không tìm thấy kết quả.</td>
                         </tr>
 
                         </tbody>
@@ -115,10 +119,16 @@
                 <!-- TIMING PANEL -->
                 <div id="panelTiming" th:class="${activeTab == 'timing'} ? 'tab-panel active' : 'tab-panel'">
                     <div class="panel-toolbar-timing">
-                        <div class="table-search-box">
-                            <i class="fa-solid fa-magnifying-glass timing-search-icon" style="cursor: pointer;"></i>
-                            <input type="search" id="timingSearch" th:value="${search != null ? search : ''}" placeholder="Tìm kiếm khung giờ... (Enter)">
-                        </div>
+                        <form th:action="@{/admin/configure}" method="get" class="admin-search-form">
+                            <input type="hidden" name="tab" value="timing">
+                            <div class="admin-search-wrap">
+                                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                                <input type="search" name="search" th:value="${search != null ? search : ''}" placeholder="Tìm kiếm khung giờ..." class="admin-search-input">
+                            </div>
+                            <button type="submit" class="btn-search-submit">
+                                <i class="fas fa-search"></i> Tìm kiếm
+                            </button>
+                        </form>
                         <button type="button" class="btn btn-primary" id="btnAddTiming" style="margin:0">
                             <i class="fa-solid fa-plus"></i> Thêm Khung giờ
                         </button>
@@ -128,7 +138,7 @@
                         <thead>
                         <tr>
                             <th>TÊN KHUNG GIỜ</th>
-                            <th class="col-center">HÀNH ĐỘNG</th>
+                            <th class="col-center" style="width: 120px;">HÀNH ĐỘNG</th>
                         </tr>
                         </thead>
                         <tbody id="timingTableBody">

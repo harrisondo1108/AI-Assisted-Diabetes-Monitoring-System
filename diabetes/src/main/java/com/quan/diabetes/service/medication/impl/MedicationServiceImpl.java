@@ -259,10 +259,10 @@ public class MedicationServiceImpl implements MedicationService {
 
         List<Medication> all = findAllList();
         long oral = all.stream()
-                .filter(m -> m.getForm() != null && ("tablet".equalsIgnoreCase(m.getForm()) || "capsule".equalsIgnoreCase(m.getForm())))
+                .filter(m -> m.getForm() != null && ("tablet".equalsIgnoreCase(m.getForm()) || "capsule".equalsIgnoreCase(m.getForm()) || "Viên nén".equalsIgnoreCase(m.getForm()) || "Viên nang".equalsIgnoreCase(m.getForm())))
                 .count();
         long injectable = all.stream()
-                .filter(m -> m.getForm() != null && "injection".equalsIgnoreCase(m.getForm()))
+                .filter(m -> m.getForm() != null && ("injection".equalsIgnoreCase(m.getForm()) || "Thuốc tiêm".equalsIgnoreCase(m.getForm())))
                 .count();
 
         summary.put("oralFormulations", oral);

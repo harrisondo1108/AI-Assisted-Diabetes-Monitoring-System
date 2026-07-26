@@ -73,6 +73,20 @@ public class SystemLogController {
             @RequestParam(defaultValue = "1") int page,
             Model model) {
 
+        if (fromDate != null && toDate != null && fromDate.isAfter(toDate)) {
+            model.addAttribute("error", "Từ ngày không được lớn hơn Đến ngày!");
+            model.addAttribute("logPage", Page.empty());
+            model.addAttribute("keyword", keyword);
+            model.addAttribute("role", role);
+            model.addAttribute("action", action);
+            model.addAttribute("fromDate", null);
+            model.addAttribute("toDate", null);
+            model.addAttribute("roleMap", ROLE_MAP);
+            model.addAttribute("actionMap", ACTION_MAP);
+            model.addAttribute("statusMap", STATUS_MAP);
+            return "admin/system_log_list";
+        }
+
         try {
             int pageSize = 7;
             Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
@@ -93,8 +107,13 @@ public class SystemLogController {
             return "admin/system_log_list";
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
-            // Trả về dữ liệu rỗng để không bị sập trang
+            // Trả về dữ liệu rỗng để không bị sập trang và reset ngày không hợp lệ
             model.addAttribute("logPage", Page.empty());
+            model.addAttribute("keyword", keyword);
+            model.addAttribute("role", role);
+            model.addAttribute("action", action);
+            model.addAttribute("fromDate", null);
+            model.addAttribute("toDate", null);
             model.addAttribute("roleMap", ROLE_MAP);
             model.addAttribute("actionMap", ACTION_MAP);
             model.addAttribute("statusMap", STATUS_MAP);

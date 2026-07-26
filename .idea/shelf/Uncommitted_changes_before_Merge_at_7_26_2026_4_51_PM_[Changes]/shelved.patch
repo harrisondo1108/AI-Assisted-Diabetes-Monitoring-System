@@ -1,0 +1,169 @@
+Index: diabetes/src/test/java/com/quan/diabetes/service/user/impl/PatientServiceImplTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/diabetes/src/test/java/com/quan/diabetes/service/user/impl/PatientServiceImplTest.java b/diabetes/src/test/java/com/quan/diabetes/service/user/PatientServiceImplTest.java
+rename from diabetes/src/test/java/com/quan/diabetes/service/user/impl/PatientServiceImplTest.java
+rename to diabetes/src/test/java/com/quan/diabetes/service/user/PatientServiceImplTest.java
+--- a/diabetes/src/test/java/com/quan/diabetes/service/user/impl/PatientServiceImplTest.java	(revision 1102b1e8bb9a62a1663fbeb38f6fea532b92c3f6)
++++ b/diabetes/src/test/java/com/quan/diabetes/service/user/PatientServiceImplTest.java	(date 1785059498192)
+@@ -1,4 +1,4 @@
+-package com.quan.diabetes.service.user.impl;
++package com.quan.diabetes.service.user;
+ 
+ import com.quan.diabetes.entity.Patient;
+ import com.quan.diabetes.repository.PatientRepository;
+Index: diabetes/src/test/java/com/quan/diabetes/service/user/impl/PatientRoutineServiceImplTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/diabetes/src/test/java/com/quan/diabetes/service/user/impl/PatientRoutineServiceImplTest.java b/diabetes/src/test/java/com/quan/diabetes/service/user/PatientRoutineServiceImplTest.java
+rename from diabetes/src/test/java/com/quan/diabetes/service/user/impl/PatientRoutineServiceImplTest.java
+rename to diabetes/src/test/java/com/quan/diabetes/service/user/PatientRoutineServiceImplTest.java
+--- a/diabetes/src/test/java/com/quan/diabetes/service/user/impl/PatientRoutineServiceImplTest.java	(revision 1102b1e8bb9a62a1663fbeb38f6fea532b92c3f6)
++++ b/diabetes/src/test/java/com/quan/diabetes/service/user/PatientRoutineServiceImplTest.java	(date 1785059498192)
+@@ -1,4 +1,4 @@
+-package com.quan.diabetes.service.user.impl;
++package com.quan.diabetes.service.user;
+ 
+ import com.quan.diabetes.entity.Patient;
+ import com.quan.diabetes.entity.PatientRoutine;
+Index: diabetes/src/test/java/com/quan/diabetes/service/user/impl/AdminUserServiceImplTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/diabetes/src/test/java/com/quan/diabetes/service/user/impl/AdminUserServiceImplTest.java b/diabetes/src/test/java/com/quan/diabetes/service/user/AdminUserServiceImplTest.java
+rename from diabetes/src/test/java/com/quan/diabetes/service/user/impl/AdminUserServiceImplTest.java
+rename to diabetes/src/test/java/com/quan/diabetes/service/user/AdminUserServiceImplTest.java
+--- a/diabetes/src/test/java/com/quan/diabetes/service/user/impl/AdminUserServiceImplTest.java	(revision 1102b1e8bb9a62a1663fbeb38f6fea532b92c3f6)
++++ b/diabetes/src/test/java/com/quan/diabetes/service/user/AdminUserServiceImplTest.java	(date 1785059498192)
+@@ -1,4 +1,4 @@
+-package com.quan.diabetes.service.user.impl;
++package com.quan.diabetes.service.user;
+ 
+ import com.quan.diabetes.dto.user.UserManagementDTO;
+ import com.quan.diabetes.entity.Patient;
+@@ -13,8 +13,6 @@
+ import com.quan.diabetes.repository.RoomRepository;
+ import com.quan.diabetes.repository.UserRepository;
+ import com.quan.diabetes.service.systemlog.SystemLogService;
+-import com.quan.diabetes.service.user.PatientService;
+-import com.quan.diabetes.service.user.UserService;
+ import jakarta.persistence.EntityNotFoundException;
+ import org.junit.jupiter.api.BeforeEach;
+ import org.junit.jupiter.api.Test;
+Index: diabetes/src/main/java/com/quan/diabetes/service/user/impl/ProfileServiceImpl.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/diabetes/src/main/java/com/quan/diabetes/service/user/impl/ProfileServiceImpl.java b/diabetes/src/main/java/com/quan/diabetes/service/user/ProfileServiceImpl.java
+rename from diabetes/src/main/java/com/quan/diabetes/service/user/impl/ProfileServiceImpl.java
+rename to diabetes/src/main/java/com/quan/diabetes/service/user/ProfileServiceImpl.java
+--- a/diabetes/src/main/java/com/quan/diabetes/service/user/impl/ProfileServiceImpl.java	(revision 1102b1e8bb9a62a1663fbeb38f6fea532b92c3f6)
++++ b/diabetes/src/main/java/com/quan/diabetes/service/user/ProfileServiceImpl.java	(date 1785059498190)
+@@ -1,4 +1,4 @@
+-package com.quan.diabetes.service.user.impl;
++package com.quan.diabetes.service.user;
+ 
+ import com.quan.diabetes.entity.Profile;
+ import com.quan.diabetes.repository.ProfileRepository;
+Index: diabetes/src/test/java/com/quan/diabetes/service/user/impl/ProfileServiceImplTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/diabetes/src/test/java/com/quan/diabetes/service/user/impl/ProfileServiceImplTest.java b/diabetes/src/test/java/com/quan/diabetes/service/user/ProfileServiceImplTest.java
+rename from diabetes/src/test/java/com/quan/diabetes/service/user/impl/ProfileServiceImplTest.java
+rename to diabetes/src/test/java/com/quan/diabetes/service/user/ProfileServiceImplTest.java
+--- a/diabetes/src/test/java/com/quan/diabetes/service/user/impl/ProfileServiceImplTest.java	(revision 1102b1e8bb9a62a1663fbeb38f6fea532b92c3f6)
++++ b/diabetes/src/test/java/com/quan/diabetes/service/user/ProfileServiceImplTest.java	(date 1785059498193)
+@@ -1,4 +1,4 @@
+-package com.quan.diabetes.service.user.impl;
++package com.quan.diabetes.service.user;
+ 
+ import com.quan.diabetes.entity.Profile;
+ import com.quan.diabetes.entity.Role;
+Index: diabetes/src/test/java/com/quan/diabetes/service/user/impl/UserServiceImplTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/diabetes/src/test/java/com/quan/diabetes/service/user/impl/UserServiceImplTest.java b/diabetes/src/test/java/com/quan/diabetes/service/user/UserServiceImplTest.java
+rename from diabetes/src/test/java/com/quan/diabetes/service/user/impl/UserServiceImplTest.java
+rename to diabetes/src/test/java/com/quan/diabetes/service/user/UserServiceImplTest.java
+--- a/diabetes/src/test/java/com/quan/diabetes/service/user/impl/UserServiceImplTest.java	(revision 1102b1e8bb9a62a1663fbeb38f6fea532b92c3f6)
++++ b/diabetes/src/test/java/com/quan/diabetes/service/user/UserServiceImplTest.java	(date 1785059498193)
+@@ -1,4 +1,4 @@
+-package com.quan.diabetes.service.user.impl;
++package com.quan.diabetes.service.user;
+ 
+ import com.quan.diabetes.entity.Role;
+ import com.quan.diabetes.entity.User;
+Index: diabetes/src/main/java/com/quan/diabetes/service/user/impl/UserServiceImpl.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/diabetes/src/main/java/com/quan/diabetes/service/user/impl/UserServiceImpl.java b/diabetes/src/main/java/com/quan/diabetes/service/user/UserServiceImpl.java
+rename from diabetes/src/main/java/com/quan/diabetes/service/user/impl/UserServiceImpl.java
+rename to diabetes/src/main/java/com/quan/diabetes/service/user/UserServiceImpl.java
+--- a/diabetes/src/main/java/com/quan/diabetes/service/user/impl/UserServiceImpl.java	(revision 1102b1e8bb9a62a1663fbeb38f6fea532b92c3f6)
++++ b/diabetes/src/main/java/com/quan/diabetes/service/user/UserServiceImpl.java	(date 1785059498191)
+@@ -1,4 +1,4 @@
+-package com.quan.diabetes.service.user.impl;
++package com.quan.diabetes.service.user;
+ 
+ import com.quan.diabetes.entity.User;
+ import com.quan.diabetes.repository.UserRepository;
+Index: diabetes/src/main/java/com/quan/diabetes/service/user/impl/AdminUserServiceImpl.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/diabetes/src/main/java/com/quan/diabetes/service/user/impl/AdminUserServiceImpl.java b/diabetes/src/main/java/com/quan/diabetes/service/user/AdminUserServiceImpl.java
+rename from diabetes/src/main/java/com/quan/diabetes/service/user/impl/AdminUserServiceImpl.java
+rename to diabetes/src/main/java/com/quan/diabetes/service/user/AdminUserServiceImpl.java
+--- a/diabetes/src/main/java/com/quan/diabetes/service/user/impl/AdminUserServiceImpl.java	(revision 1102b1e8bb9a62a1663fbeb38f6fea532b92c3f6)
++++ b/diabetes/src/main/java/com/quan/diabetes/service/user/AdminUserServiceImpl.java	(date 1785059498190)
+@@ -1,4 +1,4 @@
+-package com.quan.diabetes.service.user.impl;
++package com.quan.diabetes.service.user;
+ 
+ import com.quan.diabetes.dto.user.UserManagementDTO;
+ import com.quan.diabetes.entity.Patient;
+Index: diabetes/src/main/java/com/quan/diabetes/service/user/impl/PatientServiceImpl.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/diabetes/src/main/java/com/quan/diabetes/service/user/impl/PatientServiceImpl.java b/diabetes/src/main/java/com/quan/diabetes/service/user/PatientServiceImpl.java
+rename from diabetes/src/main/java/com/quan/diabetes/service/user/impl/PatientServiceImpl.java
+rename to diabetes/src/main/java/com/quan/diabetes/service/user/PatientServiceImpl.java
+--- a/diabetes/src/main/java/com/quan/diabetes/service/user/impl/PatientServiceImpl.java	(revision 1102b1e8bb9a62a1663fbeb38f6fea532b92c3f6)
++++ b/diabetes/src/main/java/com/quan/diabetes/service/user/PatientServiceImpl.java	(date 1785059498190)
+@@ -1,4 +1,4 @@
+-package com.quan.diabetes.service.user.impl;
++package com.quan.diabetes.service.user;
+ 
+ import com.quan.diabetes.entity.Patient;
+ import com.quan.diabetes.repository.PatientRepository;
+Index: diabetes/src/main/java/com/quan/diabetes/service/user/impl/PatientRoutineServiceImpl.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/diabetes/src/main/java/com/quan/diabetes/service/user/impl/PatientRoutineServiceImpl.java b/diabetes/src/main/java/com/quan/diabetes/service/user/PatientRoutineServiceImpl.java
+rename from diabetes/src/main/java/com/quan/diabetes/service/user/impl/PatientRoutineServiceImpl.java
+rename to diabetes/src/main/java/com/quan/diabetes/service/user/PatientRoutineServiceImpl.java
+--- a/diabetes/src/main/java/com/quan/diabetes/service/user/impl/PatientRoutineServiceImpl.java	(revision 1102b1e8bb9a62a1663fbeb38f6fea532b92c3f6)
++++ b/diabetes/src/main/java/com/quan/diabetes/service/user/PatientRoutineServiceImpl.java	(date 1785059498190)
+@@ -1,4 +1,4 @@
+-package com.quan.diabetes.service.user.impl;
++package com.quan.diabetes.service.user;
+ 
+ import com.quan.diabetes.entity.Patient;
+ import com.quan.diabetes.entity.PatientRoutine;

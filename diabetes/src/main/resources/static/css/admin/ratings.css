@@ -357,6 +357,7 @@ body {
 .filter-tag {
     transition: all 0.2s;
 }
+
 .filter-tag:hover {
     opacity: 0.9;
     transform: translateY(-1px);
@@ -384,7 +385,8 @@ body {
     margin-bottom: 10px;
 }
 
-.patient-info, .doctor-info-badge {
+.patient-info,
+.doctor-info-badge {
     display: flex;
     align-items: center;
     gap: 12px;

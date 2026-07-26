@@ -32,17 +32,17 @@
                 <div class="stat-card">
                     <div class="stat-icon"><i class="fas fa-flask"></i></div>
                     <div class="stat-label">Tổng xét nghiệm</div>
-                    <div class="stat-value" id="statTotal">0</div>
+                    <div class="stat-value" id="statTotal" th:text="${statTotal}">0</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
                     <div class="stat-label">Đang hoạt động</div>
-                    <div class="stat-value" id="statActive">0</div>
+                    <div class="stat-value" id="statActive" th:text="${statActive}">0</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon"><i class="fas fa-ban"></i></div>
                     <div class="stat-label">Tạm ngưng</div>
-                    <div class="stat-value" id="statInactive">0</div>
+                    <div class="stat-value" id="statInactive" th:text="${statInactive}">0</div>
                 </div>
             </div>
 
@@ -59,14 +59,20 @@
                 <!-- Toolbar: tabs + search -->
                 <div class="table-toolbar">
                     <div class="tab-group">
-                        <button type="button" class="tab active" id="tabAll">Danh mục xét nghiệm</button>
-                        <button type="button" class="tab" id="tabActive">Đang hoạt động</button>
-                        <button type="button" class="tab" id="tabInactive">Tạm ngưng</button>
+                        <a th:href="@{/admin/lab-tests(status='all', keyword=${keyword})}" th:class="${status == 'all' || status == null ? 'tab active' : 'tab'}">Danh mục xét nghiệm</a>
+                        <a th:href="@{/admin/lab-tests(status='active', keyword=${keyword})}" th:class="${status == 'active' ? 'tab active' : 'tab'}">Đang hoạt động</a>
+                        <a th:href="@{/admin/lab-tests(status='inactive', keyword=${keyword})}" th:class="${status == 'inactive' ? 'tab active' : 'tab'}">Tạm ngưng</a>
                     </div>
-                    <div class="table-search-box">
-                        <i class="fa-solid fa-magnifying-glass lab-search-icon" style="cursor: pointer;"></i>
-                        <input type="search" id="tableSearch" th:value="${keyword != null ? keyword : ''}" placeholder="Tìm kiếm theo tên xét nghiệm, đơn vị hoặc phòng... (Enter)">
-                    </div>
+                    <form th:action="@{/admin/lab-tests}" method="get" id="labTestSearchForm" class="admin-search-form">
+                        <input type="hidden" name="status" th:value="${status}">
+                        <div class="admin-search-wrap">
+                            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                            <input type="search" name="keyword" id="tableSearch" th:value="${keyword != null ? keyword : ''}" placeholder="Tìm kiếm theo tên xét nghiệm, đơn vị..." class="admin-search-input">
+                        </div>
+                        <button type="submit" class="btn-search-submit">
+                            <i class="fas fa-search"></i> Tìm kiếm
+                        </button>
+                    </form>
                 </div>
 
                 <!-- Table -->

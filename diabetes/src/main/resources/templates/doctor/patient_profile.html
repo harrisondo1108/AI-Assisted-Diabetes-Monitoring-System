@@ -51,7 +51,6 @@
                                class="fas fa-hospital-user"></i>
                         </div>
                         <h2 class="patient-name" th:text="${patient.fullName}">Nguyen Van A</h2>
-                        <span class="patient-id-badge" th:text="${patient.userId}">P012932</span>
 
                         <div class="quick-stats-grid">
                             <div class="stat-box">
@@ -60,7 +59,7 @@
                             </div>
                             <div class="stat-box">
                                 <span class="stat-lbl"><i class="fas fa-venus-mars"></i> Giới tính</span>
-                                <span class="stat-val" th:text="${patient.gender != null ? (patient.gender ? 'Nữ' : 'Nam') : 'N/A'}"></span>
+                                <span class="stat-val" th:text="${patient.gender != null ? (patient.gender ? 'Nam' : 'Nữ') : 'N/A'}"></span>
                             </div>
                             <div class="stat-box">
                                 <span class="stat-lbl"><i class="fas fa-tint"></i> Nhóm máu</span>

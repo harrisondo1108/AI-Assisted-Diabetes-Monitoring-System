@@ -30,18 +30,26 @@
 
       <div class="table-card">
         <div class="table-toolbar">
-          <form th:action="@{/admin/symptoms}" method="get" class="filter-form" style="display: flex; gap: 12px; align-items: center;" id="symptomSearchForm">
-            <select name="status" id="statusSelect" class="filter-select" onchange="this.form.submit()">
-              <option value="">Tất cả trạng thái</option>
-              <option value="active" th:selected="${selectedStatus == 'active'}">Hoạt động</option>
-              <option value="clocked" th:selected="${selectedStatus == 'clocked'}">Tạm khóa</option>
-            </select>
-            <input type="hidden" name="size" th:value="${pageSize}">
-            <input type="hidden" name="sortField" th:value="${sortField}">
-            <input type="hidden" name="sortDirection" th:value="${sortDirection}">
-            <div class="header-search">
-              <i class="fas fa-search" id="searchIcon" style="cursor: pointer;"></i>
-              <input type="search" name="keyword" th:value="${searchKeyword}" id="searchKeyword" placeholder="Tìm kiếm theo ID hoặc tên triệu chứng...">
+          <form th:action="@{/admin/symptoms}" method="get" class="filter-form" style="display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 16px;" id="symptomSearchForm">
+            <div style="flex: 0 0 auto;">
+              <select name="status" id="statusSelect" class="filter-select" onchange="this.form.submit()">
+                <option value="">Tất cả trạng thái</option>
+                <option value="active" th:selected="${selectedStatus == 'active'}">Hoạt động</option>
+                <option value="clocked" th:selected="${selectedStatus == 'clocked'}">Tạm khóa</option>
+              </select>
+              <input type="hidden" name="size" th:value="${pageSize}">
+              <input type="hidden" name="sortField" th:value="${sortField}">
+              <input type="hidden" name="sortDirection" th:value="${sortDirection}">
+            </div>
+
+            <div class="admin-search-form" style="margin-left: auto;">
+              <div class="admin-search-wrap">
+                <i class="fas fa-search search-icon"></i>
+                <input type="search" name="keyword" th:value="${searchKeyword}" id="searchKeyword" placeholder="Tìm kiếm theo ID hoặc tên triệu chứng..." class="admin-search-input">
+              </div>
+              <button type="submit" class="btn-search-submit">
+                <i class="fas fa-search"></i> Tìm kiếm
+              </button>
             </div>
           </form>
         </div>
@@ -71,9 +79,6 @@
                 <button class="action-btn edit" th:attr="data-id=${sym.symptomId}" onclick="openEditModal(this.getAttribute('data-id'))" title="Chỉnh sửa"><i class="fas fa-pen"></i></button>
                 <button class="action-btn soft-delete" th:attr="data-id=${sym.symptomId}, data-status=${sym.status ? 'Active' : 'Clocked'}, data-name=${sym.symptomName}" onclick="showConfirmModal(this.getAttribute('data-id'), this.getAttribute('data-status'), this.getAttribute('data-name'))" th:title="${sym.status ? 'Khóa triệu chứng' : 'Khôi phục triệu chứng'}">
                   <i th:class="${sym.status ? 'fas fa-lock' : 'fas fa-lock-open'}"></i>
-                </button>
-                <button class="action-btn delete" th:attr="data-id=${sym.symptomId}, data-name=${sym.symptomName}" onclick="showDeleteConfirmModal(this.getAttribute('data-id'), this.getAttribute('data-name'))" title="Xóa triệu chứng">
-                  <i class="fas fa-trash-alt"></i>
                 </button>
               </td>
             </tr>

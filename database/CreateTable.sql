@@ -377,7 +377,7 @@ INSERT INTO [Medication] (MedicationID, MedicationName, Form, Concentration, Adm
 VALUES
 ('MED001', 'Metformin', N'Viên nén', '500mg', N'Đường uống', N'Uống sau khi ăn', 'Active'),
 ('MED002', 'Gliclazide', N'Viên nén', '30mg', N'Đường uống', N'Uống trước bữa ăn sáng', 'Active'),
-('MED003', 'Insulin Glargine', N'Bút tiêm', '100IU/ml', N'Tiêm dưới da', N'Tiêm vào cùng một thời điểm mỗi ngày', 'Active'),
+('MED003', 'Insulin Glargine', N'Thuốc tiêm', '100IU/ml', N'Tiêm dưới da', N'Tiêm vào cùng một thời điểm mỗi ngày', 'Active'),
 ('MED004', 'Sitagliptin', N'Viên nén', '100mg', N'Đường uống', N'Uống một lần mỗi ngày', 'Active');
 
 -- Table: SystemLog

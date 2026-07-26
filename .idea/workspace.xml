@@ -4,27 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cd82aed5-747b-44b9-892e-efbe52d1dbd5" name="Changes" comment="thêm chức năng doctor rating">
-      <change afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/reminder/AppointmentScheduleTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/reminder/MedicationRescheduleServiceTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/reminder/MedicationSchedualeServiceTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/reminder/ReminderScheduledTaskTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/reminder/TemplateMedicationCreationServiceTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/util/ParseUtilTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/util/SearchUtilTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/entity/PromptTemplate.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/PromptTemplateRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/user/impl/AdminUserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/user/AdminUserServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/user/impl/PatientRoutineServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/user/PatientRoutineServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/user/impl/PatientServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/user/PatientServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/user/impl/ProfileServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/user/ProfileServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/user/impl/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/user/UserServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/user/impl/AdminUserServiceImplTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/user/AdminUserServiceImplTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/user/impl/PatientRoutineServiceImplTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/user/PatientRoutineServiceImplTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/user/impl/PatientServiceImplTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/user/PatientServiceImplTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/user/impl/ProfileServiceImplTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/user/ProfileServiceImplTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/user/impl/UserServiceImplTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/user/UserServiceImplTest.java" afterDir="false" />
+    <list default="true" id="cd82aed5-747b-44b9-892e-efbe52d1dbd5" name="Changes" comment="MERGE FULL TEST TheAnh, CSon, LuanHa, Le_Quan">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/masterdata/PromptTemplateService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/masterdata/impl/PromptTemplateServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -133,60 +117,60 @@
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
       <entry key="MS100" value="1.0" />
-      <entry key="MS500" value="1.0000246319355608" />
-      <entry key="S2" value="1.1608521312243003" />
-      <entry key="S5" value="2.783944822147653" />
-      <entry key="S10" value="5.480750851334534" />
-      <entry key="S30" value="9.61510310528443" />
-      <entry key="S60" value="11.402146955968664" />
-      <entry key="M2" value="12.754033823108902" />
-      <entry key="M5" value="13.934397961649552" />
-      <entry key="M10" value="14.431795199897996" />
-      <entry key="M15" value="14.61264310453137" />
-      <entry key="M30" value="14.801858408427224" />
-      <entry key="H1" value="14.899777000185983" />
-      <entry key="H2" value="14.949595761779749" />
-      <entry key="H4" value="14.974724101742687" />
-      <entry key="D1" value="14.995777052314072" />
-      <entry key="W1" value="14.999396468897679" />
+      <entry key="MS500" value="1.0" />
+      <entry key="S2" value="1.0" />
+      <entry key="S5" value="1.0" />
+      <entry key="S10" value="1.0" />
+      <entry key="S30" value="1.0" />
+      <entry key="S60" value="1.0000000049719644" />
+      <entry key="M2" value="1.0003867484133944" />
+      <entry key="M5" value="1.3368794282850518" />
+      <entry key="M10" value="4.228076325289873" />
+      <entry key="M15" value="7.859671101365589" />
+      <entry key="M30" value="15.58054873565657" />
+      <entry key="H1" value="22.25948439785776" />
+      <entry key="H2" value="26.67162714247844" />
+      <entry key="H4" value="29.210227280445313" />
+      <entry key="D1" value="31.516569317823343" />
+      <entry key="W1" value="31.930472169921373" />
     </decayedCancelled>
     <decayedSelected>
-      <entry key="MS100" value="2.9026142495144114E-9" />
-      <entry key="MS500" value="0.01961362486439217" />
-      <entry key="S2" value="0.37511272146897073" />
-      <entry key="S5" value="0.7396223539083051" />
-      <entry key="S10" value="1.1359949029015848" />
-      <entry key="S30" value="2.1629469693664163" />
-      <entry key="S60" value="3.1556432175792484" />
-      <entry key="M2" value="4.179888353608521" />
-      <entry key="M5" value="5.139899969992768" />
-      <entry key="M10" value="5.543881998267155" />
-      <entry key="M15" value="5.689781811686877" />
-      <entry key="M30" value="5.841729480214308" />
-      <entry key="H1" value="5.9200567030582105" />
-      <entry key="H2" value="5.959824087918962" />
-      <entry key="H4" value="5.979860693448955" />
-      <entry key="D1" value="5.99663629260427" />
-      <entry key="W1" value="5.999519294798006" />
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="0.0" />
+      <entry key="S2" value="5.484104237524663E-294" />
+      <entry key="S5" value="5.432348104642746E-118" />
+      <entry key="S10" value="3.078684352175615E-59" />
+      <entry key="S30" value="6.496939144496008E-20" />
+      <entry key="S60" value="5.469144006796381E-10" />
+      <entry key="M2" value="5.502757996314375E-5" />
+      <entry key="M5" value="0.05737477029187215" />
+      <entry key="M10" value="0.585729535693196" />
+      <entry key="M15" value="1.2716015351810719" />
+      <entry key="M30" value="2.7616533073835563" />
+      <entry key="H1" value="4.070424692384799" />
+      <entry key="H2" value="4.941859227196524" />
+      <entry key="H4" value="5.445271409454392" />
+      <entry key="D1" value="5.903765782579734" />
+      <entry key="W1" value="5.986156745287132" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="5.34341216679543E-9" />
-      <entry key="MS500" value="0.03856051857446309" />
-      <entry key="S2" value="0.8611355543291881" />
-      <entry key="S5" value="3.0611848081144104" />
-      <entry key="S10" value="6.292010921447899" />
-      <entry key="S30" value="11.624691791788395" />
-      <entry key="S60" value="14.47095755265029" />
-      <entry key="M2" value="16.887002071335164" />
-      <entry key="M5" value="19.054458638833935" />
-      <entry key="M10" value="19.96555117753104" />
-      <entry key="M15" value="20.295625872907923" />
-      <entry key="M30" value="20.64016350897882" />
-      <entry key="H1" value="20.81811516688667" />
-      <entry key="H2" value="20.908558977915323" />
-      <entry key="H4" value="20.954153956247" />
-      <entry key="D1" value="20.992341482263924" />
-      <entry key="W1" value="20.99890549622435" />
+      <entry key="MS100" value="0.15389305166811454" />
+      <entry key="MS500" value="0.6877709090698718" />
+      <entry key="S2" value="0.9106698335919784" />
+      <entry key="S5" value="0.963261894020148" />
+      <entry key="S10" value="0.9814590638534793" />
+      <entry key="S30" value="0.9937810933225548" />
+      <entry key="S60" value="0.9968857027236326" />
+      <entry key="M2" value="0.9988827714566152" />
+      <entry key="M5" value="1.3934020182321953" />
+      <entry key="M10" value="4.812390785096935" />
+      <entry key="M15" value="9.129498236214424" />
+      <entry key="M30" value="18.340429618699357" />
+      <entry key="H1" value="26.328639462235966" />
+      <entry key="H2" value="31.612724824295384" />
+      <entry key="H4" value="34.655081446081525" />
+      <entry key="D1" value="37.420260036202954" />
+      <entry key="W1" value="37.916618050124924" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
@@ -235,7 +219,7 @@
     "codeWithMe.voiceChat.enabledByDefault": "false",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "copilot.chat.legacySessionMetadata.migrated": "true",
-    "git-widget-placeholder": "Merging main",
+    "git-widget-placeholder": "main",
     "git.auto.fetch.suggestion.counter": "1",
     "ignore.virus.scanning.warn.message": "true",
     "junie.onboarding.icon.badge.shown": "true",
@@ -258,7 +242,7 @@
       <recent name="com.quan.diabetes" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.UserServiceImplTest">
+  <component name="RunManager" selected="Spring Boot.DiabetesApplication">
     <configuration name="AdminUserServiceTest$GetAllUserManagementDTOsTests.ut_usr_019_getAllUserManagementDTOs_FilterByRole" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="diabetes" />
       <extension name="coverage">
@@ -407,7 +391,15 @@
       <option name="project" value="LOCAL" />
       <updated>1783916311187</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="MERGE FULL TEST TheAnh, CSon, LuanHa, Le_Quan">
+      <option name="closed" value="true" />
+      <created>1785059773389</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1785059773389</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -438,7 +430,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="thêm chức năng doctor rating" />
-    <option name="LAST_COMMIT_MESSAGE" value="thêm chức năng doctor rating" />
+    <MESSAGE value="MERGE FULL TEST TheAnh, CSon, LuanHa, Le_Quan" />
+    <option name="LAST_COMMIT_MESSAGE" value="MERGE FULL TEST TheAnh, CSon, LuanHa, Le_Quan" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/AI_Assisted_Diabetes_Monitoring_System$ProfileServiceImplTest.ic" NAME="ProfileServiceImplTest Coverage Results" MODIFIED="1784709906700" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">

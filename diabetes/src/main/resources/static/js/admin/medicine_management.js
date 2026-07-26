@@ -192,30 +192,33 @@ window.changePageSize = function() {
     window.location.href = currentUrl.toString();
 };
 
-// Backend search - submit form when clicking the search icon or when clearing input
-var searchKeyword = document.getElementById('searchKeyword');
+// Backend search - submit form khi ấn Enter hoặc click nút Search icon
 var searchForm = document.getElementById('searchForm');
+var searchIcon = document.getElementById('searchIcon');
 
-if (searchForm && searchKeyword) {
-    // Tự động submit để hiển thị lại tất cả khi xóa trắng ô tìm kiếm
-    searchKeyword.addEventListener('input', function() {
-        if (this.value.trim() === '') {
-            searchForm.submit();
-        }
+if (searchForm && searchIcon) {
+    searchIcon.addEventListener('click', function() {
+        searchForm.submit();
     });
+}
 
-    searchKeyword.addEventListener('search', function() {
-        if (this.value.trim() === '') {
-            searchForm.submit();
-        }
-    });
+function normalizeForm(form) {
+    if (!form) return '';
+    var f = String(form).trim();
+    if (f === 'tablet' || f === 'Viên nén') return 'Viên nén';
+    if (f === 'capsule' || f === 'Viên nang') return 'Viên nang';
+    if (f === 'injection' || f === 'Thuốc tiêm') return 'Thuốc tiêm';
+    return f;
+}
 
-    var searchIcon = document.getElementById('searchIcon');
-    if (searchIcon) {
-        searchIcon.addEventListener('click', function() {
-            searchForm.submit();
-        });
-    }
+function normalizeRoute(route) {
+    if (!route) return '';
+    var r = String(route).trim();
+    if (r === 'Oral' || r === 'Đường uống') return 'Đường uống';
+    if (r === 'Subcutaneous' || r === 'Tiêm dưới da') return 'Tiêm dưới da';
+    if (r === 'Intravenous' || r === 'Tiêm tĩnh mạch') return 'Tiêm tĩnh mạch';
+    if (r === 'Intramuscular' || r === 'Tiêm bắp') return 'Tiêm bắp';
+    return r;
 }
 
 function renderMedicines(list) {
@@ -232,14 +235,16 @@ function renderMedicines(list) {
         return;
     }
     var html = list.map(function(med) {
-        var formClass = med.form === 'tablet' ? 'badge-tablet' : (med.form === 'capsule' ? 'badge-capsule' : 'badge-injection');
-        var formText = med.form === 'tablet' ? 'Tablet' : (med.form === 'capsule' ? 'Capsule' : 'Injection');
-        var routeText = med.administrationRoute ? med.administrationRoute : '—';
+        var formVal = normalizeForm(med.form);
+        var formClass = formVal === 'Viên nén' ? 'badge-tablet' : (formVal === 'Viên nang' ? 'badge-capsule' : 'badge-injection');
+        var formText = formVal || '—';
+        var routeText = normalizeRoute(med.administrationRoute) || '—';
         var instrText = med.usageInstruction ? med.usageInstruction : '—';
         var instrAbbrev = instrText.length > 80 ? instrText.substring(0, 80) + '...' : instrText;
         var statusClass = med.status === 'Active' ? 'badge-active' : 'badge-clocked';
+        var statusText = med.status === 'Active' ? 'Hoạt động' : 'Tạm khóa';
         var lockIcon = med.status === 'Active' ? 'fas fa-lock' : 'fas fa-lock-open';
-        var lockTitle = med.status === 'Active' ? 'Clock Medicine' : 'Restore Medicine';
+        var lockTitle = med.status === 'Active' ? 'Khóa thuốc' : 'Khôi phục thuốc';
 
         return `
             <tr>
@@ -250,18 +255,18 @@ function renderMedicines(list) {
                     </div>
                 </td>
                 <td>
-                    <span class="${formClass}">${formText}</span>
+                    <span class="${formClass}">${escapeHtml(formText)}</span>
                 </td>
                 <td>${escapeHtml(routeText)}</td>
                 <td class="usage-instruction-text" title="${escapeHtml(instrText)}">${escapeHtml(instrAbbrev)}</td>
                 <td>
-                    <span class="${statusClass}">${escapeHtml(med.status)}</span>
+                    <span class="${statusClass}">${escapeHtml(statusText)}</span>
                 </td>
                 <td class="action-group">
-                    <button class="action-btn view" data-id="${escapeHtml(med.medicationId)}" onclick="viewDetail(this.getAttribute('data-id'))" title="View Details">
+                    <button class="action-btn view" data-id="${escapeHtml(med.medicationId)}" onclick="viewDetail(this.getAttribute('data-id'))" title="Xem chi tiết">
                         <i class="fas fa-eye"></i>
                     </button>
-                    <button class="action-btn edit" data-id="${escapeHtml(med.medicationId)}" onclick="openEditModal(this.getAttribute('data-id'))" title="Edit">
+                    <button class="action-btn edit" data-id="${escapeHtml(med.medicationId)}" onclick="openEditModal(this.getAttribute('data-id'))" title="Chỉnh sửa">
                         <i class="fas fa-pen"></i>
                     </button>
                     <button class="action-btn soft-delete" data-id="${escapeHtml(med.medicationId)}" data-status="${escapeHtml(med.status)}" data-name="${escapeHtml(med.medicationName)}" onclick="showConfirmModal(this.getAttribute('data-id'), this.getAttribute('data-status'), this.getAttribute('data-name'))" title="${lockTitle}">
@@ -422,10 +427,10 @@ window.openEditModal = function(id) {
                 document.getElementById('editModalTitle').innerText = 'Chỉnh sửa Thuốc: ' + med.medicationName;
                 document.getElementById('editMedicationId').value = med.medicationId;
                 document.getElementById('editMedicationName').value = med.medicationName;
-                document.getElementById('editFormSelect').value = med.form;
-                document.getElementById('editConcentration').value = med.concentration;
-                document.getElementById('editRouteSelect').value = med.administrationRoute;
-                document.getElementById('editInstruction').value = med.usageInstruction;
+                document.getElementById('editFormSelect').value = normalizeForm(med.form);
+                document.getElementById('editConcentration').value = med.concentration || '';
+                document.getElementById('editRouteSelect').value = normalizeRoute(med.administrationRoute);
+                document.getElementById('editInstruction').value = med.usageInstruction || '';
                 editForm.action = '/admin/medicines/edit/' + id;
                 editModal.classList.add('open');
                 document.body.classList.add('modal-open');
@@ -527,10 +532,10 @@ window.viewDetail = function(id) {
                 document.getElementById('detailName').innerText = med.medicationName || '--';
                 document.getElementById('detailMedName').innerText = med.medicationName || '--';
                 document.getElementById('detailConcentration').innerText = med.concentration || '--';
-                document.getElementById('detailRoute').innerText = med.administrationRoute || '--';
+                document.getElementById('detailRoute').innerText = normalizeRoute(med.administrationRoute) || '--';
                 document.getElementById('detailInstruction').innerText = med.usageInstruction || 'Không có hướng dẫn sử dụng';
-                document.getElementById('detailStatus').innerText = med.status ? 'Hoạt động' : 'Tạm khóa';
-                var formText = med.form === 'tablet' ? 'Viên nén' : (med.form === 'capsule' ? 'Viên nang' : 'Thuốc tiêm');
+                document.getElementById('detailStatus').innerText = (med.status === 'Active' || med.status === 'true' || med.status === true) ? 'Hoạt động' : 'Tạm khóa';
+                var formText = normalizeForm(med.form) || '--';
                 document.getElementById('detailForm').innerText = formText;
                 document.getElementById('detailMeta').innerText = formText;
                 detailDrawer.classList.add('open');

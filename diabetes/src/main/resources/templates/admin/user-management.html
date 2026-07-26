@@ -61,11 +61,17 @@
                                 th:classappend="${currentRole == 'doctor'} ? 'active' : ''" class="filter-tab">Bác
                                 sĩ</a>
                         </div>
-                        <form th:action="@{/admin/users}" method="get" class="toolbar-search">
+                        <form th:action="@{/admin/users}" method="get" class="admin-search-form">
                             <input type="hidden" name="role" th:value="${currentRole}" />
-                            <i class="fas fa-search"></i>
-                            <input type="search" name="search" th:value="${currentSearch}" id="globalSearch"
-                                placeholder="Tìm kiếm theo tên, số điện thoại..." aria-label="Search users">
+                            <div class="admin-search-wrap">
+                                <i class="fas fa-search search-icon"></i>
+                                <input type="search" name="search" th:value="${currentSearch}" id="globalSearch"
+                                    placeholder="Tìm kiếm theo tên, số điện thoại..." aria-label="Search users"
+                                    class="admin-search-input">
+                            </div>
+                            <button type="submit" class="btn-search-submit">
+                                <i class="fas fa-search"></i> Tìm kiếm
+                            </button>
                         </form>
                     </div>
 
@@ -83,11 +89,23 @@
                             <tbody id="userTableBody">
                                 <tr th:each="user : ${users}" th:data-user-id="${user.userId}"
                                     th:data-full-name="${user.fullName}" th:data-account-phone="${user.accountPhone}"
-                                    th:data-role="${user.role}" th:data-gender="${user.gender}"
-                                    th:data-status="${user.status}" th:data-dob="${user.dob}"
+                                    th:data-role="${user.role}"
+                                    th:data-role-label="${user.role == 'doctor' || user.role == 'DOC' ? 'Bác sĩ' : (user.role == 'patient' || user.role == 'PAT' ? 'Bệnh nhân' : (user.role == 'admin' || user.role == 'AD' ? 'Quản trị viên' : user.role))}"
+                                    th:data-is-doc="${user.role != null && (user.role == 'doctor' || user.role == 'DOC')}"
+                                    th:data-is-pat="${user.role != null && (user.role == 'patient' || user.role == 'PAT')}"
+                                    th:data-gender="${user.gender}"
+                                    th:data-gender-val="${user.gender == null ? '0' : (user.gender ? '1' : '0')}"
+                                    th:data-gender-label="${user.gender == null ? '—' : (user.gender ? 'Nam' : 'Nữ')}"
+                                    th:data-status="${user.status}"
+                                    th:data-status-label="${user.status != null && user.status.toLowerCase() == 'clocked' ? 'Đang khóa' : 'Hoạt động'}"
+                                    th:data-dob="${user.dob}"
+                                    th:data-dob-formatted="${user.dob != null ? #temporals.format(user.dob, 'dd/MM/yyyy') : '—'}"
                                     th:data-address="${user.address}" th:data-specialty="${user.specialty}"
                                     th:data-room-name="${user.roomName}" th:data-height="${user.height}"
-                                    th:data-weight="${user.weight}" th:data-bloodgroup="${user.bloodgroup}"
+                                    th:data-height-label="${user.height != null ? user.height + ' cm' : '—'}"
+                                    th:data-weight="${user.weight}"
+                                    th:data-weight-label="${user.weight != null ? user.weight + ' kg' : '—'}"
+                                    th:data-bloodgroup="${user.bloodgroup}"
                                     th:data-permanent-medical-history="${user.permanentMedicalHistory}"
                                     th:data-allergy-notes="${user.allergyNotes}"
                                     th:data-supervisor-name="${user.supervisorName}"
@@ -270,7 +288,9 @@
     <div class="modal-overlay" th:classappend="${serverValidationError} ? 'open' : ''" id="userModalOverlay">
         <div class="modal" role="dialog" aria-labelledby="modalTitle">
             <div class="modal-header">
-                <h2 id="modalTitle">Thêm Người dùng Mới</h2>
+                <h2 id="modalTitle"
+                    th:text="${isCreateMode == null || isCreateMode} ? 'Thêm Bác sĩ Mới' : 'Chỉnh sửa Bác sĩ'">Thêm
+                    Người dùng Mới</h2>
                 <button type="button" class="drawer-close" id="btnCloseModal" aria-label="Close"><i
                         class="fas fa-times"></i></button>
             </div>

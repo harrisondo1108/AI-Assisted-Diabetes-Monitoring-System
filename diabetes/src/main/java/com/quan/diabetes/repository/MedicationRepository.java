@@ -40,8 +40,15 @@ public interface MedicationRepository extends JpaRepository<Medication, String> 
             "LOWER(m.administrationRoute) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(m.concentration) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND " +
             "(:status = '' OR LOWER(m.status) = LOWER(:status)) AND " +
-            "(:form = '' OR LOWER(m.form) = LOWER(:form)) AND " +
-            "(:route = '' OR LOWER(m.administrationRoute) = LOWER(:route))")
+            "(:form = '' OR LOWER(m.form) = LOWER(:form) OR " +
+            " (LOWER(:form) = 'viên nén' AND LOWER(m.form) = 'tablet') OR " +
+            " (LOWER(:form) = 'viên nang' AND LOWER(m.form) = 'capsule') OR " +
+            " (LOWER(:form) = 'thuốc tiêm' AND LOWER(m.form) = 'injection')) AND " +
+            "(:route = '' OR LOWER(m.administrationRoute) = LOWER(:route) OR " +
+            " (LOWER(:route) = 'đường uống' AND LOWER(m.administrationRoute) = 'oral') OR " +
+            " (LOWER(:route) = 'tiêm dưới da' AND LOWER(m.administrationRoute) = 'subcutaneous') OR " +
+            " (LOWER(:route) = 'tiêm tĩnh mạch' AND LOWER(m.administrationRoute) = 'intravenous') OR " +
+            " (LOWER(:route) = 'tiêm bắp' AND LOWER(m.administrationRoute) = 'intramuscular'))")
     Page<Medication> filterMedications(@Param("keyword") String keyword,
                                        @Param("status") String status,
                                        @Param("form") String form,

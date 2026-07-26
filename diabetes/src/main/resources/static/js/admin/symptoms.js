@@ -82,32 +82,6 @@ window.showConfirmModal = function(id, currentStatus, symptomName) {
     document.body.classList.add('modal-open');
 };
 
-window.showDeleteConfirmModal = function(id, symptomName) {
-    const title = 'Xóa triệu chứng';
-    const message = `Bạn có chắc chắn muốn xóa triệu chứng "${symptomName}"?`;
-    const subMessage = 'Hành động này sẽ xóa vĩnh viễn triệu chứng này khỏi hệ thống và không thể hoàn tác.';
-
-    document.getElementById('confirmModalTitle').innerHTML = `<i class="fas fa-trash-alt" style="margin-right: 8px; color: #dc2626;"></i> ${title}`;
-    document.getElementById('confirmMessage').innerHTML = `<i class="fas fa-head-side-medical" style="margin-right: 8px; color: #dc2626;"></i> ${message}`;
-    document.getElementById('confirmSubMessage').innerText = subMessage;
-
-    const iconElement = document.querySelector('#confirmModal .confirm-icon i');
-    const iconDiv = document.querySelector('#confirmModal .confirm-icon');
-    const okBtn = document.getElementById('okConfirmBtn');
-
-    iconElement.className = 'fas fa-trash-alt';
-    iconElement.style.color = '#dc2626';
-    iconDiv.style.background = 'linear-gradient(135deg, #fee2e2, #fecaca)';
-    okBtn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
-
-    pendingId = id;
-    pendingStatus = null;
-    pendingName = symptomName;
-    pendingAction = 'delete';
-    document.getElementById('confirmModal').classList.add('open');
-    document.body.classList.add('modal-open');
-};
-
 function closeConfirmModal() {
     document.getElementById('confirmModal').classList.remove('open');
     document.body.classList.remove('modal-open');
@@ -121,13 +95,8 @@ function closeConfirmModal() {
 
 function executeAction() {
     if (pendingId && pendingAction) {
-        let url;
-        if (pendingAction === 'delete') {
-            url = `/admin/symptoms/delete/${pendingId}`;
-        } else {
-            const isActive = pendingStatus === 'Active';
-            url = isActive ? `/admin/symptoms/soft-delete/${pendingId}` : `/admin/symptoms/restore/${pendingId}`;
-        }
+        const isActive = pendingStatus === 'Active';
+        const url = isActive ? `/admin/symptoms/soft-delete/${pendingId}` : `/admin/symptoms/restore/${pendingId}`;
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = url;

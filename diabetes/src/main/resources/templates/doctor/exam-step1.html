@@ -87,11 +87,6 @@
                             th:text="${(routine != null && routine.sleepTime != null ? #temporals.format(routine.sleepTime, 'hh:mm a') : 'N/A') + ' - ' + (routine != null && routine.wakeUpTime != null ? #temporals.format(routine.wakeUpTime, 'hh:mm a') : 'N/A')}"></strong>
                     </div>
                 </div>
-                <a th:href="@{/doctor/history(patientId=${patient.userId}, from='examine')}"
-                   class="btn btn-secondary btn-sm"
-                   style="width:100%;margin:12px 0 0 0;justify-content:center;gap:8px;text-decoration:none;display:inline-flex;align-items:center;">
-                    <i class="fas fa-clock-rotate-left"></i> Lịch sử bệnh án
-                </a>
             </aside>
 
             <!-- Main workspace -->

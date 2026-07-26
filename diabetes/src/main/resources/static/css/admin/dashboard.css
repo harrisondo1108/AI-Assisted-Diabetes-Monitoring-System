@@ -505,3 +505,120 @@ body {
 .admin-page-footer .footer-links a:hover {
     color: var(--primary-color);
 }
+
+/* ==================== UNIFIED ADMIN SEARCH & TAB COMPONENT ==================== */
+.admin-search-form {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+.admin-search-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    width: 320px;
+    max-width: 100%;
+}
+
+.admin-search-wrap i.search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 0.875rem;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.admin-search-input {
+    width: 100%;
+    height: 38px;
+    padding: 0 14px 0 38px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    background: #f8fafc !important;
+    color: #0f172a !important;
+    font-size: 0.875rem !important;
+    font-family: inherit !important;
+    outline: none !important;
+    box-sizing: border-box !important;
+    transition: all 0.2s ease !important;
+}
+
+.admin-search-input:focus {
+    background: #ffffff !important;
+    border-color: #145c4a !important;
+    box-shadow: 0 0 0 3px rgba(20, 92, 74, 0.15) !important;
+}
+
+.btn-search-submit {
+    height: 38px;
+    padding: 0 16px;
+    background: linear-gradient(135deg, #145c4a, #0f4a3d);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(20, 92, 74, 0.15);
+}
+
+.btn-search-submit:hover {
+    background: linear-gradient(135deg, #1a6b56, #145c4a);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(20, 92, 74, 0.25);
+}
+
+.btn-search-submit i {
+    position: static !important;
+    transform: none !important;
+    color: #ffffff !important;
+    font-size: 0.85rem !important;
+}
+
+/* Perfect Tab Link Alignment */
+.tab-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+a.tab,
+button.tab {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 36px !important;
+    padding: 0 16px !important;
+    border-radius: 8px !important;
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+    text-decoration: none !important;
+    color: #475569 !important;
+    background: transparent;
+    transition: all 0.15s ease;
+}
+
+a.tab:hover,
+button.tab:hover {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+}
+
+a.tab.active,
+button.tab.active {
+    background: #145c4a !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 4px rgba(20, 92, 74, 0.15) !important;
+}

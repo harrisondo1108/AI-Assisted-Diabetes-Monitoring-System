@@ -105,7 +105,7 @@ public class AdminUserController {
             } else {
                 systemLogService.saveLogWithObject(null, "UPDATE", "Account", userDto.getUserId(), "Cập nhật tài khoản thất bại (Lỗi xác thực)", null, userDto, "FAILED");
             }
-            
+
             org.springframework.data.domain.Page<UserManagementDTO> userPage = adminUserService
                     .getPagedUserManagementDTOs("all", "", 0, 7);
             model.addAttribute("users", userPage.getContent());
@@ -127,6 +127,8 @@ public class AdminUserController {
             model.addAttribute("totalPatients", totalPatients);
             model.addAttribute("totalDoctors", totalDoctors);
 
+            // Trả về userDto đã submit để Thymeleaf render lỗi chi tiết trên form
+            model.addAttribute("user", userDto);
             model.addAttribute("serverValidationError", true);
             model.addAttribute("isCreateMode", isCreateMode);
 

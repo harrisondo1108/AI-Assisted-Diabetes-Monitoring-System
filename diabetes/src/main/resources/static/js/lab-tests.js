@@ -7,7 +7,6 @@ let searchKeyword = '';
 
 document.addEventListener('DOMContentLoaded', function () {
     markAllRowsVisible();
-    initTabs();
     initSearch();
     initCreateModal();
     initEditModal();
@@ -15,7 +14,76 @@ document.addEventListener('DOMContentLoaded', function () {
     initValidation();
     initConfirmModal();
     renderPagination();
+    handleUrlMessages();
 });
+
+/* ── Toast Notifications ── */
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function showToast(message, type) {
+    let container = document.querySelector('.toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
+    const toast = document.createElement('div');
+    toast.className = 'toast ' + (type === 'error' ? 'error' : 'success');
+
+    const icon = type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle';
+    toast.innerHTML = `
+        <div class="toast-content">
+            <i class="fas ${icon} toast-icon"></i>
+            <span>${escapeHtml(message)}</span>
+        </div>
+        <button type="button" class="toast-close" title="Đóng">&times;</button>
+    `;
+
+    const removeToast = function() {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(function() { toast.remove(); }, 300);
+    };
+
+    toast.querySelector('.toast-close').addEventListener('click', removeToast);
+    container.appendChild(toast);
+    setTimeout(removeToast, 4500);
+}
+
+function handleUrlMessages() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const successMsg = urlParams.get('success');
+    const errorMsg = urlParams.get('error');
+
+    if (errorMsg) {
+        let msg = decodeURIComponent(errorMsg).replace(/\+/g, ' ');
+        if (msg === 'duplicate') msg = 'Tên xét nghiệm đã tồn tại trong hệ thống!';
+        else if (msg === 'empty') msg = 'Vui lòng nhập đầy đủ các trường thông tin!';
+        else if (msg === 'room') msg = 'Vui lòng chọn phòng xét nghiệm!';
+        showToast(msg, 'error');
+    }
+
+    if (successMsg) {
+        let msg = decodeURIComponent(successMsg).replace(/\+/g, ' ');
+        showToast(msg, 'success');
+    }
+
+    if (successMsg || errorMsg) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('success');
+        url.searchParams.delete('error');
+        window.history.replaceState({}, document.title, url.toString());
+    }
+}
 
 /* ── Modal helpers ── */
 function openModal(modal)  { modal.classList.add('show');    document.body.style.overflow = 'hidden'; }
@@ -26,8 +94,6 @@ function addCloseHandlers(modal, ...triggers) {
     modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(modal); });
     document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && modal.classList.contains('show')) closeModal(modal); });
 }
-
-
 
 /* ── Custom Confirm Modal ── */
 let confirmAction = null;
@@ -119,38 +185,6 @@ function initValidation() {
     setupInputValidation('editDescription',     'countEditDesc',       'errorEditDesc',       255, descPattern, 'Mô tả chứa ký tự đặc biệt nguy hiểm.');
 }
 
-function validateBaseForm(form, isEdit) {
-    const prefix = isEdit ? 'edit' : 'Create';
-    const errName = document.getElementById(isEdit ? 'errorEditTestName' : 'errorCreateTestName')?.textContent;
-    const errUnit = document.getElementById(isEdit ? 'errorEditUnit' : 'errorCreateUnit')?.textContent;
-    const errDesc = document.getElementById(isEdit ? 'errorEditDesc' : 'errorCreateDesc')?.textContent;
-
-    if (errName || errUnit || errDesc) {
-        alert('Dữ liệu nhập vào chứa lỗi, vui lòng kiểm tra lại.');
-        return false;
-    }
-
-    const testName = form.querySelector('[name="testName"]');
-    const unit     = form.querySelector('[name="unit"]');
-    const roomId   = form.querySelector('[name="roomId"]');
-    if (!testName?.value.trim())           return alert('Vui lòng nhập Tên xét nghiệm'), false;
-    if (testName.value.trim().length > 100) return alert('Tên xét nghiệm tối đa 100 ký tự'), false;
-    if (!unit?.value.trim())               return alert('Vui lòng nhập Đơn vị'), false;
-    if (unit.value.trim().length > 20)     return alert('Đơn vị tối đa 20 ký tự'), false;
-    if (!roomId?.value)                    return alert('Vui lòng chọn phòng xét nghiệm'), false;
-    return true;
-}
-
-function validateThresholdData(data) {
-    for (const g of ['young','middle','elder','pregnant','children']) {
-        const min = Number(data[g].min), max = Number(data[g].max);
-        if (data[g].min === '' || data[g].max === '') return alert('Vui lòng nhập đầy đủ Min/Max'), false;
-        if (min < 0 || max < 0) return alert('Min/Max không được nhỏ hơn 0'), false;
-        if (min > max)          return alert('Min không được lớn hơn Max'), false;
-    }
-    return true;
-}
-
 /* ── CREATE MODAL ── */
 function initCreateModal() {
     const modal = document.getElementById('defineTestModal');
@@ -164,10 +198,6 @@ function initCreateModal() {
         openModal(modal); 
     });
     addCloseHandlers(modal, document.getElementById('btnCloseModal'), document.getElementById('btnCancelModal'));
-    form?.addEventListener('submit', function(e) {
-        const data = buildThresholdData('create');
-        if (!validateBaseForm(form, false) || !validateThresholdData(data)) { e.preventDefault(); return; }
-    });
 }
 
 /* ── EDIT MODAL ── */
@@ -211,10 +241,6 @@ function initEditModal() {
             
             openModal(modal);
         });
-    });
-    form.addEventListener('submit', function(e) {
-        const data = buildThresholdData('edit');
-        if (!validateBaseForm(form, true) || !validateThresholdData(data)) { e.preventDefault(); return; }
     });
 }
 
@@ -268,73 +294,20 @@ function fillViewFromApi(d) {
     setText('childrenMax',       d.childrenMax ?? 0);
 }
 
-/* ── TABS ── */
-function initTabs() {
-    const tabs = { all: document.getElementById('tabAll'), active: document.getElementById('tabActive'), inactive: document.getElementById('tabInactive') };
-    if (!tabs.all) return;
-    Object.entries(tabs).forEach(function([filter, tab]) {
-        if (!tab) return;
-        tab.addEventListener('click', function() {
-            Object.values(tabs).forEach(function(t) { if (t) t.classList.remove('active'); });
-            tab.classList.add('active');
-            activeFilter = filter;
-            currentPage  = 1;
-            applyFilters();
-        });
-    });
-}
-
-/* ── SEARCH (Backend-side search, reset on clear) ── */
+/* ── SEARCH (Submit form sang Controller khi ấn Enter hoặc click nút Tìm kiếm) ── */
 function initSearch() {
-    const input = document.getElementById('tableSearch');
-    if (input) {
-        input.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' || e.keyCode === 13) {
-                e.preventDefault();
-                const status = activeFilter;
-                window.location.href = `/admin/lab-tests?status=${status}&keyword=${encodeURIComponent(input.value.trim())}`;
-            }
+    const icon = document.getElementById('labSearchIcon');
+    const form = document.getElementById('labTestSearchForm');
+    if (icon && form) {
+        icon.addEventListener('click', function() {
+            form.submit();
         });
-
-        input.addEventListener('input', function() {
-            if (this.value.trim() === '') {
-                const status = activeFilter;
-                window.location.href = `/admin/lab-tests?status=${status}`;
-            }
-        });
-
-        input.addEventListener('search', function() {
-            if (this.value.trim() === '') {
-                const status = activeFilter;
-                window.location.href = `/admin/lab-tests?status=${status}`;
-            }
-        });
-
-        const icon = document.querySelector('.lab-search-icon');
-        if (icon) {
-            icon.addEventListener('click', function() {
-                const status = activeFilter;
-                window.location.href = `/admin/lab-tests?status=${status}&keyword=${encodeURIComponent(input.value.trim())}`;
-            });
-        }
     }
 }
 
-/* ── FILTER ENGINE ── */
+/* ── PAGINATION ── */
 function markAllRowsVisible() {
-    document.querySelectorAll('#labTestTableBody tr').forEach(function(r) { r.dataset.filtered = 'visible'; });
-}
-
-function applyFilters() {
-    document.querySelectorAll('#labTestTableBody tr').forEach(function(row) {
-        if (!row.classList.contains('data-row')) { row.dataset.filtered = 'hidden'; return; }
-        const kwOk  = searchKeyword === '' || row.innerText.toLowerCase().includes(searchKeyword);
-        const tabOk = activeFilter === 'all'
-            || (activeFilter === 'active'   && !!row.querySelector('.badge--active'))
-            || (activeFilter === 'inactive' && !!row.querySelector('.badge--inactive'));
-        row.dataset.filtered = (kwOk && tabOk) ? 'visible' : 'hidden';
-    });
-    renderPagination();
+    document.querySelectorAll('#labTestTableBody tr.data-row').forEach(function(r) { r.dataset.filtered = 'visible'; });
 }
 
 /* ── PAGINATION ── */

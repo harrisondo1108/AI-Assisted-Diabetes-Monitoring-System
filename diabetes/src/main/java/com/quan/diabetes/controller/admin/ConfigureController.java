@@ -8,6 +8,7 @@ import com.quan.diabetes.service.medication.MedicationTimingService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/admin/configure")
@@ -35,9 +36,12 @@ public class ConfigureController {
         model.addAttribute("activeTab",  tab);
         model.addAttribute("search",     keyword);
 
-        if      ("duplicate".equals(error)) model.addAttribute("errorMessage", "Tên đã tồn tại.");
-        else if ("empty".equals(error))     model.addAttribute("errorMessage", "Vui lòng nhập tên.");
-        else if ("notfound".equals(error))  model.addAttribute("errorMessage", "Không tìm thấy.");
+        if      ("duplicate".equals(error))    model.addAttribute("errorMessage", "Tên đã tồn tại trong hệ thống.");
+        else if ("empty".equals(error))        model.addAttribute("errorMessage", "Vui lòng nhập tên.");
+        else if ("notfound".equals(error))     model.addAttribute("errorMessage", "Không tìm thấy dữ liệu.");
+        else if ("inuse_room".equals(error))   model.addAttribute("errorMessage", "Không thể xóa phòng này vì đang được phân công cho bác sĩ hoặc phòng xét nghiệm!");
+        else if ("inuse_timing".equals(error)) model.addAttribute("errorMessage", "Không thể xóa thời gian dùng thuốc này vì đang được sử dụng trong đơn thuốc hoặc lịch nhắc nhở!");
+        else if ("delete_failed".equals(error))model.addAttribute("errorMessage", "Xóa thất bại. Vui lòng thử lại sau.");
 
         return "Admin/Configure";
     }
@@ -66,8 +70,14 @@ public class ConfigureController {
     }
 
     @PostMapping("/room/delete/{id}")
-    public String deleteRoom(@PathVariable Integer id) {
-        try { roomService.deleteById(id); } catch (Exception ignored) {}
+    public String deleteRoom(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+        try {
+            roomService.deleteById(id);
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            redirectAttributes.addAttribute("error", "inuse_room");
+        } catch (Exception e) {
+            redirectAttributes.addAttribute("error", "delete_failed");
+        }
         return "redirect:/admin/configure?tab=room";
     }
 
@@ -98,8 +108,14 @@ public class ConfigureController {
     }
 
     @PostMapping("/timing/delete/{id}")
-    public String deleteTiming(@PathVariable Integer id) {
-        try { timingService.deleteById(id); } catch (Exception ignored) {}
+    public String deleteTiming(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+        try {
+            timingService.deleteById(id);
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            redirectAttributes.addAttribute("error", "inuse_timing");
+        } catch (Exception e) {
+            redirectAttributes.addAttribute("error", "delete_failed");
+        }
         return "redirect:/admin/configure?tab=timing";
     }
 }

@@ -109,15 +109,6 @@
                                 th:text="${(routine != null && routine.sleepTime != null ? #temporals.format(routine.sleepTime, 'hh:mm a') : 'N/A') + ' / ' + (routine != null && routine.wakeUpTime != null ? #temporals.format(routine.wakeUpTime, 'hh:mm a') : 'N/A')}"></strong>
                         </div>
                     </div>
-
-                    <button th:if="${viewOnly == null || !viewOnly}" type="submit" form="examineForm" th:formaction="@{'/doctor/examine/' + ${patient.userId} + '/draft'}" class="btn btn-secondary btn-sm" id="viewHistoryBtn"
-                        style="width: 100%; margin: 12px 0 0 0; justify-content: center; gap: 8px;">
-                        <i class="fas fa-clock-rotate-left"></i> Lịch sử bệnh án
-                    </button>
-                    <a th:if="${viewOnly != null && viewOnly}" th:href="@{/doctor/history(patientId=${patient.userId}, from='examine')}" class="btn btn-secondary btn-sm" id="viewHistoryBtn"
-                        style="width: 100%; margin: 12px 0 0 0; justify-content: center; gap: 8px; text-decoration: none; display: inline-flex; align-items: center;">
-                        <i class="fas fa-clock-rotate-left"></i> Lịch sử bệnh án
-                    </a>
                 </aside>
 
                 <!-- Right/Main Workspace Container -->
@@ -164,7 +155,7 @@
                                 sàng</p>
 
                             <!-- Pregnant classification checkbox for Female patients -->
-                            <div th:if="${patient.gender}" class="pregnant-toggle-container"
+                            <div th:if="${patient.gender != null && !patient.gender}" class="pregnant-toggle-container"
                                 style="margin: 12px 0 16px 0; padding: 10px 14px; background: rgba(220, 38, 38, 0.05); border-radius: 8px; border: 1px dashed rgba(220, 38, 38, 0.2); display: flex; align-items: center; gap: 8px; width: fit-content;">
                                 <input type="checkbox" id="isPregnant" th:field="*{isPregnant}"
                                     style="width: 18px; height: 18px; cursor: pointer;" />

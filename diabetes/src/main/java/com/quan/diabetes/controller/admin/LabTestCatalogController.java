@@ -10,6 +10,8 @@ import com.quan.diabetes.service.masterdata.RoomService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.HashMap;
@@ -51,11 +53,19 @@ public class LabTestCatalogController {
         
         String kw = keyword.trim();
         java.util.List<LabTestCatalog> testList = labTestCatalogService.searchByKeywordAndStatus(kw, statusFilter);
+        java.util.List<LabTestCatalog> allTests = labTestCatalogService.findAll();
+
+        long statTotal = allTests.size();
+        long statActive = allTests.stream().filter(t -> Boolean.TRUE.equals(t.getStatus())).count();
+        long statInactive = allTests.stream().filter(t -> Boolean.FALSE.equals(t.getStatus())).count();
 
         model.addAttribute("testList", testList);
         model.addAttribute("roomList", roomService.findAll());
         model.addAttribute("keyword",  kw);
         model.addAttribute("status",   status);
+        model.addAttribute("statTotal", statTotal);
+        model.addAttribute("statActive", statActive);
+        model.addAttribute("statInactive", statInactive);
 
         if ("duplicate".equals(error))
             model.addAttribute("errorMessage", "Tên xét nghiệm đã tồn tại.");
@@ -67,38 +77,130 @@ public class LabTestCatalogController {
         return "Admin/LabTest";
     }
 
+    private boolean containsInvalidChars(String str) {
+        if (str == null) return false;
+        return str.matches(".*[<>;'\"\\\\`\\$^\\{\\}~\\|\\[\\]].*");
+    }
+
+    private String validateLabTestForm(
+            LabTestCatalog labTestCatalog,
+            String currentId,
+            BigDecimal youngMin, BigDecimal youngMax,
+            BigDecimal middleMin, BigDecimal middleMax,
+            BigDecimal elderMin, BigDecimal elderMax,
+            BigDecimal pregnantMin, BigDecimal pregnantMax,
+            BigDecimal childrenMin, BigDecimal childrenMax) {
+
+        String testName = labTestCatalog.getTestName();
+        if (testName == null || testName.trim().isEmpty()) {
+            return "Vui lòng nhập Tên xét nghiệm!";
+        }
+        testName = testName.trim();
+        if (testName.length() > 100) {
+            return "Tên xét nghiệm không được vượt quá 100 ký tự!";
+        }
+        if (containsInvalidChars(testName)) {
+            return "Tên xét nghiệm không được chứa các ký tự đặc biệt nguy hiểm (< > ; ' \" \\ `)!";
+        }
+
+        // Kiểm tra trùng tên
+        if (currentId == null) {
+            if (labTestCatalogService.existsByTestName(testName)) {
+                return "Tên xét nghiệm \"" + testName + "\" đã tồn tại trong hệ thống!";
+            }
+        } else {
+            if (labTestCatalogService.existsByTestNameAndLabTestIdNot(testName, currentId)) {
+                return "Tên xét nghiệm \"" + testName + "\" đã bị trùng với xét nghiệm khác!";
+            }
+        }
+
+        // Kiểm tra đơn vị
+        String unit = labTestCatalog.getUnit();
+        if (unit == null || unit.trim().isEmpty()) {
+            return "Vui lòng nhập Đơn vị xét nghiệm!";
+        }
+        unit = unit.trim();
+        if (unit.length() > 20) {
+            return "Đơn vị xét nghiệm không được vượt quá 20 ký tự!";
+        }
+        if (containsInvalidChars(unit)) {
+            return "Đơn vị không được chứa các ký tự đặc biệt nguy hiểm!";
+        }
+
+        // Kiểm tra phòng xét nghiệm
+        if (labTestCatalog.getRoomId() == null) {
+            return "Vui lòng chọn Phòng xét nghiệm!";
+        }
+
+        // Kiểm tra mô tả
+        String desc = labTestCatalog.getDescription();
+        if (desc != null && !desc.trim().isEmpty()) {
+            if (desc.trim().length() > 255) {
+                return "Mô tả không được vượt quá 255 ký tự!";
+            }
+            if (containsInvalidChars(desc)) {
+                return "Mô tả không được chứa các ký tự đặc biệt nguy hiểm!";
+            }
+        }
+
+        // Kiểm tra ngưỡng Min < Max cho từng nhóm đối tượng
+        return validateThresholds(
+                youngMin, youngMax, "Người trẻ",
+                middleMin, middleMax, "Trung niên",
+                elderMin, elderMax, "Cao tuổi",
+                pregnantMin, pregnantMax, "Người có bầu",
+                childrenMin, childrenMax, "Trẻ em"
+        );
+    }
+
+    private String validateThresholds(Object... pairs) {
+        for (int i = 0; i < pairs.length; i += 3) {
+            BigDecimal min = (BigDecimal) pairs[i];
+            BigDecimal max = (BigDecimal) pairs[i + 1];
+            String groupName = (String) pairs[i + 2];
+
+            if (min == null || max == null) {
+                return "Vui lòng nhập đầy đủ giá trị Min và Max cho nhóm [" + groupName + "]!";
+            }
+            if (min.compareTo(BigDecimal.ZERO) < 0 || max.compareTo(BigDecimal.ZERO) < 0) {
+                return "Ngưỡng Min/Max của nhóm [" + groupName + "] không được nhỏ hơn 0!";
+            }
+            if (min.compareTo(max) >= 0) {
+                return "Lỗi ngưỡng chỉ số [" + groupName + "]: Giá trị Min (" + min + ") phải nhỏ hơn Max (" + max + ")!";
+            }
+        }
+        return null;
+    }
+
     /* ── Tạo mới ── */
     @PostMapping("/create")
     @org.springframework.transaction.annotation.Transactional
     public String createLabTest(
             @ModelAttribute LabTestCatalog labTestCatalog,
-            @RequestParam("youngMin") BigDecimal youngMin,
-            @RequestParam("youngMax") BigDecimal youngMax,
-            @RequestParam("middleMin") BigDecimal middleMin,
-            @RequestParam("middleMax") BigDecimal middleMax,
-            @RequestParam("elderMin") BigDecimal elderMin,
-            @RequestParam("elderMax") BigDecimal elderMax,
-            @RequestParam("pregnantMin") BigDecimal pregnantMin,
-            @RequestParam("pregnantMax") BigDecimal pregnantMax,
-            @RequestParam("childrenMin") BigDecimal childrenMin,
-            @RequestParam("childrenMax") BigDecimal childrenMax) {
-        String testName = labTestCatalog.getTestName();
+            @RequestParam(value = "youngMin", required = false) BigDecimal youngMin,
+            @RequestParam(value = "youngMax", required = false) BigDecimal youngMax,
+            @RequestParam(value = "middleMin", required = false) BigDecimal middleMin,
+            @RequestParam(value = "middleMax", required = false) BigDecimal middleMax,
+            @RequestParam(value = "elderMin", required = false) BigDecimal elderMin,
+            @RequestParam(value = "elderMax", required = false) BigDecimal elderMax,
+            @RequestParam(value = "pregnantMin", required = false) BigDecimal pregnantMin,
+            @RequestParam(value = "pregnantMax", required = false) BigDecimal pregnantMax,
+            @RequestParam(value = "childrenMin", required = false) BigDecimal childrenMin,
+            @RequestParam(value = "childrenMax", required = false) BigDecimal childrenMax,
+            RedirectAttributes redirectAttributes) {
 
-        if (testName == null || testName.trim().isEmpty()
-                || labTestCatalog.getUnit() == null
-                || labTestCatalog.getUnit().trim().isEmpty()) {
-            return "redirect:/admin/lab-tests?error=empty";
+        String errorMsg = validateLabTestForm(labTestCatalog, null,
+                youngMin, youngMax, middleMin, middleMax, elderMin, elderMax, pregnantMin, pregnantMax, childrenMin, childrenMax);
+
+        if (errorMsg != null) {
+            redirectAttributes.addAttribute("error", errorMsg);
+            return "redirect:/admin/lab-tests";
         }
 
-        if (labTestCatalog.getRoomId() == null) {
-            return "redirect:/admin/lab-tests?error=room";
-        }
-
-        labTestCatalog.setTestName(testName.trim());
+        labTestCatalog.setTestName(labTestCatalog.getTestName().trim());
         labTestCatalog.setUnit(labTestCatalog.getUnit().trim());
-
-        if (labTestCatalogService.existsByTestName(testName.trim())) {
-            return "redirect:/admin/lab-tests?error=duplicate";
+        if (labTestCatalog.getDescription() != null) {
+            labTestCatalog.setDescription(labTestCatalog.getDescription().trim());
         }
 
         labTestCatalog.setLabTestId(labTestCatalogService.generateLabTestId());
@@ -112,6 +214,7 @@ public class LabTestCatalogController {
         saveOrUpdateThreshold(labTestCatalog, "Pregnant", pregnantMin, pregnantMax);
         saveOrUpdateThreshold(labTestCatalog, "Children", childrenMin, childrenMax);
 
+        redirectAttributes.addAttribute("success", "Định nghĩa xét nghiệm \"" + labTestCatalog.getTestName() + "\" thành công!");
         return "redirect:/admin/lab-tests";
     }
 
@@ -121,59 +224,62 @@ public class LabTestCatalogController {
     public String updateLabTest(
             @PathVariable("id") String id,
             @ModelAttribute LabTestCatalog labTestCatalog,
-            @RequestParam("youngMin") BigDecimal youngMin,
-            @RequestParam("youngMax") BigDecimal youngMax,
-            @RequestParam("middleMin") BigDecimal middleMin,
-            @RequestParam("middleMax") BigDecimal middleMax,
-            @RequestParam("elderMin") BigDecimal elderMin,
-            @RequestParam("elderMax") BigDecimal elderMax,
-            @RequestParam("pregnantMin") BigDecimal pregnantMin,
-            @RequestParam("pregnantMax") BigDecimal pregnantMax,
-            @RequestParam("childrenMin") BigDecimal childrenMin,
-            @RequestParam("childrenMax") BigDecimal childrenMax) {
-        String testName = labTestCatalog.getTestName();
-
-        if (testName == null || testName.trim().isEmpty()
-                || labTestCatalog.getUnit() == null
-                || labTestCatalog.getUnit().trim().isEmpty()) {
-            return "redirect:/admin/lab-tests?error=empty";
-        }
-
-        if (labTestCatalog.getRoomId() == null) {
-            return "redirect:/admin/lab-tests?error=room";
-        }
-
-        labTestCatalog.setTestName(testName.trim());
-        labTestCatalog.setUnit(labTestCatalog.getUnit().trim());
-
-        if (labTestCatalogService.existsByTestNameAndLabTestIdNot(testName.trim(), id)) {
-            return "redirect:/admin/lab-tests?error=duplicate";
-        }
+            @RequestParam(value = "youngMin", required = false) BigDecimal youngMin,
+            @RequestParam(value = "youngMax", required = false) BigDecimal youngMax,
+            @RequestParam(value = "middleMin", required = false) BigDecimal middleMin,
+            @RequestParam(value = "middleMax", required = false) BigDecimal middleMax,
+            @RequestParam(value = "elderMin", required = false) BigDecimal elderMin,
+            @RequestParam(value = "elderMax", required = false) BigDecimal elderMax,
+            @RequestParam(value = "pregnantMin", required = false) BigDecimal pregnantMin,
+            @RequestParam(value = "pregnantMax", required = false) BigDecimal pregnantMax,
+            @RequestParam(value = "childrenMin", required = false) BigDecimal childrenMin,
+            @RequestParam(value = "childrenMax", required = false) BigDecimal childrenMax,
+            RedirectAttributes redirectAttributes) {
 
         LabTestCatalog existing = labTestCatalogService.findById(id).orElse(null);
-        if (existing != null) {
-            labTestCatalog.setLabTestId(id);
-            labTestCatalog.setStatus(existing.getStatus());
-            labTestCatalogService.update(id, labTestCatalog);
-
-            // Update thresholds
-            saveOrUpdateThreshold(labTestCatalog, "Adult", youngMin, youngMax);
-            saveOrUpdateThreshold(labTestCatalog, "Middle-aged", middleMin, middleMax);
-            saveOrUpdateThreshold(labTestCatalog, "Elderly", elderMin, elderMax);
-            saveOrUpdateThreshold(labTestCatalog, "Pregnant", pregnantMin, pregnantMax);
-            saveOrUpdateThreshold(labTestCatalog, "Children", childrenMin, childrenMax);
+        if (existing == null) {
+            redirectAttributes.addAttribute("error", "Không tìm thấy xét nghiệm cần cập nhật!");
+            return "redirect:/admin/lab-tests";
         }
 
+        String errorMsg = validateLabTestForm(labTestCatalog, id,
+                youngMin, youngMax, middleMin, middleMax, elderMin, elderMax, pregnantMin, pregnantMax, childrenMin, childrenMax);
+
+        if (errorMsg != null) {
+            redirectAttributes.addAttribute("error", errorMsg);
+            return "redirect:/admin/lab-tests";
+        }
+
+        labTestCatalog.setLabTestId(id);
+        labTestCatalog.setTestName(labTestCatalog.getTestName().trim());
+        labTestCatalog.setUnit(labTestCatalog.getUnit().trim());
+        if (labTestCatalog.getDescription() != null) {
+            labTestCatalog.setDescription(labTestCatalog.getDescription().trim());
+        }
+        labTestCatalog.setStatus(existing.getStatus());
+        labTestCatalogService.update(id, labTestCatalog);
+
+        // Update thresholds
+        saveOrUpdateThreshold(labTestCatalog, "Adult", youngMin, youngMax);
+        saveOrUpdateThreshold(labTestCatalog, "Middle-aged", middleMin, middleMax);
+        saveOrUpdateThreshold(labTestCatalog, "Elderly", elderMin, elderMax);
+        saveOrUpdateThreshold(labTestCatalog, "Pregnant", pregnantMin, pregnantMax);
+        saveOrUpdateThreshold(labTestCatalog, "Children", childrenMin, childrenMax);
+
+        redirectAttributes.addAttribute("success", "Cập nhật xét nghiệm \"" + labTestCatalog.getTestName() + "\" thành công!");
         return "redirect:/admin/lab-tests";
     }
 
     /* ── Xóa ── */
     @PostMapping("/delete/{id}")
     @org.springframework.transaction.annotation.Transactional
-    public String deleteLabTest(@PathVariable("id") String id) {
+    public String deleteLabTest(@PathVariable("id") String id, RedirectAttributes redirectAttributes) {
+        LabTestCatalog test = labTestCatalogService.findById(id).orElse(null);
+        String name = test != null ? test.getTestName() : id;
         List<IndicatorThreshold> thresholds = indicatorThresholdRepository.findByLabTest_LabTestId(id);
         indicatorThresholdRepository.deleteAll(thresholds);
         labTestCatalogService.deleteById(id);
+        redirectAttributes.addAttribute("success", "Đã xóa xét nghiệm \"" + name + "\" khỏi hệ thống!");
         return "redirect:/admin/lab-tests";
     }
 
@@ -238,12 +344,17 @@ public class LabTestCatalogController {
 
     /* ── Toggle Active / Inactive ── */
     @PostMapping("/toggle-status/{id}")
-    public String toggleStatus(@PathVariable("id") String id) {
+    public String toggleStatus(@PathVariable("id") String id, RedirectAttributes redirectAttributes) {
         LabTestCatalog test = labTestCatalogService.findById(id).orElse(null);
         if (test != null) {
             Boolean current = test.getStatus();
-            test.setStatus(current == null || !current);
+            boolean newStatus = (current == null || !current);
+            test.setStatus(newStatus);
             labTestCatalogService.update(id, test);
+            String statusText = newStatus ? "Kích hoạt" : "Vô hiệu hóa";
+            redirectAttributes.addAttribute("success", statusText + " xét nghiệm \"" + test.getTestName() + "\" thành công!");
+        } else {
+            redirectAttributes.addAttribute("error", "Không tìm thấy xét nghiệm!");
         }
         return "redirect:/admin/lab-tests";
     }
