@@ -7,6 +7,7 @@
     <list default="true" id="cd82aed5-747b-44b9-892e-efbe52d1dbd5" name="Changes" comment="Testscript for UnitTest">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/ai/AiToolImplTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/ai/AiToolImplTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -73,7 +74,7 @@
     </selectedModels>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="338" />
+    <option name="cachedIndexableFilesCount" value="339" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -361,7 +362,11 @@
       <workItem from="1784713303111" duration="4000" />
       <workItem from="1784730764993" duration="4591000" />
       <workItem from="1784767361353" duration="4054000" />
-      <workItem from="1784794888461" duration="88000" />
+      <workItem from="1784794888461" duration="1070000" />
+      <workItem from="1784854229320" duration="611000" />
+      <workItem from="1784854854908" duration="2028000" />
+      <workItem from="1784904801351" duration="1252000" />
+      <workItem from="1785055747591" duration="1463000" />
     </task>
     <task id="LOCAL-00001" summary="thêm chức năng doctor rating">
       <option name="closed" value="true" />
@@ -425,7 +430,7 @@
     <SUITE FILE_PATH="coverage/AI_Assisted_Diabetes_Monitoring_System_F_22_2$MedicationTimingServiceImplTest.ic" NAME="MedicationTimingServiceImplTest Coverage Results" MODIFIED="1784736015010" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
       <FILTER>com.quan.diabetes.service.medication.*</FILTER>
     </SUITE>
-    <SUITE FILE_PATH="coverage/AI_Assisted_Diabetes_Monitoring_System_F_22_2$com_quan_diabetes_service_medication_in_diabetes.ic" NAME="com.quan.diabetes.service.medication in diabetes Coverage Results" MODIFIED="1784770067719" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
+    <SUITE FILE_PATH="coverage/AI_Assisted_Diabetes_Monitoring_System_F_22_2$com_quan_diabetes_service_medication_in_diabetes.ic" NAME="com.quan.diabetes.service.medication in diabetes Coverage Results" MODIFIED="1784906754334" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
       <FILTER>com.quan.diabetes.service.medication.*</FILTER>
     </SUITE>
     <SUITE FILE_PATH="coverage/AI_Assisted_Diabetes_Monitoring_System_F_22_2$MedicationServiceImplTest.ic" NAME="MedicationServiceImplTest Coverage Results" MODIFIED="1784735998266" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
@@ -437,7 +442,7 @@
     <SUITE FILE_PATH="coverage/AI_Assisted_Diabetes_Monitoring_System_F_22_2$AIAssistantServiceImplTest.ic" NAME="AIAssistantServiceImplTest Coverage Results" MODIFIED="1784767694213" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
       <FILTER>com.quan.diabetes.service.ai.*</FILTER>
     </SUITE>
-    <SUITE FILE_PATH="coverage/AI_Assisted_Diabetes_Monitoring_System_F_22_2$com_quan_diabetes_service_ai_in_diabetes.ic" NAME="com.quan.diabetes.service.ai in diabetes Coverage Results" MODIFIED="1784770037081" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
+    <SUITE FILE_PATH="coverage/AI_Assisted_Diabetes_Monitoring_System_F_22_2$com_quan_diabetes_service_ai_in_diabetes.ic" NAME="com.quan.diabetes.service.ai in diabetes Coverage Results" MODIFIED="1784904819272" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
       <FILTER>com.quan.diabetes.service.ai.*</FILTER>
     </SUITE>
   </component>

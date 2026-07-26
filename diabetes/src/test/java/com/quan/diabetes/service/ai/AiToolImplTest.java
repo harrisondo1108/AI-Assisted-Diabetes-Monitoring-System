@@ -184,12 +184,44 @@ class AiToolImplTest {
     }
 
     @Test
-    void testGetLabResults() {
+    void testGetLabResults_Success() {
         when(labResultRepository.findByPatientIdWithDetails("PAT-01")).thenReturn(List.of(labResult));
         String res = aiTool.getLabResults("PAT-01");
         assertTrue(res.contains("Glucose"));
         assertTrue(res.contains("7.5"));
     }
+
+    @Test
+    void testGetLabResults_EmptyList() {
+        when(labResultRepository.findByPatientIdWithDetails("PAT-01")).thenReturn(Collections.emptyList());
+        String res = aiTool.getLabResults("PAT-01");
+        assertTrue(res.contains("Không có dữ liệu"));
+    }
+
+    @Test
+    void testGetLabResults_NullExamDate() {
+        LabTestCatalog catalog = new LabTestCatalog();
+        catalog.setTestName("HbA1c");
+        catalog.setUnit("%");
+
+        LabOrder orderNullDate = new LabOrder();
+        ClinicalExamination ceNullDate = new ClinicalExamination();
+        ceNullDate.setExamDate(null);
+        orderNullDate.setClinicalExamination(ceNullDate);
+
+        LabResult lrNullDate = new LabResult();
+        lrNullDate.setLabTest(catalog);
+        lrNullDate.setResultValue(java.math.BigDecimal.valueOf(6.8));
+        lrNullDate.setReferenceRange("< 6.5");
+        lrNullDate.setFlag("Cao");
+        lrNullDate.setLabOrder(orderNullDate);
+
+        when(labResultRepository.findByPatientIdWithDetails("PAT-01")).thenReturn(List.of(lrNullDate));
+        String res = aiTool.getLabResults("PAT-01");
+        assertTrue(res.contains("HbA1c"));
+        assertTrue(res.contains("6.8"));
+    }
+
 
     @Test
     void testGetPrescriptions_Success() {
