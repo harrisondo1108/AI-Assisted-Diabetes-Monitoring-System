@@ -5,17 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cd82aed5-747b-44b9-892e-efbe52d1dbd5" name="Changes" comment="thêm chức năng doctor rating">
-      <change afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/doctor/doctor-examined-patients.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/main/resources/static/css/doctor/doctor-patient-profile.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/examined_patients.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/patient_profile.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/logs/application.log" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/logs/application.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorPatientController.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/controller/doctor/DoctorPatientController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/history_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/history_detail.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/patients.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/doctor/history.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/doctor/header.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/layout/doctor/header.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/chat.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/chat.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/entity/PromptTemplate.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/PromptTemplateRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/masterdata/PromptTemplateService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/masterdata/impl/PromptTemplateServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/util/ReminderTimeCalculatorTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/util/ReminderTimeCalculatorTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -81,7 +76,7 @@
     </selectedModels>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="330" />
+    <option name="cachedIndexableFilesCount" value="994" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -192,73 +187,118 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "JUnit.UpdateProfileTest (1).executor": "Run",
-    "JUnit.UpdateProfileTest.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RequestMappingsPanelOrder0": "0",
-    "RequestMappingsPanelOrder1": "1",
-    "RequestMappingsPanelWidth0": "75",
-    "RequestMappingsPanelWidth1": "75",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "SONARLINT_PRECOMMIT_ANALYSIS": "true",
-    "Spring Boot.DiabetesApplication.executor": "Run",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "copilot.chat.legacySessionMetadata.migrated": "true",
-    "git-widget-placeholder": "Merging main",
-    "ignore.virus.scanning.warn.message": "true",
-    "junie.onboarding.icon.badge.shown": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/git_clone_CSon/AI-Assisted-Diabetes-Monitoring-System",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "SDKs",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0",
-    "to.speed.mode.migration.done": "true",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;JUnit.AppointmentScheduleTest.executor&quot;: &quot;Coverage&quot;,
+    &quot;JUnit.MedicationRescheduleServiceTest.executor&quot;: &quot;Coverage&quot;,
+    &quot;JUnit.MedicationSchedualeServiceTest.executor&quot;: &quot;Coverage&quot;,
+    &quot;JUnit.ParseUtilTest.executor&quot;: &quot;Coverage&quot;,
+    &quot;JUnit.ReminderTimeCalculatorTest.executor&quot;: &quot;Coverage&quot;,
+    &quot;JUnit.SearchUtilTest.executor&quot;: &quot;Coverage&quot;,
+    &quot;JUnit.UpdateProfileTest (1).executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UpdateProfileTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.reminder in diabetes.executor&quot;: &quot;Coverage&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;SONARLINT_PRECOMMIT_ANALYSIS&quot;: &quot;true&quot;,
+    &quot;Spring Boot.DiabetesApplication.executor&quot;: &quot;Run&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;copilot.chat.legacySessionMetadata.migrated&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/git_clone_CSon/AI-Assisted-Diabetes-Monitoring-System&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;SDKs&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="com.quan.diabetes" />
     </key>
   </component>
-  <component name="RunManager" selected="Spring Boot.DiabetesApplication">
-    <configuration name="UpdateProfileTest (1)" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="JUnit.MedicationSchedualeServiceTest">
+    <configuration name="AppointmentScheduleTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="diabetes" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="com.quan.diabetes.*" />
+          <option name="PATTERN" value="com.quan.diabetes.service.reminder.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <option name="PACKAGE_NAME" value="com.quan.diabetes" />
-      <option name="MAIN_CLASS_NAME" value="com.quan.diabetes.UpdateProfileTest" />
+      <option name="PACKAGE_NAME" value="com.quan.diabetes.service.reminder" />
+      <option name="MAIN_CLASS_NAME" value="com.quan.diabetes.service.reminder.AppointmentScheduleTest" />
       <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="UpdateProfileTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="MedicationRescheduleServiceTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="diabetes" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="fu.hsf302.*" />
+          <option name="PATTERN" value="com.quan.diabetes.service.reminder.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <option name="PACKAGE_NAME" value="fu.hsf302" />
-      <option name="MAIN_CLASS_NAME" value="fu.hsf302.UpdateProfileTest" />
+      <option name="PACKAGE_NAME" value="com.quan.diabetes.service.reminder" />
+      <option name="MAIN_CLASS_NAME" value="com.quan.diabetes.service.reminder.MedicationRescheduleServiceTest" />
       <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MedicationSchedualeServiceTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="diabetes" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.quan.diabetes.service.reminder.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.quan.diabetes.service.reminder" />
+      <option name="MAIN_CLASS_NAME" value="com.quan.diabetes.service.reminder.MedicationSchedualeServiceTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ReminderTimeCalculatorTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="diabetes" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.quan.diabetes.util.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.quan.diabetes.util" />
+      <option name="MAIN_CLASS_NAME" value="com.quan.diabetes.util.ReminderTimeCalculatorTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="reminder in diabetes" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="diabetes" />
+      <option name="TEST_OBJECT" value="directory" />
+      <dir value="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/reminder" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -273,8 +313,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.UpdateProfileTest (1)" />
-        <item itemvalue="JUnit.UpdateProfileTest" />
+        <item itemvalue="JUnit.MedicationSchedualeServiceTest" />
+        <item itemvalue="JUnit.ReminderTimeCalculatorTest" />
+        <item itemvalue="JUnit.MedicationRescheduleServiceTest" />
+        <item itemvalue="JUnit.reminder in diabetes" />
+        <item itemvalue="JUnit.AppointmentScheduleTest" />
       </list>
     </recent_temporary>
   </component>
@@ -314,6 +357,10 @@
       <workItem from="1784547495670" duration="1169000" />
       <workItem from="1784609393333" duration="3270000" />
       <workItem from="1784624533751" duration="479000" />
+      <workItem from="1784705013306" duration="4405000" />
+      <workItem from="1784741865294" duration="3000" />
+      <workItem from="1784793198890" duration="2000" />
+      <workItem from="1784821287445" duration="35000" />
     </task>
     <task id="LOCAL-00001" summary="thêm chức năng doctor rating">
       <option name="closed" value="true" />
@@ -343,6 +390,27 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="thêm chức năng doctor rating" />
     <option name="LAST_COMMIT_MESSAGE" value="thêm chức năng doctor rating" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/AI_Assisted_Diabetes_Monitoring_System$ParseUtilTest.ic" NAME="ParseUtilTest Coverage Results" MODIFIED="1784705757857" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
+      <FILTER>com.quan.diabetes.util.*</FILTER>
+    </SUITE>
+    <SUITE FILE_PATH="coverage/AI_Assisted_Diabetes_Monitoring_System$SearchUtilTest.ic" NAME="SearchUtilTest Coverage Results" MODIFIED="1784705664828" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
+      <FILTER>com.quan.diabetes.util.*</FILTER>
+    </SUITE>
+    <SUITE FILE_PATH="coverage/AI_Assisted_Diabetes_Monitoring_System$MedicationSchedualeServiceTest.ic" NAME="MedicationSchedualeServiceTest Coverage Results" MODIFIED="1784712336141" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
+      <FILTER>com.quan.diabetes.service.reminder.*</FILTER>
+    </SUITE>
+    <SUITE FILE_PATH="coverage/AI_Assisted_Diabetes_Monitoring_System$reminder_in_diabetes.ic" NAME="reminder in diabetes Coverage Results" MODIFIED="1784706328716" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
+    <SUITE FILE_PATH="coverage/AI_Assisted_Diabetes_Monitoring_System$ReminderTimeCalculatorTest.ic" NAME="ReminderTimeCalculatorTest Coverage Results" MODIFIED="1784712201711" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
+      <FILTER>com.quan.diabetes.util.*</FILTER>
+    </SUITE>
+    <SUITE FILE_PATH="coverage/AI_Assisted_Diabetes_Monitoring_System$AppointmentScheduleTest.ic" NAME="AppointmentScheduleTest Coverage Results" MODIFIED="1784706271886" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
+      <FILTER>com.quan.diabetes.service.reminder.*</FILTER>
+    </SUITE>
+    <SUITE FILE_PATH="coverage/AI_Assisted_Diabetes_Monitoring_System$MedicationRescheduleServiceTest.ic" NAME="MedicationRescheduleServiceTest Coverage Results" MODIFIED="1784710965736" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
+      <FILTER>com.quan.diabetes.service.reminder.*</FILTER>
+    </SUITE>
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>
