@@ -217,41 +217,61 @@ public class AiToolImpl implements AiTool {
     @Override
     @Transactional(readOnly = true)
     public String getPrescriptions(String patientId) {
-        java.util.List<PrescriptionReminderDto> dtos = prescriptionDetailRepository.findByPatientIdWithDetails(patientId)
-                .stream().map(pd -> {
-                    String timingNames = null;
-                    if (pd.getPrescriptionTimings() != null && !pd.getPrescriptionTimings().isEmpty()) {
-                        timingNames = pd.getPrescriptionTimings().stream()
-                                .map(pt -> pt.getTiming().getTimingName())
-                                .collect(Collectors.joining(", "));
-                    }
-                    String pId = pd.getPrescription() != null && pd.getPrescription().getClinicalExamination() != null && pd.getPrescription().getClinicalExamination().getPatient() != null
-                            ? pd.getPrescription().getClinicalExamination().getPatient().getUserId() : patientId;
-                    String examId = pd.getPrescription() != null && pd.getPrescription().getClinicalExamination() != null
-                            ? pd.getPrescription().getClinicalExamination().getClinicalExamId() : "";
-                    com.quan.diabetes.entity.TreatmentPlan tp = pd.getPrescription() != null && pd.getPrescription().getClinicalExamination() != null
-                            ? pd.getPrescription().getClinicalExamination().getTreatmentPlan() : null;
-                    return new PrescriptionReminderDto(
-                            pId,
-                            examId,
-                            pd.getMedication().getMedicationName(),
-                            pd.getDosage(),
-                            pd.getStartDate(),
-                            pd.getEndDate(),
-                            pd.getMedication().getForm(),
-                            pd.getMedication().getAdministrationRoute(),
-                            pd.getMedication().getUsageInstruction(),
-                            timingNames,
-                            pd.getMedicationPlan(),
-                            tp
-                    );
-                }).collect(Collectors.toList());
+        List<ClinicalExamination> exams = clinicalExaminationRepository.findByPatient_UserIdOrderByExamDateDesc(patientId);
+        if (exams == null || exams.isEmpty()) {
+            return "DANH SÁCH THUỐC TRONG ĐƠN THUỐC CỦA BỆNH NHÂN:\n(Bệnh nhân hiện chưa có lượt khám nào trong hồ sơ y tế)";
+        }
+        ClinicalExamination targetExam = exams.get(0);
+        java.util.List<com.quan.diabetes.entity.PrescriptionDetail> details = prescriptionDetailRepository.findByClinicalExamIdWithDetails(targetExam.getClinicalExamId());
+        if (details.isEmpty() && exams.size() > 1) {
+            for (ClinicalExamination ce : exams) {
+                java.util.List<com.quan.diabetes.entity.PrescriptionDetail> ceDetails = prescriptionDetailRepository.findByClinicalExamIdWithDetails(ce.getClinicalExamId());
+                if (!ceDetails.isEmpty()) {
+                    targetExam = ce;
+                    details = ceDetails;
+                    break;
+                }
+            }
+        }
+
+        final ClinicalExamination finalTargetExam = targetExam;
+        java.util.List<PrescriptionReminderDto> dtos = details.stream().map(pd -> {
+            String timingNames = null;
+            if (pd.getPrescriptionTimings() != null && !pd.getPrescriptionTimings().isEmpty()) {
+                timingNames = pd.getPrescriptionTimings().stream()
+                        .map(pt -> pt.getTiming().getTimingName())
+                        .collect(Collectors.joining(", "));
+            }
+            String pId = pd.getPrescription() != null && pd.getPrescription().getClinicalExamination() != null && pd.getPrescription().getClinicalExamination().getPatient() != null
+                    ? pd.getPrescription().getClinicalExamination().getPatient().getUserId() : patientId;
+            String examId = pd.getPrescription() != null && pd.getPrescription().getClinicalExamination() != null
+                    ? pd.getPrescription().getClinicalExamination().getClinicalExamId() : finalTargetExam.getClinicalExamId();
+            com.quan.diabetes.entity.TreatmentPlan tp = pd.getPrescription() != null && pd.getPrescription().getClinicalExamination() != null
+                    ? pd.getPrescription().getClinicalExamination().getTreatmentPlan() : finalTargetExam.getTreatmentPlan();
+            return new PrescriptionReminderDto(
+                    pId,
+                    examId,
+                    pd.getMedication().getMedicationName(),
+                    pd.getDosage(),
+                    pd.getStartDate(),
+                    pd.getEndDate(),
+                    pd.getMedication().getForm(),
+                    pd.getMedication().getAdministrationRoute(),
+                    pd.getMedication().getUsageInstruction(),
+                    timingNames,
+                    pd.getMedicationPlan(),
+                    tp
+            );
+        }).collect(Collectors.toList());
+
         java.util.List<PrescriptionReminderDto> distinctDtos = dtos.stream().distinct().collect(Collectors.toList());
         if (distinctDtos.isEmpty()) {
-            return "DANH SÁCH THUỐC TRONG ĐƠN THUỐC CỦA BỆNH NHÂN:\n(Bệnh nhân hiện chưa được kê đơn thuốc nào trong hồ sơ)";
+            return "DANH SÁCH THUỐC TRONG ĐƠN THUỐC CỦA BỆNH NHÂN:\n(Phiên khám gần nhất hiện chưa có thuốc nào được kê)";
         }
+
+        String examDateStr = targetExam.getExamDate() != null ? formatFriendlyValue("examDate", targetExam.getExamDate().toString()) : "Gần nhất";
         StringBuilder sb = new StringBuilder();
-        sb.append("DANH SÁCH THUỐC TRONG ĐƠN THUỐC CỦA BỆNH NHÂN (HỒ SƠ Y TẾ CHÍNH THỨC):\n");
+        sb.append("DANH SÁCH THUỐC TRONG ĐƠN THUỐC CỦA BỆNH NHÂN (TỪ PHIÊN KHÁM GẦN NHẤT - ").append(examDateStr).append("):\n");
         int idx = 1;
         for (PrescriptionReminderDto dto : distinctDtos) {
             String medName = dto.getMedicationName() != null ? dto.getMedicationName() : "Chưa cập nhật";
