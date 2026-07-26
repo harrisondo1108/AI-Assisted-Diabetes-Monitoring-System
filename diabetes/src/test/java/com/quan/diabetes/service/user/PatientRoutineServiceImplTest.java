@@ -1,4 +1,4 @@
-package com.quan.diabetes.service.user.impl;
+package com.quan.diabetes.service.user;
 
 import com.quan.diabetes.entity.Patient;
 import com.quan.diabetes.entity.PatientRoutine;

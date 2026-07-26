@@ -1,4 +1,4 @@
-package com.quan.diabetes.service.user.impl;
+package com.quan.diabetes.service.user;
 
 import com.quan.diabetes.dto.user.UserManagementDTO;
 import com.quan.diabetes.entity.Patient;
@@ -13,8 +13,6 @@ import com.quan.diabetes.repository.RoleRepository;
 import com.quan.diabetes.repository.RoomRepository;
 import com.quan.diabetes.repository.UserRepository;
 import com.quan.diabetes.service.systemlog.SystemLogService;
-import com.quan.diabetes.service.user.PatientService;
-import com.quan.diabetes.service.user.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

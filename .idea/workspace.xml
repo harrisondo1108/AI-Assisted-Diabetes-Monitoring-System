@@ -5,9 +5,26 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cd82aed5-747b-44b9-892e-efbe52d1dbd5" name="Changes" comment="thêm chức năng doctor rating">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/util/ReminderTimeCalculatorTest.java" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/reminder/AppointmentScheduleTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/reminder/MedicationRescheduleServiceTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/reminder/MedicationSchedualeServiceTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/reminder/ReminderScheduledTaskTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/reminder/TemplateMedicationCreationServiceTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/util/ParseUtilTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/util/SearchUtilTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/diabetes/src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/entity/PromptTemplate.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/repository/PromptTemplateRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/user/impl/AdminUserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/user/AdminUserServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/user/impl/PatientRoutineServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/user/PatientRoutineServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/user/impl/PatientServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/user/PatientServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/user/impl/ProfileServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/user/ProfileServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/user/impl/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/user/UserServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/user/impl/AdminUserServiceImplTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/user/AdminUserServiceImplTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/user/impl/PatientRoutineServiceImplTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/user/PatientRoutineServiceImplTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/user/impl/PatientServiceImplTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/user/PatientServiceImplTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/user/impl/ProfileServiceImplTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/user/ProfileServiceImplTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/user/impl/UserServiceImplTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/user/UserServiceImplTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -91,12 +108,12 @@
     &quot;assignee&quot;: &quot;luhan05&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/harrisondo1108/AI-Assisted-Diabetes-Monitoring-System.git&quot;,
-    &quot;accountId&quot;: &quot;11efc543-4507-4df6-bce4-65b8e51c1555&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/harrisondo1108/AI-Assisted-Diabetes-Monitoring-System.git",
+    "accountId": "394f0a49-b100-46bb-8326-74b0de1085c9"
   }
-}</component>
+}]]></component>
   <component name="JavaAutoRunManager">
     <enabled-run-configurations>
       <run-configuration type="JUnit" name="AdminUserServiceTest" />
@@ -196,45 +213,46 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;JUnit.AdminUserServiceTest$GetAllUserManagementDTOsTests.ut_usr_019_getAllUserManagementDTOs_FilterByRole.executor&quot;: &quot;Coverage&quot;,
-    &quot;JUnit.AdminUserServiceTest.executor&quot;: &quot;Coverage&quot;,
-    &quot;JUnit.ProfileServiceImplTest.executor&quot;: &quot;Coverage&quot;,
-    &quot;JUnit.UpdateProfileTest (1).executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.UpdateProfileTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.UserServiceImplTest.executor&quot;: &quot;Coverage&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
-    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
-    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
-    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;SONARLINT_PRECOMMIT_ANALYSIS&quot;: &quot;true&quot;,
-    &quot;Spring Boot.DiabetesApplication.executor&quot;: &quot;Run&quot;,
-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;copilot.chat.legacySessionMetadata.migrated&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/Document/4_SEMESTER/AI-Assisted-Diabetes-Monitoring-System&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;SDKs&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "JUnit.AdminUserServiceTest$GetAllUserManagementDTOsTests.ut_usr_019_getAllUserManagementDTOs_FilterByRole.executor": "Coverage",
+    "JUnit.AdminUserServiceTest.executor": "Coverage",
+    "JUnit.ProfileServiceImplTest.executor": "Coverage",
+    "JUnit.UpdateProfileTest (1).executor": "Run",
+    "JUnit.UpdateProfileTest.executor": "Run",
+    "JUnit.UserServiceImplTest.executor": "Coverage",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "SONARLINT_PRECOMMIT_ANALYSIS": "true",
+    "Spring Boot.DiabetesApplication.executor": "Run",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "copilot.chat.legacySessionMetadata.migrated": "true",
+    "git-widget-placeholder": "Merging main",
+    "git.auto.fetch.suggestion.counter": "1",
+    "ignore.virus.scanning.warn.message": "true",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/Document/4_SEMESTER/AI-Assisted-Diabetes-Monitoring-System",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "SDKs",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="com.quan.diabetes" />
@@ -400,7 +418,19 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="origin/Admin_mornitoring_TA" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
       </map>
