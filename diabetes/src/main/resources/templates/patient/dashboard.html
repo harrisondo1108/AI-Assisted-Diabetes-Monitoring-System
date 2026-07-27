@@ -147,7 +147,7 @@
 
                         <p>
                             <strong>Hẹn khám tiếp theo:</strong>
-                            <span th:text="${latestExam.nextAppointment != null ? #temporals.format(latestExam.nextAppointment, 'dd/MM/yyyy HH:mm') : 'Chưa có lịch hẹn'}">
+                            <span th:text="${latestExam.nextAppointment != null ? #temporals.format(latestExam.nextAppointment, 'dd/MM/yyyy') : 'Chưa có lịch hẹn'}">
                                 Chưa có lịch hẹn
                             </span>
                         </p>
@@ -157,10 +157,10 @@
                             <h5 style="margin-bottom: 8px; font-weight: 600; color: var(--green-700);">
                                 <i class="fas fa-file-medical-alt"></i> Phác đồ điều trị của bác sĩ
                             </h5>
-                            <p style="margin-bottom: 4px;"><strong>Mục tiêu:</strong> <span th:text="${latestTreatmentPlan.treatmentGoal}">N/A</span></p>
-                            <p style="margin-bottom: 4px;"><strong>Chế độ ăn:</strong> <span th:text="${latestTreatmentPlan.dietPlan}">N/A</span></p>
-                            <p style="margin-bottom: 4px;"><strong>Tập luyện:</strong> <span th:text="${latestTreatmentPlan.exercisePlan}">N/A</span></p>
-                            <p style="margin-bottom: 0;"><strong>Theo dõi đường huyết:</strong> <span th:text="${latestTreatmentPlan.glucoseMonitoringPlan}">N/A</span></p>
+                            <p style="margin-bottom: 4px;"><strong>Mục tiêu:</strong> <span th:text="${latestTreatmentPlan.treatmentGoal != null && !#strings.isEmpty(latestTreatmentPlan.treatmentGoal) ? latestTreatmentPlan.treatmentGoal : 'Chưa cập nhật'}">Chưa cập nhật</span></p>
+                            <p style="margin-bottom: 4px;"><strong>Chế độ ăn:</strong> <span th:text="${latestTreatmentPlan.dietPlan != null && !#strings.isEmpty(latestTreatmentPlan.dietPlan) ? latestTreatmentPlan.dietPlan : 'Chưa cập nhật'}">Chưa cập nhật</span></p>
+                            <p style="margin-bottom: 4px;"><strong>Tập luyện:</strong> <span th:text="${latestTreatmentPlan.exercisePlan != null && !#strings.isEmpty(latestTreatmentPlan.exercisePlan) ? latestTreatmentPlan.exercisePlan : 'Chưa cập nhật'}">Chưa cập nhật</span></p>
+                            <p style="margin-bottom: 0;"><strong>Theo dõi đường huyết:</strong> <span th:text="${latestTreatmentPlan.glucoseMonitoringPlan != null && !#strings.isEmpty(latestTreatmentPlan.glucoseMonitoringPlan) ? latestTreatmentPlan.glucoseMonitoringPlan : 'Chưa cập nhật'}">Chưa cập nhật</span></p>
                         </div>
                     </div>
 
@@ -260,14 +260,14 @@
                             <tr th:each="result : ${recentLabResults}">
                                 <td th:text="${result.labTest != null ? result.labTest.testName : 'Không rõ'}">HbA1c</td>
                                 <td>
-                                    <span th:text="${result.resultValue != null ? result.resultValue.stripTrailingZeros().toPlainString() : 'N/A'}">7.2</span>
+                                    <span th:text="${result.resultValue != null ? result.resultValue.stripTrailingZeros().toPlainString() : 'Chưa có'}">7.2</span>
                                     <span th:text="${result.labTest != null && result.labTest.unit != null ? result.labTest.unit : ''}">%</span>
                                 </td>
-                                <td th:text="${result.referenceRange != null ? result.referenceRange : 'N/A'}">4.0 - 5.6</td>
+                                <td th:text="${result.referenceRange != null ? result.referenceRange : 'Chưa có'}">4.0 - 5.6</td>
                                 <td>
                                     <span class="badge"
                                           th:classappend="${result.flag != null && (#strings.contains(#strings.toLowerCase(result.flag), 'high') || #strings.contains(#strings.toLowerCase(result.flag), 'low') || #strings.contains(#strings.toLowerCase(result.flag), 'abnormal') || #strings.contains(#strings.toLowerCase(result.flag), 'cao') || #strings.contains(#strings.toLowerCase(result.flag), 'thấp'))} ? ' badge-danger' : ' badge-success'"
-                                          th:text="${result.flag != null ? result.flag : 'Bình thường'}">
+                                          th:text="${result.flag == null ? 'Bình thường' : ('high'.equalsIgnoreCase(result.flag) || 'cao'.equalsIgnoreCase(result.flag) ? 'Cao' : ('low'.equalsIgnoreCase(result.flag) || 'thấp'.equalsIgnoreCase(result.flag) ? 'Thấp' : ('normal'.equalsIgnoreCase(result.flag) || 'bình thường'.equalsIgnoreCase(result.flag) ? 'Bình thường' : ('abnormal'.equalsIgnoreCase(result.flag) ? 'Bất thường' : result.flag))))}">
                                         Bình thường
                                     </span>
                                 </td>
@@ -296,7 +296,7 @@
 
                             <span class="badge"
                                   th:classappend="${order.status != null && #strings.contains(#strings.toLowerCase(order.status), 'complete')} ? ' badge-success' : (${order.status != null && #strings.contains(#strings.toLowerCase(order.status), 'cancel')} ? ' badge-danger' : ' badge-warning')"
-                                  th:text="${order.status != null ? order.status : 'Chờ xử lý'}">
+                                  th:text="${order.status == null ? 'Chờ xử lý' : ('completed'.equalsIgnoreCase(order.status) ? 'Hoàn thành' : ('cancelled'.equalsIgnoreCase(order.status) ? 'Đã hủy' : ('pending'.equalsIgnoreCase(order.status) ? 'Đang chờ' : ('requested'.equalsIgnoreCase(order.status) ? 'Chờ duyệt' : order.status))))}">
                                 Chờ xử lý
                             </span>
                         </div>

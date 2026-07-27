@@ -133,8 +133,8 @@
                                 <div class="hub-item-content">
                                     <h4 th:text="${fu.patient.fullName}">Patient Name</h4>
                                     <p>
-                                        <i class="fas fa-clock" style="color: #0ea5e9;"></i>
-                                        <span th:text="${#temporals.format(fu.nextAppointment, 'HH:mm - dd/MM/yyyy')}"></span>
+                                        <i class="far fa-calendar-alt" style="color: #0ea5e9;"></i>
+                                        <span th:text="${#temporals.format(fu.nextAppointment, 'dd/MM/yyyy')}"></span>
                                     </p>
                                     <p style="margin-top:4px; font-style:italic; color:#94a3b8; font-size:0.82rem;"
                                        th:text="${fu.diagnosisNote != null ? fu.diagnosisNote : 'Chưa có chẩn đoán'}"></p>

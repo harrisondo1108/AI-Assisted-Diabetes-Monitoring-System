@@ -37,8 +37,7 @@ public class DoctorHeaderAdvice {
             return Collections.emptyList();
         }
 
-        String doctorId = loggedInUser.getUserId();
-        List<ClinicalExamination> allExams = clinicalExaminationService.findByDoctorId(doctorId);
+        List<ClinicalExamination> allExams = clinicalExaminationService.findAll();
         
         return allExams.stream()
                 .filter(e -> "Requested".equalsIgnoreCase(e.getStatus()))

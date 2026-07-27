@@ -349,7 +349,8 @@ VALUES
     ('Adult', 18, 39),
     ('Middle-aged', 40, 64),
     ('Elderly', 65, 120),
-    ('Pregnant', NULL, NULL);
+    ('Pregnant', NULL, NULL),
+    ('Children', 0, 17);
 
 INSERT INTO [Room] ([RoomName])
 VALUES

@@ -16,6 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
 
 @Controller
 @RequestMapping("/doctor")
@@ -43,7 +45,7 @@ public class DoctorProfileController {
         this.cloudinaryService = cloudinaryService;
     }
 
-    @GetMapping("/profile")
+    @GetMapping({"/profile", "/profile/"})
     public String profilePage(HttpSession session, Model model) {
         User loggedInUser = (User) session.getAttribute("loggedInUser");
         if (loggedInUser == null || !"DOC".equalsIgnoreCase(loggedInUser.getRole().getRoleId())) {
@@ -118,9 +120,11 @@ public class DoctorProfileController {
                 profile.setDob(null);
             }
 
-            Room room = roomRepository.findById(form.getRoomId()).orElse(null);
-            if (room != null) {
+            if (form.getRoomId() != null) {
+                Room room = roomRepository.findById(form.getRoomId()).orElse(null);
                 profile.setRoom(room);
+            } else {
+                profile.setRoom(null);
             }
 
             profileRepository.save(profile);
@@ -135,68 +139,78 @@ public class DoctorProfileController {
     }
 
     @PostMapping("/profile/change-password")
-    public String changePassword(
+    @ResponseBody
+    public org.springframework.http.ResponseEntity<Map<String, Object>> changePassword(
             @RequestParam("currentPassword") String currentPassword,
             @RequestParam("newPassword") String newPassword,
             @RequestParam("confirmPassword") String confirmPassword,
-            HttpSession session,
-            RedirectAttributes redirectAttributes) {
+            HttpSession session) {
+
+        Map<String, Object> response = new java.util.HashMap<>();
+
         User loggedInUser = (User) session.getAttribute("loggedInUser");
         if (loggedInUser == null || !"DOC".equalsIgnoreCase(loggedInUser.getRole().getRoleId())) {
-            return "redirect:/login";
+            response.put("success", false);
+            response.put("message", "Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.");
+            return org.springframework.http.ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED).body(response);
         }
 
         String doctorId = loggedInUser.getUserId();
-
-        // Removed active examination lock based on user request
 
         // 1. Kiểm tra không được để trống
         if (currentPassword == null || currentPassword.trim().isEmpty() ||
             newPassword == null || newPassword.trim().isEmpty() ||
             confirmPassword == null || confirmPassword.trim().isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMsg", "Tất cả các trường mật khẩu bắt buộc phải điền và không được để trống.");
-            return "redirect:/doctor/profile";
+            response.put("success", false);
+            response.put("message", "Tất cả các trường mật khẩu bắt buộc phải điền và không được để trống.");
+            return org.springframework.http.ResponseEntity.badRequest().body(response);
         }
 
         // Fetch latest User details
         User user = userRepository.findById(doctorId).orElse(null);
         if (user == null) {
-            redirectAttributes.addFlashAttribute("errorMsg", "Không tìm thấy tài khoản người dùng.");
-            return "redirect:/doctor/profile";
+            response.put("success", false);
+            response.put("message", "Không tìm thấy tài khoản người dùng.");
+            return org.springframework.http.ResponseEntity.badRequest().body(response);
         }
 
         // 2. Xác minh mật khẩu hiện tại bằng BCrypt matches
         if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
-            redirectAttributes.addFlashAttribute("errorMsg", "Mật khẩu hiện tại không chính xác.");
-            return "redirect:/doctor/profile";
+            response.put("success", false);
+            response.put("message", "Mật khẩu hiện tại không chính xác.");
+            return org.springframework.http.ResponseEntity.badRequest().body(response);
         }
 
-        // 3. Kiểm tra mật khẩu mới và xác nhận mật khẩu mới phải giống nhau
+        // 3. Kiểm tra mật khẩu mới và xác nhận mật khẩu mới trùng khớp
         if (!newPassword.equals(confirmPassword)) {
-            redirectAttributes.addFlashAttribute("errorMsg", "Mật khẩu mới và mật khẩu xác nhận không trùng khớp.");
-            return "redirect:/doctor/profile";
+            response.put("success", false);
+            response.put("message", "Mật khẩu mới và mật khẩu xác nhận không trùng khớp.");
+            return org.springframework.http.ResponseEntity.badRequest().body(response);
         }
 
         // 4. Kiểm tra độ mạnh mật khẩu mới: sử dụng ParseUtil.isValidPassword
         if (!com.quan.diabetes.util.ParseUtil.isValidPassword(newPassword)) {
-            redirectAttributes.addFlashAttribute("errorMsg", "Mật khẩu mới phải có độ dài tối thiểu 8 ký tự, chứa ít nhất 1 chữ hoa, 1 chữ thường, 1 chữ số và 1 ký tự đặc biệt (!@#$).");
-            return "redirect:/doctor/profile";
+            response.put("success", false);
+            response.put("message", "Mật khẩu mới phải có độ dài tối thiểu 8 ký tự, chứa ít nhất 1 chữ hoa, 1 chữ thường, 1 chữ số và 1 ký tự đặc biệt (!@#$).");
+            return org.springframework.http.ResponseEntity.badRequest().body(response);
         }
 
         // 5. Không cho phép mật khẩu mới trùng với mật khẩu hiện tại
         if (passwordEncoder.matches(newPassword, user.getPasswordHash())) {
-            redirectAttributes.addFlashAttribute("errorMsg", "Mật khẩu mới không được trùng với mật khẩu hiện tại.");
-            return "redirect:/doctor/profile";
+            response.put("success", false);
+            response.put("message", "Mật khẩu mới không được trùng với mật khẩu hiện tại.");
+            return org.springframework.http.ResponseEntity.badRequest().body(response);
         }
 
         // 6. Mã hóa mật khẩu mới bằng BCrypt và cập nhật vào CSDL
         user.setPasswordHash(passwordEncoder.encode(newPassword));
         userRepository.save(user);
 
-        // Đồng bộ lại loggedInUser
+        // Đồng bộ lại loggedInUser trong session để giữ nguyên session đăng nhập
         session.setAttribute("loggedInUser", user);
 
-        redirectAttributes.addFlashAttribute("successMsg", "Đổi mật khẩu thành công.");
-        return "redirect:/doctor/profile";
+        response.put("success", true);
+        response.put("message", "Đổi mật khẩu thành công!");
+        return org.springframework.http.ResponseEntity.ok(response);
     }
 }

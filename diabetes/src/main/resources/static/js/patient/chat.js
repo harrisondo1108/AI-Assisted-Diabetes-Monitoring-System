@@ -464,7 +464,7 @@ async function sendMessage(question) {
                 state.isLoading = false;
                 DOM.sendBtn.disabled = false;
                 DOM.loadingIndicator.style.display = 'none';
-                updateStatus('Online');
+                updateStatus('Trực tuyến');
                 DOM.messageInput.focus();
             },
             (error) => {
@@ -480,7 +480,7 @@ async function sendMessage(question) {
                 state.isLoading = false;
                 DOM.sendBtn.disabled = false;
                 DOM.loadingIndicator.style.display = 'none';
-                updateStatus('Online');
+                updateStatus('Trực tuyến');
                 DOM.messageInput.focus();
             }
         );
@@ -492,7 +492,7 @@ async function sendMessage(question) {
         state.isLoading = false;
         DOM.sendBtn.disabled = false;
         DOM.loadingIndicator.style.display = 'none';
-        updateStatus('Online');
+        updateStatus('Trực tuyến');
         DOM.messageInput.focus();
     }
 }

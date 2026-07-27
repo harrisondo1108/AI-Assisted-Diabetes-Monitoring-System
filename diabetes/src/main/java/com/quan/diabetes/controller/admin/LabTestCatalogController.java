@@ -39,10 +39,11 @@ public class LabTestCatalogController {
     }
 
     /* ── Danh sách ── */
-    @GetMapping
+    @GetMapping({"", "/"})
     public String showLabTests(@RequestParam(value = "keyword", defaultValue = "") String keyword,
                                @RequestParam(value = "status",  defaultValue = "all") String status,
                                @RequestParam(value = "error",   required = false) String error,
+                               @RequestParam(value = "success", required = false) String success,
                                Model model) {
         Boolean statusFilter = null;
         if ("active".equals(status)) {
@@ -67,12 +68,20 @@ public class LabTestCatalogController {
         model.addAttribute("statActive", statActive);
         model.addAttribute("statInactive", statInactive);
 
-        if ("duplicate".equals(error))
-            model.addAttribute("errorMessage", "Tên xét nghiệm đã tồn tại.");
-        else if ("empty".equals(error))
-            model.addAttribute("errorMessage", "Vui lòng nhập đầy đủ dữ liệu.");
-        else if ("room".equals(error))
-            model.addAttribute("errorMessage", "Vui lòng chọn phòng xét nghiệm.");
+        if (error != null && !error.isEmpty()) {
+            if ("duplicate".equals(error))
+                model.addAttribute("errorMessage", "Tên xét nghiệm đã tồn tại.");
+            else if ("empty".equals(error))
+                model.addAttribute("errorMessage", "Vui lòng nhập đầy đủ dữ liệu.");
+            else if ("room".equals(error))
+                model.addAttribute("errorMessage", "Vui lòng chọn phòng xét nghiệm.");
+            else
+                model.addAttribute("errorMessage", error);
+        }
+
+        if (success != null && !success.isEmpty()) {
+            model.addAttribute("successMessage", success);
+        }
 
         return "Admin/LabTest";
     }
@@ -324,7 +333,15 @@ public class LabTestCatalogController {
         PatientType patientType = patientTypeRepository.findAll().stream()
                 .filter(t -> t.getTypeName().equalsIgnoreCase(typeName))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Patient type not found: " + typeName));
+                .orElseGet(() -> {
+                    PatientType newPt = new PatientType();
+                    newPt.setTypeName(typeName);
+                    if ("Children".equalsIgnoreCase(typeName) || "Child".equalsIgnoreCase(typeName)) {
+                        newPt.setMinAge(0);
+                        newPt.setMaxAge(17);
+                    }
+                    return patientTypeRepository.save(newPt);
+                });
 
         Optional<IndicatorThreshold> existingOpt = indicatorThresholdRepository
                 .findByLabTest_LabTestIdAndPatientType_PatientTypeId(test.getLabTestId(), patientType.getPatientTypeId());

@@ -132,12 +132,23 @@
     align-items: center;
 }
 
-.input-with-icon i {
+.input-with-icon > i:first-child {
     position: absolute;
     left: 14px;
     color: var(--doctor-text-muted);
     font-size: 0.9rem;
     pointer-events: none;
+}
+
+.input-with-icon i.toggle-password {
+    position: absolute;
+    right: 14px;
+    left: auto;
+    color: var(--doctor-text-muted);
+    font-size: 0.95rem;
+    cursor: pointer;
+    pointer-events: auto;
+    z-index: 5;
 }
 
 .input-with-icon input,

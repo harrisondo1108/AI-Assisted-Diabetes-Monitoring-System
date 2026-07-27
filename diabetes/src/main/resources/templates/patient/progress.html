@@ -50,32 +50,7 @@
                 </div>
             </div>
 
-            <div class="dashboard-stats progress-stats">
 
-                <div class="stat-card">
-                    <div class="stat-info">
-                        <h4><i class="fas fa-flask"></i> Yêu cầu xét nghiệm</h4>
-                        <div class="stat-number" th:text="${labOrders != null ? labOrders.size() : 0}">0</div>
-                    </div>
-                    <span class="badge badge-warning">Xét nghiệm</span>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-info">
-                        <h4><i class="fas fa-check-circle"></i> Yêu cầu đã hoàn thành</h4>
-                        <div class="stat-number" th:text="${completedOrderCount}">0</div>
-                    </div>
-                    <span class="badge badge-success">Đã xong</span>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-info">
-                        <h4><i class="fas fa-triangle-exclamation"></i> Kết quả bất thường</h4>
-                        <div class="stat-number" th:text="${abnormalResultCount}">0</div>
-                    </div>
-                    <span class="badge badge-danger">Cảnh báo</span>
-                </div>
-            </div>
 
 
             <div class="progress-timeline" th:if="${examinations != null && !examinations.isEmpty()}">
@@ -114,7 +89,7 @@
 
                             <div class="progress-info-box">
                                 <label>Lịch hẹn tiếp theo</label>
-                                <p th:text="${exam.nextAppointment != null ? #temporals.format(exam.nextAppointment, 'dd/MM/yyyy HH:mm') : 'Chưa có lịch hẹn'}">
+                                <p th:text="${exam.nextAppointment != null ? #temporals.format(exam.nextAppointment, 'dd/MM/yyyy') : 'Chưa có lịch hẹn'}">
                                     Chưa có lịch hẹn
                                 </p>
                             </div>
@@ -177,7 +152,7 @@
                                         </div>
                                         <span class="badge"
                                               th:classappend="${order.status != null && #strings.contains(#strings.toLowerCase(order.status), 'complete')} ? ' badge-success' : (${order.status != null && #strings.contains(#strings.toLowerCase(order.status), 'cancel')} ? ' badge-danger' : ' badge-warning')"
-                                              th:text="${order.status != null ? order.status : 'Chờ xử lý'}">Chờ xử lý</span>
+                                              th:text="${order.status == null ? 'Chờ xử lý' : ('completed'.equalsIgnoreCase(order.status) ? 'Hoàn thành' : ('cancelled'.equalsIgnoreCase(order.status) ? 'Đã hủy' : ('pending'.equalsIgnoreCase(order.status) ? 'Đang chờ' : ('requested'.equalsIgnoreCase(order.status) ? 'Chờ duyệt' : order.status))))}">Chờ xử lý</span>
                                     </div>
 
                                     <div class="table-wrapper compact-table" th:if="${orderResults != null && !orderResults.isEmpty()}">
@@ -201,10 +176,10 @@
                                                 <td>
                                                     <span class="badge"
                                                           th:classappend="${result.flag != null && (#strings.contains(#strings.toLowerCase(result.flag), 'high') || #strings.contains(#strings.toLowerCase(result.flag), 'low') || #strings.contains(#strings.toLowerCase(result.flag), 'abnormal') || #strings.contains(#strings.toLowerCase(result.flag), 'cao') || #strings.contains(#strings.toLowerCase(result.flag), 'thấp'))} ? ' badge-danger' : ' badge-success'"
-                                                          th:text="${result.flag != null ? result.flag : 'Bình thường'}">Bình thường</span>
+                                                          th:text="${result.flag == null ? 'Bình thường' : ('high'.equalsIgnoreCase(result.flag) || 'cao'.equalsIgnoreCase(result.flag) ? 'Cao' : ('low'.equalsIgnoreCase(result.flag) || 'thấp'.equalsIgnoreCase(result.flag) ? 'Thấp' : ('normal'.equalsIgnoreCase(result.flag) || 'bình thường'.equalsIgnoreCase(result.flag) ? 'Bình thường' : ('abnormal'.equalsIgnoreCase(result.flag) ? 'Bất thường' : result.flag))))}">Bình thường</span>
                                                 </td>
                                                 <td>
-                                                    <span class="badge badge-info" th:text="${result.status != null ? result.status : 'N/A'}">Hoàn thành</span>
+                                                    <span class="badge badge-info" th:text="${result.status == null ? 'Chưa có' : ('completed'.equalsIgnoreCase(result.status) ? 'Hoàn thành' : ('pending'.equalsIgnoreCase(result.status) ? 'Đang chờ' : result.status))}">Hoàn thành</span>
                                                 </td>
                                             </tr>
                                             </tbody>
@@ -250,11 +225,11 @@
                                         <td th:text="${detail.medication != null ? detail.medication.administrationRoute : ''}">Uống</td>
                                         <td>
                                             <span th:each="t, iter : ${detail.prescriptionTimings}" th:text="${t.timing.timingName + (iter.last ? '' : ', ')}"></span>
-                                            <span th:if="${detail.prescriptionTimings == null || detail.prescriptionTimings.isEmpty()}">N/A</span>
+                                            <span th:if="${detail.prescriptionTimings == null || detail.prescriptionTimings.isEmpty()}">Chưa có</span>
                                         </td>
-                                        <td th:text="${detail.startDate != null ? #temporals.format(detail.startDate, 'dd/MM/yyyy') : 'N/A'}">08/06/2026</td>
-                                        <td th:text="${detail.endDate != null ? #temporals.format(detail.endDate, 'dd/MM/yyyy') : 'N/A'}">22/06/2026</td>
-                                        <td th:text="${detail.medicationPlan != null && !#strings.isEmpty(detail.medicationPlan) ? detail.medicationPlan : 'N/A'}">Kế hoạch dùng thuốc</td>
+                                        <td th:text="${detail.startDate != null ? #temporals.format(detail.startDate, 'dd/MM/yyyy') : 'Chưa có'}">08/06/2026</td>
+                                        <td th:text="${detail.endDate != null ? #temporals.format(detail.endDate, 'dd/MM/yyyy') : 'Chưa có'}">22/06/2026</td>
+                                        <td th:text="${detail.medicationPlan != null && !#strings.isEmpty(detail.medicationPlan) ? detail.medicationPlan : 'Chưa có'}">Kế hoạch dùng thuốc</td>
                                     </tr>
                                     </tbody>
                                 </table>

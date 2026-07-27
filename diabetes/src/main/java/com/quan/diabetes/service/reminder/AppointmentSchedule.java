@@ -31,12 +31,16 @@ public class AppointmentSchedule {
             return;
         }
 
-        // Lock any existing appointment reminders for this examination
+        // Lock any FUTURE appointment reminders for this patient (scheduledTime >= now)
+        LocalDateTime now = LocalDateTime.now();
         List<Reminder> existingReminders = reminderRepo
                 .findByPatient_UserIdAndTitle(clinicalExamination.getPatient().getUserId(), APPOINTMENT_REMINDER_TITLE);
         if (existingReminders != null && !existingReminders.isEmpty()) {
             for (Reminder r : existingReminders) {
-                r.setLockStatus(true);
+                // Chỉ lock các reminder có thời gian gửi LỚN HƠN thời điểm tạo reminder mới
+                if (r.getScheduledTime() != null && !r.getScheduledTime().isBefore(now)) {
+                    r.setLockStatus(true);
+                }
             }
             reminderRepo.saveAll(existingReminders);
         }

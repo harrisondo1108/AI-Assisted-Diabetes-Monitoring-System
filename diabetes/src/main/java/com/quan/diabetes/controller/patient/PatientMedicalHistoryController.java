@@ -127,7 +127,7 @@ public class PatientMedicalHistoryController extends BasePatientController {
         Patient patient = addCommonData(model, session, "history");
 
         List<ClinicalExamination> allExams = findExaminationsByPatient(patient).stream()
-                .filter(exam -> exam.getStatus() != null && "completed".equalsIgnoreCase(exam.getStatus()))
+                .filter(exam -> exam.getStatus() != null && ("completed".equalsIgnoreCase(exam.getStatus()) || "cancelled".equalsIgnoreCase(exam.getStatus())))
                 .collect(Collectors.toList());
         if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
             model.addAttribute("errorMessage", "Ngày bắt đầu (Từ ngày) không thể lớn hơn Ngày kết thúc (Đến ngày).");
@@ -192,7 +192,7 @@ public class PatientMedicalHistoryController extends BasePatientController {
         if (exam == null || exam.getPatient() == null || !patient.getUserId().equals(exam.getPatient().getUserId())) {
             return "redirect:/patient/history";
         }
-        if (exam.getStatus() == null || !"completed".equalsIgnoreCase(exam.getStatus())) {
+        if (exam.getStatus() == null || (!"completed".equalsIgnoreCase(exam.getStatus()) && !"cancelled".equalsIgnoreCase(exam.getStatus()))) {
             return "redirect:/patient/history";
         }
 

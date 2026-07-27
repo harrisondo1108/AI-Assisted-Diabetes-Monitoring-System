@@ -510,26 +510,41 @@
                 <div class="modal-form-grid">
                     <div class="modal-form-group full">
                         <label>Mật khẩu hiện tại <span>*</span></label>
-                        <input type="password"
-                               name="currentPassword"
-                               required
-                               placeholder="Nhập mật khẩu hiện tại">
+                        <div style="position: relative;">
+                            <input type="password"
+                                   id="patientCurrentPassword"
+                                   name="currentPassword"
+                                   required
+                                   placeholder="Nhập mật khẩu hiện tại"
+                                   style="padding-right: 40px;">
+                            <i class="far fa-eye toggle-password" data-target="patientCurrentPassword" style="position: absolute; right: 14px !important; left: auto !important; top: 50%; transform: translateY(-50%); cursor: pointer; color: #64748b; z-index: 5; pointer-events: auto !important;"></i>
+                        </div>
                     </div>
 
                     <div class="modal-form-group full">
                         <label>Mật khẩu mới <span>*</span></label>
-                        <input type="password"
-                               name="newPassword"
-                               required
-                               placeholder="Nhập mật khẩu mới (ít nhất 6 ký tự)">
+                        <div style="position: relative;">
+                            <input type="password"
+                                   id="patientNewPassword"
+                                   name="newPassword"
+                                   required
+                                   placeholder="Tối thiểu 8 ký tự, có chữ hoa, thường, số và ký tự đặc biệt (!@#$)"
+                                   style="padding-right: 40px;">
+                            <i class="far fa-eye toggle-password" data-target="patientNewPassword" style="position: absolute; right: 14px !important; left: auto !important; top: 50%; transform: translateY(-50%); cursor: pointer; color: #64748b; z-index: 5; pointer-events: auto !important;"></i>
+                        </div>
                     </div>
 
                     <div class="modal-form-group full">
                         <label>Xác nhận mật khẩu mới <span>*</span></label>
-                        <input type="password"
-                               name="confirmPassword"
-                               required
-                               placeholder="Xác nhận mật khẩu mới">
+                        <div style="position: relative;">
+                            <input type="password"
+                                   id="patientConfirmPassword"
+                                   name="confirmPassword"
+                                   required
+                                   placeholder="Xác nhận mật khẩu mới"
+                                   style="padding-right: 40px;">
+                            <i class="far fa-eye toggle-password" data-target="patientConfirmPassword" style="position: absolute; right: 14px !important; left: auto !important; top: 50%; transform: translateY(-50%); cursor: pointer; color: #64748b; z-index: 5; pointer-events: auto !important;"></i>
+                        </div>
                     </div>
                 </div>
             </div>

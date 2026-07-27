@@ -52,7 +52,7 @@ public class DoctorRequestController {
             session.setAttribute("userProfile", profile);
         }
 
-        List<ClinicalExamination> allExams = clinicalExaminationService.findByDoctorId(doctorId);
+        List<ClinicalExamination> allExams = clinicalExaminationService.findAll();
         List<ClinicalExamination> requestedExams = allExams.stream()
                 .filter(e -> "Requested".equalsIgnoreCase(e.getStatus()))
                 .sorted((e1, e2) -> e2.getExamDate().compareTo(e1.getExamDate()))
@@ -79,7 +79,8 @@ public class DoctorRequestController {
                 ClinicalExamination oldExam = createLogExam(exam);
                 
                 exam.setStatus("Pending");
-                exam.setExamDate(LocalDateTime.now()); // Set date to today so it appears in today's queue
+                exam.setDoctor(loggedInUser);
+                exam.setExamDate(LocalDateTime.now()); // Set date to today so it appears in queue
                 clinicalExaminationRepository.save(exam);
                 
                 systemLogService.saveLogWithObject(loggedInUser.getUserId(), "APPROVE_MEDICAL_REQUEST", "MedicalRequest", exam.getClinicalExamId(), "Bác sĩ duyệt yêu cầu khám", oldExam, createLogExam(exam), "SUCCESS");

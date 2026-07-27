@@ -46,8 +46,7 @@ public class DoctorDashboardController {
             session.setAttribute("userProfile", profile);
         }
 
-        List<ClinicalExamination> allExams = clinicalExaminationService.findByDoctorId(doctorId);
-        LocalDate today = LocalDate.now();
+        List<ClinicalExamination> allExams = clinicalExaminationService.findAll();
 
         // 1. Pending Requests (Yêu cầu chờ duyệt)
         List<ClinicalExamination> requestedExams = allExams.stream()
@@ -55,10 +54,10 @@ public class DoctorDashboardController {
                 .sorted((e1, e2) -> e2.getExamDate().compareTo(e1.getExamDate()))
                 .collect(Collectors.toList());
 
-        // 2. Today Queue (Đang chờ khám ngoài cửa)
+        // 2. Queue (Đang chờ khám)
         long todayQueueCount = allExams.stream()
                 .filter(e -> ("Pending".equalsIgnoreCase(e.getStatus()) || "InProgress".equalsIgnoreCase(e.getStatus()))
-                        && e.getExamDate() != null && e.getExamDate().toLocalDate().isEqual(today))
+                        && (e.getDoctor() == null || doctorId.equalsIgnoreCase(e.getDoctor().getUserId())))
                 .count();
 
         // 3. Upcoming Follow-ups in next 7 days (Lịch tái khám sắp đến)

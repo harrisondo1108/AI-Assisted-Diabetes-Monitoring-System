@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
     setupProfileValidation();
     setupRoutineValidation();
     setupChangePasswordValidation();
+    setupPasswordToggle();
 });
 
 function setupChat() {
@@ -494,11 +495,12 @@ function setupChangePasswordValidation() {
             markInvalid(form, 'currentPassword');
         }
 
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$]).{8,}$/;
         if (!newPassword) {
             errors.push('Mật khẩu mới là bắt buộc.');
             markInvalid(form, 'newPassword');
-        } else if (newPassword.length < 6) {
-            errors.push('Mật khẩu mới phải có ít nhất 6 ký tự.');
+        } else if (!passwordRegex.test(newPassword)) {
+            errors.push('Mật khẩu mới phải từ 8 ký tự trở lên, gồm ít nhất 1 chữ hoa, 1 chữ thường, 1 chữ số và 1 ký tự đặc biệt (!@#$).');
             markInvalid(form, 'newPassword');
         }
 
@@ -535,8 +537,18 @@ function setupChangePasswordValidation() {
                 // Success - Close modal and reset form
                 closePatientModal('changePasswordModal');
                 form.reset();
-                // Redirect/reload with success message parameter
-                window.location.href = '/patient/profile?successMessage=' + encodeURIComponent(data.message);
+                // Show success alert message directly without page reload
+                let pageHeader = document.querySelector('.page-header');
+                if (pageHeader) {
+                    let oldAlert = document.querySelector('.patient-pwd-alert');
+                    if (oldAlert) oldAlert.remove();
+                    let alertDiv = document.createElement('div');
+                    alertDiv.className = 'alert alert-success patient-pwd-alert';
+                    alertDiv.style.marginTop = '15px';
+                    alertDiv.textContent = data.message || 'Thay đổi mật khẩu thành công!';
+                    pageHeader.after(alertDiv);
+                    setTimeout(function() { alertDiv.remove(); }, 6000);
+                }
             } else {
                 // Failure - Show error inside modal, keep modal open
                 showValidationMessage('changePasswordValidationMessage', [data.message]);
@@ -556,4 +568,24 @@ function changePageSize(size) {
     urlParams.set('size', size);
     urlParams.set('page', '0'); // Reset to first page
     window.location.search = urlParams.toString();
+}
+
+function setupPasswordToggle() {
+    document.querySelectorAll('.toggle-password').forEach(function (icon) {
+        icon.addEventListener('click', function () {
+            const targetId = this.getAttribute('data-target');
+            const input = document.getElementById(targetId);
+            if (input) {
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    this.classList.remove('fa-eye');
+                    this.classList.add('fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    this.classList.remove('fa-eye-slash');
+                    this.classList.add('fa-eye');
+                }
+            }
+        });
+    });
 }

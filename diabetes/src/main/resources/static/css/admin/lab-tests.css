@@ -513,6 +513,9 @@ body {
 }
 
 .tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     height: 36px;
     padding: 0 16px;
     border: none;
@@ -522,7 +525,12 @@ body {
     font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
+    text-decoration: none;
     transition: all 0.15s ease;
+}
+
+.tab:hover, .tab:focus, .tab:visited {
+    text-decoration: none;
 }
 
 .tab:hover {
@@ -533,6 +541,7 @@ body {
 .tab.active {
     background: var(--green-800);
     color: #fff;
+    box-shadow: 0 2px 6px rgba(10, 61, 50, 0.15);
 }
 
 .table-search-box {

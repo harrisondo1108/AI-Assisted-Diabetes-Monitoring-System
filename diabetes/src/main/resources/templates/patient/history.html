@@ -74,7 +74,7 @@
                         </td>
                         <td th:text="${exam.medicalHistory}">Đái tháo đường Type 2</td>
                         <td th:text="${exam.diagnosisNote}">Tuân thủ phác đồ điều trị</td>
-                        <td th:text="${exam.nextAppointment != null ? #temporals.format(exam.nextAppointment, 'dd/MM/yyyy HH:mm') : ''}">
+                        <td th:text="${exam.nextAppointment != null ? #temporals.format(exam.nextAppointment, 'dd/MM/yyyy') : ''}">
                             15/06/2026
                         </td>
                         <td>
@@ -96,7 +96,7 @@
                                     <i class="fas fa-star" th:each="star : ${#numbers.sequence(1, ratingsMap.get(exam.clinicalExamId).ratingValue)}"></i>
                                     <i class="far fa-star" th:each="star : ${ratingsMap.get(exam.clinicalExamId).ratingValue < 5 ? #numbers.sequence(ratingsMap.get(exam.clinicalExamId).ratingValue + 1, 5) : {}}"></i>
                                 </div>
-                                <a th:unless="${ratingsMap.get(exam.clinicalExamId) != null}"
+                                <a th:if="${ratingsMap.get(exam.clinicalExamId) == null && (exam.status == 'Completed' || 'completed'.equalsIgnoreCase(exam.status))}"
                                    th:href="@{/patient/history/rate(examId=${exam.clinicalExamId})}"
                                    class="rate-btn"
                                    style="padding: 6px 12px; font-size: 0.85rem; font-weight: 600; color: white; background-color: var(--green-600, #10b981); border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s; display: inline-flex; align-items: center; gap: 4px; text-decoration: none;">

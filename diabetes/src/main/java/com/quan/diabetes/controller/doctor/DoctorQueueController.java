@@ -53,14 +53,17 @@ public class DoctorQueueController {
 
         // Removed the check that blocked doctors from seeing the queue if they had an InProgress exam.
 
-        // Lấy tất cả ca khám của bác sĩ
-        List<ClinicalExamination> allExams = clinicalExaminationService.findByDoctorId(doctorId);
+        // Lấy tất cả ca khám
+        List<ClinicalExamination> allExams = clinicalExaminationService.findAll();
         LocalDate today = LocalDate.now();
 
-        // Lọc danh sách ca khám hôm nay
+        // Lọc danh sách ca khám trong hàng đợi (các ca khám Pending, InProgress hoặc các ca khám trong ngày)
         List<ClinicalExamination> todayQueue = allExams.stream()
-                .filter(e -> e.getExamDate() != null && e.getExamDate().toLocalDate().isEqual(today)
-                        && !"Requested".equalsIgnoreCase(e.getStatus()))
+                .filter(e -> e.getStatus() != null && !"Requested".equalsIgnoreCase(e.getStatus()))
+                .filter(e -> (e.getDoctor() == null || doctorId.equalsIgnoreCase(e.getDoctor().getUserId())))
+                .filter(e -> ("Pending".equalsIgnoreCase(e.getStatus()) || "InProgress".equalsIgnoreCase(e.getStatus())
+                              || (e.getExamDate() != null && e.getExamDate().toLocalDate().isEqual(today))))
+                .sorted((e1, e2) -> e2.getExamDate().compareTo(e1.getExamDate()))
                 .collect(Collectors.toList());
 
         // Lọc theo bộ lọc status và search

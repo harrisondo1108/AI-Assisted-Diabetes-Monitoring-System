@@ -284,13 +284,13 @@
                             <tr th:each="result : ${abnormalResults}">
                                 <td th:text="${result.labTest != null ? result.labTest.testName : 'Không rõ'}">HbA1c</td>
                                 <td>
-                                    <span th:text="${result.resultValue != null ? result.resultValue.stripTrailingZeros().toPlainString() : 'N/A'}">8.2</span>
+                                    <span th:text="${result.resultValue != null ? result.resultValue.stripTrailingZeros().toPlainString() : 'Chưa có'}">8.2</span>
                                     <span th:text="${result.labTest != null && result.labTest.unit != null ? result.labTest.unit : ''}">%</span>
                                 </td>
-                                <td th:text="${result.referenceRange != null ? result.referenceRange : 'N/A'}">4.0 - 5.6</td>
+                                <td th:text="${result.referenceRange != null ? result.referenceRange : 'Chưa có'}">4.0 - 5.6</td>
                                 <td>
                                     <span class="badge badge-danger"
-                                          th:text="${result.flag != null ? result.flag : 'Bất thường'}">
+                                          th:text="${result.flag == null ? 'Bất thường' : ('high'.equalsIgnoreCase(result.flag) || 'cao'.equalsIgnoreCase(result.flag) ? 'Cao' : ('low'.equalsIgnoreCase(result.flag) || 'thấp'.equalsIgnoreCase(result.flag) ? 'Thấp' : ('normal'.equalsIgnoreCase(result.flag) || 'bình thường'.equalsIgnoreCase(result.flag) ? 'Bình thường' : ('abnormal'.equalsIgnoreCase(result.flag) ? 'Bất thường' : result.flag))))}">
                                         Cao
                                     </span>
                                 </td>
@@ -323,13 +323,13 @@
                             <tr th:each="result : ${recentLabResults}">
                                 <td th:text="${result.labTest != null ? result.labTest.testName : 'Không rõ'}">HbA1c</td>
                                 <td>
-                                    <span th:text="${result.resultValue != null ? result.resultValue.stripTrailingZeros().toPlainString() : 'N/A'}">7.2</span>
+                                    <span th:text="${result.resultValue != null ? result.resultValue.stripTrailingZeros().toPlainString() : 'Chưa có'}">7.2</span>
                                     <span th:text="${result.labTest != null && result.labTest.unit != null ? result.labTest.unit : ''}">%</span>
                                 </td>
                                 <td>
                                     <span class="badge"
                                           th:classappend="${result.flag != null && (#strings.contains(#strings.toLowerCase(result.flag), 'high') || #strings.contains(#strings.toLowerCase(result.flag), 'low') || #strings.contains(#strings.toLowerCase(result.flag), 'abnormal') || #strings.contains(#strings.toLowerCase(result.flag), 'cao') || #strings.contains(#strings.toLowerCase(result.flag), 'thấp'))} ? ' badge-danger' : ' badge-success'"
-                                          th:text="${result.flag != null ? result.flag : 'Bình thường'}">
+                                          th:text="${result.flag == null ? 'Bình thường' : ('high'.equalsIgnoreCase(result.flag) || 'cao'.equalsIgnoreCase(result.flag) ? 'Cao' : ('low'.equalsIgnoreCase(result.flag) || 'thấp'.equalsIgnoreCase(result.flag) ? 'Thấp' : ('normal'.equalsIgnoreCase(result.flag) || 'bình thường'.equalsIgnoreCase(result.flag) ? 'Bình thường' : ('abnormal'.equalsIgnoreCase(result.flag) ? 'Bất thường' : result.flag))))}">
                                         Bình thường
                                     </span>
                                 </td>
