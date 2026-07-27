@@ -102,7 +102,7 @@
                                     <div class="input-with-icon">
                                         <i class="fas fa-stethoscope"></i>
                                         <input type="text" id="specialty" name="specialty"
-                                            th:value="${doctorProfile.specialty}" required
+                                            th:value="${doctorProfile.specialty}" disabled
                                             placeholder="VD: Bác sĩ Nội tiết">
                                     </div>
                                 </div>
@@ -111,7 +111,7 @@
                                     <label for="roomId">Phòng khám phân công <span class="required">*</span></label>
                                     <div class="input-with-icon">
                                         <i class="fas fa-door-open"></i>
-                                        <select id="roomId" name="roomId" required>
+                                        <select id="roomId" name="roomId" disabled>
                                             <option th:each="r : ${rooms}" th:value="${r.roomId}"
                                                 th:text="${r.roomName}"
                                                 th:selected="${doctorProfile.room != null && doctorProfile.room.roomId == r.roomId}">

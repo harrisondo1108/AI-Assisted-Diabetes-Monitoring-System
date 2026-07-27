@@ -25,8 +25,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.quan.diabetes.service.exam.DoctorRatingService;
 import com.quan.diabetes.dto.doctor.DoctorRatingView;
+import com.quan.diabetes.dto.user.PatientDTO;
+import jakarta.validation.Valid;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -95,6 +100,7 @@ public class AuthenticationController {
 
     @GetMapping("/register")
     public String registerPage(Model model) {
+        model.addAttribute("patient", new PatientDTO());
         return "auth/register";
     }
 
@@ -174,54 +180,42 @@ public class AuthenticationController {
 
     // Bước 1: Xử lý form đăng ký, lưu tạm và gửi OTP
     @PostMapping("/register")
-    public String registerStep1(@RequestParam String roleId,
-                                @RequestParam String fullName,
-                                @RequestParam String phoneNumber,
-                                @RequestParam String password,
-                                @RequestParam(required = false) String email,
-                                @RequestParam(required = false) String dob,
-                                @RequestParam(required = false) String gender,
-                                @RequestParam(required = false) String bloodGroup,
-                                @RequestParam(required = false) String height,
-                                @RequestParam(required = false) String weight,
-                                @RequestParam(required = false) String address,
-                                @RequestParam(required = false) String medicalHistory,
-                                @RequestParam(required = false) String allergyNotes,
-                                @RequestParam(required = false) String specialty,
-                                @RequestParam(required = false) String licenseNumber,
+    public String registerStep1(@Valid PatientDTO patientDto,
+                                BindingResult bindingResult,
                                 Model model,
                                 HttpSession session) {
 
-        // Validate required fields
-        if (ParseUtil.isBlank(roleId) || ParseUtil.isBlank(fullName) || ParseUtil.isBlank(phoneNumber) || ParseUtil.isBlank(password)) {
-            systemLogService.saveLog(null, "REGISTER", "Account", null, "Đăng ký thất bại (Thiếu thông tin bắt buộc)", null, null, "FAILED");
-            model.addAttribute("errorMsg", "Vui lòng nhập đầy đủ các thông tin bắt buộc.");
+        // Validate DTO using BindingResult
+        if (bindingResult.hasErrors()) {
+            String errorMsg = bindingResult.getFieldErrors().stream()
+                    .map(FieldError::getDefaultMessage)
+                    .findFirst()
+                    .orElse("Thông tin nhập vào không hợp lệ.");
+            systemLogService.saveLog(null, "REGISTER", "Account", null, "Đăng ký thất bại (Lỗi validation): " + errorMsg, null, null, "FAILED");
+            model.addAttribute("errorMsg", errorMsg);
+            model.addAttribute("patient", patientDto);
             return "auth/register";
         }
 
-        if (!ParseUtil.isValidPassword(password)) {
-            systemLogService.saveLog(null, "REGISTER", "Account", null, "Đăng ký thất bại (Mật khẩu yếu) cho SĐT: " + phoneNumber, null, null, "FAILED");
-            model.addAttribute("errorMsg", "Mật khẩu phải chứa ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, ít nhất một chữ số và ký tự đặc biệt (!@#$).");
-            return "auth/register";
-        }
-
-        if (!ParseUtil.isBlank(email)) {
-            if (email.trim().length() > 100) {
-                systemLogService.saveLog(null, "REGISTER", "Account", null, "Đăng ký thất bại (Email quá dài) cho SĐT: " + phoneNumber, null, null, "FAILED");
-                model.addAttribute("errorMsg", "Email không được vượt quá 100 ký tự.");
-                return "auth/register";
-            }
-            if (!email.trim().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-                systemLogService.saveLog(null, "REGISTER", "Account", null, "Đăng ký thất bại (Email không hợp lệ) cho SĐT: " + phoneNumber, null, null, "FAILED");
-                model.addAttribute("errorMsg", "Địa chỉ email không hợp lệ.");
-                return "auth/register";
-            }
-        }
+        String roleId = patientDto.getRoleId();
+        String fullName = patientDto.getFullName();
+        String phoneNumber = patientDto.getPhoneNumber();
+        String password = patientDto.getPassword();
+        String email = patientDto.getEmail();
+        String dob = patientDto.getDob();
+        String gender = patientDto.getGender();
+        String bloodGroup = patientDto.getBloodGroup();
+        String height = patientDto.getHeight();
+        String weight = patientDto.getWeight();
+        String address = patientDto.getAddress();
+        String medicalHistory = patientDto.getMedicalHistory();
+        String allergyNotes = patientDto.getAllergyNotes();
 
         // Kiểm tra số điện thoại đã tồn tại chưa (tránh đăng ký trùng)
         if (userService.findByPhoneNumber(phoneNumber).isPresent()) {
             systemLogService.saveLog(null, "REGISTER", "Account", null, "Đăng ký thất bại (Số điện thoại đã tồn tại): " + phoneNumber, null, null, "FAILED");
             model.addAttribute("errorMsg", "Số điện thoại đã tồn tại trên hệ thống.");
+            model.addAttribute("patient", patientDto);
             return "auth/register";
         }
 
@@ -230,6 +224,7 @@ public class AuthenticationController {
         if (role == null) {
             systemLogService.saveLog(null, "REGISTER", "Account", null, "Đăng ký thất bại (Vai trò không hợp lệ) cho SĐT: " + phoneNumber, null, null, "FAILED");
             model.addAttribute("errorMsg", "Vai trò không tồn tại.");
+            model.addAttribute("patient", patientDto);
             return "auth/register";
         }
 
@@ -248,8 +243,6 @@ public class AuthenticationController {
         regData.put("address", address);
         regData.put("medicalHistory", medicalHistory);
         regData.put("allergyNotes", allergyNotes);
-        regData.put("specialty", specialty);
-        regData.put("licenseNumber", licenseNumber);
         session.setAttribute("regData", regData);
 
         // Tạo OTP
@@ -312,11 +305,11 @@ public class AuthenticationController {
 
     // Resend OTP cho đăng ký
     @PostMapping("/register/resend-otp")
-    @ResponseBody
-    public String resendRegisterOtp(HttpSession session) {
+    public String resendRegisterOtp(HttpSession session, RedirectAttributes redirectAttributes) {
         Map<String, Object> regData = (Map<String, Object>) session.getAttribute("regData");
         if (regData == null) {
-            return "Phiên đăng ký đã hết hạn. Vui lòng đăng ký lại.";
+            redirectAttributes.addFlashAttribute("errorMsg", "Phiên đăng ký đã hết hạn. Vui lòng đăng ký lại.");
+            return "redirect:/register";
         }
         String phoneNumber = (String) regData.get("phoneNumber");
         String newOtp = String.valueOf(100000 + new Random().nextInt(900000));
@@ -324,7 +317,17 @@ public class AuthenticationController {
         session.setAttribute("regOtpExpiredAt", LocalDateTime.now().plusMinutes(5));
         session.setAttribute("regOtpVerified", false);
         System.out.println("Resend OTP đăng ký cho số " + phoneNumber + ": " + newOtp);
-        return "OK";
+
+        // Gửi OTP qua SMS thực tế
+        smsService.sendOtp(phoneNumber, newOtp);
+
+        // Gửi OTP qua Email
+        String email = (String) regData.get("email");
+        String recipientEmail = (email != null && !email.trim().isEmpty()) ? email.trim() : "lequan13112005@gmail.com";
+        emailService.sendSimpleEmail(recipientEmail, "Mã OTP Đăng ký", "Mã OTP của bạn là: " + newOtp);
+
+        redirectAttributes.addFlashAttribute("successMsg", "Mã OTP đã được gửi lại thành công.");
+        return "redirect:/register/otp";
     }
 
     // Phương thức tạo user từ dữ liệu tạm (đã được kiểm tra phone chưa tồn tại trước đó,
@@ -344,7 +347,6 @@ public class AuthenticationController {
         String address = (String) regData.get("address");
         String medicalHistory = (String) regData.get("medicalHistory");
         String allergyNotes = (String) regData.get("allergyNotes");
-        String specialty = (String) regData.get("specialty");
 
         // Kiểm tra lại phone number chưa tồn tại (tránh race condition)
         if (userService.findByPhoneNumber(phoneNumber).isPresent()) {
@@ -382,14 +384,25 @@ public class AuthenticationController {
             patientRoutine.setPatient(patient);
             patientRoutineService.create(patientRoutine);
         } else {
-            Profile profile = new Profile();
-            profile.setUser(user);
-            profile.setFullName(fullName);
-            profile.setPhoneNumber(phoneNumber);
-            profile.setSpecialty(specialty);
-            profileService.create(profile);
+            systemLogService.saveLog(null, "REGISTER", "Account", null, "Vai trò không tồn tại", null, null, "FAILED");
+            throw new RuntimeException("Vai trò không tồn tại");
         }
         
-        systemLogService.saveLog(userId, "REGISTER", null, null, "Đăng ký tài khoản mới", null, null, "SUCCESS");
+        // Log registration success
+        Patient logPatient = new Patient();
+        logPatient.setUserId(userId);
+        logPatient.setFullName(fullName);
+        logPatient.setPhoneNumber(phoneNumber);
+        logPatient.setEmail(ParseUtil.parseString(email));
+        logPatient.setDob(ParseUtil.parseDate(dob));
+        logPatient.setGender(ParseUtil.parseGender(gender));
+        logPatient.setBloodgroup(ParseUtil.parseString(bloodGroup));
+        logPatient.setHeight(ParseUtil.parseInteger(height));
+        logPatient.setWeight(ParseUtil.parseBigDecimal(weight));
+        logPatient.setAddress(ParseUtil.parseString(address));
+        logPatient.setPermanentMedicalHistory(ParseUtil.parseString(medicalHistory));
+        logPatient.setAllergyNotes(ParseUtil.parseString(allergyNotes));
+
+        systemLogService.saveLogWithObject(userId, "REGISTER", "Patient", userId, "Đăng ký tài khoản mới", null, logPatient, "SUCCESS");
     }
 }

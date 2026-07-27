@@ -53,10 +53,12 @@ public class SmsService {
             Map<String, Object> payload = new HashMap<>();
             payload.put("to", new String[] { normalizedPhone });
             payload.put("content", messageContent);
-            payload.put("type", smsType); // Đổi từ sms_type thành type cho phù hợp với endpoint mới
+            payload.put("sms_type", smsType);
             
             String cleanSender = smsSender != null ? smsSender.trim() : "";
-            payload.put("sender", cleanSender);
+            if (!cleanSender.isEmpty()) {
+                payload.put("sender", cleanSender);
+            }
 
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload, headers);
 

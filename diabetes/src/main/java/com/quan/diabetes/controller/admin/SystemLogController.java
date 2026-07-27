@@ -45,8 +45,8 @@ public class SystemLogController {
         ACTION_MAP.put("CREATE", "Thêm mới");
         ACTION_MAP.put("UPDATE", "Cập nhật");
         ACTION_MAP.put("DELETE", "Xóa");
-        ACTION_MAP.put("LOCK", "Khóa tài khoản");
-        ACTION_MAP.put("UNLOCK", "Gỡ khóa tài khoản");
+        ACTION_MAP.put("LOCK", "Khóa");
+        ACTION_MAP.put("UNLOCK", "Mở khóa");
         ACTION_MAP.put("RESET_PASSWORD", "Đặt lại mật khẩu");
         ACTION_MAP.put("CREATE_MEDICAL_REQUEST", "Tạo yêu cầu khám");
         ACTION_MAP.put("APPROVE_MEDICAL_REQUEST", "Duyệt yêu cầu khám");

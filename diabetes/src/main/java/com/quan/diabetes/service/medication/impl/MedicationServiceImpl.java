@@ -207,12 +207,40 @@ public class MedicationServiceImpl implements MedicationService {
 
     @Override
     public void softDelete(String id) {
+        Medication existing = medicationRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Medication not found with id: " + id));
+        
+        Medication oldMedication = new Medication();
+        oldMedication.setMedicationId(existing.getMedicationId());
+        oldMedication.setMedicationName(existing.getMedicationName());
+        oldMedication.setStatus(existing.getStatus());
+        
         updateStatus(id, "Clocked");
+        
+        Medication newMedication = new Medication();
+        newMedication.setMedicationId(existing.getMedicationId());
+        newMedication.setMedicationName(existing.getMedicationName());
+        newMedication.setStatus("Clocked");
+        
+        systemLogService.saveLogWithObject(null, "LOCK", "Medicine", id, "Khóa thuốc", oldMedication, newMedication, "SUCCESS");
     }
 
     @Override
     public void restore(String id) {
+        Medication existing = medicationRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Medication not found with id: " + id));
+        
+        Medication oldMedication = new Medication();
+        oldMedication.setMedicationId(existing.getMedicationId());
+        oldMedication.setMedicationName(existing.getMedicationName());
+        oldMedication.setStatus(existing.getStatus());
+        
         updateStatus(id, "Active");
+        
+        Medication newMedication = new Medication();
+        newMedication.setMedicationId(existing.getMedicationId());
+        newMedication.setMedicationName(existing.getMedicationName());
+        newMedication.setStatus("Active");
+        
+        systemLogService.saveLogWithObject(null, "UNLOCK", "Medicine", id, "Mở khóa thuốc", oldMedication, newMedication, "SUCCESS");
     }
 
     @Override

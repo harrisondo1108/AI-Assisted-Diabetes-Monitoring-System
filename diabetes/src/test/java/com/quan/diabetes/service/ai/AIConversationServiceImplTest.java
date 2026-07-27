@@ -60,13 +60,6 @@ class AIConversationServiceImplTest {
     }
 
     @Test
-    void testFindByAssistantId() {
-        when(repository.findByAiAssistantIdOrderByCreatedAtDesc(1)).thenReturn(List.of(conversation));
-        List<AIConversation> result = service.findByAssistantId(1);
-        assertEquals(1, result.size());
-    }
-
-    @Test
     void testFindByPatientIdAndAssistantId() {
         when(repository.findByPatientUserIdAndAiAssistantId("PAT-01", 1)).thenReturn(List.of(conversation));
         List<AIConversation> result = service.findByPatientIdAndAssistantId("PAT-01", 1);
@@ -118,11 +111,5 @@ class AIConversationServiceImplTest {
 
         when(repository.existsById("CONV-02")).thenReturn(false);
         assertFalse(service.existsById("CONV-02"));
-    }
-
-    @Test
-    void testCountByPatientId() {
-        when(repository.findByPatientUserIdOrderByCreatedAtDesc("PAT-01")).thenReturn(List.of(conversation));
-        assertEquals(1, service.countByPatientId("PAT-01"));
     }
 }

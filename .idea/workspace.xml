@@ -4,12 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cd82aed5-747b-44b9-892e-efbe52d1dbd5" name="Changes" comment="MERGE FULL TEST TheAnh, CSon, LuanHa, Le_Quan">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/masterdata/PromptTemplateService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/masterdata/impl/PromptTemplateServiceImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/application.properties" afterDir="false" />
-    </list>
+    <list default="true" id="cd82aed5-747b-44b9-892e-efbe52d1dbd5" name="Changes" comment="MERGE FULL TEST TheAnh, CSon, LuanHa, Le_Quan" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -77,7 +72,7 @@
     <option name="myAddOrReplace" value="0" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="331" />
+    <option name="cachedIndexableFilesCount" value="358" />
   </component>
   <component name="ExportTestResults" outputFolder="$USER_HOME$/Downloads" userTempatePath="" />
   <component name="ExportToHTMLSettings">
@@ -92,12 +87,12 @@
     &quot;assignee&quot;: &quot;luhan05&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/harrisondo1108/AI-Assisted-Diabetes-Monitoring-System.git",
-    "accountId": "394f0a49-b100-46bb-8326-74b0de1085c9"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/harrisondo1108/AI-Assisted-Diabetes-Monitoring-System.git&quot;,
+    &quot;accountId&quot;: &quot;394f0a49-b100-46bb-8326-74b0de1085c9&quot;
   }
-}]]></component>
+}</component>
   <component name="JavaAutoRunManager">
     <enabled-run-configurations>
       <run-configuration type="JUnit" name="AdminUserServiceTest" />
@@ -197,46 +192,46 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "JUnit.AdminUserServiceTest$GetAllUserManagementDTOsTests.ut_usr_019_getAllUserManagementDTOs_FilterByRole.executor": "Coverage",
-    "JUnit.AdminUserServiceTest.executor": "Coverage",
-    "JUnit.ProfileServiceImplTest.executor": "Coverage",
-    "JUnit.UpdateProfileTest (1).executor": "Run",
-    "JUnit.UpdateProfileTest.executor": "Run",
-    "JUnit.UserServiceImplTest.executor": "Coverage",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RequestMappingsPanelOrder0": "0",
-    "RequestMappingsPanelOrder1": "1",
-    "RequestMappingsPanelWidth0": "75",
-    "RequestMappingsPanelWidth1": "75",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "SONARLINT_PRECOMMIT_ANALYSIS": "true",
-    "Spring Boot.DiabetesApplication.executor": "Run",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "copilot.chat.legacySessionMetadata.migrated": "true",
-    "git-widget-placeholder": "main",
-    "git.auto.fetch.suggestion.counter": "1",
-    "ignore.virus.scanning.warn.message": "true",
-    "junie.onboarding.icon.badge.shown": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/Document/4_SEMESTER/AI-Assisted-Diabetes-Monitoring-System",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "SDKs",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0",
-    "to.speed.mode.migration.done": "true",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;JUnit.AdminUserServiceTest$GetAllUserManagementDTOsTests.ut_usr_019_getAllUserManagementDTOs_FilterByRole.executor&quot;: &quot;Coverage&quot;,
+    &quot;JUnit.AdminUserServiceTest.executor&quot;: &quot;Coverage&quot;,
+    &quot;JUnit.ProfileServiceImplTest.executor&quot;: &quot;Coverage&quot;,
+    &quot;JUnit.UpdateProfileTest (1).executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UpdateProfileTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserServiceImplTest.executor&quot;: &quot;Coverage&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;SONARLINT_PRECOMMIT_ANALYSIS&quot;: &quot;true&quot;,
+    &quot;Spring Boot.DiabetesApplication.executor&quot;: &quot;Run&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;copilot.chat.legacySessionMetadata.migrated&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;git.auto.fetch.suggestion.counter&quot;: &quot;1&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/git_clone_CSon/AI-Assisted-Diabetes-Monitoring-System&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;SDKs&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="com.quan.diabetes" />
@@ -341,8 +336,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-30f59d01ecdd-37e91769500f-intellij.indexing.shared.core-IU-261.26222.65" />
-        <option value="bundled-js-predefined-d6986cc7102b-31caf2ab9e3c-JavaScript-IU-261.26222.65" />
+        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.31033.145" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.31033.145" />
       </set>
     </attachedChunks>
   </component>
@@ -382,6 +377,11 @@
       <workItem from="1784709208182" duration="194000" />
       <workItem from="1784709869236" duration="308000" />
       <workItem from="1784710274434" duration="885000" />
+      <workItem from="1785115299019" duration="3308000" />
+      <workItem from="1785121020605" duration="2491000" />
+      <workItem from="1785125329945" duration="2752000" />
+      <workItem from="1785130994381" duration="129000" />
+      <workItem from="1785133692630" duration="178000" />
     </task>
     <task id="LOCAL-00001" summary="thêm chức năng doctor rating">
       <option name="closed" value="true" />

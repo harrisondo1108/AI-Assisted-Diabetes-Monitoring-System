@@ -76,7 +76,7 @@
                 <span th:class="${sym.status ? 'badge-active' : 'badge-clocked'}" th:text="${sym.status ? 'Hoạt động' : 'Tạm khóa'}"></span>
               </td>
               <td class="action-group">
-                <button class="action-btn edit" th:attr="data-id=${sym.symptomId}" onclick="openEditModal(this.getAttribute('data-id'))" title="Chỉnh sửa"><i class="fas fa-pen"></i></button>
+                <a th:href="@{/admin/symptoms(page=${currentPage}, size=${pageSize}, status=${selectedStatus}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection}, editId=${sym.symptomId})}" class="action-btn edit" title="Chỉnh sửa"><i class="fas fa-pen"></i></a>
                 <button class="action-btn soft-delete" th:attr="data-id=${sym.symptomId}, data-status=${sym.status ? 'Active' : 'Clocked'}, data-name=${sym.symptomName}" onclick="showConfirmModal(this.getAttribute('data-id'), this.getAttribute('data-status'), this.getAttribute('data-name'))" th:title="${sym.status ? 'Khóa triệu chứng' : 'Khôi phục triệu chứng'}">
                   <i th:class="${sym.status ? 'fas fa-lock' : 'fas fa-lock-open'}"></i>
                 </button>
@@ -173,22 +173,22 @@
 </div>
 
 <!-- EDIT MODAL - only symptom name -->
-<div class="modal-overlay" id="editModal">
+<div class="modal-overlay" id="editModal" th:classappend="${editSymptom != null} ? 'open' : ''">
   <div class="modal">
     <div class="modal-header">
-      <h2 id="editModalTitle">Chỉnh sửa Triệu chứng</h2>
-      <button type="button" class="modal-close" id="closeEditModalBtn">&times;</button>
+      <h2 id="editModalTitle" th:text="${editSymptom != null} ? ('Chỉnh sửa Triệu chứng: ' + ${editSymptom.symptomName}) : 'Chỉnh sửa Triệu chứng'">Chỉnh sửa Triệu chứng</h2>
+      <a th:href="@{/admin/symptoms(page=${currentPage}, size=${pageSize}, status=${selectedStatus}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection})}" class="modal-close" id="closeEditModalBtn">&times;</a>
     </div>
-    <form id="editForm" method="post">
-      <input type="hidden" id="editSymptomId" name="symptomId">
+    <form id="editForm" th:action="${editSymptom != null} ? @{/admin/symptoms/edit/{id}(id=${editSymptom.symptomId})} : ''" method="post">
+      <input type="hidden" id="editSymptomId" name="symptomId" th:value="${editSymptom != null} ? ${editSymptom.symptomId} : ''">
       <div class="form-grid">
         <div class="form-group full-width">
           <label>Tên triệu chứng <span class="required">*</span></label>
-          <input type="text" id="editSymptomName" name="symptomName" required>
+          <input type="text" id="editSymptomName" name="symptomName" required th:value="${editSymptom != null} ? ${editSymptom.symptomName} : ''">
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" id="cancelEditModalBtn">Hủy</button>
+        <a th:href="@{/admin/symptoms(page=${currentPage}, size=${pageSize}, status=${selectedStatus}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection})}" class="btn btn-secondary" id="cancelEditModalBtn">Hủy</a>
         <button type="submit" class="btn btn-primary">Lưu Thay đổi</button>
       </div>
     </form>

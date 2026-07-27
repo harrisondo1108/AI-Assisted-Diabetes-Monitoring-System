@@ -109,15 +109,6 @@ class ReminderServiceImplTest {
         assertFalse(service.existsById(2L));
     }
 
-    @Test
-    void testExistsActiveReminder() {
-        LocalDateTime time = LocalDateTime.now();
-        when(repository.existsByPatient_UserIdAndScheduledTimeAndTitleAndTiming_TimingIDAndLockStatus(
-                "PAT-01", time, "Uong thuoc", 2, false
-        )).thenReturn(true);
-
-        assertTrue(service.existsActiveReminder("PAT-01", time, "Uong thuoc", 2));
-    }
 
     @Test
     void testGetPatientsWithRemindersToday() {

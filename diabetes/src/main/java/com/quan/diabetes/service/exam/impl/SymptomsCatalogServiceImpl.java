@@ -13,15 +13,19 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
+import com.quan.diabetes.service.systemlog.SystemLogService;
+
 @Service
 @Transactional
 public class SymptomsCatalogServiceImpl implements SymptomsCatalogService {
 
     private final SymptomsCatalogRepository repository;
+    private final SystemLogService systemLogService;
     private final Random random = new Random();
 
-    public SymptomsCatalogServiceImpl(SymptomsCatalogRepository repository) {
+    public SymptomsCatalogServiceImpl(SymptomsCatalogRepository repository, SystemLogService systemLogService) {
         this.repository = repository;
+        this.systemLogService = systemLogService;
     }
 
     @Override
@@ -87,7 +91,9 @@ public class SymptomsCatalogServiceImpl implements SymptomsCatalogService {
             throw new IllegalArgumentException("Tên triệu chứng đã tồn tại: " + entity.getSymptomName());
         }
         if (entity.getStatus() == null) entity.setStatus(true);
-        return repository.save(entity);
+        SymptomsCatalog saved = repository.save(entity);
+        systemLogService.saveLogWithObject(null, "CREATE", "SymptomsCatalog", saved.getSymptomId(), "Thêm triệu chứng mới", null, saved, "SUCCESS");
+        return saved;
     }
 
     @Override
@@ -99,24 +105,46 @@ public class SymptomsCatalogServiceImpl implements SymptomsCatalogService {
                 repository.existsBySymptomNameIgnoreCase(entity.getSymptomName())) {
             throw new IllegalArgumentException("Tên triệu chứng đã tồn tại: " + entity.getSymptomName());
         }
+        
+        SymptomsCatalog oldSymptom = new SymptomsCatalog();
+        oldSymptom.setSymptomId(existing.getSymptomId());
+        oldSymptom.setSymptomName(existing.getSymptomName());
+        oldSymptom.setStatus(existing.getStatus());
+        
         existing.setSymptomName(entity.getSymptomName());
-        return repository.save(existing);
+        SymptomsCatalog updated = repository.save(existing);
+        systemLogService.saveLogWithObject(null, "UPDATE", "SymptomsCatalog", id, "Cập nhật triệu chứng", oldSymptom, updated, "SUCCESS");
+        return updated;
     }
 
     @Override
     public void softDelete(String id) {
         SymptomsCatalog symptom = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy triệu chứng: " + id));
+                
+        SymptomsCatalog oldSymptom = new SymptomsCatalog();
+        oldSymptom.setSymptomId(symptom.getSymptomId());
+        oldSymptom.setSymptomName(symptom.getSymptomName());
+        oldSymptom.setStatus(symptom.getStatus());
+        
         symptom.setStatus(false);
-        repository.save(symptom);
+        SymptomsCatalog updated = repository.save(symptom);
+        systemLogService.saveLogWithObject(null, "LOCK", "SymptomsCatalog", id, "Khóa triệu chứng", oldSymptom, updated, "SUCCESS");
     }
 
     @Override
     public void restore(String id) {
         SymptomsCatalog symptom = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy triệu chứng: " + id));
+                
+        SymptomsCatalog oldSymptom = new SymptomsCatalog();
+        oldSymptom.setSymptomId(symptom.getSymptomId());
+        oldSymptom.setSymptomName(symptom.getSymptomName());
+        oldSymptom.setStatus(symptom.getStatus());
+        
         symptom.setStatus(true);
-        repository.save(symptom);
+        SymptomsCatalog updated = repository.save(symptom);
+        systemLogService.saveLogWithObject(null, "UNLOCK", "SymptomsCatalog", id, "Mở khóa triệu chứng", oldSymptom, updated, "SUCCESS");
     }
 
     @Override
@@ -124,6 +152,7 @@ public class SymptomsCatalogServiceImpl implements SymptomsCatalogService {
         SymptomsCatalog symptom = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy triệu chứng: " + id));
         repository.delete(symptom);
+        systemLogService.saveLogWithObject(null, "DELETE", "SymptomsCatalog", id, "Xóa triệu chứng", symptom, null, "SUCCESS");
     }
 
     @Override

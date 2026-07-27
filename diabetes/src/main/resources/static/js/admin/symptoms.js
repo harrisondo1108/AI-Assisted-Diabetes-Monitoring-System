@@ -138,49 +138,39 @@ addModal.onclick = (e) => {
 
 // ==================== EDIT MODAL ====================
 const editModal = document.getElementById('editModal');
-const editForm = document.getElementById('editForm');
 
-window.openEditModal = function(id) {
-    fetch(`/admin/symptoms/api/${id}`)
-        .then(res => res.json())
-        .then(result => {
-            if (result.success) {
-                const sym = result.data;
-                document.getElementById('editModalTitle').innerText = `Chỉnh sửa Triệu chứng: ${sym.symptomName}`;
-                document.getElementById('editSymptomId').value = sym.symptomId;
-                document.getElementById('editSymptomName').value = sym.symptomName;
-                editForm.action = `/admin/symptoms/edit/${id}`;
-                editModal.classList.add('open');
-                document.body.classList.add('modal-open');
-            } else {
-                showToast('Tải dữ liệu triệu chứng thất bại', 'error');
-            }
-        })
-        .catch(err => {
-            console.error('Error loading symptom:', err);
-            showToast('Lỗi khi tải dữ liệu triệu chứng', 'error');
-        });
-};
+if (editModal) {
+    // Nếu modal đang mở sẵn (do backend render có editSymptom), khóa cuộn trang
+    if (editModal.classList.contains('open')) {
+        document.body.classList.add('modal-open');
+    }
 
-function closeEditModal() {
-    editModal.classList.remove('open');
-    document.body.classList.remove('modal-open');
+    // Khi click vào vùng overlay bên ngoài, xóa query parameter để đóng modal
+    editModal.onclick = (e) => {
+        if (e.target === editModal) {
+            const url = new URL(window.location.href);
+            url.searchParams.delete('editId');
+            window.location.href = url.toString();
+        }
+    };
 }
-
-document.getElementById('closeEditModalBtn').onclick = closeEditModal;
-document.getElementById('cancelEditModalBtn').onclick = closeEditModal;
-editModal.onclick = (e) => {
-    if (e.target === editModal) closeEditModal();
-};
 // ==================== BACKEND SEARCH & AUTO-RESET ON CLEAR ====================
 const searchInput = document.getElementById('searchKeyword');
 const searchForm = document.getElementById('symptomSearchForm');
 
 if (searchForm && searchInput) {
-    // Tự động submit để hiển thị lại tất cả khi xóa trắng ô tìm kiếm
+    // Tự động submit để hiển thị lại tất cả khi xóa trắng ô tìm kiếm (dùng debounce để tránh lỗi mất tiêu điểm/reload khi gõ tiếng Việt IME)
+    let searchTimeout = null;
     searchInput.addEventListener('input', function() {
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+        }
         if (this.value.trim() === '') {
-            searchForm.submit();
+            searchTimeout = setTimeout(() => {
+                if (searchInput.value.trim() === '') {
+                    searchForm.submit();
+                }
+            }, 400);
         }
     });
 

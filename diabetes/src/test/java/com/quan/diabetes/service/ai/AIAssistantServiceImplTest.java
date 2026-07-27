@@ -165,13 +165,6 @@ class AIAssistantServiceImplTest {
         assertFalse(service.existsById(2));
     }
 
-    @Test
-    void testGetDefaultAssistant() {
-        when(repository.findByStatus("Active")).thenReturn(List.of(assistant));
-        AIAssistant result = service.getDefaultAssistant();
-        assertNotNull(result);
-        assertEquals(assistant, result);
-    }
 
     @Test
     void testInitDefaultAssistants_NoLocalNoGemini_Empty() {

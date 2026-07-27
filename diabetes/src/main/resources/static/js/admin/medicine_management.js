@@ -416,37 +416,20 @@ addModal.onclick = function(e) {
 
 // EDIT MODAL
 var editModal = document.getElementById('editModal');
-var editForm = document.getElementById('editForm');
 
-window.openEditModal = function(id) {
-    fetch('/admin/medicines/api/' + id)
-        .then(function(res) { return res.json(); })
-        .then(function(result) {
-            if (result.success) {
-                var med = result.data;
-                document.getElementById('editModalTitle').innerText = 'Chỉnh sửa Thuốc: ' + med.medicationName;
-                document.getElementById('editMedicationId').value = med.medicationId;
-                document.getElementById('editMedicationName').value = med.medicationName;
-                document.getElementById('editFormSelect').value = normalizeForm(med.form);
-                document.getElementById('editConcentration').value = med.concentration || '';
-                document.getElementById('editRouteSelect').value = normalizeRoute(med.administrationRoute);
-                document.getElementById('editInstruction').value = med.usageInstruction || '';
-                editForm.action = '/admin/medicines/edit/' + id;
-                editModal.classList.add('open');
-                document.body.classList.add('modal-open');
-            }
-        })
-        .catch(function() { console.error('Error loading medicine data'); });
-};
+if (editModal) {
+    if (editModal.classList.contains('open')) {
+        document.body.classList.add('modal-open');
+    }
 
-function closeEditModal() {
-    editModal.classList.remove('open');
-    document.body.classList.remove('modal-open');
+    editModal.onclick = function(e) {
+        if (e.target === editModal) {
+            var currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.delete('editId');
+            window.location.href = currentUrl.toString();
+        }
+    };
 }
-
-document.getElementById('closeEditModalBtn').onclick = closeEditModal;
-document.getElementById('cancelEditModalBtn').onclick = closeEditModal;
-editModal.onclick = function(e) { if (e.target === editModal) closeEditModal(); };
 
 // Validation Form Frontend trước khi gửi
 function validateMedicineForm(formElement) {
@@ -557,7 +540,9 @@ document.getElementById('editFromDrawerBtn').onclick = function() {
     var id = document.getElementById('detailId').innerText;
     if (id && id !== '--') {
         closeDetailDrawer();
-        openEditModal(id);
+        var currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('editId', id);
+        window.location.href = currentUrl.toString();
     }
 };
 

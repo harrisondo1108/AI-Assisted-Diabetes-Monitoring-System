@@ -33,6 +33,7 @@ public class MedicationController {
             @RequestParam(name = "size", defaultValue = "7") int size,
             @RequestParam(name = "sortField", defaultValue = "medicationId") String sortField,
             @RequestParam(name = "sortDirection", defaultValue = "desc") String sortDirection,
+            @RequestParam(name = "editId", required = false) String editId,
             Model model) {
 
         // Create sort object
@@ -63,6 +64,12 @@ public class MedicationController {
         model.addAttribute("oralFormulations", stats.get("oralFormulations"));
         model.addAttribute("injectableFormulations", stats.get("injectableFormulations"));
         model.addAttribute("routes", medicationService.findAllDistinctRoutes());
+
+        if (editId != null && !editId.trim().isEmpty()) {
+            medicationService.findById(editId).ifPresent(medication -> {
+                model.addAttribute("editMedication", medication);
+            });
+        }
 
         return "admin/medicine_management";
     }

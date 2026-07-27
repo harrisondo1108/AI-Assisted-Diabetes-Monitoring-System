@@ -511,6 +511,7 @@ body {
     cursor: pointer;
     border: none;
     transition: all 0.2s ease;
+    text-decoration: none;
 }
 .btn-primary { background: var(--green-800); color: #fff; }
 .btn-primary:hover { background: var(--green-700); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(15, 74, 61, 0.2); }
@@ -814,6 +815,10 @@ body {
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
 }
 .action-btn.view { background: #e0f2fe; color: #0369a1; }
 .action-btn.edit { background: #fef9e6; color: #b7791f; }
@@ -983,8 +988,15 @@ body {
     border-radius: 50%;
     cursor: pointer;
     transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #64748b;
+    font-size: 20px;
+    line-height: 1;
 }
-.modal-close:hover { background: #e2e8f0; transform: rotate(90deg); }
+.modal-close:hover { background: #e2e8f0; transform: rotate(90deg); color: #0f766e; }
 .modal-footer {
     padding: 16px 24px;
     border-top: 1px solid #e2e8f0;

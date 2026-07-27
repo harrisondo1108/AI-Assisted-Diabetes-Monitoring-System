@@ -33,6 +33,7 @@ public class SymptomController {
             @RequestParam(name = "size", defaultValue = "7") int size,
             @RequestParam(name = "sortField", defaultValue = "symptomName") String sortField,
             @RequestParam(name = "sortDirection", defaultValue = "asc") String sortDirection,
+            @RequestParam(name = "editId", required = false) String editId,
             Model model) {
 
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
@@ -40,8 +41,10 @@ public class SymptomController {
         Pageable pageable = PageRequest.of(page, size, sort);
 
         Boolean statusBool = null;
-        if ("active".equalsIgnoreCase(status)) statusBool = true;
-        else if ("clocked".equalsIgnoreCase(status)) statusBool = false;
+        if ("active".equalsIgnoreCase(status))
+            statusBool = true;
+        else if ("clocked".equalsIgnoreCase(status))
+            statusBool = false;
 
         Page<SymptomsCatalog> symptomsPage;
         if (keyword != null && !keyword.trim().isEmpty()) {
@@ -66,50 +69,60 @@ public class SymptomController {
         model.addAttribute("activeSymptoms", stats.get("activeSymptoms"));
         model.addAttribute("clockedSymptoms", stats.get("clockedSymptoms"));
 
+        if (editId != null && !editId.trim().isEmpty()) {
+            symptomService.findById(editId).ifPresent(symptom -> {
+                model.addAttribute("editSymptom", symptom);
+            });
+        }
+
         return "admin/symptoms";
     }
-    // API JSON cho danh sách (dùng cho real-time search)
+
+    // API cho danh sách
     @GetMapping("/list")
-    @ResponseBody
-    public Map<String, Object> listSymptoms(
+    public String listSymptoms(
             @RequestParam(name = "keyword", required = false, defaultValue = "") String keyword,
             @RequestParam(name = "status", required = false) String status,
             @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "7") int size) {
+            @RequestParam(name = "size", defaultValue = "7") int size,
+            @RequestParam(name = "editId", required = false) String editId,
+            Model model) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("symptomName").ascending());
         Boolean statusBool = null;
-        if ("active".equalsIgnoreCase(status)) statusBool = true;
-        else if ("clocked".equalsIgnoreCase(status)) statusBool = false;
+        if ("active".equalsIgnoreCase(status))
+            statusBool = true;
+        else if ("clocked".equalsIgnoreCase(status))
+            statusBool = false;
 
         Page<SymptomsCatalog> symptomsPage;
         if (keyword != null && !keyword.trim().isEmpty()) {
             symptomsPage = symptomService.searchByKeywordAndStatus(keyword.trim(), statusBool, pageable);
+            model.addAttribute("searchKeyword", keyword);
         } else {
             symptomsPage = symptomService.findByStatus(statusBool, pageable);
         }
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("content", symptomsPage.getContent());
-        response.put("currentPage", symptomsPage.getNumber());
-        response.put("totalPages", symptomsPage.getTotalPages());
-        response.put("totalElements", symptomsPage.getTotalElements());
-        response.put("pageSize", symptomsPage.getSize());
-        return response;
-    }
+        // Thống kê
+        var stats = symptomService.getSummaryStats();
 
-    // API JSON cho thống kê (để cập nhật số lượng khi tìm kiếm)
-    @GetMapping("/stats")
-    @ResponseBody
-    public Map<String, Object> getStats() {
-        return symptomService.getSummaryStats();
-    }
-    @GetMapping("/api/{id}")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> getSymptomById(@PathVariable String id) {
-        Optional<SymptomsCatalog> symptom = symptomService.findById(id);
-        if (symptom.isEmpty()) return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(Map.of("success", true, "data", symptom.get()));
+        model.addAttribute("symptoms", symptomsPage.getContent());
+        model.addAttribute("currentPage", symptomsPage.getNumber());
+        model.addAttribute("totalPages", symptomsPage.getTotalPages());
+        model.addAttribute("totalItems", symptomsPage.getTotalElements());
+        model.addAttribute("pageSize", size);
+        model.addAttribute("selectedStatus", status != null ? status : "");
+        model.addAttribute("totalSymptoms", stats.get("totalSymptoms"));
+        model.addAttribute("activeSymptoms", stats.get("activeSymptoms"));
+        model.addAttribute("clockedSymptoms", stats.get("clockedSymptoms"));
+
+        if (editId != null && !editId.trim().isEmpty()) {
+            symptomService.findById(editId).ifPresent(symptom -> {
+                model.addAttribute("editSymptom", symptom);
+            });
+        }
+
+        return "admin/symptoms";
     }
 
     @PostMapping("/add")

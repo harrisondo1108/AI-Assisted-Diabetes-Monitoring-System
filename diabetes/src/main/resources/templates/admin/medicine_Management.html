@@ -140,10 +140,9 @@
                                             onclick="viewDetail(this.getAttribute('data-id'))" title="Xem chi tiết">
                                             <i class="fas fa-eye"></i>
                                         </button>
-                                        <button class="action-btn edit" th:attr="data-id=${med.medicationId}"
-                                            onclick="openEditModal(this.getAttribute('data-id'))" title="Chỉnh sửa">
+                                        <a th:href="@{/admin/medicines(page=${currentPage}, size=${pageSize}, status=${selectedStatus}, form=${selectedForm}, route=${selectedRoute}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection}, editId=${med.medicationId})}" class="action-btn edit" title="Chỉnh sửa">
                                             <i class="fas fa-pen"></i>
-                                        </button>
+                                        </a>
                                         <button class="action-btn soft-delete"
                                             th:attr="data-id=${med.medicationId},data-status=${med.status},data-name=${med.medicationName}"
                                             onclick="showConfirmModal(this.getAttribute('data-id'), this.getAttribute('data-status'), this.getAttribute('data-name'))"
@@ -278,50 +277,50 @@
     </div>
 
     <!-- EDIT MODAL -->
-    <div class="modal-overlay" id="editModal">
+    <div class="modal-overlay" id="editModal" th:classappend="${editMedication != null} ? 'open' : ''">
         <div class="modal">
             <div class="modal-header">
-                <h2 id="editModalTitle">Chỉnh sửa Thuốc</h2>
-                <button type="button" class="modal-close" id="closeEditModalBtn">&times;</button>
+                <h2 id="editModalTitle" th:text="${editMedication != null} ? ('Chỉnh sửa Thuốc: ' + ${editMedication.medicationName}) : 'Chỉnh sửa Thuốc'">Chỉnh sửa Thuốc</h2>
+                <a th:href="@{/admin/medicines(page=${currentPage}, size=${pageSize}, status=${selectedStatus}, form=${selectedForm}, route=${selectedRoute}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection})}" class="modal-close" id="closeEditModalBtn">&times;</a>
             </div>
-            <form id="editForm" method="post">
-                <input type="hidden" id="editMedicationId" name="medicationId">
+            <form id="editForm" th:action="${editMedication != null} ? @{/admin/medicines/edit/{id}(id=${editMedication.medicationId})} : ''" method="post">
+                <input type="hidden" id="editMedicationId" name="medicationId" th:value="${editMedication != null} ? ${editMedication.medicationId} : ''">
                 <div class="form-grid">
                     <div class="form-group full-width">
                         <label>Tên Thuốc <span class="required">*</span></label>
                         <input type="text" id="editMedicationName" name="medicationName" required maxlength="100"
-                            title="Tên thuốc không được chứa ký tự đặc biệt">
+                            title="Tên thuốc không được chứa ký tự đặc biệt" th:value="${editMedication != null} ? ${editMedication.medicationName} : ''">
                     </div>
                     <div class="form-group">
                         <label>Dạng bào chế <span class="required">*</span></label>
                         <select id="editFormSelect" name="form" required>
                             <option value="">-- Chọn Dạng bào chế --</option>
-                            <option value="Viên nén">Viên nén</option>
-                            <option value="Viên nang">Viên nang</option>
-                            <option value="Thuốc tiêm">Thuốc tiêm</option>
+                            <option value="Viên nén" th:selected="${editMedication != null && (editMedication.form == 'tablet' || editMedication.form == 'Viên nén')}">Viên nén</option>
+                            <option value="Viên nang" th:selected="${editMedication != null && (editMedication.form == 'capsule' || editMedication.form == 'Viên nang')}">Viên nang</option>
+                            <option value="Thuốc tiêm" th:selected="${editMedication != null && (editMedication.form == 'injection' || editMedication.form == 'Thuốc tiêm')}">Thuốc tiêm</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Hàm lượng / Nồng độ</label>
-                        <input type="text" id="editConcentration" name="concentration" maxlength="50">
+                        <input type="text" id="editConcentration" name="concentration" maxlength="50" th:value="${editMedication != null} ? ${editMedication.concentration} : ''">
                     </div>
                     <div class="form-group">
                         <label>Đường dùng <span class="required">*</span></label>
                         <select id="editRouteSelect" name="administrationRoute" required>
                             <option value="">-- Chọn Đường dùng --</option>
-                            <option value="Đường uống">Đường uống</option>
-                            <option value="Tiêm dưới da">Tiêm dưới da</option>
-                            <option value="Tiêm tĩnh mạch">Tiêm tĩnh mạch</option>
-                            <option value="Tiêm bắp">Tiêm bắp</option>
+                            <option value="Đường uống" th:selected="${editMedication != null && (editMedication.administrationRoute == 'Oral' || editMedication.administrationRoute == 'Đường uống')}">Đường uống</option>
+                            <option value="Tiêm dưới da" th:selected="${editMedication != null && (editMedication.administrationRoute == 'Subcutaneous' || editMedication.administrationRoute == 'Tiêm dưới da')}">Tiêm dưới da</option>
+                            <option value="Tiêm tĩnh mạch" th:selected="${editMedication != null && (editMedication.administrationRoute == 'Intravenous' || editMedication.administrationRoute == 'Tiêm tĩnh mạch')}">Tiêm tĩnh mạch</option>
+                            <option value="Tiêm bắp" th:selected="${editMedication != null && (editMedication.administrationRoute == 'Intramuscular' || editMedication.administrationRoute == 'Tiêm bắp')}">Tiêm bắp</option>
                         </select>
                     </div>
                     <div class="form-group full-width">
                         <label>Hướng dẫn sử dụng</label>
-                        <textarea id="editInstruction" name="usageInstruction" rows="3"></textarea>
+                        <textarea id="editInstruction" name="usageInstruction" rows="3" th:text="${editMedication != null} ? ${editMedication.usageInstruction} : ''"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" id="cancelEditModalBtn">Hủy</button>
+                    <a th:href="@{/admin/medicines(page=${currentPage}, size=${pageSize}, status=${selectedStatus}, form=${selectedForm}, route=${selectedRoute}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection})}" class="btn btn-secondary" id="cancelEditModalBtn">Hủy</a>
                     <button type="submit" class="btn btn-primary">Lưu Thay đổi</button>
                 </div>
             </form>

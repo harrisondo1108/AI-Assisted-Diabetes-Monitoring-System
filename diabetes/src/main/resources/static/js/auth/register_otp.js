@@ -60,28 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 1000);
     }
 
-    // Resend OTP
-    resendBtn.addEventListener('click', async function(e) {
-        e.preventDefault();
-        try {
-            const response = await fetch('/register/resend-otp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-            });
-            if (response.ok) {
-                startCountdown();
-                // Clear OTP inputs
-                otpInputs.forEach(input => input.value = '');
-                otpInputs[0].focus();
-                showSuccess('A new OTP code has been sent.');
-            } else {
-                const errorText = await response.text();
-                showError(errorText || 'Cannot resend OTP. Please try again.');
-            }
-        } catch (err) {
-            showError('Network error. Please try again.');
-        }
-    });
+
 
     function showError(message) {
         let errorDiv = document.getElementById('errorMsg');
