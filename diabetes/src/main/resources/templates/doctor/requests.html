@@ -60,12 +60,12 @@
                                 
                                 <div class="req-actions" style="display: flex; gap: 12px; flex-shrink: 0; margin-left: 30px;">
                                     <form th:action="@{/doctor/request/approve/{id}(id=${req.clinicalExamId})}" method="post" style="margin: 0;">
-                                        <button type="submit" class="btn" style="background: linear-gradient(135deg, var(--doctor-accent), var(--doctor-primary)); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 0.95rem; display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; min-width: 130px; box-shadow: 0 4px 12px rgba(20, 92, 74, 0.25); cursor: pointer; transition: all 0.2s ease;">
+                                        <button type="button" class="btn" style="background: linear-gradient(135deg, var(--doctor-accent), var(--doctor-primary)); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 0.95rem; display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; min-width: 130px; box-shadow: 0 4px 12px rgba(20, 92, 74, 0.25); cursor: pointer; transition: all 0.2s ease;" th:attr="data-name=${req.patient.fullName}" onclick="promptConfirmApprove(this, this.getAttribute('data-name'))">
                                             <i class="fas fa-check"></i> Duyệt
                                         </button>
                                     </form>
                                     <form th:action="@{/doctor/request/reject/{id}(id=${req.clinicalExamId})}" method="post" style="margin: 0;">
-                                        <button type="submit" class="btn" style="background: linear-gradient(135deg, #e53e3e, var(--doctor-danger)); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 0.95rem; display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; min-width: 130px; box-shadow: 0 4px 12px rgba(197, 48, 48, 0.25); cursor: pointer; transition: all 0.2s ease;" onclick="return confirm('Bạn có chắc chắn muốn từ chối yêu cầu khám này?')">
+                                        <button type="button" class="btn" style="background: linear-gradient(135deg, #e53e3e, var(--doctor-danger)); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 0.95rem; display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; min-width: 130px; box-shadow: 0 4px 12px rgba(197, 48, 48, 0.25); cursor: pointer; transition: all 0.2s ease;" th:attr="data-name=${req.patient.fullName}" onclick="promptConfirmReject(this, this.getAttribute('data-name'))">
                                             <i class="fas fa-times"></i> Từ chối
                                         </button>
                                     </form>
@@ -77,6 +77,31 @@
             </main>
         </div>
     </div>
+
+    <!-- CUSTOM CONFIRMATION MODAL -->
+    <div class="confirm-modal-overlay" id="customConfirmModal">
+        <div class="confirm-modal-box">
+            <div class="confirm-modal-header">
+                <div class="confirm-modal-title">
+                    <i class="fas fa-shield-alt" style="color: #059669;"></i>
+                    <span id="confirmModalTitleText">Xác nhận thao tác</span>
+                </div>
+                <button type="button" class="confirm-modal-close" onclick="closeConfirmModal()">&times;</button>
+            </div>
+            <div class="confirm-modal-body">
+                <div class="confirm-icon-wrap" id="confirmModalIconWrap">
+                    <i class="fas fa-question" id="confirmModalIcon"></i>
+                </div>
+                <p class="confirm-message" id="confirmModalMessage">Bạn có chắc chắn muốn thực hiện thao tác này?</p>
+                <p class="confirm-submessage" id="confirmModalSubMessage">Hành động này sẽ thay đổi trạng thái yêu cầu khám.</p>
+            </div>
+            <div class="confirm-modal-footer">
+                <button type="button" class="btn-cancel" onclick="closeConfirmModal()">Hủy</button>
+                <button type="button" class="btn-submit" id="confirmModalSubmitBtn" onclick="executeConfirmSubmit()">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+
     <!-- CSS Toast Animation for pure CSS notification -->
     <style>
         @keyframes toastAnimation {
@@ -96,5 +121,89 @@
             <span>Thao tác thành công!</span>
         </div>
     </div>
+
+    <script>
+        let targetForm = null;
+
+        function promptConfirmApprove(button, patientName) {
+            targetForm = button.closest('form');
+            document.getElementById('confirmModalTitleText').innerText = 'Xác nhận duyệt yêu cầu khám';
+            document.getElementById('confirmModalIcon').className = 'fas fa-check-circle';
+            document.getElementById('confirmModalIconWrap').style.background = 'rgba(16, 185, 129, 0.12)';
+            document.getElementById('confirmModalIconWrap').style.color = '#10b981';
+            
+            document.getElementById('confirmModalMessage').innerHTML = 'Bạn có chắc chắn muốn duyệt yêu cầu khám của bệnh nhân <strong style="color: #0f2e26;">' + escapeHtml(patientName) + '</strong> không?';
+            document.getElementById('confirmModalSubMessage').innerText = 'Sau khi duyệt, bệnh nhân sẽ được đưa vào hàng đợi khám.';
+            
+            const submitBtn = document.getElementById('confirmModalSubmitBtn');
+            submitBtn.innerHTML = '<i class="fas fa-check"></i> Xác nhận Duyệt';
+            submitBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+            submitBtn.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
+            
+            openConfirmModal();
+        }
+
+        function promptConfirmReject(button, patientName) {
+            targetForm = button.closest('form');
+            document.getElementById('confirmModalTitleText').innerText = 'Xác nhận từ chối yêu cầu khám';
+            document.getElementById('confirmModalIcon').className = 'fas fa-exclamation-triangle';
+            document.getElementById('confirmModalIconWrap').style.background = 'rgba(239, 68, 68, 0.12)';
+            document.getElementById('confirmModalIconWrap').style.color = '#ef4444';
+            
+            document.getElementById('confirmModalMessage').innerHTML = 'Bạn có chắc chắn muốn từ chối yêu cầu khám của bệnh nhân <strong style="color: #0f2e26;">' + escapeHtml(patientName) + '</strong> không?';
+            document.getElementById('confirmModalSubMessage').innerText = 'Yêu cầu khám của bệnh nhân này sẽ bị từ chối và hủy bỏ.';
+            
+            const submitBtn = document.getElementById('confirmModalSubmitBtn');
+            submitBtn.innerHTML = '<i class="fas fa-times"></i> Xác nhận Từ chối';
+            submitBtn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+            submitBtn.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.3)';
+            
+            openConfirmModal();
+        }
+
+        function openConfirmModal() {
+            const modal = document.getElementById('customConfirmModal');
+            if (modal) {
+                modal.classList.add('open');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeConfirmModal() {
+            const modal = document.getElementById('customConfirmModal');
+            if (modal) {
+                modal.classList.remove('open');
+                document.body.style.overflow = '';
+            }
+            targetForm = null;
+        }
+
+        function executeConfirmSubmit() {
+            if (targetForm) {
+                const submitBtn = document.getElementById('confirmModalSubmitBtn');
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+                submitBtn.disabled = true;
+                targetForm.submit();
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>"'`]/g, function (s) {
+                return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;', '`':'&#96;'})[s];
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('customConfirmModal');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        closeConfirmModal();
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
         'paginationInfo', 'prevPageBtn', 'nextPageBtn', 'pageNumbers', 'phòng',
         function (p) { roomPage = p; });
     renderPagination('#timingTableBody', '.timing-row', timingPage, timingKw,
-        'timingPaginationInfo', 'timingPrevBtn', 'timingNextBtn', 'timingPageNumbers', 'timing',
+        'timingPaginationInfo', 'timingPrevPageBtn', 'timingNextPageBtn', 'timingPageNumbers', 'khung giờ',
         function (p) { timingPage = p; });
 
     handleUrlMessages();

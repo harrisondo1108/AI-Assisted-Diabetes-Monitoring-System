@@ -262,16 +262,18 @@ function renderMedicines(list) {
                 <td>
                     <span class="${statusClass}">${escapeHtml(statusText)}</span>
                 </td>
-                <td class="action-group">
-                    <button class="action-btn view" data-id="${escapeHtml(med.medicationId)}" onclick="viewDetail(this.getAttribute('data-id'))" title="Xem chi tiết">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="action-btn edit" data-id="${escapeHtml(med.medicationId)}" onclick="openEditModal(this.getAttribute('data-id'))" title="Chỉnh sửa">
-                        <i class="fas fa-pen"></i>
-                    </button>
-                    <button class="action-btn soft-delete" data-id="${escapeHtml(med.medicationId)}" data-status="${escapeHtml(med.status)}" data-name="${escapeHtml(med.medicationName)}" onclick="showConfirmModal(this.getAttribute('data-id'), this.getAttribute('data-status'), this.getAttribute('data-name'))" title="${lockTitle}">
-                        <i class="${lockIcon}"></i>
-                    </button>
+                <td>
+                    <div class="action-group">
+                        <button class="action-btn view" data-id="${escapeHtml(med.medicationId)}" onclick="viewDetail(this.getAttribute('data-id'))" title="Xem chi tiết">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn edit" data-id="${escapeHtml(med.medicationId)}" onclick="openEditModal(this.getAttribute('data-id'))" title="Chỉnh sửa">
+                            <i class="fas fa-pen"></i>
+                        </button>
+                        <button class="action-btn soft-delete" data-id="${escapeHtml(med.medicationId)}" data-status="${escapeHtml(med.status)}" data-name="${escapeHtml(med.medicationName)}" onclick="showConfirmModal(this.getAttribute('data-id'), this.getAttribute('data-status'), this.getAttribute('data-name'))" title="${lockTitle}">
+                            <i class="${lockIcon}"></i>
+                        </button>
+                    </div>
                 </td>
             </tr>`;
     }).join('\n');

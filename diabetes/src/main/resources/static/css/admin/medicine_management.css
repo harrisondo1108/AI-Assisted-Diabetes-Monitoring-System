@@ -795,9 +795,9 @@ body {
 .empty-row i { font-size: 48px; opacity: 0.5; margin-bottom: 10px; display: block; }
 .empty-row p { margin-top: 10px; color: var(--text-muted); }
 
-.medicine-cell { display: flex; flex-direction: column; }
+.medicine-cell { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
 .medicine-cell .medicine-name { font-weight: 600; color: var(--text-primary); }
-.medicine-cell .medicine-id { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+.medicine-cell .medicine-id { font-size: 0.75rem; color: var(--text-muted); }
 
 /* Badges */
 .badge-active { background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 30px; font-size: 12px; display: inline-block; }
@@ -807,7 +807,7 @@ body {
 .badge-injection { background: #ffe4e6; color: #be123c; padding: 4px 12px; border-radius: 30px; font-size: 12px; display: inline-block; }
 
 /* Actions */
-.action-group { display: flex; gap: 8px; }
+.action-group { display: flex; align-items: center; gap: 8px; }
 .action-btn {
     width: 34px;
     height: 34px;

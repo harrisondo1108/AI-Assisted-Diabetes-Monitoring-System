@@ -156,11 +156,8 @@
                     <div class="empty-patients-state" th:if="${patientsList == null || patientsList.isEmpty()}">
                         <i class="fas fa-folder-minus"></i>
                         <h4>Không tìm thấy hồ sơ bệnh nhân nào</h4>
-                        <p th:if="${currentSearch != null && !currentSearch.trim().isEmpty()}" th:text="'Không có kết quả nào phù hợp với từ khóa &quot;' + ${currentSearch} + '&quot;. Vui lòng thử từ khóa khác hoặc đặt lại bộ lọc.'">Không có kết quả phù hợp.</p>
+                        <p th:if="${currentSearch != null && !currentSearch.trim().isEmpty()}" th:text="'Không có kết quả nào phù hợp với từ khóa &quot;' + ${currentSearch} + '&quot;. Vui lòng thử lại với từ khóa khác.'">Không có kết quả phù hợp.</p>
                         <p th:unless="${currentSearch != null && !currentSearch.trim().isEmpty()}">Bạn chưa có hồ sơ khám bệnh hoặc tiếp nhận bệnh nhân nào trong hệ thống.</p>
-                        <a th:if="${currentSearch != null && !currentSearch.trim().isEmpty()}" th:href="@{/doctor/patients}" class="btn-reset-search" style="margin-top: 8px;">
-                            <i class="fas fa-sync-alt"></i> Đặt lại tìm kiếm
-                        </a>
                     </div>
 
                     <!-- Pagination -->

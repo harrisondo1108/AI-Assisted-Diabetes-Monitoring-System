@@ -20,13 +20,7 @@
             <div th:replace="~{layout/admin/header :: header('Nhật ký hệ thống')}"></div>
 
             <main class="admin-content">
-                <div class="page-header">
-                    <div>
-                        <h1>Nhật ký hệ thống</h1>
-                        <p class="subtitle">Theo dõi và quản lý lịch sử thao tác của tất cả người dùng trong hệ thống.
-                        </p>
-                    </div>
-                </div>
+
 
                 <!-- Báo lỗi từ filter -->
                 <div th:if="${error}" class="alert alert-danger">
@@ -191,6 +185,7 @@
                 </div>
 
             </main>
+            <div th:replace="~{layout/admin/footer :: footer}"></div>
         </div>
     </div>
 </body>

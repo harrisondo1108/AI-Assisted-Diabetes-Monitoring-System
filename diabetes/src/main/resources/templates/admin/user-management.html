@@ -142,11 +142,12 @@
                                                 th:if="${user.role != 'patient' && user.role != 'PAT'}"><i
                                                     class="fas fa-pen"></i></button>
                                             <form th:action="@{/admin/users/toggle-lock/{id}(id=${user.userId})}"
-                                                method="post" style="display: inline;"
-                                                onsubmit="return confirm('Bạn có chắc chắn muốn thay đổi trạng thái hoạt động (khóa/mở khóa) của tài khoản này không?');">
-                                                <button type="submit" class="action-btn"
+                                                method="post" style="display: inline;">
+                                                <button type="button" class="action-btn"
                                                     th:classappend="${user.status == 'Active' ? 'lock' : 'unlock'}"
-                                                    th:title="${user.status == 'Active' ? 'Khóa tài khoản' : 'Mở khóa tài khoản'}">
+                                                    th:title="${user.status == 'Active' ? 'Khóa tài khoản' : 'Mở khóa tài khoản'}"
+                                                    th:attr="data-name=${user.fullName}, data-status=${user.status}"
+                                                    onclick="showConfirmLockModal(this)">
                                                     <i class="fas"
                                                         th:classappend="${user.status == 'Active' ? 'fa-lock' : 'fa-lock-open'}">
                                                     </i>
@@ -190,9 +191,8 @@
                         <div class="pagination-placeholder" style="flex: 1;"></div>
                     </div>
                 </div>
-
-                <div th:replace="~{layout/admin/footer :: footer}"></div>
             </main>
+            <div th:replace="~{layout/admin/footer :: footer}"></div>
         </div>
     </div>
 
@@ -413,7 +413,134 @@
         </div>
     </div>
 
+    <!-- CONFIRM LOCK/UNLOCK MODAL -->
+    <div class="modal-overlay" id="confirmLockModal">
+        <div class="modal confirm-modal">
+            <div class="modal-header">
+                <h2 id="confirmLockModalTitle">
+                    <i class="fas fa-shield-alt" style="margin-right: 8px; color: #f59e0b;"></i>
+                    <span id="confirmLockTitleText">Xác nhận Hành động</span>
+                </h2>
+                <button type="button" class="modal-close" onclick="closeConfirmLockModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="text-align: center; padding: 28px 24px 20px;">
+                <div class="confirm-icon" id="confirmLockIconWrap" style="width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                    <i class="fas" id="confirmLockIcon" style="font-size: 2rem;"></i>
+                </div>
+                <p id="confirmLockMessage" style="font-size: 1rem; color: var(--text-primary); line-height: 1.5; margin-bottom: 8px;">
+                    Bạn có chắc chắn muốn thay đổi trạng thái hoạt động của tài khoản này không?
+                </p>
+                <p id="confirmLockSubMessage" style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">
+                    Hành động này sẽ tạm thời thay đổi quyền truy cập hệ thống của người dùng.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeConfirmLockModal()">
+                    <i class="fas fa-times"></i> Hủy
+                </button>
+                <button type="button" class="btn btn-primary" id="okConfirmLockBtn" onclick="executeLockAction()">
+                    <i class="fas fa-check"></i> Xác nhận
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script th:src="@{/js/admin/user-management.js(v=${#dates.createNow().getTime()})}"></script>
+    <script>
+        let pendingLockForm = null;
+
+        function showConfirmLockModal(btn) {
+            pendingLockForm = btn.closest('form');
+            const userName = btn.getAttribute('data-name') || 'người dùng này';
+            const currentStatus = btn.getAttribute('data-status');
+            const isActive = currentStatus === 'Active';
+
+            const titleText = document.getElementById('confirmLockTitleText');
+            const messageEl = document.getElementById('confirmLockMessage');
+            const subMessageEl = document.getElementById('confirmLockSubMessage');
+            const iconWrap = document.getElementById('confirmLockIconWrap');
+            const icon = document.getElementById('confirmLockIcon');
+            const okBtn = document.getElementById('okConfirmLockBtn');
+
+            if (isActive) {
+                if (titleText) titleText.innerText = 'Xác nhận Khóa tài khoản';
+                if (messageEl) messageEl.innerHTML = 'Bạn có chắc chắn muốn khóa tài khoản của <strong style="color: #0f2e26;">' + escapeHtml(userName) + '</strong> không?';
+                if (subMessageEl) subMessageEl.innerText = 'Tài khoản sau khi khóa sẽ tạm thời không thể đăng nhập vào hệ thống.';
+                if (iconWrap) {
+                    iconWrap.style.background = 'linear-gradient(135deg, #fff3e0, #ffe8cc)';
+                }
+                if (icon) {
+                    icon.className = 'fas fa-lock';
+                    icon.style.color = '#d97706';
+                }
+                if (okBtn) {
+                    okBtn.innerHTML = '<i class="fas fa-lock"></i> Xác nhận Khóa';
+                    okBtn.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
+                    okBtn.style.boxShadow = '0 4px 12px rgba(245, 158, 11, 0.3)';
+                }
+            } else {
+                if (titleText) titleText.innerText = 'Xác nhận Mở khóa tài khoản';
+                if (messageEl) messageEl.innerHTML = 'Bạn có chắc chắn muốn mở khóa tài khoản của <strong style="color: #0f2e26;">' + escapeHtml(userName) + '</strong> không?';
+                if (subMessageEl) subMessageEl.innerText = 'Tài khoản sau khi mở khóa sẽ hoạt động trở lại bình thường.';
+                if (iconWrap) {
+                    iconWrap.style.background = 'linear-gradient(135deg, #d1fae5, #a7f3d0)';
+                }
+                if (icon) {
+                    icon.className = 'fas fa-lock-open';
+                    icon.style.color = '#10b981';
+                }
+                if (okBtn) {
+                    okBtn.innerHTML = '<i class="fas fa-lock-open"></i> Xác nhận Mở khóa';
+                    okBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                    okBtn.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
+                }
+            }
+
+            const modal = document.getElementById('confirmLockModal');
+            if (modal) {
+                modal.classList.add('open');
+                document.body.classList.add('modal-open');
+            }
+        }
+
+        function closeConfirmLockModal() {
+            const modal = document.getElementById('confirmLockModal');
+            if (modal) {
+                modal.classList.remove('open');
+                document.body.classList.remove('modal-open');
+            }
+            pendingLockForm = null;
+        }
+
+        function executeLockAction() {
+            if (pendingLockForm) {
+                const okBtn = document.getElementById('okConfirmLockBtn');
+                if (okBtn) {
+                    okBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+                    okBtn.disabled = true;
+                }
+                pendingLockForm.submit();
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>"'`]/g, function (s) {
+                return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;', '`':'&#96;'})[s];
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('confirmLockModal');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        closeConfirmLockModal();
+                    }
+                });
+            }
+        });
+    </script>
     <!-- Flash message popup -->
     <div th:if="${successMessage}" id="flashMessage" class="toast toast-success">
         <div class="toast-body" th:text="${successMessage}">Success</div>

@@ -1,7 +1,7 @@
 --DROP trước
---IF DB_ID('Diabetes') IS NOT NULL
---   DROP DATABASE Diabetes;
---GO
+IF DB_ID('Diabetes') IS NOT NULL
+   DROP DATABASE Diabetes;
+GO
 CREATE DATABASE Diabetes;
 GO
 
@@ -262,6 +262,7 @@ CREATE TABLE [AI_Assistant] (
     ModelName VARCHAR(50)
 );
 
+
 -- 15. Conversation
 CREATE TABLE [AI_Conversation] (
     AIConversationID VARCHAR(50) PRIMARY KEY,
@@ -322,10 +323,14 @@ CREATE TABLE [ai_patient_access_log] (
     [queryLogId] BIGINT,
     [patientId] VARCHAR(50) NOT NULL,
     [dataType] VARCHAR(100) NOT NULL,
-    [accessedAt] DATETIME NOT NULL
+    [accessedAt] DATETIME NOT NULL,
+	[question] NVARCHAR(1000),
+	[latencyMs] BIGINT 
 );
 
 ------------------  INSERT  ----------------------------------------
+
+
 INSERT INTO [Role] (RoleID, RoleName)
 VALUES
     ('AD', 'Admin'),
@@ -342,8 +347,8 @@ VALUES
 
 INSERT INTO [Room] ([RoomName])
 VALUES
-('Endocrinology Clinic'),
-('Laboratory');
+(N'Phòng khám Nội tiết'),
+(N'Phòng xét nghiệm');
 
 INSERT INTO [Symptoms_Catalog] (SymptomID, SymptomName, Status)
 VALUES
@@ -351,23 +356,110 @@ VALUES
 ('SYM002', N'Đi tiểu nhiều lần (Polyuria)', 1),
 ('SYM003', N'Đói dữ dội (Polyphagia)', 1),
 ('SYM004', N'Sụt cân không rõ nguyên nhân', 1),
-('SYM005', N'Mệt mỏi, uể oải', 1),
-('SYM006', N'Mờ mắt', 1),
-('SYM007', N'Vết thương lâu lành', 1);
+('SYM005', N'Mệt mỏi, uể oải kéo dài', 1),
+('SYM006', N'Mờ mắt, giảm thị lực', 1),
+('SYM007', N'Tê bì, châm chích bàn tay bàn chân', 1),
+('SYM008', N'Vết thương, vết trầy xước lâu lành', 1),
+('SYM009', N'Nhiễm trùng da hoặc nấm tái phát', 1);
 
 INSERT INTO [Lab_Test_Catalog] (LabTestID, TestName, Unit, Description, RoomID, Status)
 VALUES
-('LAB001', N'Đường huyết lúc đói (FPG)', 'mg/dL', N'Đo lượng đường trong máu sau khi nhịn ăn 8h', 2, 1),
-('LAB002', N'HbA1c', '%', N'Đo đường huyết trung bình trong 2-3 tháng qua', 2, 1),
-('LAB003', N'Nghiệm pháp dung nạp Glucose (OGTT)', 'mg/dL', N'Đánh giá khả năng chuyển hóa đường của cơ thể', 2, 1),
-('LAB004', N'Đường huyết ngẫu nhiên', 'mg/dL', N'Đo đường huyết tại thời điểm bất kỳ', 2, 1);
+('LAB001', N'Đường huyết lúc đói (FPG)', 'mg/dL', N'Đo lượng đường trong máu sau khi nhịn ăn ít nhất 8 giờ', 2, 1),
+('LAB002', N'Chỉ số HbA1c', '%', N'Đánh giá lượng đường huyết trung bình trong 2-3 tháng qua', 2, 1),
+('LAB003', N'Nghiệm pháp dung nạp Glucose (OGTT)', 'mg/dL', N'Đánh giá khả năng dung nạp glucose sau 2 giờ uống 75g đường', 2, 1),
+('LAB004', N'Đường huyết ngẫu nhiên', 'mg/dL', N'Đo lượng đường trong máu tại thời điểm bất kỳ', 2, 1),
+('LAB005', N'Đường huyết 2 giờ sau ăn', 'mg/dL', N'Đo lượng đường trong máu sau khi ăn 2 giờ', 2, 1),
+('LAB006', N'Nồng độ Insulin lúc đói', 'uIU/mL', N'Đánh giá mức độ tiết Insulin của tuyến tụy lúc đói', 2, 1),
+('LAB007', N'Chỉ số C-Peptide', 'ng/mL', N'Đánh giá khả năng tự sản xuất Insulin nội sinh của tuyến tụy', 2, 1),
+('LAB008', N'Microalbumin nước tiểu (Tỷ lệ ACR)', 'mg/g', N'Sàng lọc sớm tổn thương thận do biến chứng tiểu đường', 2, 1),
+('LAB009', N'Chỉ số Triglyceride máu', 'mg/dL', N'Đánh giá tình trạng rối loạn chuyển hóa Lipid máu ở bệnh nhân tiểu đường', 2, 1);
+
+INSERT INTO [IndicatorThreshold] (LabTestID, PatientTypeID, MinValue, MaxValue)
+VALUES
+-- LAB001: Đường huyết lúc đói (FPG)
+('LAB001', 1, 70.00, 99.00),   -- Adult
+('LAB001', 2, 70.00, 99.00),   -- Middle-aged
+('LAB001', 3, 70.00, 105.00),  -- Elderly
+('LAB001', 4, 60.00, 92.00),   -- Pregnant
+('LAB001', 5, 70.00, 100.00),  -- Children
+
+-- LAB002: HbA1c
+('LAB002', 1, 4.00, 5.60),    -- Adult
+('LAB002', 2, 4.00, 5.60),    -- Middle-aged
+('LAB002', 3, 4.00, 6.00),    -- Elderly
+('LAB002', 4, 4.00, 5.50),    -- Pregnant
+('LAB002', 5, 4.00, 5.60),    -- Children
+
+-- LAB003: OGTT 2h
+('LAB003', 1, 70.00, 139.00),  -- Adult
+('LAB003', 2, 70.00, 139.00),  -- Middle-aged
+('LAB003', 3, 70.00, 145.00),  -- Elderly
+('LAB003', 4, 60.00, 152.00),  -- Pregnant
+('LAB003', 5, 70.00, 139.00),  -- Children
+
+-- LAB004: Đường huyết ngẫu nhiên
+('LAB004', 1, 70.00, 139.00),  -- Adult
+('LAB004', 2, 70.00, 139.00),  -- Middle-aged
+('LAB004', 3, 70.00, 149.00),  -- Elderly
+('LAB004', 4, 60.00, 139.00),  -- Pregnant
+('LAB004', 5, 70.00, 139.00),  -- Children
+
+-- LAB005: Đường huyết 2h sau ăn
+('LAB005', 1, 70.00, 139.00),  -- Adult
+('LAB005', 2, 70.00, 139.00),  -- Middle-aged
+('LAB005', 3, 70.00, 145.00),  -- Elderly
+('LAB005', 4, 60.00, 120.00),  -- Pregnant
+('LAB005', 5, 70.00, 139.00),  -- Children
+
+-- LAB006: Nồng độ Insulin lúc đói
+('LAB006', 1, 2.60, 24.90),   -- Adult
+('LAB006', 2, 2.60, 24.90),   -- Middle-aged
+('LAB006', 3, 2.60, 25.00),   -- Elderly
+('LAB006', 4, 5.00, 28.00),   -- Pregnant
+('LAB006', 5, 2.00, 20.00),   -- Children
+
+-- LAB007: Chỉ số C-Peptide
+('LAB007', 1, 1.10, 4.40),    -- Adult
+('LAB007', 2, 1.10, 4.40),    -- Middle-aged
+('LAB007', 3, 1.10, 4.50),    -- Elderly
+('LAB007', 4, 1.20, 4.80),    -- Pregnant
+('LAB007', 5, 0.80, 3.50),    -- Children
+
+-- LAB008: Microalbumin nước tiểu (ACR)
+('LAB008', 1, 0.00, 30.00),   -- Adult
+('LAB008', 2, 0.00, 30.00),   -- Middle-aged
+('LAB008', 3, 0.00, 30.00),   -- Elderly
+('LAB008', 4, 0.00, 30.00),   -- Pregnant
+('LAB008', 5, 0.00, 30.00),   -- Children
+
+-- LAB009: Chỉ số Triglyceride máu
+('LAB009', 1, 0.00, 150.00),  -- Adult
+('LAB009', 2, 0.00, 150.00),  -- Middle-aged
+('LAB009', 3, 0.00, 160.00),  -- Elderly
+('LAB009', 4, 0.00, 200.00),  -- Pregnant
+('LAB009', 5, 0.00, 100.00);  -- Children
 
 INSERT INTO [Medication] (MedicationID, MedicationName, Form, Concentration, AdministrationRoute, UsageInstruction, Status)
 VALUES
-('MED001', 'Metformin', N'Viên nén', '500mg', N'Đường uống', N'Uống sau khi ăn', 'Active'),
-('MED002', 'Gliclazide', N'Viên nén', '30mg', N'Đường uống', N'Uống trước bữa ăn sáng', 'Active'),
-('MED003', 'Insulin Glargine', N'Thuốc tiêm', '100IU/ml', N'Tiêm dưới da', N'Tiêm vào cùng một thời điểm mỗi ngày', 'Active'),
-('MED004', 'Sitagliptin', N'Viên nén', '100mg', N'Đường uống', N'Uống một lần mỗi ngày', 'Active');
+('MED-01', 'Metformin', N'Viên nén', '500mg', N'Đường uống', N'Uống trong hoặc ngay sau bữa ăn', 'Active'),
+('MED-02', 'Gliclazide', N'Viên nén phóng thích kéo dài', '30mg', N'Đường uống', N'Uống trước bữa ăn sáng 30 phút', 'Active'),
+('MED-03', 'Insulin Glargine', N'Thuốc tiêm', '100IU/ml', N'Tiêm dưới da', N'Tiêm dưới da một lần mỗi ngày vào cùng một thời điểm', 'Active'),
+('MED-04', 'Sitagliptin', N'Viên nén', '100mg', N'Đường uống', N'Uống một lần mỗi ngày, cùng hoặc không cùng thức ăn', 'Active'),
+('MED-05', 'Empagliflozin', N'Viên nén', '10mg', N'Đường uống', N'Uống một lần vào buổi sáng', 'Active'),
+('MED-06', 'Glimepiride', N'Viên nén', '2mg', N'Đường uống', N'Uống ngay trước bữa ăn sáng', 'Active'),
+('MED-07', 'Insulin Lispro', N'Thuốc tiêm', '100IU/ml', N'Tiêm dưới da', N'Tiêm ngay trước bữa ăn 15 phút', 'Active'),
+('MED-08', 'Dapagliflozin', N'Viên nén', '10mg', N'Đường uống', N'Uống 1 lần mỗi ngày vào bất kỳ thời điểm nào', 'Active'),
+('MED-09', 'Vildagliptin', N'Viên nén', '50mg', N'Đường uống', N'Uống 2 lần mỗi ngày vào buổi sáng và buổi tối', 'Active');
+
+INSERT INTO [MedicationTiming] (TimingName)
+VALUES
+(N'Sáng (Sau ăn)'),
+(N'Sáng (Trước ăn)'),
+(N'Trưa (Sau ăn)'),
+(N'Trưa (Trước ăn)'),
+(N'Tối (Sau ăn)'),
+(N'Tối (Trước ăn)'),
+(N'Trước khi đi ngủ');
 
 -- Table: SystemLog
 CREATE TABLE SystemLog (

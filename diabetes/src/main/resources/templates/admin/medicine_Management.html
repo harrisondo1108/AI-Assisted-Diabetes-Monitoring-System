@@ -135,21 +135,23 @@
                                         <span th:class="${med.status == 'Active' ? 'badge-active' : 'badge-clocked'}"
                                             th:text="${med.status == 'Active' ? 'Hoạt động' : 'Tạm khóa'}"></span>
                                     </td>
-                                    <td class="action-group">
-                                        <button class="action-btn view" th:attr="data-id=${med.medicationId}"
-                                            onclick="viewDetail(this.getAttribute('data-id'))" title="Xem chi tiết">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <a th:href="@{/admin/medicines(page=${currentPage}, size=${pageSize}, status=${selectedStatus}, form=${selectedForm}, route=${selectedRoute}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection}, editId=${med.medicationId})}" class="action-btn edit" title="Chỉnh sửa">
-                                            <i class="fas fa-pen"></i>
-                                        </a>
-                                        <button class="action-btn soft-delete"
-                                            th:attr="data-id=${med.medicationId},data-status=${med.status},data-name=${med.medicationName}"
-                                            onclick="showConfirmModal(this.getAttribute('data-id'), this.getAttribute('data-status'), this.getAttribute('data-name'))"
-                                            th:title="${med.status == 'Active' ? 'Khóa thuốc' : 'Khôi phục thuốc'}">
-                                            <i
-                                                th:class="${med.status == 'Active' ? 'fas fa-lock' : 'fas fa-lock-open'}"></i>
-                                        </button>
+                                    <td>
+                                        <div class="action-group">
+                                            <button class="action-btn view" th:attr="data-id=${med.medicationId}"
+                                                onclick="viewDetail(this.getAttribute('data-id'))" title="Xem chi tiết">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <a th:href="@{/admin/medicines(page=${currentPage}, size=${pageSize}, status=${selectedStatus}, form=${selectedForm}, route=${selectedRoute}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection}, editId=${med.medicationId})}" class="action-btn edit" title="Chỉnh sửa">
+                                                <i class="fas fa-pen"></i>
+                                            </a>
+                                            <button class="action-btn soft-delete"
+                                                th:attr="data-id=${med.medicationId},data-status=${med.status},data-name=${med.medicationName}"
+                                                onclick="showConfirmModal(this.getAttribute('data-id'), this.getAttribute('data-status'), this.getAttribute('data-name'))"
+                                                th:title="${med.status == 'Active' ? 'Khóa thuốc' : 'Khôi phục thuốc'}">
+                                                <i
+                                                    th:class="${med.status == 'Active' ? 'fas fa-lock' : 'fas fa-lock-open'}"></i>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                                 <tr th:if="${medications.isEmpty()}">

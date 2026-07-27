@@ -62,6 +62,7 @@
               <th>Tên triệu chứng</th>
               <th>Trạng thái</th>
               <th>Hành động</th>
+            </tr>
             </thead>
             <tbody id="symptomTableBody">
             <!-- Dòng này sẽ được AJAX thay thế -->
@@ -75,11 +76,13 @@
               <td>
                 <span th:class="${sym.status ? 'badge-active' : 'badge-clocked'}" th:text="${sym.status ? 'Hoạt động' : 'Tạm khóa'}"></span>
               </td>
-              <td class="action-group">
-                <a th:href="@{/admin/symptoms(page=${currentPage}, size=${pageSize}, status=${selectedStatus}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection}, editId=${sym.symptomId})}" class="action-btn edit" title="Chỉnh sửa"><i class="fas fa-pen"></i></a>
-                <button class="action-btn soft-delete" th:attr="data-id=${sym.symptomId}, data-status=${sym.status ? 'Active' : 'Clocked'}, data-name=${sym.symptomName}" onclick="showConfirmModal(this.getAttribute('data-id'), this.getAttribute('data-status'), this.getAttribute('data-name'))" th:title="${sym.status ? 'Khóa triệu chứng' : 'Khôi phục triệu chứng'}">
-                  <i th:class="${sym.status ? 'fas fa-lock' : 'fas fa-lock-open'}"></i>
-                </button>
+              <td>
+                <div class="action-group">
+                  <a th:href="@{/admin/symptoms(page=${currentPage}, size=${pageSize}, status=${selectedStatus}, keyword=${searchKeyword}, sortField=${sortField}, sortDirection=${sortDirection}, editId=${sym.symptomId})}" class="action-btn edit" title="Chỉnh sửa"><i class="fas fa-pen"></i></a>
+                  <button class="action-btn soft-delete" th:attr="data-id=${sym.symptomId}, data-status=${sym.status ? 'Active' : 'Clocked'}, data-name=${sym.symptomName}" onclick="showConfirmModal(this.getAttribute('data-id'), this.getAttribute('data-status'), this.getAttribute('data-name'))" th:title="${sym.status ? 'Khóa triệu chứng' : 'Khôi phục triệu chứng'}">
+                    <i th:class="${sym.status ? 'fas fa-lock' : 'fas fa-lock-open'}"></i>
+                  </button>
+                </div>
               </td>
             </tr>
             <tr th:if="${symptoms.isEmpty()}">

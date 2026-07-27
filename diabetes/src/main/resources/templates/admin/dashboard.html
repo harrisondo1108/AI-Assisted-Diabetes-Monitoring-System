@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
@@ -8,141 +9,144 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/admin/dashboard.css}">
 </head>
+
 <body>
-<div class="admin-layout">
-    <!-- Sidebar -->
-    <div th:replace="~{layout/admin/sidebar :: sidebar('dashboard')}"></div>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <div th:replace="~{layout/admin/sidebar :: sidebar('dashboard')}"></div>
 
-    <div class="admin-main">
-        <div th:replace="~{layout/admin/header :: header('Tổng quan')}"></div>
+        <div class="admin-main">
+            <div th:replace="~{layout/admin/header :: header('Tổng quan')}"></div>
 
-        <main class="admin-content">
-            <div class="page-header">
-                <div>
-                    <h1>Bảng điều khiển GlucoCare AI</h1>
-                    <p class="subtitle">Giám sát hiệu suất hệ thống và quản lý các hoạt động một cách năng động.</p>
-                </div>
-                <div class="header-buttons">
-                    <button class="btn btn-primary" id="refreshDashboardBtn">
-                        <i class="fas fa-sync-alt"></i> Làm mới dữ liệu
-                    </button>
-                </div>
-            </div>
+            <main class="admin-content">
+                <div class="page-header">
 
-            <!-- Stats Row -->
-            <div class="dashboard-stats">
-                <div class="stat-card">
-                    <div class="stat-icon patient-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h4>Tổng số bệnh nhân</h4>
-                        <div class="stat-number" th:text="${stats.totalPatients}">0</div>
+                    <div class="header-buttons">
+                        <button class="btn btn-primary" id="refreshDashboardBtn">
+                            <i class="fas fa-sync-alt"></i> Làm mới dữ liệu
+                        </button>
                     </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon doctor-icon">
-                        <i class="fas fa-user-md"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h4>Tổng số bác sĩ</h4>
-                        <div class="stat-number" th:text="${stats.totalDoctors}">0</div>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon ai-icon">
-                        <i class="fas fa-comments"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h4>Cuộc trò chuyện với AI</h4>
-                        <div class="stat-number" th:text="${stats.totalConversations}">0</div>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon reminder-icon">
-                        <i class="fas fa-bell"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h4>Tổng số nhắc nhở</h4>
-                        <div class="stat-number" th:text="${stats.totalReminders}">0</div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Charts and Summary -->
-            <div class="dashboard-grid">
-                <!-- Daily Stats -->
-                <div class="daily-stats-section premium-card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-calendar-day"></i> Hoạt động trong ngày</h3>
-                    </div>
-                    <div class="insight-list">
-                        <div class="insight-item">
-                            <div class="insight-icon" style="background: rgba(20, 92, 74, 0.1); color: var(--primary-color);"><i class="fas fa-comments"></i></div>
-                            <div class="insight-text">
-                                <span class="insight-title">Phiên chat AI hôm nay</span>
-                                <span class="insight-desc">Số lượng trò chuyện trong 24h</span>
-                            </div>
-                            <div class="insight-value" th:text="${stats.todayChats}">0</div>
+                <!-- Stats Row -->
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon patient-icon">
+                            <i class="fas fa-users"></i>
                         </div>
-                        <div class="insight-item">
-                            <div class="insight-icon" style="background: rgba(126, 232, 181, 0.2); color: #0d825c;"><i class="fas fa-bell"></i></div>
-                            <div class="insight-text">
-                                <span class="insight-title">Nhắc nhở gửi hôm nay</span>
-                                <span class="insight-desc">Tổng số cảnh báo, nhắc nhở</span>
-                            </div>
-                            <div class="insight-value" th:text="${stats.todayReminders}">0</div>
+                        <div class="stat-info">
+                            <h4>Tổng số bệnh nhân</h4>
+                            <div class="stat-number" th:text="${stats.totalPatients}">0</div>
                         </div>
-                        <div class="insight-item">
-                            <div class="insight-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;"><i class="fas fa-stethoscope"></i></div>
-                            <div class="insight-text">
-                                <span class="insight-title">Phiên khám đã hoàn thành</span>
-                                <span class="insight-desc">Tổng số lượt khám hôm nay</span>
-                            </div>
-                            <div class="insight-value" th:text="${stats.todayCompletedExams}">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon doctor-icon">
+                            <i class="fas fa-user-md"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h4>Tổng số bác sĩ</h4>
+                            <div class="stat-number" th:text="${stats.totalDoctors}">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon ai-icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h4>Cuộc trò chuyện với AI</h4>
+                            <div class="stat-number" th:text="${stats.totalConversations}">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon reminder-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h4>Tổng số nhắc nhở</h4>
+                            <div class="stat-number" th:text="${stats.totalReminders}">0</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Secondary Info -->
-                <div class="info-section premium-card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-bolt"></i> Thông tin nhanh</h3>
+                <!-- Charts and Summary -->
+                <div class="dashboard-grid">
+                    <!-- Daily Stats -->
+                    <div class="daily-stats-section premium-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-calendar-day"></i> Hoạt động trong ngày</h3>
+                        </div>
+                        <div class="insight-list">
+                            <div class="insight-item">
+                                <div class="insight-icon"
+                                    style="background: rgba(20, 92, 74, 0.1); color: var(--primary-color);"><i
+                                        class="fas fa-comments"></i></div>
+                                <div class="insight-text">
+                                    <span class="insight-title">Phiên chat AI hôm nay</span>
+                                    <span class="insight-desc">Số lượng trò chuyện trong 24h</span>
+                                </div>
+                                <div class="insight-value" th:text="${stats.todayChats}">0</div>
+                            </div>
+                            <div class="insight-item">
+                                <div class="insight-icon" style="background: rgba(126, 232, 181, 0.2); color: #0d825c;">
+                                    <i class="fas fa-bell"></i></div>
+                                <div class="insight-text">
+                                    <span class="insight-title">Nhắc nhở gửi hôm nay</span>
+                                    <span class="insight-desc">Tổng số cảnh báo, nhắc nhở</span>
+                                </div>
+                                <div class="insight-value" th:text="${stats.todayReminders}">0</div>
+                            </div>
+                            <div class="insight-item">
+                                <div class="insight-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+                                    <i class="fas fa-stethoscope"></i></div>
+                                <div class="insight-text">
+                                    <span class="insight-title">Phiên khám đã hoàn thành</span>
+                                    <span class="insight-desc">Tổng số lượt khám hôm nay</span>
+                                </div>
+                                <div class="insight-value" th:text="${stats.todayCompletedExams}">0</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="insight-list">
-                        <div class="insight-item">
-                            <div class="insight-icon alert"><i class="fas fa-exclamation-triangle"></i></div>
-                            <div class="insight-text">
-                                <span class="insight-title">Bệnh nhân nguy cơ cao</span>
-                                <span class="insight-desc">Yêu cầu sự chú ý ngay lập tức</span>
-                            </div>
-                            <div class="insight-value" th:text="${stats.highRiskPatients}">0</div>
+
+                    <!-- Secondary Info -->
+                    <div class="info-section premium-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-bolt"></i> Thông tin nhanh</h3>
                         </div>
-                        <div class="insight-item">
-                            <div class="insight-icon warning"><i class="fas fa-tint"></i></div>
-                            <div class="insight-text">
-                                <span class="insight-title">Cảnh báo bất thường</span>
-                                <span class="insight-desc">Cảnh báo đường huyết hôm nay</span>
+                        <div class="insight-list">
+                            <div class="insight-item">
+                                <div class="insight-icon alert"><i class="fas fa-exclamation-triangle"></i></div>
+                                <div class="insight-text">
+                                    <span class="insight-title">Bệnh nhân nguy cơ cao</span>
+                                    <span class="insight-desc">Yêu cầu sự chú ý ngay lập tức</span>
+                                </div>
+                                <div class="insight-value" th:text="${stats.highRiskPatients}">0</div>
                             </div>
-                            <div class="insight-value" th:text="${stats.abnormalGlucoseAlerts}">0</div>
-                        </div>
-                        <div class="insight-item">
-                            <div class="insight-icon success"><i class="fas fa-check-circle"></i></div>
-                            <div class="insight-text">
-                                <span class="insight-title">Trạng thái hệ thống</span>
-                                <span class="insight-desc">Tất cả dịch vụ đang hoạt động</span>
+                            <div class="insight-item">
+                                <div class="insight-icon warning"><i class="fas fa-tint"></i></div>
+                                <div class="insight-text">
+                                    <span class="insight-title">Cảnh báo bất thường</span>
+                                    <span class="insight-desc">Cảnh báo đường huyết hôm nay</span>
+                                </div>
+                                <div class="insight-value" th:text="${stats.abnormalGlucoseAlerts}">0</div>
                             </div>
-                            <div class="insight-value">Hoạt động</div>
+                            <div class="insight-item">
+                                <div class="insight-icon success"><i class="fas fa-check-circle"></i></div>
+                                <div class="insight-text">
+                                    <span class="insight-title">Trạng thái hệ thống</span>
+                                    <span class="insight-desc">Tất cả dịch vụ đang hoạt động</span>
+                                </div>
+                                <div class="insight-value">Hoạt động</div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </main>
-        <!-- Footer -->
-        <div th:replace="~{layout/admin/footer :: footer}"></div>
+            </main>
+            <!-- Footer -->
+            <div th:replace="~{layout/admin/footer :: footer}"></div>
+        </div>
     </div>
-</div>
 
-<script th:src="@{/js/admin/dashboard.js}"></script>
+    <script th:src="@{/js/admin/dashboard.js}"></script>
 </body>
+
 </html>

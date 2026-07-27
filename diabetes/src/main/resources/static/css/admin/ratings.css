@@ -438,3 +438,34 @@ body {
     margin-top: 6px;
     font-weight: 600;
 }
+
+/* Footer */
+.admin-page-footer {
+    margin: 28px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.admin-page-footer .footer-copy {
+    font-weight: 500;
+}
+
+.admin-page-footer .footer-links {
+    display: flex;
+    gap: 20px;
+}
+
+.admin-page-footer .footer-links a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.admin-page-footer .footer-links a:hover {
+    color: var(--green-800);
+}

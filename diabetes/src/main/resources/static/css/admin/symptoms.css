@@ -602,14 +602,22 @@ body {
     color: var(--text-muted);
 }
 
+.symptom-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+}
+
 .symptom-id {
     font-family: monospace;
     background: #f1f5f9;
-    padding: 4px 8px;
+    padding: 2px 8px;
     border-radius: 6px;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 500;
     color: var(--green-800);
+    display: inline-block;
 }
 
 .symptom-name {
@@ -639,6 +647,7 @@ body {
 /* Actions */
 .action-group {
     display: flex;
+    align-items: center;
     gap: 8px;
 }
 
