@@ -36,7 +36,7 @@
                 </div>
             </div>
 
-            <div id="dashboard-stats-cards" class="dashboard-stats diabetes-stats">
+            <div id="dashboard-stats-cards" class="dashboard-stats diabetes-stats notifications-stats">
                 <div class="stat-card diabetes-stat-card">
                     <div class="stat-icon warning-icon">
                         <i class="fas fa-pills"></i>
@@ -76,18 +76,6 @@
                     </div>
                 </div>
 
-                <div class="stat-card diabetes-stat-card">
-                    <div class="stat-icon info-icon">
-                        <i class="fas fa-robot"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h4>Thông báo AI</h4>
-                        <div class="stat-number" th:text="${aiReminders != null ? aiReminders.size() : 0}">
-                            0
-                        </div>
-                        <p>Thông báo sức khỏe</p>
-                    </div>
-                </div>
             </div>
 
             <div id="notification-alert-box" class="notification-alert-box">

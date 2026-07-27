@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <title>Lịch sử thông báo | Hệ thống chăm sóc tiểu đường</title>
@@ -10,169 +11,177 @@
 </head>
 
 <body>
-<div class="admin-layout">
-    <div th:replace="~{layout/patient/sidebar :: patientSidebar('notifications')}"></div>
+    <div class="admin-layout">
+        <div th:replace="~{layout/patient/sidebar :: patientSidebar('notifications')}"></div>
 
-    <div class="admin-main">
-        <div th:replace="~{layout/patient/header :: patientHeader('Thông báo')}"></div>
+        <div class="admin-main">
+            <div th:replace="~{layout/patient/header :: patientHeader('Thông báo')}"></div>
 
-        <main class="admin-content" th:with="
+            <main class="admin-content" th:with="
             unreadToday=${todayNotifications.?[isRead == null or !isRead].size()},
             unreadYesterday=${yesterdayNotifications.?[isRead == null or !isRead].size()},
             unreadOlder=${olderNotifications.?[isRead == null or !isRead].size()},
             totalCount=${todayNotifications.size() + yesterdayNotifications.size() + olderNotifications.size()},
             totalUnreadCount=${unreadToday + unreadYesterday + unreadOlder}
         ">
-            <div class="page-header dashboard-hero" style="margin-bottom: 24px;">
-                <div>
-                    <h1 id="page-title">
-                        <i class="fas fa-history"></i>
-                        Lịch sử thông báo
-                    </h1>
-                    <p class="subtitle" id="page-subtitle">
-                        Xem và lọc lại toàn bộ các thông báo, lịch tái khám và cập nhật sức khỏe từ bác sĩ.
-                    </p>
+                <div class="page-header dashboard-hero" style="margin-bottom: 24px;">
+                    <div>
+                        <h1 id="page-title">
+                            <i class="fas fa-history"></i>
+                            Lịch sử thông báo
+                        </h1>
+                        <p class="subtitle" id="page-subtitle">
+                            Xem và lọc lại toàn bộ các thông báo, lịch tái khám và cập nhật sức khỏe từ bác sĩ.
+                        </p>
+                    </div>
+
+                    <div class="dashboard-actions">
+                        <a th:href="@{/patient/notifications}" class="btn-primary-link" id="view-reminders-btn">
+                            <i class="fas fa-bell"></i>
+                            Xem nhắc nhở dùng thuốc
+                        </a>
+                    </div>
                 </div>
 
-                <div class="dashboard-actions">
-                    <a th:href="@{/patient/notifications}" class="btn-primary-link" id="view-reminders-btn">
-                        <i class="fas fa-bell"></i>
-                        Xem nhắc nhở dùng thuốc
-                    </a>
-                </div>
-            </div>
+                <!-- Tab Filtering and Action buttons -->
+                <div class="history-tabs-container">
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" id="tab-all" onclick="filterNotifications('all')">
+                            Tất cả <span class="tab-count" id="count-all" th:text="${totalCount}">0</span>
+                        </button>
+                        <button class="filter-tab" id="tab-unread" onclick="filterNotifications('unread')">
+                            Chưa đọc <span class="tab-count" id="count-unread" th:text="${totalUnreadCount}">0</span>
+                        </button>
+                    </div>
 
-            <!-- Tab Filtering and Action buttons -->
-            <div class="history-tabs-container">
-                <div class="filter-tabs">
-                    <button class="filter-tab active" id="tab-all" onclick="filterNotifications('all')">
-                        Tất cả <span class="tab-count" id="count-all" th:text="${totalCount}">0</span>
+                    <button class="mark-read-btn" th:style="${totalUnreadCount > 0} ? '' : 'display: none;'"
+                        id="mark-all-read-btn" onclick="markAllAsRead()">
+                        <i class="fas fa-check-double"></i>
+                        Đánh dấu tất cả là đã đọc
                     </button>
-                    <button class="filter-tab" id="tab-unread" onclick="filterNotifications('unread')">
-                        Chưa đọc <span class="tab-count" id="count-unread" th:text="${totalUnreadCount}">0</span>
-                    </button>
                 </div>
 
-                <button class="mark-read-btn" th:style="${totalUnreadCount > 0} ? '' : 'display: none;'" id="mark-all-read-btn" onclick="markAllAsRead()">
-                    <i class="fas fa-check-double"></i>
-                    Đánh dấu tất cả là đã đọc
-                </button>
-            </div>
+                <!-- Group 1: Today -->
+                <div class="notification-group" id="group-today" th:if="${!todayNotifications.isEmpty()}">
+                    <div class="group-title">Hôm nay</div>
+                    <div class="notification-list">
+                        <a th:href="@{/patient/notifications/{id}(id=${reminder.reminderId})}" class="notification-card"
+                            th:each="reminder : ${todayNotifications}"
+                            th:classappend="${reminder.isRead == null or !reminder.isRead} ? 'unread' : 'read'"
+                            th:attr="data-read=${reminder.isRead == null ? 'false' : reminder.isRead}">
 
-            <!-- Group 1: Today -->
-            <div class="notification-group" id="group-today" th:if="${!todayNotifications.isEmpty()}">
-                <div class="group-title">Hôm nay</div>
-                <div class="notification-list">
-                    <a th:href="@{/patient/notifications/{id}(id=${reminder.reminderId})}" 
-                       class="notification-card" 
-                       th:each="reminder : ${todayNotifications}"
-                       th:classappend="${reminder.isRead == null or !reminder.isRead} ? 'unread' : 'read'"
-                       th:attr="data-read=${reminder.isRead == null ? 'false' : reminder.isRead}">
-                        
-                        <div class="card-main-content">
-                            <!-- Categorized Icon -->
-                            <div class="notif-icon-wrapper" 
-                                 th:classappend="${#strings.contains(reminder.title, 'Nhắc nhở') or #strings.contains(reminder.title, 'Uống') or #strings.contains(reminder.title, 'thuốc') or reminder.timing != null} ? 'notif-icon-medication' : (${#strings.contains(reminder.title, 'Lịch') or #strings.contains(reminder.title, 'Tái khám') or #strings.contains(reminder.title, 'Hẹn') or #strings.contains(reminder.title, 'Xác nhận')} ? 'notif-icon-checkup' : 'notif-icon-knowledge')">
-                                <i th:class="${#strings.contains(reminder.title, 'Nhắc nhở') or #strings.contains(reminder.title, 'Uống') or #strings.contains(reminder.title, 'thuốc') or reminder.timing != null} ? 'fas fa-pills' : (${#strings.contains(reminder.title, 'Lịch') or #strings.contains(reminder.title, 'Tái khám') or #strings.contains(reminder.title, 'Hẹn') or #strings.contains(reminder.title, 'Xác nhận')} ? 'fas fa-calendar-alt' : 'fas fa-file-alt')"></i>
+                            <div class="card-main-content">
+                                <!-- Categorized Icon -->
+                                <div class="notif-icon-wrapper"
+                                    th:classappend="${#strings.contains(reminder.title, 'Nhắc nhở') or #strings.contains(reminder.title, 'Uống') or #strings.contains(reminder.title, 'thuốc') or reminder.timing != null} ? 'notif-icon-medication' : (${#strings.contains(reminder.title, 'Lịch') or #strings.contains(reminder.title, 'Tái khám') or #strings.contains(reminder.title, 'Hẹn') or #strings.contains(reminder.title, 'Xác nhận')} ? 'notif-icon-checkup' : 'notif-icon-knowledge')">
+                                    <i
+                                        th:class="${#strings.contains(reminder.title, 'Nhắc nhở') or #strings.contains(reminder.title, 'Uống') or #strings.contains(reminder.title, 'thuốc') or reminder.timing != null} ? 'fas fa-pills' : (${#strings.contains(reminder.title, 'Lịch') or #strings.contains(reminder.title, 'Tái khám') or #strings.contains(reminder.title, 'Hẹn') or #strings.contains(reminder.title, 'Xác nhận')} ? 'fas fa-calendar-alt' : 'fas fa-file-alt')"></i>
+                                </div>
+
+                                <div class="notif-text-block">
+                                    <h4 class="notif-title">
+                                        <span th:text="${reminder.title}">Tiêu đề</span>
+                                        <span class="notif-dot"
+                                            th:if="${reminder.isRead == null or !reminder.isRead}"></span>
+                                    </h4>
+                                    <p class="notif-message" th:text="${reminder.message}">Nội dung</p>
+                                </div>
                             </div>
 
-                            <div class="notif-text-block">
-                                <h4 class="notif-title">
-                                    <span th:text="${reminder.title}">Tiêu đề</span>
-                                    <span class="notif-dot" th:if="${reminder.isRead == null or !reminder.isRead}"></span>
-                                </h4>
-                                <p class="notif-message" th:text="${reminder.message}">Nội dung</p>
+                            <div class="card-time-block">
+                                <span
+                                    th:text="${reminder.scheduledTime != null ? #temporals.format(reminder.scheduledTime, 'HH:mm') : ''}">10:30</span>
                             </div>
-                        </div>
-
-                        <div class="card-time-block">
-                            <span th:text="${reminder.scheduledTime != null ? #temporals.format(reminder.scheduledTime, 'HH:mm') : ''}">10:30</span>
-                        </div>
-                    </a>
+                        </a>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Group 2: Yesterday -->
-            <div class="notification-group" id="group-yesterday" th:if="${!yesterdayNotifications.isEmpty()}">
-                <div class="group-title">Hôm qua</div>
-                <div class="notification-list">
-                    <a th:href="@{/patient/notifications/{id}(id=${reminder.reminderId})}" 
-                       class="notification-card" 
-                       th:each="reminder : ${yesterdayNotifications}"
-                       th:classappend="${reminder.isRead == null or !reminder.isRead} ? 'unread' : 'read'"
-                       th:attr="data-read=${reminder.isRead == null ? 'false' : reminder.isRead}">
-                        
-                        <div class="card-main-content">
-                            <!-- Categorized Icon -->
-                            <div class="notif-icon-wrapper" 
-                                 th:classappend="${#strings.contains(reminder.title, 'Nhắc nhở') or #strings.contains(reminder.title, 'Uống') or #strings.contains(reminder.title, 'thuốc') or reminder.timing != null} ? 'notif-icon-medication' : (${#strings.contains(reminder.title, 'Lịch') or #strings.contains(reminder.title, 'Tái khám') or #strings.contains(reminder.title, 'Hẹn') or #strings.contains(reminder.title, 'Xác nhận')} ? 'notif-icon-checkup' : 'notif-icon-knowledge')">
-                                <i th:class="${#strings.contains(reminder.title, 'Nhắc nhở') or #strings.contains(reminder.title, 'Uống') or #strings.contains(reminder.title, 'thuốc') or reminder.timing != null} ? 'fas fa-pills' : (${#strings.contains(reminder.title, 'Lịch') or #strings.contains(reminder.title, 'Tái khám') or #strings.contains(reminder.title, 'Hẹn') or #strings.contains(reminder.title, 'Xác nhận')} ? 'fas fa-calendar-alt' : 'fas fa-file-alt')"></i>
+                <!-- Group 2: Yesterday -->
+                <div class="notification-group" id="group-yesterday" th:if="${!yesterdayNotifications.isEmpty()}">
+                    <div class="group-title">Hôm qua</div>
+                    <div class="notification-list">
+                        <a th:href="@{/patient/notifications/{id}(id=${reminder.reminderId})}" class="notification-card"
+                            th:each="reminder : ${yesterdayNotifications}"
+                            th:classappend="${reminder.isRead == null or !reminder.isRead} ? 'unread' : 'read'"
+                            th:attr="data-read=${reminder.isRead == null ? 'false' : reminder.isRead}">
+
+                            <div class="card-main-content">
+                                <!-- Categorized Icon -->
+                                <div class="notif-icon-wrapper"
+                                    th:classappend="${#strings.contains(reminder.title, 'Nhắc nhở') or #strings.contains(reminder.title, 'Uống') or #strings.contains(reminder.title, 'thuốc') or reminder.timing != null} ? 'notif-icon-medication' : (${#strings.contains(reminder.title, 'Lịch') or #strings.contains(reminder.title, 'Tái khám') or #strings.contains(reminder.title, 'Hẹn') or #strings.contains(reminder.title, 'Xác nhận')} ? 'notif-icon-checkup' : 'notif-icon-knowledge')">
+                                    <i
+                                        th:class="${#strings.contains(reminder.title, 'Nhắc nhở') or #strings.contains(reminder.title, 'Uống') or #strings.contains(reminder.title, 'thuốc') or reminder.timing != null} ? 'fas fa-pills' : (${#strings.contains(reminder.title, 'Lịch') or #strings.contains(reminder.title, 'Tái khám') or #strings.contains(reminder.title, 'Hẹn') or #strings.contains(reminder.title, 'Xác nhận')} ? 'fas fa-calendar-alt' : 'fas fa-file-alt')"></i>
+                                </div>
+
+                                <div class="notif-text-block">
+                                    <h4 class="notif-title">
+                                        <span th:text="${reminder.title}">Tiêu đề</span>
+                                        <span class="notif-dot"
+                                            th:if="${reminder.isRead == null or !reminder.isRead}"></span>
+                                    </h4>
+                                    <p class="notif-message" th:text="${reminder.message}">Nội dung</p>
+                                </div>
                             </div>
 
-                            <div class="notif-text-block">
-                                <h4 class="notif-title">
-                                    <span th:text="${reminder.title}">Tiêu đề</span>
-                                    <span class="notif-dot" th:if="${reminder.isRead == null or !reminder.isRead}"></span>
-                                </h4>
-                                <p class="notif-message" th:text="${reminder.message}">Nội dung</p>
+                            <div class="card-time-block">
+                                <span
+                                    th:text="${reminder.scheduledTime != null ? #temporals.format(reminder.scheduledTime, 'HH:mm') : ''}">15:45</span>
                             </div>
-                        </div>
-
-                        <div class="card-time-block">
-                            <span th:text="${reminder.scheduledTime != null ? #temporals.format(reminder.scheduledTime, 'HH:mm') : ''}">15:45</span>
-                        </div>
-                    </a>
+                        </a>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Group 3: Older -->
-            <div class="notification-group" id="group-older" th:if="${!olderNotifications.isEmpty()}">
-                <div class="group-title">Cũ hơn</div>
-                <div class="notification-list">
-                    <a th:href="@{/patient/notifications/{id}(id=${reminder.reminderId})}" 
-                       class="notification-card" 
-                       th:each="reminder : ${olderNotifications}"
-                       th:classappend="${reminder.isRead == null or !reminder.isRead} ? 'unread' : 'read'"
-                       th:attr="data-read=${reminder.isRead == null ? 'false' : reminder.isRead}">
-                        
-                        <div class="card-main-content">
-                            <!-- Categorized Icon -->
-                            <div class="notif-icon-wrapper" 
-                                 th:classappend="${#strings.contains(reminder.title, 'Nhắc nhở') or #strings.contains(reminder.title, 'Uống') or #strings.contains(reminder.title, 'thuốc') or reminder.timing != null} ? 'notif-icon-medication' : (${#strings.contains(reminder.title, 'Lịch') or #strings.contains(reminder.title, 'Tái khám') or #strings.contains(reminder.title, 'Hẹn') or #strings.contains(reminder.title, 'Xác nhận')} ? 'notif-icon-checkup' : 'notif-icon-knowledge')">
-                                <i th:class="${#strings.contains(reminder.title, 'Nhắc nhở') or #strings.contains(reminder.title, 'Uống') or #strings.contains(reminder.title, 'thuốc') or reminder.timing != null} ? 'fas fa-pills' : (${#strings.contains(reminder.title, 'Lịch') or #strings.contains(reminder.title, 'Tái khám') or #strings.contains(reminder.title, 'Hẹn') or #strings.contains(reminder.title, 'Xác nhận')} ? 'fas fa-calendar-alt' : 'fas fa-file-alt')"></i>
+                <!-- Group 3: Older -->
+                <div class="notification-group" id="group-older" th:if="${!olderNotifications.isEmpty()}">
+                    <div class="group-title">Cũ hơn</div>
+                    <div class="notification-list">
+                        <a th:href="@{/patient/notifications/{id}(id=${reminder.reminderId})}" class="notification-card"
+                            th:each="reminder : ${olderNotifications}"
+                            th:classappend="${reminder.isRead == null or !reminder.isRead} ? 'unread' : 'read'"
+                            th:attr="data-read=${reminder.isRead == null ? 'false' : reminder.isRead}">
+
+                            <div class="card-main-content">
+                                <!-- Categorized Icon -->
+                                <div class="notif-icon-wrapper"
+                                    th:classappend="${#strings.contains(reminder.title, 'Nhắc nhở') or #strings.contains(reminder.title, 'Uống') or #strings.contains(reminder.title, 'thuốc') or reminder.timing != null} ? 'notif-icon-medication' : (${#strings.contains(reminder.title, 'Lịch') or #strings.contains(reminder.title, 'Tái khám') or #strings.contains(reminder.title, 'Hẹn') or #strings.contains(reminder.title, 'Xác nhận')} ? 'notif-icon-checkup' : 'notif-icon-knowledge')">
+                                    <i
+                                        th:class="${#strings.contains(reminder.title, 'Nhắc nhở') or #strings.contains(reminder.title, 'Uống') or #strings.contains(reminder.title, 'thuốc') or reminder.timing != null} ? 'fas fa-pills' : (${#strings.contains(reminder.title, 'Lịch') or #strings.contains(reminder.title, 'Tái khám') or #strings.contains(reminder.title, 'Hẹn') or #strings.contains(reminder.title, 'Xác nhận')} ? 'fas fa-calendar-alt' : 'fas fa-file-alt')"></i>
+                                </div>
+
+                                <div class="notif-text-block">
+                                    <h4 class="notif-title">
+                                        <span th:text="${reminder.title}">Tiêu đề</span>
+                                        <span class="notif-dot"
+                                            th:if="${reminder.isRead == null or !reminder.isRead}"></span>
+                                    </h4>
+                                    <p class="notif-message" th:text="${reminder.message}">Nội dung</p>
+                                </div>
                             </div>
 
-                            <div class="notif-text-block">
-                                <h4 class="notif-title">
-                                    <span th:text="${reminder.title}">Tiêu đề</span>
-                                    <span class="notif-dot" th:if="${reminder.isRead == null or !reminder.isRead}"></span>
-                                </h4>
-                                <p class="notif-message" th:text="${reminder.message}">Nội dung</p>
+                            <div class="card-time-block">
+                                <span
+                                    th:text="${reminder.scheduledTime != null ? #temporals.format(reminder.scheduledTime, 'dd/MM') : ''}">25/09</span>
                             </div>
-                        </div>
-
-                        <div class="card-time-block">
-                            <span th:text="${reminder.scheduledTime != null ? #temporals.format(reminder.scheduledTime, 'dd/MM') : ''}">25/09</span>
-                        </div>
-                    </a>
+                        </a>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Empty History State -->
-            <div class="empty-history-state" id="empty-state" th:style="${totalCount > 0} ? 'display: none;' : ''">
-                <div class="empty-icon">
-                    <i class="far fa-bell-slash"></i>
+                <!-- Empty History State -->
+                <div class="empty-history-state" id="empty-state" th:style="${totalCount > 0} ? 'display: none;' : ''">
+                    <div class="empty-icon">
+                        <i class="far fa-bell-slash"></i>
+                    </div>
+                    <h3 id="empty-state-title">Không có thông báo</h3>
+                    <p id="empty-state-desc">Bạn chưa nhận được bất kỳ thông báo hoặc cập nhật y khoa nào.</p>
                 </div>
-                <h3 id="empty-state-title">Không có thông báo</h3>
-                <p id="empty-state-desc">Bạn chưa nhận được bất kỳ thông báo hoặc cập nhật y khoa nào.</p>
-            </div>
-        </main>
+            </main>
 
-        <div th:replace="~{layout/patient/footer :: footer}"></div>
+            <div th:replace="~{layout/patient/footer :: footer}"></div>
+        </div>
     </div>
-</div>
 
-<script th:src="@{/js/patient/patient.js}"></script>
-<script th:src="@{/js/patient/notifications-history.js}"></script>
+    <script th:src="@{/js/patient/patient.js}"></script>
+    <script th:src="@{/js/patient/notifications-history.js}"></script>
 </body>
+
 </html>

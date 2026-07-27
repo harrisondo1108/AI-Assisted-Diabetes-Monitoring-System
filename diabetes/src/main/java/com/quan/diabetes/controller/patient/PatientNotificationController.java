@@ -25,21 +25,10 @@ import java.util.stream.Collectors;
 public class PatientNotificationController extends BasePatientController {
 
     @GetMapping("/patient/notifications")
-    public String notifications(
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "5") int size,
-            Model model, HttpSession session) {
+    public String notifications(Model model, HttpSession session) {
         Patient patient = addCommonData(model, session, "notifications");
 
-        List<Reminder> allAiReminders = findRemindersByPatient(patient);
         List<MedicationReminderView> medicationReminders = buildTodayMedicationReminders(patient);
-
-        int totalItems = allAiReminders.size();
-        int totalPages = (int) Math.ceil((double) totalItems / size);
-
-        int start = Math.min(page * size, totalItems);
-        int end = Math.min((page + 1) * size, totalItems);
-        List<Reminder> pagedAiReminders = (start < end) ? allAiReminders.subList(start, end) : List.of();
 
         long dueMedicationReminderCount = medicationReminders.stream()
                 .filter(MedicationReminderView::isDueNow)
@@ -49,15 +38,10 @@ public class PatientNotificationController extends BasePatientController {
                 .filter(reminder -> !reminder.isPast())
                 .count();
 
-        model.addAttribute("aiReminders", pagedAiReminders);
         model.addAttribute("medicationReminders", medicationReminders);
         model.addAttribute("dueMedicationReminderCount", dueMedicationReminderCount);
         model.addAttribute("upcomingMedicationReminderCount", upcomingMedicationReminderCount);
         model.addAttribute("currentTime", LocalDateTime.now());
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", totalPages);
-        model.addAttribute("totalItems", totalItems);
-        model.addAttribute("pageSize", size);
 
         return "patient/notifications";
     }
@@ -250,20 +234,30 @@ public class PatientNotificationController extends BasePatientController {
             if (!matchingDetails.isEmpty()) {
                 for (PrescriptionDetail d : matchingDetails) {
                     Map<String, String> med = new HashMap<>();
-                    med.put("medicationName", d.getMedication() != null && d.getMedication().getMedicationName() != null ? d.getMedication().getMedicationName() : "Chưa rõ");
+                    med.put("medicationName",
+                            d.getMedication() != null && d.getMedication().getMedicationName() != null
+                                    ? d.getMedication().getMedicationName()
+                                    : "Chưa rõ");
                     med.put("dosage", d.getDosage() != null ? d.getDosage() : "Theo chỉ định");
-                    
+
                     String dTiming = timingName;
                     if (d.getPrescriptionTimings() != null && !d.getPrescriptionTimings().isEmpty()) {
-                         dTiming = d.getPrescriptionTimings().stream()
-                                 .map(pt -> pt.getTiming() != null ? pt.getTiming().getTimingName() : "")
-                                 .filter(t -> !t.isEmpty())
-                                 .collect(Collectors.joining(" & "));
+                        dTiming = d.getPrescriptionTimings().stream()
+                                .map(pt -> pt.getTiming() != null ? pt.getTiming().getTimingName() : "")
+                                .filter(t -> !t.isEmpty())
+                                .collect(Collectors.joining(" & "));
                     }
                     med.put("timingName", dTiming != null && !dTiming.isEmpty() ? dTiming : "Theo hướng dẫn");
-                    
-                    med.put("instruction", d.getMedication() != null && d.getMedication().getUsageInstruction() != null && !d.getMedication().getUsageInstruction().trim().isEmpty() ? d.getMedication().getUsageInstruction() : "Uống theo hướng dẫn của bác sĩ.");
-                    med.put("doctorNote", d.getMedicationPlan() != null && !d.getMedicationPlan().trim().isEmpty() ? d.getMedicationPlan() : "Không có");
+
+                    med.put("instruction",
+                            d.getMedication() != null && d.getMedication().getUsageInstruction() != null
+                                    && !d.getMedication().getUsageInstruction().trim().isEmpty()
+                                            ? d.getMedication().getUsageInstruction()
+                                            : "Uống theo hướng dẫn của bác sĩ.");
+                    med.put("doctorNote",
+                            d.getMedicationPlan() != null && !d.getMedicationPlan().trim().isEmpty()
+                                    ? d.getMedicationPlan()
+                                    : "Không có");
                     medList.add(med);
                 }
             }
@@ -278,8 +272,10 @@ public class PatientNotificationController extends BasePatientController {
                     med.put("medicationName", "Metformin 500mg");
                     med.put("dosage", "01 Viên");
                     med.put("timingName", "Mỗi buổi sáng");
-                    med.put("instruction", "Uống 1 viên ngay sau bữa ăn sáng để duy trì mức đường huyết ổn định. Việc dùng thuốc sau khi ăn giúp giảm thiểu các tác dụng phụ lên đường tiêu hóa.");
-                    med.put("doctorNote", "Vui lòng uống đúng giờ và không bỏ bữa. Nếu có dấu hiệu bất thường như chóng mặt, vã mồ hôi lạnh hoặc mệt mỏi cực độ, hãy liên hệ bác sĩ ngay lập tức. Đây là một phần quan trọng trong phác đồ điều trị tiểu đường Type 2 của bạn.");
+                    med.put("instruction",
+                            "Uống 1 viên ngay sau bữa ăn sáng để duy trì mức đường huyết ổn định. Việc dùng thuốc sau khi ăn giúp giảm thiểu các tác dụng phụ lên đường tiêu hóa.");
+                    med.put("doctorNote",
+                            "Vui lòng uống đúng giờ và không bỏ bữa. Nếu có dấu hiệu bất thường như chóng mặt, vã mồ hôi lạnh hoặc mệt mỏi cực độ, hãy liên hệ bác sĩ ngay lập tức. Đây là một phần quan trọng trong phác đồ điều trị tiểu đường Type 2 của bạn.");
                     medList.add(med);
                 } else if (title.contains("Gliclazide") || message.contains("Gliclazide")) {
                     Map<String, String> med = new HashMap<>();
@@ -287,19 +283,24 @@ public class PatientNotificationController extends BasePatientController {
                     med.put("dosage", "01 Viên");
                     med.put("timingName", "Mỗi buổi sáng");
                     med.put("instruction", "Uống 1 viên trước bữa ăn sáng để ổn định đường huyết.");
-                    med.put("doctorNote", "Duy trì uống đều đặn trước ăn sáng 30 phút. Theo dõi đường huyết mao mạch định kỳ và báo cáo lại trong lần tái khám tới.");
+                    med.put("doctorNote",
+                            "Duy trì uống đều đặn trước ăn sáng 30 phút. Theo dõi đường huyết mao mạch định kỳ và báo cáo lại trong lần tái khám tới.");
                     medList.add(med);
-                } else if (title.contains("Nhắc nhở lịch sử dụng thuốc") || title.contains("Nhắc nhở") || message.contains("thuốc")) {
+                } else if (title.contains("Nhắc nhở lịch sử dụng thuốc") || title.contains("Nhắc nhở")
+                        || message.contains("thuốc")) {
                     Map<String, String> med = new HashMap<>();
                     med.put("medicationName", "Metformin 500mg");
                     med.put("dosage", "01 Viên");
-                    med.put("timingName", message.contains("sáng") ? "Mỗi buổi sáng" : (message.contains("tối") ? "Mỗi buổi tối" : "Sau bữa ăn"));
-                    med.put("instruction", "Uống 1 viên ngay sau bữa ăn để duy trì mức đường huyết ổn định. Việc dùng thuốc sau khi ăn giúp giảm thiểu các tác dụng phụ lên đường tiêu hóa.");
-                    med.put("doctorNote", "Vui lòng uống đúng giờ và không bỏ bữa. Nếu có dấu hiệu bất thường, hãy liên hệ bác sĩ ngay lập tức. Việc tuân thủ điều trị là rất quan trọng.");
+                    med.put("timingName", message.contains("sáng") ? "Mỗi buổi sáng"
+                            : (message.contains("tối") ? "Mỗi buổi tối" : "Sau bữa ăn"));
+                    med.put("instruction",
+                            "Uống 1 viên ngay sau bữa ăn để duy trì mức đường huyết ổn định. Việc dùng thuốc sau khi ăn giúp giảm thiểu các tác dụng phụ lên đường tiêu hóa.");
+                    med.put("doctorNote",
+                            "Vui lòng uống đúng giờ và không bỏ bữa. Nếu có dấu hiệu bất thường, hãy liên hệ bác sĩ ngay lập tức. Việc tuân thủ điều trị là rất quan trọng.");
                     medList.add(med);
                 }
             }
-            
+
             // Set first item as default for single variables to prevent thymeleaf errors
             if (!medList.isEmpty()) {
                 Map<String, String> firstMed = medList.get(0);
@@ -307,10 +308,12 @@ public class PatientNotificationController extends BasePatientController {
                 dosage = firstMed.get("dosage");
                 timingName = firstMed.get("timingName");
                 instruction = firstMed.get("instruction");
-                doctorNote = medList.stream().map(m -> m.get("doctorNote")).filter(n -> !n.equals("Không có")).collect(Collectors.joining(". "));
-                if(doctorNote.isEmpty()) doctorNote = "Không có";
+                doctorNote = medList.stream().map(m -> m.get("doctorNote")).filter(n -> !n.equals("Không có"))
+                        .collect(Collectors.joining(". "));
+                if (doctorNote.isEmpty())
+                    doctorNote = "Không có";
             }
-            
+
             model.addAttribute("medicationList", medList);
         }
 
