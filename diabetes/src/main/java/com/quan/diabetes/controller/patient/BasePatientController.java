@@ -1,8 +1,35 @@
 package com.quan.diabetes.controller.patient;
 
-import com.quan.diabetes.entity.*;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ui.Model;
 
 import com.quan.diabetes.dto.patient.MedicationReminderView;
+import com.quan.diabetes.entity.AIConversation;
+import com.quan.diabetes.entity.AIMessage;
+import com.quan.diabetes.entity.ClinicalExamination;
+import com.quan.diabetes.entity.LabOrder;
+import com.quan.diabetes.entity.LabResult;
+import com.quan.diabetes.entity.Patient;
+import com.quan.diabetes.entity.PatientRoutine;
+import com.quan.diabetes.entity.Prescription;
+import com.quan.diabetes.entity.PrescriptionDetail;
+import com.quan.diabetes.entity.Reminder;
+import com.quan.diabetes.entity.TreatmentPlan;
+import com.quan.diabetes.entity.User;
 import com.quan.diabetes.service.ai.AIConversationService;
 import com.quan.diabetes.service.ai.AIMessageService;
 import com.quan.diabetes.service.ai.ReminderService;
@@ -16,18 +43,8 @@ import com.quan.diabetes.service.medication.PrescriptionTimingService;
 import com.quan.diabetes.service.user.PatientRoutineService;
 import com.quan.diabetes.service.user.PatientService;
 import com.quan.diabetes.service.user.UserService;
-import com.quan.diabetes.util.ReminderTimeCalculator;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
-import jakarta.servlet.http.HttpSession;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
+import jakarta.servlet.http.HttpSession;
 
 public abstract class BasePatientController {
 
@@ -190,9 +207,15 @@ public abstract class BasePatientController {
                 .sorted((r1, r2) -> {
                     LocalDateTime d1 = r1.getLabOrder().getClinicalExamination() != null ? r1.getLabOrder().getClinicalExamination().getExamDate() : null;
                     LocalDateTime d2 = r2.getLabOrder().getClinicalExamination() != null ? r2.getLabOrder().getClinicalExamination().getExamDate() : null;
-                    if (d1 == null && d2 == null) return 0;
-                    if (d1 == null) return 1;
-                    if (d2 == null) return -1;
+                    if (d1 == null && d2 == null) {
+                        return 0;
+                    }
+                    if (d1 == null) {
+                        return 1;
+                    }
+                    if (d2 == null) {
+                        return -1;
+                    }
                     return d2.compareTo(d1);
                 })
                 .collect(Collectors.toList());
@@ -274,7 +297,7 @@ public abstract class BasePatientController {
                     .filter(detail -> detail.getPrescription() != null)
                     .filter(detail -> detail.getPrescription().getClinicalExamination() != null)
                     .filter(detail -> examId
-                            .equals(detail.getPrescription().getClinicalExamination().getClinicalExamId()))
+                    .equals(detail.getPrescription().getClinicalExamination().getClinicalExamId()))
                     .collect(Collectors.toList());
 
             result.put(examId, examDetails);
@@ -289,10 +312,10 @@ public abstract class BasePatientController {
                 .filter(Objects::nonNull)
                 .map(String::toLowerCase)
                 .filter(flag -> flag.contains("high")
-                        || flag.contains("low")
-                        || flag.contains("abnormal")
-                        || flag.contains("cao")
-                        || flag.contains("thấp"))
+                || flag.contains("low")
+                || flag.contains("abnormal")
+                || flag.contains("cao")
+                || flag.contains("thấp"))
                 .count();
     }
 
@@ -337,7 +360,7 @@ public abstract class BasePatientController {
                 .stream()
                 .filter(message -> message.getAiConversation() != null)
                 .filter(message -> conversation.getAiConversationId()
-                        .equals(message.getAiConversation().getAiConversationId()))
+                .equals(message.getAiConversation().getAiConversationId()))
                 .sorted(Comparator.comparing(
                         AIMessage::getTime,
                         Comparator.nullsLast(Comparator.naturalOrder())))
@@ -624,9 +647,9 @@ public abstract class BasePatientController {
         }
 
         LocalDateTime now = LocalDateTime.now();
+        LocalDate today = now.toLocalDate();
 
-        // Lấy tất cả nhắc nhở hoạt động của bệnh nhân trong ngày hôm nay (lockStatus =
-        // false)
+        // Lấy tất cả nhắc nhở hoạt động của bệnh nhân trong ngày hôm nay (lockStatus = false)
         List<Reminder> todayReminders = reminderService.getPatientRemindersToday(patient.getUserId());
         List<MedicationReminderView> reminders = new ArrayList<>();
 
@@ -636,20 +659,39 @@ public abstract class BasePatientController {
             }
             int timingId = reminder.getTiming().getTimingID();
 
-            // Tìm chi tiết đơn thuốc khớp với khung giờ (timingId) của nhắc nhở
-            PrescriptionDetail matchingDetail = null;
+            // Tìm tất cả chi tiết đơn thuốc khớp với khung giờ (timingId) của nhắc nhở
+            List<PrescriptionDetail> matchingDetails = new ArrayList<>();
             for (PrescriptionDetail detail : prescriptionDetails) {
+                if (detail.getStartDate() != null && today.isBefore(detail.getStartDate())) {
+                    continue;
+                }
+                if (detail.getEndDate() != null && today.isAfter(detail.getEndDate())) {
+                    continue;
+                }
+
                 if (detail.getPrescriptionTimings() != null) {
                     boolean matches = detail.getPrescriptionTimings().stream()
                             .anyMatch(pt -> pt.getTiming() != null && pt.getTiming().getTimingID() == timingId);
                     if (matches) {
-                        matchingDetail = detail;
-                        break;
+                        matchingDetails.add(detail);
                     }
                 }
             }
 
-            if (matchingDetail == null) {
+            // Nếu không tìm thấy detail nào trong khoảng ngày, tìm tất cả detail theo timingId
+            if (matchingDetails.isEmpty()) {
+                for (PrescriptionDetail detail : prescriptionDetails) {
+                    if (detail.getPrescriptionTimings() != null) {
+                        boolean matches = detail.getPrescriptionTimings().stream()
+                                .anyMatch(pt -> pt.getTiming() != null && pt.getTiming().getTimingID() == timingId);
+                        if (matches) {
+                            matchingDetails.add(detail);
+                        }
+                    }
+                }
+            }
+
+            if (matchingDetails.isEmpty()) {
                 continue;
             }
 
@@ -657,27 +699,35 @@ public abstract class BasePatientController {
             boolean dueNow = false;
             boolean past = false;
 
+            LocalDateTime scheduledTime = reminder.getScheduledTime();
+            LocalDateTime tenMinsAfter = scheduledTime.plusMinutes(10);
+
             if (isSent) {
-                LocalDateTime sentTime = reminder.getScheduledTime();
-                LocalDateTime tenMinsAfter = sentTime.plusMinutes(10);
                 if (now.isAfter(tenMinsAfter)) {
                     past = true;
                 } else {
                     dueNow = true;
                 }
             } else {
-                // Chưa gửi thì trạng thái là sắp diễn ra (dueNow = false, past = false)
-                dueNow = false;
-                past = false;
+                if (now.isAfter(tenMinsAfter)) {
+                    past = true;
+                } else if (!now.isBefore(scheduledTime)) {
+                    dueNow = true;
+                } else {
+                    dueNow = false;
+                    past = false;
+                }
             }
 
-            reminders.add(createMedicationReminderView(
-                    matchingDetail,
-                    reminder.getTiming().getTimingName(),
-                    reminder.getScheduledTime().plusMinutes(10),
-                    reminder.getScheduledTime(),
-                    dueNow,
-                    past));
+            for (PrescriptionDetail matchingDetail : matchingDetails) {
+                reminders.add(createMedicationReminderView(
+                        matchingDetail,
+                        reminder.getTiming().getTimingName(),
+                        reminder.getScheduledTime().plusMinutes(10),
+                        reminder.getScheduledTime(),
+                        dueNow,
+                        past));
+            }
         }
 
         return reminders.stream()

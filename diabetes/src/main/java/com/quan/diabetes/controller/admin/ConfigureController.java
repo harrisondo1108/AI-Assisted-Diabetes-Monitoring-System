@@ -27,6 +27,7 @@ public class ConfigureController {
     public String showConfigure(@RequestParam(value = "tab",    defaultValue = "room") String tab,
                                 @RequestParam(value = "search", defaultValue = "")    String search,
                                 @RequestParam(value = "error",  required = false)     String error,
+                                @RequestParam(value = "success",required = false)     String success,
                                 Model model) {
         String keyword = search.trim();
         model.addAttribute("roomList",   keyword.isEmpty() ? roomService.findAll()
@@ -43,6 +44,13 @@ public class ConfigureController {
         else if ("inuse_timing".equals(error)) model.addAttribute("errorMessage", "Không thể xóa thời gian dùng thuốc này vì đang được sử dụng trong đơn thuốc hoặc lịch nhắc nhở!");
         else if ("delete_failed".equals(error))model.addAttribute("errorMessage", "Xóa thất bại. Vui lòng thử lại sau.");
 
+        if      ("create_room".equals(success))    model.addAttribute("successMessage", "Thêm phòng khám thành công!");
+        else if ("update_room".equals(success))   model.addAttribute("successMessage", "Cập nhật phòng khám thành công!");
+        else if ("delete_room".equals(success))   model.addAttribute("successMessage", "Xóa phòng khám thành công!");
+        else if ("create_timing".equals(success)) model.addAttribute("successMessage", "Thêm khung giờ dùng thuốc thành công!");
+        else if ("update_timing".equals(success)) model.addAttribute("successMessage", "Cập nhật khung giờ dùng thuốc thành công!");
+        else if ("delete_timing".equals(success)) model.addAttribute("successMessage", "Xóa khung giờ dùng thuốc thành công!");
+
         return "Admin/Configure";
     }
 
@@ -54,7 +62,7 @@ public class ConfigureController {
         if (name == null || name.trim().isEmpty()) return "redirect:/admin/configure?tab=room&error=empty";
         room.setRoomName(name.trim());
         roomService.create(room);
-        return "redirect:/admin/configure?tab=room";
+        return "redirect:/admin/configure?tab=room&success=create_room";
     }
 
     @PostMapping("/room/update/{id}")
@@ -66,13 +74,14 @@ public class ConfigureController {
         existing.setRoomName(name.trim());
         existing.setDescription(room.getDescription());
         roomService.update(id, existing);
-        return "redirect:/admin/configure?tab=room";
+        return "redirect:/admin/configure?tab=room&success=update_room";
     }
 
     @PostMapping("/room/delete/{id}")
     public String deleteRoom(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
         try {
             roomService.deleteById(id);
+            redirectAttributes.addAttribute("success", "delete_room");
         } catch (org.springframework.dao.DataIntegrityViolationException e) {
             redirectAttributes.addAttribute("error", "inuse_room");
         } catch (Exception e) {
@@ -91,7 +100,7 @@ public class ConfigureController {
             return "redirect:/admin/configure?tab=timing&error=duplicate";
         MedicationTiming t = new MedicationTiming(timingName.trim());
         timingService.create(t);
-        return "redirect:/admin/configure?tab=timing";
+        return "redirect:/admin/configure?tab=timing&success=create_timing";
     }
 
     @PostMapping("/timing/update/{id}")
@@ -104,13 +113,14 @@ public class ConfigureController {
         if (existing == null) return "redirect:/admin/configure?tab=timing&error=notfound";
         existing.setTimingName(timingName.trim());
         timingService.update(id, existing);
-        return "redirect:/admin/configure?tab=timing";
+        return "redirect:/admin/configure?tab=timing&success=update_timing";
     }
 
     @PostMapping("/timing/delete/{id}")
     public String deleteTiming(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
         try {
             timingService.deleteById(id);
+            redirectAttributes.addAttribute("success", "delete_timing");
         } catch (org.springframework.dao.DataIntegrityViolationException e) {
             redirectAttributes.addAttribute("error", "inuse_timing");
         } catch (Exception e) {

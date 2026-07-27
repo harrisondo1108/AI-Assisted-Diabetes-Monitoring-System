@@ -20,7 +20,86 @@ document.addEventListener('DOMContentLoaded', function () {
     renderPagination('#timingTableBody', '.timing-row', timingPage, timingKw,
         'timingPaginationInfo', 'timingPrevBtn', 'timingNextBtn', 'timingPageNumbers', 'timing',
         function (p) { timingPage = p; });
+
+    handleUrlMessages();
 });
+
+/* ── Toast Notifications ── */
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function showToast(message, type) {
+    let container = document.querySelector('.toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
+    const toast = document.createElement('div');
+    toast.className = 'toast ' + (type === 'error' ? 'error' : 'success');
+
+    const icon = type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle';
+    toast.innerHTML = `
+        <div class="toast-content">
+            <i class="fas ${icon} toast-icon"></i>
+            <span>${escapeHtml(message)}</span>
+        </div>
+        <button type="button" class="toast-close" title="Đóng">&times;</button>
+    `;
+
+    const removeToast = function() {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(function() { toast.remove(); }, 300);
+    };
+
+    toast.querySelector('.toast-close').addEventListener('click', removeToast);
+    container.appendChild(toast);
+    setTimeout(removeToast, 4500);
+}
+
+function handleUrlMessages() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const successMsg = urlParams.get('success');
+    const errorMsg = urlParams.get('error');
+
+    if (errorMsg) {
+        let msg = decodeURIComponent(errorMsg).replace(/\+/g, ' ');
+        if (msg === 'duplicate') msg = 'Tên đã tồn tại trong hệ thống.';
+        else if (msg === 'empty') msg = 'Vui lòng nhập tên.';
+        else if (msg === 'notfound') msg = 'Không tìm thấy dữ liệu.';
+        else if (msg === 'inuse_room') msg = 'Không thể xóa phòng này vì đang được phân công cho bác sĩ hoặc phòng xét nghiệm!';
+        else if (msg === 'inuse_timing') msg = 'Không thể xóa thời gian dùng thuốc này vì đang được sử dụng trong đơn thuốc hoặc lịch nhắc nhở!';
+        else if (msg === 'delete_failed') msg = 'Xóa thất bại. Vui lòng thử lại sau.';
+        showToast(msg, 'error');
+    }
+
+    if (successMsg) {
+        let msg = decodeURIComponent(successMsg).replace(/\+/g, ' ');
+        if (msg === 'create_room') msg = 'Thêm phòng khám thành công!';
+        else if (msg === 'update_room') msg = 'Cập nhật phòng khám thành công!';
+        else if (msg === 'delete_room') msg = 'Xóa phòng khám thành công!';
+        else if (msg === 'create_timing') msg = 'Thêm khung giờ dùng thuốc thành công!';
+        else if (msg === 'update_timing') msg = 'Cập nhật khung giờ dùng thuốc thành công!';
+        else if (msg === 'delete_timing') msg = 'Xóa khung giờ dùng thuốc thành công!';
+        showToast(msg, 'success');
+    }
+
+    if (successMsg || errorMsg) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('success');
+        url.searchParams.delete('error');
+        window.history.replaceState({}, document.title, url.toString());
+    }
+}
 
 /* ── Modal helpers ── */
 function openModal(m) { m.classList.add('show'); document.body.style.overflow = 'hidden'; }

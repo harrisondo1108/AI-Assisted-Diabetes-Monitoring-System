@@ -141,15 +141,15 @@ public class AdminUserController {
                 adminUserService.getUserManagementDTOById(userDto.getUserId());
                 adminUserService.updateUserManagementDTO(userDto.getUserId(), userDto);
                 // 2. Thêm thông báo thành công cho trường hợp Cập nhật
-                redirectAttributes.addFlashAttribute("successMessage", "Updated User Successfully");
+                redirectAttributes.addFlashAttribute("successMessage", "Cập nhật thông tin người dùng thành công");
             } catch (Exception e) {
                 adminUserService.createUserManagementDTO(userDto);
-                redirectAttributes.addFlashAttribute("successMessage", "Created User Successfully");
+                redirectAttributes.addFlashAttribute("successMessage", "Thêm mới người dùng thành công");
             }
         } else {
             adminUserService.createUserManagementDTO(userDto);
             // 3. Thêm thông báo thành công cho trường hợp Tạo mới
-            redirectAttributes.addFlashAttribute("successMessage", "Created User Successfully");
+            redirectAttributes.addFlashAttribute("successMessage", "Thêm mới người dùng thành công");
         }
 
         return "redirect:/admin/users";
@@ -161,10 +161,10 @@ public class AdminUserController {
         try {
             UserManagementDTO user = adminUserService.getUserManagementDTOById(id);
             String status = user.getStatus();
-            String msg = "Account " + user.getFullName() + " has been " + ("Active".equalsIgnoreCase(status) ? "unlocked" : "locked") + " successfully";
+            String msg = "Tài khoản " + user.getFullName() + " đã được " + ("Active".equalsIgnoreCase(status) ? "mở khóa" : "khóa") + " thành công";
             redirectAttributes.addFlashAttribute("successMessage", msg);
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("successMessage", "Account status updated successfully");
+            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái tài khoản thành công");
         }
         return "redirect:/admin/users";
     }

@@ -5,15 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cd82aed5-747b-44b9-892e-efbe52d1dbd5" name="Changes" comment="MERGE FULL TEST TheAnh, CSon, LuanHa, Le_Quan">
-      <change afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/lab/IndicatorThresholdServiceImplTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/lab/LabOrderServiceImplTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/lab/LabResultServiceImplTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/lab/LabTestCatalogServiceImplTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/masterdata/PatientTypeServiceImplTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/masterdata/RoleServiceImplTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/diabetes/src/test/java/com/quan/diabetes/service/masterdata/RoomServiceImplTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/CreateTable.sql" beforeDir="false" afterPath="$PROJECT_DIR$/database/CreateTable.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,6 +59,7 @@
     <persistenceIdMap>
       <entry key="_C:/Users/Acer/Downloads/AI-Assisted-Diabetes-Monitoring-System-final-20" value="3GlYCNf7jp5wNmOuWm4yIZzezZ3" />
       <entry key="_C:/Users/Acer/Downloads/AI-Assisted-Diabetes-Monitoring-System_F_27_3" value="3H4n6iIGAbXYQiWsS5L5ngMfdZq" />
+      <entry key="_C:/Users/Acer/Downloads/AI-Assisted-Diabetes-Monitoring-System_F_27_4" value="3H5ILmtpDB7XxnKsMGEfMWQZJ0F" />
       <entry key="_C:/Users/LuHan/OneDrive/Documents/Part 5/1_SWP391/AI-Assisted-Diabetes-Monitoring-System" value="3GTA149RvNFZU2OfTCP0QhFC8z7" />
       <entry key="_C:/Users/LuHan/OneDrive/Documents/Part 5/1_SWP391/AI-Assisted-Diabetes-Monitoring-System/diabetes" value="3GQjfmdKoXYGwp1gzNmwrevUI4u" />
       <entry key="_D:/Git_clone_quan_le/AI-Assisted-Diabetes-Monitoring-System" value="3G7hAT6xfOXo1mw7N4R46xWPCp1" />
@@ -236,9 +229,9 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "SDKs",
+    "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0",
+    "project.structure.side.proportion": "0.2",
     "to.speed.mode.migration.done": "true",
     "vue.rearranger.settings.migration": "true"
   }
@@ -397,6 +390,8 @@
       <workItem from="1785130994381" duration="129000" />
       <workItem from="1785133692630" duration="178000" />
       <workItem from="1785136036803" duration="5010000" />
+      <workItem from="1785151451104" duration="1292000" />
+      <workItem from="1785161429276" duration="15000" />
     </task>
     <task id="LOCAL-00001" summary="thêm chức năng doctor rating">
       <option name="closed" value="true" />

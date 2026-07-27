@@ -1,28 +1,64 @@
 package com.quan.diabetes.service.exam.impl;
 
-import com.quan.diabetes.dto.doctor.ClinicalExamForm;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.quan.diabetes.dto.doctor.ExamStep1Form;
 import com.quan.diabetes.dto.doctor.ExamStep2Form;
 import com.quan.diabetes.dto.doctor.ExamStep3Form;
 import com.quan.diabetes.dto.doctor.PrescriptionLineDTO;
+import com.quan.diabetes.entity.ClinicalExamination;
+import com.quan.diabetes.entity.ExamSymptom;
+import com.quan.diabetes.entity.ExamSymptomId;
+import com.quan.diabetes.entity.IndicatorThreshold;
+import com.quan.diabetes.entity.LabOrder;
+import com.quan.diabetes.entity.LabResult;
+import com.quan.diabetes.entity.LabTestCatalog;
+import com.quan.diabetes.entity.Medication;
+import com.quan.diabetes.entity.MedicationTiming;
+import com.quan.diabetes.entity.Patient;
+import com.quan.diabetes.entity.PatientType;
+import com.quan.diabetes.entity.Prescription;
+import com.quan.diabetes.entity.PrescriptionDetail;
+import com.quan.diabetes.entity.PrescriptionTiming;
+import com.quan.diabetes.entity.Reminder;
+import com.quan.diabetes.entity.SymptomsCatalog;
+import com.quan.diabetes.entity.TreatmentPlan;
+import com.quan.diabetes.entity.User;
+import com.quan.diabetes.repository.ClinicalExaminationRepository;
+import com.quan.diabetes.repository.ExamSymptomRepository;
+import com.quan.diabetes.repository.IndicatorThresholdRepository;
+import com.quan.diabetes.repository.LabOrderRepository;
+import com.quan.diabetes.repository.LabResultRepository;
+import com.quan.diabetes.repository.LabTestCatalogRepository;
+import com.quan.diabetes.repository.MedicationRepository;
+import com.quan.diabetes.repository.MedicationTimingRepository;
+import com.quan.diabetes.repository.PatientRepository;
+import com.quan.diabetes.repository.PatientTypeRepository;
+import com.quan.diabetes.repository.PrescriptionDetailRepository;
+import com.quan.diabetes.repository.PrescriptionRepository;
+import com.quan.diabetes.repository.PrescriptionTimingRepository;
+import com.quan.diabetes.repository.ReminderRepository;
+import com.quan.diabetes.repository.SymptomsCatalogRepository;
+import com.quan.diabetes.repository.TreatmentPlanRepository;
+import com.quan.diabetes.repository.UserRepository;
 import com.quan.diabetes.service.exam.ClinicalExaminationService;
-import com.quan.diabetes.service.reminder.MedicationSchedualeService;
-import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.ObjectMapper;
-import com.quan.diabetes.entity.*;
-import com.quan.diabetes.repository.*;
-import jakarta.persistence.EntityNotFoundException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import com.quan.diabetes.service.reminder.AppointmentSchedule;
+import com.quan.diabetes.service.reminder.MedicationSchedualeService;
 import com.quan.diabetes.service.systemlog.SystemLogService;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.*;
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class ClinicalExaminationServiceImpl implements ClinicalExaminationService {
@@ -196,8 +232,6 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                 "Bác sĩ từ chối/hủy bệnh án", oldExam, createLogExam(exam.getClinicalExamId()), "SUCCESS");
     }
 
-
-
     private String calculateDosage(int totalQuantity, int durationDays, String form) {
         if (durationDays <= 0) {
             return "0 viên/ngày";
@@ -234,8 +268,6 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
 
         return rateStr + " " + unit + "/ngày";
     }
-
-
 
     @Override
     @Transactional
@@ -298,8 +330,6 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                 "SUCCESS");
     }
 
-
-
     private String generateClinicalExamId() {
         String examId = null;
         Random random = new Random();
@@ -312,8 +342,9 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
 
     private Map<String, Object> createLogExam(String examId) {
         ClinicalExamination exam = clinicalExaminationRepository.findById(examId).orElse(null);
-        if (exam == null)
+        if (exam == null) {
             return null;
+        }
 
         Map<String, Object> logExam = new HashMap<>();
         logExam.put("clinicalExamId", exam.getClinicalExamId());
@@ -414,8 +445,9 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
     }
 
     private Double parseDosagePerDose(String dosageStr) {
-        if (dosageStr == null || dosageStr.equalsIgnoreCase("Auto"))
+        if (dosageStr == null || dosageStr.equalsIgnoreCase("Auto")) {
             return 1.0;
+        }
         java.util.regex.Matcher m = java.util.regex.Pattern.compile("^([\\d.]+)").matcher(dosageStr);
         return m.find() ? Double.parseDouble(m.group(1)) : 1.0;
     }
@@ -423,7 +455,6 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
     // =========================================================================
     // TAB-BASED STEP METHODS
     // =========================================================================
-
     @Override
     @Transactional
     public void saveStep1(String examId, ExamStep1Form form, String doctorId) {
@@ -450,8 +481,9 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                     es.setId(new ExamSymptomId(examId, symId));
                     es.setClinicalExamination(exam);
                     es.setSymptom(symptom);
-                    if (comments != null)
+                    if (comments != null) {
                         es.setNote(comments.getOrDefault(symId, ""));
+                    }
                     examSymptomRepository.save(es);
                 }
             }
@@ -518,13 +550,32 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
                 String flag = "NORMAL";
                 if (dbMin != null && dbMax != null) {
                     double span = dbMax.subtract(dbMin).doubleValue();
-                    double mid = dbMin.add(dbMax).doubleValue() / 2;
-                    double v = mid + (random.nextDouble() * span * 0.6 - span * 0.3);
+                    double baseSpan = (span > 0) ? span : 1.0;
+                    double randChoice = random.nextDouble();
+                    double v;
+
+                    if (randChoice < 0.70) {
+                        // 70% xác suất vào mức CAO (HIGH)
+                        v = dbMax.doubleValue() + (0.02 + random.nextDouble() * 0.33) * baseSpan;
+                    } else if (randChoice < 0.85) {
+                        // 15% xác suất vào mức BÌNH THƯỜNG (NORMAL)
+                        v = dbMin.doubleValue() + random.nextDouble() * span;
+                    } else {
+                        // 15% xác suất vào mức THẤP (LOW)
+                        v = dbMin.doubleValue() - (0.02 + random.nextDouble() * 0.23) * baseSpan;
+                        if (v < 0.1 && dbMin.doubleValue() > 0) {
+                            v = Math.max(0.1, dbMin.doubleValue() * 0.8);
+                        }
+                    }
+
                     value = BigDecimal.valueOf(Math.round(v * 100.0) / 100.0);
-                    if (value.compareTo(dbMin) < 0)
+                    if (value.compareTo(dbMin) < 0) {
                         flag = "LOW";
-                    else if (value.compareTo(dbMax) > 0)
+                    } else if (value.compareTo(dbMax) > 0) {
                         flag = "HIGH";
+                    } else {
+                        flag = "NORMAL";
+                    }
                 } else {
                     value = BigDecimal.ZERO;
                 }
@@ -599,8 +650,9 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
 
             for (PrescriptionLineDTO line : prescriptionLines) {
                 Medication med = medicationRepository.findById(line.getMedId()).orElse(null);
-                if (med == null)
+                if (med == null) {
                     continue;
+                }
 
                 int duration = line.getDuration() != null ? line.getDuration() : 0;
                 int quantity = line.getQuantity() != null ? line.getQuantity() : 0;
@@ -631,8 +683,9 @@ public class ClinicalExaminationServiceImpl implements ClinicalExaminationServic
 
                 if (line.getTiming() != null) {
                     for (String timingName : line.getTiming()) {
-                        if (timingName == null || timingName.trim().isEmpty())
+                        if (timingName == null || timingName.trim().isEmpty()) {
                             continue;
+                        }
                         final String tName = timingName.trim();
                         MedicationTiming mt = medicationTimingRepository.findByTimingName(tName)
                                 .orElseGet(() -> {
