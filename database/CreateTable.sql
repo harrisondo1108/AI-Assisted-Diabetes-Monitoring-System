@@ -262,18 +262,6 @@ CREATE TABLE [AI_Assistant] (
     ModelName VARCHAR(50)
 );
 
-CREATE TABLE PromptTemplate (
-    TemplateID INT IDENTITY(1,1) PRIMARY KEY,
-
-    TemplateName NVARCHAR(100) NOT NULL,
-
-    SystemPrompt NVARCHAR(MAX),
-
-    IsActive BIT DEFAULT 1,
-
-    CreatedAt DATETIME DEFAULT GETDATE()
-);
-
 -- 15. Conversation
 CREATE TABLE [AI_Conversation] (
     AIConversationID VARCHAR(50) PRIMARY KEY,
