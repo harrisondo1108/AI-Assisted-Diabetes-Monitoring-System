@@ -4,7 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cd82aed5-747b-44b9-892e-efbe52d1dbd5" name="Changes" comment="MERGE FULL TEST TheAnh, CSon, LuanHa, Le_Quan" />
+    <list default="true" id="cd82aed5-747b-44b9-892e-efbe52d1dbd5" name="Changes" comment="MERGE FULL TEST TheAnh, CSon, LuanHa, Le_Quan">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/entity/ExamSymptom.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/entity/ExamSymptom.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AIChatServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/java/com/quan/diabetes/service/ai/impl/AIChatServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/progress.html" beforeDir="false" afterPath="$PROJECT_DIR$/diabetes/src/main/resources/templates/patient/progress.html" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -56,6 +61,7 @@
   <component name="CopilotPersistence">
     <persistenceIdMap>
       <entry key="_C:/Users/Acer/Downloads/AI-Assisted-Diabetes-Monitoring-System-final-20" value="3GlYCNf7jp5wNmOuWm4yIZzezZ3" />
+      <entry key="_C:/Users/Acer/Downloads/AI-Assisted-Diabetes-Monitoring-System_F_27_3" value="3H4n6iIGAbXYQiWsS5L5ngMfdZq" />
       <entry key="_C:/Users/LuHan/OneDrive/Documents/Part 5/1_SWP391/AI-Assisted-Diabetes-Monitoring-System" value="3GTA149RvNFZU2OfTCP0QhFC8z7" />
       <entry key="_C:/Users/LuHan/OneDrive/Documents/Part 5/1_SWP391/AI-Assisted-Diabetes-Monitoring-System/diabetes" value="3GQjfmdKoXYGwp1gzNmwrevUI4u" />
       <entry key="_D:/Git_clone_quan_le/AI-Assisted-Diabetes-Monitoring-System" value="3G7hAT6xfOXo1mw7N4R46xWPCp1" />
@@ -74,7 +80,7 @@
   <component name="EmbeddingIndexingInfo">
     <option name="cachedIndexableFilesCount" value="358" />
   </component>
-  <component name="ExportTestResults" outputFolder="$USER_HOME$/Downloads" userTempatePath="" />
+  <component name="ExportTestResults" outputFolder="$PROJECT_DIR$/.." userTempatePath="" />
   <component name="ExportToHTMLSettings">
     <option name="OUTPUT_DIRECTORY" value="C:\Users\gdtt_\Downloads" />
   </component>
@@ -87,12 +93,12 @@
     &quot;assignee&quot;: &quot;luhan05&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/harrisondo1108/AI-Assisted-Diabetes-Monitoring-System.git&quot;,
-    &quot;accountId&quot;: &quot;394f0a49-b100-46bb-8326-74b0de1085c9&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/harrisondo1108/AI-Assisted-Diabetes-Monitoring-System.git",
+    "accountId": "11efc543-4507-4df6-bce4-65b8e51c1555"
   }
-}</component>
+}]]></component>
   <component name="JavaAutoRunManager">
     <enabled-run-configurations>
       <run-configuration type="JUnit" name="AdminUserServiceTest" />
@@ -111,61 +117,61 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.0" />
-      <entry key="MS500" value="1.0" />
-      <entry key="S2" value="1.0" />
-      <entry key="S5" value="1.0" />
-      <entry key="S10" value="1.0" />
-      <entry key="S30" value="1.0" />
-      <entry key="S60" value="1.0000000049719644" />
-      <entry key="M2" value="1.0003867484133944" />
-      <entry key="M5" value="1.3368794282850518" />
-      <entry key="M10" value="4.228076325289873" />
-      <entry key="M15" value="7.859671101365589" />
-      <entry key="M30" value="15.58054873565657" />
-      <entry key="H1" value="22.25948439785776" />
-      <entry key="H2" value="26.67162714247844" />
-      <entry key="H4" value="29.210227280445313" />
-      <entry key="D1" value="31.516569317823343" />
-      <entry key="W1" value="31.930472169921373" />
+      <entry key="MS100" value="4.928706402206593E-11" />
+      <entry key="MS500" value="0.008680536942617915" />
+      <entry key="S2" value="0.30523662816728353" />
+      <entry key="S5" value="0.622092060943409" />
+      <entry key="S10" value="0.7887281286624744" />
+      <entry key="S30" value="0.9239371785741368" />
+      <entry key="S60" value="0.9612165145073729" />
+      <entry key="M2" value="0.9807956726157038" />
+      <entry key="M5" value="1.326344939685128" />
+      <entry key="M10" value="4.211384949710907" />
+      <entry key="M15" value="7.838972138744542" />
+      <entry key="M30" value="15.560019008404911" />
+      <entry key="H1" value="22.244814446693276" />
+      <entry key="H2" value="26.662836823078674" />
+      <entry key="H4" value="29.20541339365641" />
+      <entry key="D1" value="31.515703595837987" />
+      <entry key="W1" value="31.93034686967552" />
     </decayedCancelled>
     <decayedSelected>
-      <entry key="MS100" value="0.0" />
-      <entry key="MS500" value="0.0" />
-      <entry key="S2" value="5.484104237524663E-294" />
-      <entry key="S5" value="5.432348104642746E-118" />
-      <entry key="S10" value="3.078684352175615E-59" />
-      <entry key="S30" value="6.496939144496008E-20" />
-      <entry key="S60" value="5.469144006796381E-10" />
-      <entry key="M2" value="5.502757996314375E-5" />
-      <entry key="M5" value="0.05737477029187215" />
-      <entry key="M10" value="0.585729535693196" />
-      <entry key="M15" value="1.2716015351810719" />
-      <entry key="M30" value="2.7616533073835563" />
-      <entry key="H1" value="4.070424692384799" />
-      <entry key="H2" value="4.941859227196524" />
-      <entry key="H4" value="5.445271409454392" />
-      <entry key="D1" value="5.903765782579734" />
-      <entry key="W1" value="5.986156745287132" />
+      <entry key="MS100" value="1.0000000020955848" />
+      <entry key="MS500" value="1.0183764257857963" />
+      <entry key="S2" value="1.3681842963861752" />
+      <entry key="S5" value="1.6705421837890846" />
+      <entry key="S10" value="1.8188664016731206" />
+      <entry key="S30" value="1.935558647600005" />
+      <entry key="S60" value="1.9672428074775075" />
+      <entry key="M2" value="1.9835389813289157" />
+      <entry key="M5" value="2.0502836541466145" />
+      <entry key="M10" value="2.580092191683393" />
+      <entry key="M15" value="3.2660347703615384" />
+      <entry key="M30" value="4.756904837152131" />
+      <entry key="H1" value="6.067187167289944" />
+      <entry key="H2" value="6.9399530014572735" />
+      <entry key="H4" value="7.44423525680781" />
+      <entry key="D1" value="7.903580484578346" />
+      <entry key="W1" value="7.986129950523361" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.15389305166811454" />
-      <entry key="MS500" value="0.6877709090698718" />
-      <entry key="S2" value="0.9106698335919784" />
-      <entry key="S5" value="0.963261894020148" />
-      <entry key="S10" value="0.9814590638534793" />
-      <entry key="S30" value="0.9937810933225548" />
-      <entry key="S60" value="0.9968857027236326" />
-      <entry key="M2" value="0.9988827714566152" />
-      <entry key="M5" value="1.3934020182321953" />
-      <entry key="M10" value="4.812390785096935" />
-      <entry key="M15" value="9.129498236214424" />
-      <entry key="M30" value="18.340429618699357" />
-      <entry key="H1" value="26.328639462235966" />
-      <entry key="H2" value="31.612724824295384" />
-      <entry key="H4" value="34.655081446081525" />
-      <entry key="D1" value="37.420260036202954" />
-      <entry key="W1" value="37.916618050124924" />
+      <entry key="MS100" value="2.9594862502265947E-9" />
+      <entry key="MS500" value="0.03426438259064814" />
+      <entry key="S2" value="0.957437164244733" />
+      <entry key="S5" value="1.8962550593677219" />
+      <entry key="S10" value="2.384370947456169" />
+      <entry key="S30" value="2.778703629232675" />
+      <entry key="S60" value="2.887207634325471" />
+      <entry key="M2" value="2.9434897136312395" />
+      <entry key="M5" value="3.3680110972861117" />
+      <entry key="M10" value="6.7861740223421805" />
+      <entry key="M15" value="11.10063973382577" />
+      <entry key="M30" value="20.313854184473204" />
+      <entry key="H1" value="28.310082824435316" />
+      <entry key="H2" value="33.601703477938" />
+      <entry key="H4" value="36.6490689360374" />
+      <entry key="D1" value="39.41918192653994" />
+      <entry key="W1" value="39.916462084864484" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
@@ -336,8 +342,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.31033.145" />
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.31033.145" />
+        <option value="bundled-jdk-30f59d01ecdd-37e91769500f-intellij.indexing.shared.core-IU-261.26222.65" />
+        <option value="bundled-js-predefined-d6986cc7102b-31caf2ab9e3c-JavaScript-IU-261.26222.65" />
       </set>
     </attachedChunks>
   </component>
@@ -382,6 +388,7 @@
       <workItem from="1785125329945" duration="2752000" />
       <workItem from="1785130994381" duration="129000" />
       <workItem from="1785133692630" duration="178000" />
+      <workItem from="1785136036803" duration="5010000" />
     </task>
     <task id="LOCAL-00001" summary="thêm chức năng doctor rating">
       <option name="closed" value="true" />

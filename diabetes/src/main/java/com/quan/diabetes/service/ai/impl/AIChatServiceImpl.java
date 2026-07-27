@@ -1,6 +1,5 @@
 package com.quan.diabetes.service.ai.impl;
 
-import com.quan.diabetes.monitoring.context.AiRequestContextHolder;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -10,32 +9,29 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import com.quan.diabetes.aiAPI.dto.AiGenerateOptions;
+import com.quan.diabetes.aiAPI.manager.AiProviderManager;
 import com.quan.diabetes.dto.AIChat.AIAssistantDto;
 import com.quan.diabetes.dto.AIChat.AiChatRequestDto;
 import com.quan.diabetes.dto.AIChat.ChatResponseDto;
 import com.quan.diabetes.dto.AIChat.ConversationHistoryDto;
 import com.quan.diabetes.dto.AIChat.OllamaGenerateRequest;
-import com.quan.diabetes.dto.AIChat.OllamaGenerateResponse;
 import com.quan.diabetes.entity.AIAssistant;
 import com.quan.diabetes.entity.AIConversation;
 import com.quan.diabetes.entity.AIMessage;
 import com.quan.diabetes.entity.Patient;
+import com.quan.diabetes.monitoring.context.AiRequestContextHolder;
+import com.quan.diabetes.monitoring.service.AiMonitoringService;
 import com.quan.diabetes.service.ai.AIAssistantService;
 import com.quan.diabetes.service.ai.AIChatService;
 import com.quan.diabetes.service.ai.AIConversationService;
 import com.quan.diabetes.service.ai.AIMessageService;
 import com.quan.diabetes.service.user.PatientService;
-import com.quan.diabetes.monitoring.service.AiMonitoringService;
-import com.quan.diabetes.aiAPI.manager.AiProviderManager;
-import com.quan.diabetes.aiAPI.dto.AiGenerateOptions;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -54,6 +50,15 @@ public class AIChatServiceImpl implements AIChatService {
     private static final String STAGE_2_SYSTEM_PROMPT = """
             Bạn là một trợ lý AI thông minh chuyên tư vấn y khoa và kiểm soát bệnh tiểu đường.
             
+            === QUY TẮC SỐ 0 - ƯU TIÊN TUYỆT ĐỐI (PHẢI THỰC HIỆN TRƯỚC MỌI QUY TẮC KHÁC) ===
+            KHI TRONG PROMPT CÓ ĐOẠN BẮT ĐẦU BẰNG [DỮ LIỆU HỒ SƠ CÁ NHÂN CỦA BỆNH NHÂN TỪ CƠ SỞ DỮ LIỆU]:
+            ✔ ĐÂY LÀ DỮ LIỆU THẬT TỪ HỆ THỐNG - BẠN ĐÃ CÓ QUYỀN TRUY CẬP VÀO DỮ LIỆU NÀY
+            ✔ BẮT BUỘC ĐỌC KỸ TỪNG DÒNG DỮ LIỆU VÀ TRÌNH BÀY ĐẦY ĐỦ CHO BỆNH NHÂN
+            ✔ TRÌNH BÀY CHÍNH XÁC TỪNG GIÁ TRỊ, TÊN THUỐC, NGÀY KHÁM, KẾT QUẢ... CÓ TRONG DỮ LIỆU
+            ✘ TUYỆT ĐỐI KHÔNG NÓI: "tôi không có quyền truy cập", "tôi không thể xem", "tôi chỉ là AI", "liên hệ bác sĩ để biết"
+            ✘ TUYỆT ĐỐI KHÔNG ĐẶT CÂU HỎI MỞ về bệnh sử hay số liệu khi dữ liệu đã được cung cấp sẵn
+            ✘ KHÔNG TỰ Ý BỊA THÊM bất kỳ số liệu hay thông tin nào ngoài dữ liệu được cung cấp
+            
             QUY TẮC TRẢ LỜI & ĐỊNH DẠNG BẮT BUỘC:
             1. BẮT BUỘC TRẢ LỜI ĐÚNG TRỌNG TÂM CÂU HỎI:
                - Nếu bệnh nhân hỏi định nghĩa/khái niệm của một loại thuốc hoặc bệnh (như "thuốc metformin là thuốc j/gì", "bệnh tiểu đường là gì"): Hãy trả lời khoa học, khách quan về khái niệm, công dụng, cơ chế và chỉ định của thuốc đó. TUYỆT ĐỐI KHÔNG tự ý bịa đặt bệnh nhân bị tác dụng phụ, hoại tử hay uống quá liều khi bệnh nhân không hề nhắc đến! TUYỆT ĐỐI KHÔNG nhắc lại đơn thuốc cũ hay tóm tắt chỉ số xét nghiệm từ lịch sử trò chuyện nếu câu hỏi hiện tại không hỏi về chúng!
@@ -65,7 +70,7 @@ public class AIChatServiceImpl implements AIChatService {
                - Hãy đi thẳng ngay vào nội dung tư vấn bằng văn bản tiếng Việt tự nhiên, chuẩn mực, chuyên nghiệp.
             4. CÁCH TRẢ LỜI THEO NGỮ CẢNH VÀ QUYỀN TRUY CẬP DỮ LIỆU CÁ NHÂN (TRUNG THỰC TUYỆT ĐỐI VỚI DỮ LIỆU RAG VS KIẾN THỨC FINETUNE):
                - KHI TRONG PROMPT CÓ CUNG CẤP [DỮ LIỆU HỒ SƠ CÁ NHÂN CỦA BỆNH NHÂN TỪ CƠ SỞ DỮ LIỆU]: Bạn CÓ NGHĨA VỤ tự đọc kỹ từng dòng dữ liệu và trình bày chi tiết cho bệnh nhân xem bằng lời văn bác sĩ tự nhiên, ân cần, thân thiện. (Đặc biệt với đơn thuốc, trình bày rõ danh sách từng thuốc có trong đơn trước tiên, sau đó hướng dẫn cách sử dụng an toàn).
-               - TUYỆT ĐỐI KHÔNG SINH RA HOẶC CHÈN CÁC CHUỖI GIỮ CHỖ MẪU (PLACEHOLDER) như [Số lượng], [Viên nén / Tiêm dưới da], [Ngày bắt đầu], [Tên thuốc].
+               - TUYỆT ĐỐI KHÔNG SINH RA HOẶC CHÈN CÁC CHUỔI GIỮ CHỖ MẪU (PLACEHOLDER) như [Số lượng], [Viên nén / Tiêm dưới da], [Ngày bắt đầu], [Tên thuốc].
                - TUYỆT ĐỐI KHÔNG tự ý chèn hay suy diễn các thông tin giả định từ tập dữ liệu huấn luyện mẫu (như 'Mã bệnh nhân: #P001', 'Sitagliptin', 'Metformin 500mg' hay bệnh sử giả định) khi dữ liệu RAG không cung cấp.
                - KHI TRONG PROMPT KHÔNG CÓ DỮ LIỆU CÁ NHÂN (như câu hỏi kiến thức y khoa, tác dụng, tác dụng phụ của thuốc, cơ chế, cách dùng thuốc, định nghĩa bệnh, chế độ ăn, tập luyện...):
                  + BẮT BUỘC trả lời trực tiếp bằng KIẾN THỨC Y KHOA CHUYÊN SÂU ĐÃ ĐƯỢC HUẤN LUYỆN (FINETUNE) một cách tự nhiên, chuẩn xác, khoa học và khách quan như một bác sĩ chuyên khoa.
@@ -242,31 +247,19 @@ public class AIChatServiceImpl implements AIChatService {
             }
 
             // =========================================================================
-            // CHẶNG 2: Xử lý phản hồi AI hoặc trả lời trực tiếp nếu CSDL chưa có dữ liệu
+            // CHẶNG 2: Gọi AI đọc dữ liệu RAG (nếu có) hoặc trả lời kiến thức y khoa chung
             // =========================================================================
-            if (sqlData != null && (sqlData.contains("(Không có dữ liệu)") || sqlData.contains("Không thể truy xuất") || sqlData.contains("hiện chưa được kê đơn thuốc nào"))) {
-                logger.info("[Chặng 2 RAG] CSDL chưa có bản ghi cho mục hỏi -> Trả lời chuẩn xác y khoa, không gọi LLM để tránh suy diễn Mã lỗi");
-                String categoryTitle = extractCategoryTitle(sqlData);
-                aiResponse = String.format(
-                        "Chào bạn, hiện tại trong hệ thống chưa có bản ghi **%s** nào trong hồ sơ y tế của bạn.\n\n" +
-                        "Bạn vui lòng kiểm tra lại sau hoặc liên hệ trực tiếp với bác sĩ điều trị để được cập nhật dữ liệu vào hồ sơ nhé!",
-                        categoryTitle
-                );
-            } else {
-                logger.info("--- CHẶNG 2: Gọi AI Ollama đọc dữ liệu RAG hoặc kiến thức y khoa và tự trả lời ---");
-                String finalSystemPrompt = STAGE_2_SYSTEM_PROMPT;
-                String normalizedQuestion = normalizeChatSlang(request.question());
-                String chang2Prompt = buildStage2Prompt(normalizedQuestion, sqlData, formattedHistory);
-                System.out.println("=================== Final System Prompt :\n" + finalSystemPrompt);
-                System.out.println("=================== Stage 2 Prompt :\n" + chang2Prompt);
+            logger.info("--- CHẶNG 2: Gọi AI đọc dữ liệu RAG (nếu có) hoặc trả lời kiến thức y khoa chung ---");
+            String finalSystemPrompt = STAGE_2_SYSTEM_PROMPT;
+            String normalizedQuestion = normalizeChatSlang(request.question());
+            String chang2Prompt = buildStage2Prompt(normalizedQuestion, sqlData, formattedHistory);
 
-                AiGenerateOptions options = new AiGenerateOptions(modelToUse, 0.15, 0.9, 8192);
-                aiResponse = aiProviderManager.generateWithModel(modelToUse, chang2Prompt, finalSystemPrompt, options);
-                if (aiResponse == null || aiResponse.trim().isEmpty()) {
-                    aiResponse = "Xin lỗi, hiện tại hệ thống AI đang gặp sự cố khi xử lý câu hỏi của bạn. Vui lòng thử lại sau.";
-                } else {
-                    aiResponse = cleanAndFormatAiResponse(aiResponse);
-                }
+            AiGenerateOptions options = new AiGenerateOptions(modelToUse, 0.15, 0.9, 8192);
+            aiResponse = aiProviderManager.generateWithModel(modelToUse, chang2Prompt, finalSystemPrompt, options);
+            if (aiResponse == null || aiResponse.trim().isEmpty()) {
+                aiResponse = "Xin lỗi, hiện tại hệ thống AI đang gặp sự cố khi xử lý câu hỏi của bạn. Vui lòng thử lại sau.";
+            } else {
+                aiResponse = cleanAndFormatAiResponse(aiResponse);
             }
 
             // 6. Lưu vào cơ sở dữ liệu (Convert thành AIMessage thực thể tương ứng)
@@ -404,81 +397,58 @@ public class AIChatServiceImpl implements AIChatService {
                     }
                 }
 
-                // CHẶNG 2: Xử lý phản hồi AI hoặc trả lời trực tiếp nếu CSDL chưa có dữ liệu
-                if (sqlData != null && (sqlData.contains("(Không có dữ liệu)") || sqlData.contains("Không thể truy xuất") || sqlData.contains("hiện chưa được kê đơn thuốc nào"))) {
-                    String categoryTitle = extractCategoryTitle(sqlData);
-                    String aiResponse = String.format(
-                            "Chào bạn, hiện tại trong hệ thống chưa có bản ghi **%s** nào trong hồ sơ y tế của bạn.\n\n" +
-                            "Bạn vui lòng kiểm tra lại sau hoặc liên hệ trực tiếp với bác sĩ điều trị để được cập nhật dữ liệu vào hồ sơ nhé!",
-                            categoryTitle
-                    );
-                    try {
-                        emitter.send(SseEmitter.event().name("token").data(java.util.Collections.singletonMap("t", aiResponse)));
-                        AIMessage aiMessage = new AIMessage();
-                        aiMessage.setContent(aiResponse);
-                        aiMessage.setSender("AI");
-                        aiMessage.setTime(LocalDateTime.now());
-                        aiMessage.setAiConversation(conversation);
-                        aiMessageService.create(aiMessage);
+                // CHẶNG 2: Gọi AI đọc dữ liệu RAG (nếu có) hoặc trả lời kiến thức y khoa chung
+                logger.info("--- [Stream] CHẶNG 2: Gọi AI đọc dữ liệu RAG (nếu có) hoặc trả lời kiến thức y khoa chung ---");
+                String finalSystemPrompt = STAGE_2_SYSTEM_PROMPT;
+                String normalizedQuestion = normalizeChatSlang(request.question());
+                String chang2Prompt = buildStage2Prompt(normalizedQuestion, sqlData, formattedHistory);
 
-                        emitter.send(SseEmitter.event().name("done").data(ChatResponseDto.success(conversation.getAiConversationId(), aiResponse)));
-                        emitter.complete();
-                    } catch (Exception ex) {
-                        emitter.completeWithError(ex);
-                    }
-                } else {
-                    logger.info("--- [Stream] CHẶNG 2: Gọi AI Ollama đọc dữ liệu RAG stream ---");
-                    String finalSystemPrompt = STAGE_2_SYSTEM_PROMPT;
-                    String normalizedQuestion = normalizeChatSlang(request.question());
-                    String chang2Prompt = buildStage2Prompt(normalizedQuestion, sqlData, formattedHistory);
+                com.quan.diabetes.aiAPI.dto.AiGenerateOptions options = new com.quan.diabetes.aiAPI.dto.AiGenerateOptions(modelToUse, 0.15, 0.9, 8192);
+                StringBuilder fullResponse = new StringBuilder();
 
-                    com.quan.diabetes.aiAPI.dto.AiGenerateOptions options = new com.quan.diabetes.aiAPI.dto.AiGenerateOptions(modelToUse, 0.15, 0.9, 8192);
-                    StringBuilder fullResponse = new StringBuilder();
-
-                    final String convId = conversation.getAiConversationId();
-                    aiProviderManager.generateStreamWithModel(modelToUse, chang2Prompt, finalSystemPrompt, options,
-                            chunkText -> {
-                                try {
-                                    fullResponse.append(chunkText);
-                                    emitter.send(SseEmitter.event().name("token").data(java.util.Collections.singletonMap("t", chunkText != null ? chunkText : "")));
-                                } catch (Exception e) {
-                                    logger.warn("Lỗi gửi chunk qua SSE emitter: {}", e.getMessage());
-                                }
-                            },
-                            () -> {
-                                try {
-                                    String cleaned = cleanAndFormatAiResponse(fullResponse.toString());
-                                    AIMessage aiMessage = new AIMessage();
-                                    aiMessage.setContent(cleaned);
-                                    aiMessage.setSender("AI");
-                                    aiMessage.setTime(LocalDateTime.now());
-                                    aiMessage.setAiConversation(conversation);
-                                    aiMessageService.create(aiMessage);
-
-                                    long messageCount = aiMessageService.countByConversationId(convId);
-                                    if (messageCount <= 2) {
-                                        String topic = generateTopic(request.question());
-                                        conversation.setTopic(topic);
-                                        aiConversationService.update(convId, conversation);
-                                    }
-
-                                    emitter.send(SseEmitter.event().name("done").data(ChatResponseDto.success(convId, cleaned)));
-                                    emitter.complete();
-                                } catch (Exception ex) {
-                                    emitter.completeWithError(ex);
-                                }
-                            },
-                            error -> {
-                                logger.error("Lỗi trong quá trình stream từ AI: {}", error.getMessage());
-                                try {
-                                    emitter.send(SseEmitter.event().name("token").data(java.util.Collections.singletonMap("t", "\n\n⚠️ Xin lỗi, có lỗi kết nối khi sinh câu trả lời.")));
-                                    emitter.completeWithError(error);
-                                } catch (Exception ex) {
-                                    emitter.completeWithError(ex);
-                                }
+                final String convId = conversation.getAiConversationId();
+                aiProviderManager.generateStreamWithModel(modelToUse, chang2Prompt, finalSystemPrompt, options,
+                        chunkText -> {
+                            try {
+                                fullResponse.append(chunkText);
+                                emitter.send(SseEmitter.event().name("token").data(java.util.Collections.singletonMap("t", chunkText != null ? chunkText : "")));
+                            } catch (Exception e) {
+                                logger.warn("Lỗi gửi chunk qua SSE emitter: {}", e.getMessage());
                             }
-                    );
-                }
+                        },
+                        () -> {
+                            try {
+                                String cleaned = cleanAndFormatAiResponse(fullResponse.toString());
+                                AIMessage aiMessage = new AIMessage();
+                                aiMessage.setContent(cleaned);
+                                aiMessage.setSender("AI");
+                                aiMessage.setTime(LocalDateTime.now());
+                                aiMessage.setAiConversation(conversation);
+                                aiMessageService.create(aiMessage);
+
+                                long messageCount = aiMessageService.countByConversationId(convId);
+                                if (messageCount <= 2) {
+                                    String topic = generateTopic(request.question());
+                                    conversation.setTopic(topic);
+                                    aiConversationService.update(convId, conversation);
+                                }
+
+                                emitter.send(SseEmitter.event().name("done").data(ChatResponseDto.success(convId, cleaned)));
+                                emitter.complete();
+                            } catch (Exception ex) {
+                                emitter.completeWithError(ex);
+                            }
+                        },
+                        error -> {
+                            logger.error("Lỗi trong quá trình stream từ AI: {}", error.getMessage());
+                            try {
+                                emitter.send(SseEmitter.event().name("token").data(java.util.Collections.singletonMap("t", "\n\n⚠️ Xin lỗi, có lỗi kết nối khi sinh câu trả lời.")));
+                                emitter.completeWithError(error);
+                            } catch (Exception ex) {
+                                emitter.completeWithError(ex);
+                            }
+                        }
+                );
             } catch (Exception e) {
                 logger.error("Error sending stream message: {}", e.getMessage(), e);
                 try {
@@ -497,23 +467,49 @@ public class AIChatServiceImpl implements AIChatService {
     }
 
     private boolean isGeneralMedicalQuestion(String question) {
-        if (question == null) return false;
+        if (question == null) {
+            return false;
+        }
         String qLower = question.toLowerCase().trim();
         String unaccented = removeVietnameseAccents(qLower);
 
-        // 0. ƯU TIÊN HÀNG ĐẦU (UNIVERSAL ESCAPE): Nếu câu hỏi hỏi về giải thích, tác dụng, tác dụng phụ, cơ chế, ý nghĩa, lời khuyên, nguyên nhân, triệu chứng, hướng dẫn áp dụng (dù có nhắc tới thuốc đó, chỉ số đó, phác đồ đó hay bất kỳ từ nào) -> BẮT BUỘC là câu hỏi kiến thức/giải thích chung (true)
+        if (containsAny(qLower,
+                "của tôi", "của mình", "cho tôi xem", "tôi đang", "tôi có",
+                "đơn thuốc", "toa thuốc", "thuốc bác sĩ kê", "thuốc đã kê", "thuốc tôi đang", "thuốc của tôi",
+                "lịch tái khám", "tái khám", "ngày tái khám", "lịch hẹn", "hẹn khám",
+                "bệnh án", "lịch sử khám", "bệnh án của tôi",
+                "chẩn đoán của", "chuẩn đoán của",
+                "kết quả xét nghiệm", "xét nghiệm của tôi", "kết quả của tôi", "chỉ số của tôi",
+                "kế hoạch điều trị", "phác đồ điều trị", "phác đồ của", "phác đồ của tôi",
+                "chế độ ăn của tôi", "chế độ tập luyện của tôi", "mục tiêu điều trị của tôi",
+                "bác sĩ dặn", "lời dặn",
+                "hồ sơ của tôi", "hồ sơ y tế", "thông tin cá nhân", "thông tin của tôi",
+                "tôi bị bệnh gì", "bệnh của tôi", "tiền sử bệnh")
+                || containsAny(unaccented,
+                        "cua toi", "cua minh", "cho toi xem", "toi dang", "toi co",
+                        "don thuoc", "toa thuoc", "thuoc bac si ke", "thuoc da ke", "thuoc toi dang", "thuoc cua toi",
+                        "lich tai kham", "tai kham", "ngay tai kham", "lich hen", "hen kham",
+                        "benh an", "lich su kham", "benh an cua toi",
+                        "chan doan cua", "chuan doan cua",
+                        "ket qua xet nghiem", "xet nghiem cua toi", "ket qua cua toi", "chi so cua toi",
+                        "ke hoach dieu tri", "phac do dieu tri", "phac do cua", "phac do cua toi",
+                        "che do an cua toi", "che do tap luyen cua toi", "muc tieu dieu tri cua toi",
+                        "bac si dan", "loi dan",
+                        "ho so cua toi", "ho so y te", "thong tin ca nhan", "thong tin cua toi",
+                        "toi bi benh gi", "benh cua toi", "tien su benh")) {
+            return false;
+        }
+
         if (containsAny(qLower, "tác dụng phụ", "tác dụng gì", "tác dụng như thế nào", "công dụng", "cơ chế", "tại sao", "như thế nào", "ra sao", "có sao không", "có tốt không", "nguy hiểm không", "nghĩa là gì", "ý nghĩa gì", "ảnh hưởng", "kiêng gì", "nên làm gì", "cách dùng", "sử dụng thế nào", "uống thế nào", "ăn thế nào", "tập thế nào", "nguyên nhân", "triệu chứng", "hướng dẫn", "lời khuyên")
-                || containsAny(unaccented, "tac dung phu", "tac dung gi", "tac dung nhu the nao", "cong dung", "co che", "tai sao", "nhu the nao", "co sao khong", "co tot khong", "nguy hiem khong", "nghia la gi", "y nghia gi", "anh huong", "kieng gi", "nen lam gi", "cach dung", "su dung the nao", "uong the nao", "an the nao", "tap the nao", "nguyen nhan", "trieu chung", "huong dan", "loi khuyen")) {
+                || containsAny(unaccented, "tac dung phu", "tac dung gi", "tac dung nhu the nao", "cong dung", "co che", "tai sao", "nhu the nao", "co sao khong", "co tot khong", "nguy hiem khong", "nghia la gi", "y nghia gi", "anh huong", "kieng gi", "nen lam gi", "cach dung", "su dung the nao", "uong the nao", "an the nao", "tap the nao", "nguyen nhan", "trieu chung", "loi khuyen")) {
             return true;
         }
 
-        // 1. Nếu câu hỏi có chứa từ sở hữu cá nhân hay trỏ đến đối tượng cụ thể vừa hỏi trước đó thì KHÔNG phải câu hỏi chung
         if (containsAny(qLower, "của tôi", "của mình", "cho tôi xem", "tôi đang", "đơn thuốc của", "phác đồ của", "thuốc đó", "thuốc này", "chỉ số đó", "phác đồ đó")
                 || containsAny(unaccented, "cua toi", "cua minh", "cho toi xem", "toi dang", "don thuoc cua", "phac do cua", "thuoc do", "thuoc nay", "chi so do", "phac do do")) {
             return false;
         }
 
-        // 2. Các mẫu câu hỏi kiến thức y khoa chung về Thuốc, Tập thể dục, Dinh dưỡng, Xét nghiệm, Khái niệm bệnh
         if (containsAny(qLower, "các loại thuốc", "nhóm thuốc", "thuốc điều trị", "thuốc chữa", "là thuốc", "thuốc gì", "thuốc j", "metformin", "insulin", "có tác dụng gì", "tập thể dục", "lịch tập", "bài tập", "chế độ ăn", "nên ăn gì", "kiêng ăn gì", "thực đơn", "bao nhiêu là bình thường", "tiểu đường là gì", "chữa thế nào", "điều trị thế nào", "nên uống thuốc gì", "nguyên nhân", "triệu chứng")
                 || containsAny(unaccented, "cac loai thuoc", "nhom thuoc", "thuoc dieu tri", "thuoc chua", "la thuoc", "thuoc gi", "thuoc j", "co tac dung gi", "tap the duc", "lich tap", "bai tap", "che do an", "nen an gi", "kieng an gi", "thuc don", "bao nhieu la binh thuong", "tieu duong la gi", "chua the nao", "dieu tri the nao", "nen uong thuoc gi", "nguyen nhan", "trieu chung")) {
             return true;
@@ -521,14 +517,7 @@ public class AIChatServiceImpl implements AIChatService {
         return false;
     }
 
-    /**
-     * CHẶNG 1: Phân loại câu hỏi là kiến thức y tế chung hay yêu cầu dữ liệu cá
-     * nhân. Trả về chuỗi JSON tool (ví dụ: {"action": "get_general_record",
-     * "patient_id": "..."}) nếu là dữ liệu cá nhân, hoặc trả về null nếu là
-     * kiến thức y tế chung.
-     */
     private String classifyAndGetToolJson(String question, String patientId, String modelToUse) {
-        // Lọc ý định tuyệt đối: chỉ kích hoạt RAG khi câu hỏi yêu cầu đích danh dữ liệu cá nhân
         Map<String, String> keywordTool = checkKeywordToolFallback(question, patientId);
         String action = keywordTool.get("action");
         if ("NONE".equalsIgnoreCase(action)) {
@@ -546,66 +535,99 @@ public class AIChatServiceImpl implements AIChatService {
         return "NONE";
     }
 
-    /**
-     * Fast-Track 2 tầng phân biệt chính xác câu hỏi Kiến thức chung (NONE) vs RAG cá nhân.
-     * Tiết kiệm 100% thời gian gọi Router LLM cho các câu hỏi rõ ý định.
-     */
     private String removeVietnameseAccents(String str) {
-        if (str == null) return "";
+        if (str == null) {
+            return "";
+        }
         String nfd = java.text.Normalizer.normalize(str, java.text.Normalizer.Form.NFD);
         java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
         return pattern.matcher(nfd).replaceAll("").replace('đ', 'd').replace('Đ', 'D');
     }
 
-    /**
-     * Fast-Track 2 tầng phân biệt chính xác câu hỏi Kiến thức chung (NONE) vs RAG cá nhân.
-     * Tiết kiệm 100% thời gian gọi Router LLM cho các câu hỏi rõ ý định.
-     */
     private Map<String, String> checkKeywordToolFallback(String message, String patientId) {
         if (message == null || message.trim().isEmpty()) {
-            return Map.of("action", "NONE");
-        }
-        if (isGeneralMedicalQuestion(message)) {
             return Map.of("action", "NONE");
         }
 
         String msgLower = message.toLowerCase().trim();
         String unaccented = removeVietnameseAccents(msgLower);
 
-        // TẦNG 1: Nhóm câu hỏi RAG cá nhân (chỉ kích hoạt khi hỏi tra cứu dữ liệu/hồ sơ của chính bệnh nhân)
-        if (containsAny(msgLower, "đơn thuốc", "toa thuốc", "thuốc bác sĩ kê", "thuốc đã kê", "thuốc tôi đang", "thuốc của tôi", "thuốc đang uống", "lịch sử dùng thuốc")
-                || containsAny(unaccented, "don thuoc", "toa thuoc", "thuoc bac si ke", "thuoc da ke", "thuoc toi dang", "thuoc cua toi", "thuoc dang uong", "lich su dung thuoc")
-                || (msgLower.contains("thuốc") && containsAny(msgLower, "của tôi", "của mình", "cho tôi xem", "tôi uống"))) {
+        if (containsAny(msgLower, "đơn thuốc", "toa thuốc", "thuốc bác sĩ kê", "thuốc đã kê",
+                "thuốc tôi đang", "thuốc của tôi", "thuốc đang uống", "lịch sử dùng thuốc",
+                "thuốc nào", "kê thuốc gì")
+                || containsAny(unaccented, "don thuoc", "toa thuoc", "thuoc bac si ke", "thuoc da ke",
+                        "thuoc toi dang", "thuoc cua toi", "thuoc dang uong", "lich su dung thuoc",
+                        "thuoc nao", "ke thuoc gi")
+                || (msgLower.contains("thuốc") && containsAny(msgLower, "của tôi", "của mình", "cho tôi xem", "tôi uống", "đang uống"))) {
             return Map.of("action", "get_prescriptions", "patient_id", patientId);
         }
-        if (containsAny(msgLower, "lịch tái khám", "tái khám của tôi", "khi nào tôi tái khám", "ngày tái khám", "lịch hẹn", "hẹn khám", "bệnh án của tôi", "lịch sử khám của tôi")
-                || containsAny(unaccented, "lich tai kham", "tai kham cua toi", "khi nao toi tai kham", "ngay tai kham", "lich hen", "hen kham", "benh an cua toi", "lich su kham cua toi")
-                || (msgLower.contains("chẩn đoán") && containsAny(msgLower, "của tôi", "bác sĩ"))) {
+
+        if (containsAny(msgLower,
+                "lịch tái khám", "tái khám của tôi", "khi nào tôi tái khám", "ngày tái khám",
+                "lịch hẹn", "hẹn khám", "bệnh án của tôi", "lịch sử khám của tôi",
+                "lần khám", "lượt khám", "lịch khám", "khám của tôi",
+                "chẩn đoán của tôi", "chuẩn đoán của tôi",
+                "bác sĩ chẩn đoán", "bác sĩ chuẩn đoán", "tình trạng sức khỏe của tôi")
+                || containsAny(unaccented,
+                        "lich tai kham", "tai kham cua toi", "khi nao toi tai kham", "ngay tai kham",
+                        "lich hen", "hen kham", "benh an cua toi", "lich su kham cua toi",
+                        "lan kham", "luot kham", "lich kham", "kham cua toi", "tinh trang suc khoe cua toi",
+                        "chan doan cua toi", "chuan doan cua toi",
+                        "bac si chan doan", "bac si chuan doan")
+                || (msgLower.contains("chẩn đoán") && containsAny(msgLower, "của tôi", "của mình", "bác sĩ"))
+                || (msgLower.contains("chuẩn đoán") && containsAny(msgLower, "của tôi", "của mình", "bác sĩ"))
+                || (msgLower.contains("tái khám") && containsAny(msgLower, "của tôi", "của mình", "lịch", "khi nào", "ngày"))
+                || (containsAny(msgLower, "khám", "lịch") && containsAny(msgLower, "của tôi", "tôi cần", "tiếp theo"))) {
             return Map.of("action", "get_clinical_examination", "patient_id", patientId);
         }
-        if (containsAny(msgLower, "kết quả xét nghiệm", "xét nghiệm của tôi", "kết quả của tôi", "chỉ số của tôi")
-                || containsAny(unaccented, "ket qua xet nghiem", "xet nghiem cua toi", "ket qua cua toi", "chi so cua toi")
-                || ((containsAny(msgLower, "hba1c", "đường huyết")) && containsAny(msgLower, "của tôi", "của mình", "xem"))) {
+
+        if (containsAny(msgLower,
+                "kết quả xét nghiệm", "xét nghiệm của tôi", "kết quả của tôi", "chỉ số của tôi",
+                "xét nghiệm gần nhất", "chỉ số xét nghiệm", "xem xét nghiệm")
+                || containsAny(unaccented,
+                        "ket qua xet nghiem", "xet nghiem cua toi", "ket qua cua toi", "chi so cua toi",
+                        "xet nghiem gan nhat", "chi so xet nghiem", "xem xet nghiem")
+                || (containsAny(msgLower, "hba1c", "đường huyết", "glucose", "cholesterol") && containsAny(msgLower, "của tôi", "của mình", "xem", "là bao nhiêu"))
+                || (containsAny(msgLower, "xét nghiệm") && containsAny(msgLower, "của tôi", "của mình", "cho tôi", "tôi"))) {
             return Map.of("action", "get_lab_results", "patient_id", patientId);
         }
-        if (containsAny(msgLower, "kế hoạch điều trị", "phác đồ điều trị", "phác đồ và kế hoạch", "chế độ ăn của tôi", "thực đơn điều trị", "chế độ tập luyện của tôi", "mục tiêu điều trị của tôi", "bác sĩ dặn", "lời dặn")
-                || containsAny(unaccented, "ke hoach dieu tri", "phac do dieu tri", "phac do va ke hoach", "che do an cua toi", "thuc don dieu tri", "che do tap luyen cua toi", "muc tieu dieu tri cua toi", "bac si dan", "loi dan")
-                || (containsAny(msgLower, "phác đồ", "phac do") && containsAny(msgLower, "của tôi", "cua toi"))) {
+
+        if (containsAny(msgLower,
+                "kế hoạch điều trị", "phác đồ điều trị", "phác đồ và kế hoạch",
+                "chế độ ăn của tôi", "thực đơn điều trị", "chế độ tập luyện của tôi",
+                "mục tiêu điều trị của tôi", "bác sĩ dặn", "lời dặn",
+                "phác đồ của tôi", "kế hoạch của tôi", "điều trị của tôi")
+                || containsAny(unaccented,
+                        "ke hoach dieu tri", "phac do dieu tri", "phac do va ke hoach",
+                        "che do an cua toi", "thuc don dieu tri", "che do tap luyen cua toi",
+                        "muc tieu dieu tri cua toi", "bac si dan", "loi dan",
+                        "phac do cua toi", "ke hoach cua toi", "dieu tri cua toi")
+                || (containsAny(msgLower, "phác đồ") && containsAny(msgLower, "của tôi", "của mình", "tôi"))
+                || (containsAny(msgLower, "kế hoạch") && containsAny(msgLower, "của tôi", "điều trị"))
+                || (containsAny(msgLower, "điều trị") && containsAny(msgLower, "của tôi", "của mình", "cho tôi"))) {
             return Map.of("action", "get_treatment_plan", "patient_id", patientId);
         }
-        if (containsAny(msgLower, "hồ sơ của tôi", "hồ sơ y tế", "thông tin cá nhân", "thông tin của tôi", "tôi bị bệnh gì", "bệnh của tôi", "tiền sử bệnh")
-                || containsAny(unaccented, "ho so cua toi", "ho so y te", "thong tin ca nhan", "thong tin cua toi", "toi bi benh gi", "benh cua toi", "tien su benh")
-                || (containsAny(msgLower, "nhóm máu", "bmi", "chiều cao", "cân nặng") && msgLower.contains("của tôi"))) {
+
+        if (containsAny(msgLower,
+                "hồ sơ của tôi", "hồ sơ y tế", "thông tin cá nhân", "thông tin của tôi",
+                "tôi bị bệnh gì", "bệnh của tôi", "tiền sử bệnh",
+                "bệnh nền của tôi", "dị ứng của tôi", "hồ sơ bệnh")
+                || containsAny(unaccented,
+                        "ho so cua toi", "ho so y te", "thong tin ca nhan", "thong tin cua toi",
+                        "toi bi benh gi", "benh cua toi", "tien su benh",
+                        "benh nen cua toi", "di ung cua toi", "ho so benh")
+                || (containsAny(msgLower, "nhóm máu", "bmi", "chiều cao", "cân nặng", "tiền sử", "dị ứng") && containsAny(msgLower, "của tôi", "của mình", "tôi"))
+                || (containsAny(msgLower, "hồ sơ") && containsAny(msgLower, "của tôi", "của mình", "tôi", "sức khỏe"))) {
             return Map.of("action", "get_general_record", "patient_id", patientId);
         }
 
-        // TẦNG 2: Tất cả các câu hỏi còn lại không yêu cầu tra cứu hồ sơ cá nhân -> Trả về NONE ngay lập tức (0ms)
+        if (isGeneralMedicalQuestion(message)) {
+            return Map.of("action", "NONE");
+        }
+
         return Map.of("action", "NONE");
     }
 
-    /**
-     * Trích xuất chuỗi JSON tool call từ phản hồi của Ollama
-     */
     private String extractToolCallJson(String text) {
         if (text == null || text.trim().isEmpty()) {
             return null;
@@ -636,29 +658,41 @@ public class AIChatServiceImpl implements AIChatService {
         return null;
     }
 
-    /**
-     * Trích xuất tiêu đề thân thiện với người dùng từ dữ liệu SQL
-     */
     private String extractCategoryTitle(String sqlData) {
-        if (sqlData == null) return "Hồ sơ sức khỏe";
+        if (sqlData == null) {
+            return "Hồ sơ sức khỏe";
+        }
         String lower = sqlData.toLowerCase();
-        if (lower.contains("kết quả xét nghiệm")) return "Kết quả xét nghiệm";
-        if (lower.contains("đơn thuốc") || lower.contains("thuốc trong đơn")) return "Đơn thuốc điều trị";
-        if (lower.contains("khám lâm sàng")) return "Lịch sử thăm khám lâm sàng";
-        if (lower.contains("kế hoạch điều trị") || lower.contains("phác đồ")) return "Phác đồ & Kế hoạch điều trị";
-        if (lower.contains("hồ sơ bệnh án chung")) return "Hồ sơ sức khỏe cá nhân";
+        if (lower.contains("kết quả xét nghiệm")) {
+            return "Kết quả xét nghiệm";
+        }
+        if (lower.contains("đơn thuốc") || lower.contains("thuốc trong đơn")) {
+            return "Đơn thuốc điều trị";
+        }
+        if (lower.contains("khám lâm sàng")) {
+            return "Lịch sử thăm khám lâm sàng";
+        }
+        if (lower.contains("kế hoạch điều trị") || lower.contains("phác đồ")) {
+            return "Phác đồ & Kế hoạch điều trị";
+        }
+        if (lower.contains("hồ sơ bệnh án chung")) {
+            return "Hồ sơ sức khỏe cá nhân";
+        }
         return "Hồ sơ y tế cá nhân";
     }
 
     /**
-     * Trình bày trực tiếp dữ liệu truy xuất RAG chính xác 100% từ Database với văn phong bác sĩ tự nhiên, ấm áp,
-     * ngăn chặn triệt để rủi ro mô hình LLM nhỏ suy diễn sai thuốc hay sinh chuỗi mẫu.
+     * Trình bày trực tiếp dữ liệu truy xuất RAG chính xác 100% từ Database với
+     * văn phong bác sĩ tự nhiên, ấm áp, ngăn chặn triệt để rủi ro mô hình LLM
+     * nhỏ suy diễn sai thuốc hay sinh chuỗi mẫu.
      */
     private String formatDirectRagResponse(String sqlData, String question) {
         String categoryTitle = extractCategoryTitle(sqlData);
         String cleanedData = sqlData.trim()
-                .replaceAll("(?i)^DANH SÁCH THUỐC TRONG ĐƠN THUỐC CỦA BỆNH NHÂN \\(HỒ SƠ Y TẾ CHÍNH THỨC\\):\\s*", "")
-                .replaceAll("(?i)^Danh mục:\\s*[^\\n]+\\s*", "");
+                // Xóa header đơn thuốc (format: "DANH SÁCH THUỐC TRONG ĐƠN THUỐC CỦA BỆNH NHÂN (TỪ PHIÊN KHÁM GẦN NHẤT - date):")
+                .replaceAll("(?i)^DANH SÁCH THUỐC TRONG ĐƠN THUỐC[^\\n]*\\n?", "")
+                // Xóa header Danh mục từ formatResult() (format: "Danh mục: Kết quả xét nghiệm")
+                .replaceAll("(?i)^Danh mục:\\s*[^\\n]+\\n?", "");
 
         String intro;
         String doctorAdvice;
@@ -692,7 +726,9 @@ public class AIChatServiceImpl implements AIChatService {
      * Xây dựng chuỗi prompt cho Chặng 2 (Tư vấn bởi bác sĩ AI)
      */
     private boolean isFollowUpQuestion(String question) {
-        if (question == null) return false;
+        if (question == null) {
+            return false;
+        }
         String q = question.toLowerCase();
         return containsAny(q, "nó", "đó", "này", "trên", "vừa rồi", "như vậy", "tiếp theo");
     }
@@ -702,26 +738,29 @@ public class AIChatServiceImpl implements AIChatService {
         boolean isFollowUp = isFollowUpQuestion(question);
         if (isFollowUp && !hasText(sqlData) && hasText(formattedHistory)) {
             promptBuilder.append("[LỊCH SỬ TRÒ CHUYỆN GẦN ĐÂY - CHỈ DÙNG ĐỂ THAM KHẢO TỪ KHÓA NỐI TIẾP]:\n")
-                         .append(formattedHistory).append("\n\n");
+                    .append(formattedHistory).append("\n\n");
         }
         if (hasText(sqlData)) {
             promptBuilder.append("[DỮ LIỆU HỒ SƠ CÁ NHÂN CỦA BỆNH NHÂN TỪ CƠ SỞ DỮ LIỆU SQL - DỮ LIỆU THẬT]:\n")
-                         .append(sqlData).append("\n\n");
+                    .append(sqlData).append("\n\n");
         }
         promptBuilder.append("Câu hỏi hiện tại của bệnh nhân: ").append(question);
         return promptBuilder.toString();
     }
 
     private boolean isSocialGreeting(String question) {
-        if (question == null) return false;
+        if (question == null) {
+            return false;
+        }
         String q = question.trim().toLowerCase();
         return q.equals("hello") || q.equals("hi") || q.equals("chào") || q.equals("xin chào")
-            || q.equals("chào bạn") || q.equals("chào bác sĩ") || q.equals("alo") || q.equals("hey")
-            || q.equals("chào ai") || q.equals("hi bác sĩ") || q.equals("hello bác sĩ");
+                || q.equals("chào bạn") || q.equals("chào bác sĩ") || q.equals("alo") || q.equals("hey")
+                || q.equals("chào ai") || q.equals("hi bác sĩ") || q.equals("hello bác sĩ");
     }
 
     /**
-     * Hậu xử lý làm sạch câu trả lời: tự động cắt bỏ tiền tố rác hoặc định dạng bị lặp lại từ dataset mẫu
+     * Hậu xử lý làm sạch câu trả lời: tự động cắt bỏ tiền tố rác hoặc định dạng
+     * bị lặp lại từ dataset mẫu
      */
     private String cleanAndFormatAiResponse(String text) {
         if (text == null || text.trim().isEmpty()) {
@@ -780,9 +819,6 @@ public class AIChatServiceImpl implements AIChatService {
         // Sửa lỗi chính tả token y khoa phổ biến do mô hình rút gọn
         cleaned = cleaned.replaceAll("(?i)\\bphút/ty\\b", "phút/tuần");
         cleaned = cleaned.replaceAll("(?i)\\bphút / ty\\b", "phút/tuần");
-        cleaned = cleaned.replaceAll("(?i)CÁ\\s+NHA\\b", "CÁ NHÂN");
-        cleaned = cleaned.replaceAll("(?i)C\\s+NH\\b", "CÁ NHÂN");
-        cleaned = cleaned.replaceAll("(?i)CÁ\\s+NHÂN\\b", "CÁ NHÂN");
         cleaned = cleaned.replaceAll("(?i)\\btablet/lần\\b", "viên/lần");
         cleaned = cleaned.replaceAll("(?i)\\btablets/lần\\b", "viên/lần");
         cleaned = cleaned.replaceAll("(?i)\\btablet\\b", "Viên nén");
@@ -803,8 +839,9 @@ public class AIChatServiceImpl implements AIChatService {
     }
 
     /**
-     * Chuẩn hóa từ viết tắt/lóng trong chat tiếng Việt sang văn phạm chuẩn y khoa
-     * để mô hình Fine-tune khớp chính xác 100% với cặp câu hỏi trong dataset.
+     * Chuẩn hóa từ viết tắt/lóng trong chat tiếng Việt sang văn phạm chuẩn y
+     * khoa để mô hình Fine-tune khớp chính xác 100% với cặp câu hỏi trong
+     * dataset.
      */
     private String normalizeChatSlang(String text) {
         if (text == null || text.trim().isEmpty()) {
@@ -965,9 +1002,13 @@ public class AIChatServiceImpl implements AIChatService {
     }
 
     private boolean containsAny(String text, String... keywords) {
-        if (text == null) return false;
+        if (text == null) {
+            return false;
+        }
         for (String kw : keywords) {
-            if (text.contains(kw)) return true;
+            if (text.contains(kw)) {
+                return true;
+            }
         }
         return false;
     }

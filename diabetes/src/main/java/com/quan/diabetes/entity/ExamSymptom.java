@@ -25,7 +25,7 @@ public class ExamSymptom {
     @JoinColumn(name = "SymptomID")
     private SymptomsCatalog symptom;
 
-    @Column(name = "Note")
+    @Column(name = "Note", columnDefinition = "Nvarchar(255)")
     private String note;
 
     public ExamSymptom() {
